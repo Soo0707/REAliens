@@ -1,12 +1,14 @@
 #!/bin/bash
 
-x86_64-w64-mingw32-g++ $PWD/src/main.cpp\
+x86_64-w64-mingw32-g++ src/main.cpp src/game.cpp src/player.cpp\
  -o /mnt/tmpfs/out.exe\
  -Iinclude/\
+ -Isrc/headers/\
  -Llib/\
  -lraylib\
  -lopengl32\
  -lgdi32\
  -lwinmm\
- -mwindows\
+ -static
 
+#-mwindows\

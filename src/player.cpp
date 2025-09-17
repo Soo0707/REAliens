@@ -1,8 +1,10 @@
 #include "player.hpp"
 
+#include <map>
+
+
 Player::Player()
 {
-
 }
 
 Player::~Player()
@@ -10,7 +12,12 @@ Player::~Player()
 
 }
 
-void Player::load_textures()
+void Player::update()
+{
+
+}
+
+void Player::draw()
 {
 
 }
