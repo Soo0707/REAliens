@@ -1,7 +1,7 @@
 #pragma once
-#include <raylib.h>
 
-#include "gameObject.hpp"
+#include "gameObjects.hpp"
+#include "raylib.h"
 
 enum class Bearing
 {
@@ -11,29 +11,25 @@ enum class Bearing
 	West
 };
 
-class Player : public GameObject
+class Player : public UpdatableGameObject
 {
 	public:
-		Player();
+		Player(float pos_x, float pos_y, Texture2D initial_image);
 		~Player(); //override;
-		void draw(); //override;
-		void update(); //override;
+		void Draw(); //override;
+		void Update(); //override;
 
 	private:
-		Texture2D image;
-		unsigned int image_index = 0;
+		unsigned int ImageIndex;
+		Vector2 Direction;
 
-		Bearing bearing;
+		Bearing Bearing;
 
-		Rectangle rect;
-		Vector2 direction;
+		int Health;
+		unsigned int Speed;
 
-		int health;
-		unsigned int speed;
-
-		void animate();
-		void load_textures();
-		void move_x();
-		void move_y();
-		void update_bearing();
+		void Animate();
+		void MoveX();
+		void MoveY();
+		void UpdateBearing();
 };

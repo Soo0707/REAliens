@@ -4,30 +4,34 @@
 #include <algorithm>
 
 #include "game.hpp"
+#include "tmx.h"
 
 Game::Game()
 {
-	Game::loadStaticTextures();
-	Game::loadEntityTextures();
+	Game::LoadStaticTextures();
+	Game::LoadEntityTextures();
 }
 
 Game::~Game()
 {
-	Game::unloadStaticTextures();
-	Game::unloadEntityTextures();
+	Game::UnloadStaticTextures();
+	Game::UnloadEntityTextures();
 }
 
-void Game::draw()
+void Game::Draw()
+{
+	for (auto const &obj : this->AllObjects)
+	{
+		obj->Draw();
+	}
+}
+
+void Game::Update()
 {
 
 }
 
-void Game::update()
-{
-
-}
-
-void Game::handleInput()
+void Game::HandleInput()
 {
 
 
@@ -94,7 +98,7 @@ EntityTextureKey Game::GetEntityTextureKeyFromString(std::string folder_name)
 
 }
 
-void Game::loadEntityTextures()
+void Game::LoadEntityTextures()
 {
 	std::filesystem::path base_path = "assets/entity_textures";
 
@@ -127,7 +131,7 @@ void Game::loadEntityTextures()
 	}
 }
 
-void Game::loadStaticTextures()
+void Game::LoadStaticTextures()
 {
 	std::filesystem::path path = "assets/static_textures";
 
@@ -137,12 +141,12 @@ void Game::loadStaticTextures()
 
 		if (CurrentTexture != StaticTextureKey::None)
 		{
-			this -> StaticTextures[CurrentTexture] = LoadTexture(item.path().string().c_str());
+			this->StaticTextures[CurrentTexture] = LoadTexture(item.path().string().c_str());
 		}
 	}
 }
 
-void Game::unloadEntityTextures()
+void Game::UnloadEntityTextures()
 {
 	for (auto const &pair : this->EntityTextures)
 	{
@@ -153,7 +157,7 @@ void Game::unloadEntityTextures()
 	}
 }
 
-void Game::unloadStaticTextures()
+void Game::UnloadStaticTextures()
 {
 	for (auto const &pair : this->StaticTextures)
 	{

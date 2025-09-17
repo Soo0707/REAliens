@@ -1,10 +1,10 @@
 #include "player.hpp"
 
-#include <map>
+#include "raylib.h"
 
-
-Player::Player()
+Player::Player(float pos_x, float pos_y, Texture2D initial_image) : UpdatableGameObject(pos_x, pos_y, initial_image)
 {
+
 }
 
 Player::~Player()
@@ -12,12 +12,12 @@ Player::~Player()
 
 }
 
-void Player::update()
+void Player::Update()
 {
 
 }
 
-void Player::draw()
+void Player::Draw()
 {
 
 }

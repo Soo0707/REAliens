@@ -3,8 +3,10 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "raylib.h"
+#include "gameObjects.hpp"
 
 enum class EntityTextureKey
 {
@@ -45,20 +47,29 @@ class Game
 	public:
 		Game();
 		~Game();
-		void draw();
-		void update();
-		void handleInput();
+		void Draw();
+		void Update();
+		void HandleInput();
 
 	private:
-		void loadEntityTextures();
-		void unloadEntityTextures();
+		void LoadEntityTextures();
+		void UnloadEntityTextures();
 		EntityTextureKey GetEntityTextureKeyFromString(std::string folder_name);
 		std::map<EntityTextureKey, std::vector<Texture2D>> EntityTextures;
 
-		void loadStaticTextures();
-		void unloadStaticTextures();
+		void LoadStaticTextures();
+		void UnloadStaticTextures();
 		StaticTextureKey GetStaticTextureKeyFromString(std::string filename);
 		std::map<StaticTextureKey, Texture2D> StaticTextures;
+
+		std::vector<std::unique_ptr<BasicGameObject>> AllObjects;
+		std::vector<std::unique_ptr<UpdatableGameObject>> UpdatableObjects;
+
+	//std::vector<std::unique_ptr> Collidables;
+	//std::vector<std::unique_ptr> Enemies;
+
+	//std::vector<std::unique_ptr> EnemyProjectiles;
+	//std::vector<std::unique_ptr> PlayerProjectiles;
 };
 
 
