@@ -6,7 +6,8 @@
 #include <memory>
 
 #include "raylib.h"
-#include "gameObjects.hpp"
+#include "player.hpp"
+
 
 enum class EntityTextureKey
 {
@@ -15,22 +16,15 @@ enum class EntityTextureKey
 	PlayerSouth,
 	PlayerEast,
 	PlayerWest,
-	AustralianFlash,
-	AustralianNormal,
-	BigManFlash,
-	BigManNormal,
+	Australian,
+	BigMan,
 	Beer,
-	BomberFlash,
-	BomberNormal,
+	Bomber,
 	BomberExplosion,
-	DrunkardFlash,
-	DrunkardNormal,
-	PlebFlash,
-	PlebNormal,
-	PoisonFlash,
-	PoisonNormal,
-	TrapperFlash,
-	TrapperNormal
+	Drunkard,
+	Pleb,
+	Poison,
+	Trapper
 };
 
 enum class StaticTextureKey
@@ -62,8 +56,8 @@ class Game
 		StaticTextureKey GetStaticTextureKeyFromString(std::string filename);
 		std::map<StaticTextureKey, Texture2D> StaticTextures;
 
-		std::vector<std::unique_ptr<BasicGameObject>> AllObjects;
-		std::vector<std::unique_ptr<UpdatableGameObject>> UpdatableObjects;
+		std::vector<std::shared_ptr<BasicGameObject>> AllObjects;
+		std::vector<std::shared_ptr<UpdatableGameObject>> UpdatableObjects;
 
 	//std::vector<std::unique_ptr> Collidables;
 	//std::vector<std::unique_ptr> Enemies;

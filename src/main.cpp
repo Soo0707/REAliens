@@ -9,6 +9,7 @@ int main(void)
 	while(!WindowShouldClose())
 	{
 		BeginDrawing();
+		game.Draw();
 		ClearBackground(RAYWHITE);
 		EndDrawing();
 	}

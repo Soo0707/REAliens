@@ -19,5 +19,11 @@ void Player::Update()
 
 void Player::Draw()
 {
+	// NOTE TO SELF, change the alpha value of the tint to flash white
+	DrawTexture(this->image, (int) this->rect.x, (int) this->rect.y, WHITE); 
+}
+
+void Player::Animate()
+{
 
 }

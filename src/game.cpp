@@ -2,14 +2,21 @@
 #include <filesystem>
 #include <iostream>
 #include <algorithm>
+#include <memory>
 
 #include "game.hpp"
+#include "player.hpp"
 #include "tmx.h"
 
 Game::Game()
 {
 	Game::LoadStaticTextures();
 	Game::LoadEntityTextures();
+	
+	std::shared_ptr PlayerInstance = std::make_shared<Player>(500, 500, this->EntityTextures[EntityTextureKey::PlayerSouth][0]);
+
+	this->AllObjects.push_back(PlayerInstance);
+	this->UpdatableObjects.push_back(PlayerInstance);
 }
 
 Game::~Game()
@@ -21,81 +28,53 @@ Game::~Game()
 void Game::Draw()
 {
 	for (auto const &obj : this->AllObjects)
-	{
 		obj->Draw();
-	}
 }
 
 void Game::Update()
 {
-
+	for (auto const &obj : this->UpdatableObjects)
+		obj->Update();
 }
 
 void Game::HandleInput()
 {
 
-
 }
 
 StaticTextureKey Game::GetStaticTextureKeyFromString(std::string filename)
 {
-	if (filename == "circle.png")
-		return StaticTextureKey::Circle;
-	else if (filename == "lazer.png")
-		return StaticTextureKey::Lazer;
-	else if (filename == "projectile.png")
-		return StaticTextureKey::Projectile;
-	else if (filename == "xp.png")
-		return StaticTextureKey::Xp;
-	else
-		return StaticTextureKey::None;
+	static const std::map<std::string, StaticTextureKey> Lookup =
+	{
+		{ "circle.png", StaticTextureKey::Circle },
+		{ "lazer.png", StaticTextureKey::Lazer },
+		{ "projectile.png", StaticTextureKey::Projectile },
+		{ "xp.png", StaticTextureKey::Xp }
+	};
+
+	return (Lookup.count(filename)) ? Lookup.at(filename) : StaticTextureKey::None;
 }
 
 EntityTextureKey Game::GetEntityTextureKeyFromString(std::string folder_name)
 {
-	if (folder_name == "player_north")
-		return EntityTextureKey::PlayerNorth;
-	else if (folder_name == "player_south")
-		return EntityTextureKey::PlayerSouth;
-	else if (folder_name == "player_east")
-		return EntityTextureKey::PlayerEast;
-	else if (folder_name == "player_west")
-		return EntityTextureKey::PlayerWest;
-	else if (folder_name == "australian_flash")
-		return EntityTextureKey::AustralianFlash;
-	else if (folder_name == "australian_normal")
-		return EntityTextureKey::AustralianNormal;
-	else if (folder_name == "big_man_normal")
-		return EntityTextureKey::BigManNormal;
-	else if (folder_name == "big_man_flash")
-		return EntityTextureKey::BigManFlash;
-	else if (folder_name == "beer")
-		return EntityTextureKey::Beer;
-	else if (folder_name == "bomber_flash")
-		return EntityTextureKey::BomberFlash;
-	else if (folder_name == "bomber_normal")
-		return EntityTextureKey::BomberNormal;
-	else if (folder_name == "bomber_explosion")
-		return EntityTextureKey::BomberExplosion;
-	else if (folder_name == "drunkard_flash")
-		return EntityTextureKey::DrunkardFlash;
-	else if (folder_name == "drunkard_normal")
-		return EntityTextureKey::DrunkardNormal;
-	else if (folder_name == "pleb_flash")
-		return EntityTextureKey::PlebFlash;
-	else if (folder_name == "pleb_normal")
-		return EntityTextureKey::PlebNormal;
-	else if (folder_name == "poison_flash")
-		return EntityTextureKey::PoisonFlash;
-	else if (folder_name == "poison_normal")
-		return EntityTextureKey::PoisonNormal;
-	else if (folder_name == "trapper_flash")
-		return EntityTextureKey::TrapperFlash;
-	else if (folder_name == "trapper_normal")
-		return EntityTextureKey::TrapperNormal;
-	else
-		return EntityTextureKey::None;
+	static const std::map<std::string, EntityTextureKey> Lookup =
+	{
+		{ "player_north", EntityTextureKey::PlayerNorth },
+		{ "player_south", EntityTextureKey::PlayerSouth },
+		{ "player_east", EntityTextureKey::PlayerEast },
+		{ "player_west", EntityTextureKey::PlayerWest },
+		{ "australian", EntityTextureKey::Australian },
+		{ "big_man", EntityTextureKey::BigMan },
+		{ "beer", EntityTextureKey::Beer },
+		{ "bomber", EntityTextureKey::Bomber },
+		{ "bomber_explosion", EntityTextureKey::BomberExplosion },
+		{ "drunkard", EntityTextureKey::Drunkard },
+		{ "pleb", EntityTextureKey::Pleb },
+		{ "poison", EntityTextureKey::Poison},
+		{ "trapper", EntityTextureKey::Trapper}
+	};
 
+	return (Lookup.count(folder_name)) ? Lookup.at(folder_name) : EntityTextureKey::None;
 }
 
 void Game::LoadEntityTextures()
