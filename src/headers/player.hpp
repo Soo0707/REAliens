@@ -2,34 +2,29 @@
 
 #include "gameObjects.hpp"
 #include "raylib.h"
-
-enum class Bearing
-{
-	North,
-	South,
-	East,
-	West
-};
+#include "assetManager.hpp"
 
 class Player : public UpdatableGameObject
 {
 	public:
-		Player(float pos_x, float pos_y, Texture2D initial_image);
-		~Player(); //override;
-		void Draw(); //override;
-		void Update(); //override;
+		Player(float pos_x, float pos_y, AssetManager &assets);
+		~Player(); 
+		void Draw() override;
+		void Update() override;
+		
+		int Health = 100;
+		unsigned int Speed = 300;
+		Vector2 Direction = {0.0f, 0.0f};
 
 	private:
-		unsigned int ImageIndex;
-		Vector2 Direction;
+		AssetManager& Assets;
+		float ImageIndex = 0.0f;
+		float AnimationSpeed = 10.0f;
 
-		Bearing Bearing;
-
-		int Health;
-		unsigned int Speed;
+		EntityTextureKey CurrentTextures = EntityTextureKey::PlayerSouth;
 
 		void Animate();
 		void MoveX();
 		void MoveY();
-		void UpdateBearing();
+		void SetCurrentTextures();
 };

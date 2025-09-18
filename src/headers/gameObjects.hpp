@@ -10,8 +10,8 @@ class BasicGameObject
 		virtual void Draw() = 0;
 
 	protected:
-		Rectangle rect;
-		Texture2D image;
+		Rectangle Rect;
+		Texture2D Image;
 };
 
 class UpdatableGameObject : public BasicGameObject
