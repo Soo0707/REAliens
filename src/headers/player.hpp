@@ -9,7 +9,7 @@ class Player : public UpdatableGameObject
 	public:
 		Player(float pos_x, float pos_y, AssetManager &assets);
 		~Player(); 
-		void Draw() override;
+		//void Draw() override;
 		void Update() override;
 		
 		int Health = 100;

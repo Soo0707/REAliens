@@ -19,13 +19,13 @@ void Player::Update()
 	Player::SetCurrentTextures();
 	Player::Animate();
 }
-
+/*
 void Player::Draw()
 {
 	// NOTE TO SELF, change the alpha value of the tint to flash white
 	DrawTexture(this->Image, (int) this->Rect.x, (int) this->Rect.y, WHITE); 
 }
-
+*/
 void Player::Animate()
 {
 	if (this->Direction.x != 0.0f || this->Direction.y != 0.0f)

@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <cstdint>
 
 #include "raylib.h"
 
@@ -41,6 +42,8 @@ class AssetManager
 
 		std::map<EntityTextureKey, std::vector<Texture2D>> EntityTextures;
 		std::map<StaticTextureKey, Texture2D> StaticTextures;
+
+		std::map<int32_t, Texture2D> MapTextures;
 	private:
 		void LoadEntityTextures();
 		void UnloadEntityTextures();
@@ -49,4 +52,7 @@ class AssetManager
 		void LoadStaticTextures();
 		void UnloadStaticTextures();
 		StaticTextureKey GetStaticTextureKeyFromString(std::string filename);
+
+		void LoadMapTextures();
+		void UnloadMapTextures();
 };

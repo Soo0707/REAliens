@@ -6,6 +6,7 @@
 #include "player.hpp"
 #include "assetManager.hpp"
 #include "gameObjects.hpp"
+#include "raylib.h"
 
 class Game
 {
@@ -22,6 +23,8 @@ class Game
 
 		std::unique_ptr<AssetManager> AssetManagerInstance;
 		std::shared_ptr<Player> PlayerInstance;
+		
+		//Texture2D Ground;
 
 	//std::vector<std::unique_ptr> Collidables;
 	//std::vector<std::unique_ptr> Enemies;

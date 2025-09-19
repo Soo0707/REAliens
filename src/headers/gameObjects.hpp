@@ -7,7 +7,7 @@ class BasicGameObject
 	public:
 		BasicGameObject(float pos_x, float pos_y, Texture2D initial_image);
 		virtual ~BasicGameObject() = default;
-		virtual void Draw() = 0;
+		virtual void Draw();
 
 	protected:
 		Rectangle Rect;

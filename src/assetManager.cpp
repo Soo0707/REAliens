@@ -4,19 +4,23 @@
 #include <filesystem>
 #include <string>
 #include <algorithm>
+#include <iostream>
 
 #include "raylib.h"
+#include "tmx.h"
 
 AssetManager::AssetManager()
 {
 	AssetManager::LoadStaticTextures();
 	AssetManager::LoadEntityTextures();
+	AssetManager::LoadMapTextures();
 }
 
 AssetManager::~AssetManager()
 {
 	AssetManager::UnloadStaticTextures();
 	AssetManager::UnloadEntityTextures();
+	AssetManager::UnloadMapTextures();
 }
 
 void AssetManager::LoadStaticTextures()
@@ -119,3 +123,55 @@ EntityTextureKey AssetManager::GetEntityTextureKeyFromString(std::string folder_
 
 	return (Lookup.count(folder_name)) ? Lookup.at(folder_name) : EntityTextureKey::None;
 }
+
+void AssetManager::LoadMapTextures()
+{
+	tmx_map *map = tmx_load("/mnt/tmpfs/assets/new_map/unified_map.tmx");
+	Image tileset = LoadImage("/mnt/tmpfs/assets/new_map/unified_tileset.png");
+	
+	if (map == nullptr)
+		return;
+
+	tmx_layer *ground_layer = tmx_find_layer_by_name(map, "Ground");
+	if (map->ts_head == nullptr)
+		return;
+
+	int32_t firstGID = map->ts_head->firstgid;
+	int tileset_columns = tileset.width / 32;
+
+	for(int cell_y = 0; cell_y < map->height; cell_y++)
+	{
+		for(int cell_x = 0; cell_x < map->width; cell_x++)
+		{
+			int32_t cell = ground_layer->content.gids[cell_y * map->width + cell_x];
+			int32_t GID = cell & TMX_FLIP_BITS_REMOVAL;
+
+			if (GID == 0)
+				continue;
+
+			if (this->MapTextures.count(GID))
+				continue;
+
+			int x = ((GID - firstGID) % tileset_columns) * 32;
+			int y = ((GID - firstGID) / tileset_columns) * 32;
+			this->MapTextures[GID] = LoadTextureFromImage(ImageFromImage(tileset, {(float) x, (float) y, 32, 32}));
+
+			/*
+			tmx_tile* tile = map->tiles[GID];
+			if (tile != nullptr && tile->tileset)
+			{}
+			*/
+		}
+	}
+	tmx_map_free(map);
+	UnloadImage(tileset);
+}
+
+void AssetManager::UnloadMapTextures()
+{
+	for (auto const &pair : this->MapTextures)
+	{
+		UnloadTexture(this->MapTextures[pair.first]);
+	}
+}
+
