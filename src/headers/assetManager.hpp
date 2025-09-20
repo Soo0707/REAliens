@@ -6,6 +6,9 @@
 #include <cstdint>
 
 #include "raylib.h"
+#include "tmx.h"
+
+constexpr unsigned int TILESIZE = 32;
 
 enum class EntityTextureKey
 {
@@ -55,4 +58,5 @@ class AssetManager
 
 		void LoadMapTextures();
 		void UnloadMapTextures();
+		void LoadMapTexturesHelper(tmx_map* map, tmx_layer* layer, Image* tileset);
 };

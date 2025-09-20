@@ -132,37 +132,20 @@ void AssetManager::LoadMapTextures()
 	if (map == nullptr)
 		return;
 
-	tmx_layer *ground_layer = tmx_find_layer_by_name(map, "Ground");
+	tmx_layer *walls_layer = tmx_find_layer_by_name(map, "Walls");
+	tmx_layer *props_layer = tmx_find_layer_by_name(map, "Props");
+	tmx_layer *spawners_layer = tmx_find_layer_by_name(map, "Spawners");
+
+	if (walls_layer == nullptr || props_layer == nullptr || spawners_layer == nullptr) 
+		return;
+
 	if (map->ts_head == nullptr)
 		return;
 
-	int32_t firstGID = map->ts_head->firstgid;
-	int tileset_columns = tileset.width / 32;
+	AssetManager::LoadMapTexturesHelper(map, walls_layer, &tileset);
+	AssetManager::LoadMapTexturesHelper(map, props_layer, &tileset);
+	AssetManager::LoadMapTexturesHelper(map, spawners_layer, &tileset);
 
-	for(int cell_y = 0; cell_y < map->height; cell_y++)
-	{
-		for(int cell_x = 0; cell_x < map->width; cell_x++)
-		{
-			int32_t cell = ground_layer->content.gids[cell_y * map->width + cell_x];
-			int32_t GID = cell & TMX_FLIP_BITS_REMOVAL;
-
-			if (GID == 0)
-				continue;
-
-			if (this->MapTextures.count(GID))
-				continue;
-
-			int x = ((GID - firstGID) % tileset_columns) * 32;
-			int y = ((GID - firstGID) / tileset_columns) * 32;
-			this->MapTextures[GID] = LoadTextureFromImage(ImageFromImage(tileset, {(float) x, (float) y, 32, 32}));
-
-			/*
-			tmx_tile* tile = map->tiles[GID];
-			if (tile != nullptr && tile->tileset)
-			{}
-			*/
-		}
-	}
 	tmx_map_free(map);
 	UnloadImage(tileset);
 }
@@ -172,6 +155,50 @@ void AssetManager::UnloadMapTextures()
 	for (auto const &pair : this->MapTextures)
 	{
 		UnloadTexture(this->MapTextures[pair.first]);
+	}
+}
+
+void AssetManager::LoadMapTexturesHelper(tmx_map* map, tmx_layer* layer, Image* tileset)
+{
+	int32_t firstGID = map->ts_head->firstgid;
+	int tileset_columns = tileset->width / TILESIZE;
+
+	for (int cell_y = 0; cell_y < map->height; cell_y++)
+	{
+		for (int cell_x = 0; cell_x < map->width; cell_x++)
+		{
+			int32_t cell = layer->content.gids[cell_y * map->width + cell_x];
+			int32_t GID = cell & TMX_FLIP_BITS_REMOVAL;
+
+			if (GID == 0)
+				continue;
+
+			int32_t is_horizontally_flipped = cell & TMX_FLIPPED_HORIZONTALLY;
+			int32_t is_vertically_flipped = cell & TMX_FLIPPED_VERTICALLY;
+			int32_t is_diagonally_flipped = cell & TMX_FLIPPED_DIAGONALLY;
+
+			if (this->MapTextures.count(GID))
+				continue;
+
+			int x = ((GID - firstGID) % tileset_columns) * TILESIZE;
+			int y = ((GID - firstGID) / tileset_columns) * TILESIZE;
+
+			Image tile_texture = ImageFromImage(*tileset, {(float) x, (float) y, TILESIZE, TILESIZE});
+
+			if (is_horizontally_flipped)
+				ImageFlipHorizontal(&tile_texture);
+
+			if (is_vertically_flipped)
+				ImageFlipVertical(&tile_texture);
+
+			if (is_diagonally_flipped && is_horizontally_flipped)
+				ImageRotateCW(&tile_texture);
+
+			if (is_diagonally_flipped && is_vertically_flipped)
+				ImageRotateCCW(&tile_texture);
+			
+			this->MapTextures[cell] = LoadTextureFromImage(tile_texture);
+		}
 	}
 }
 
