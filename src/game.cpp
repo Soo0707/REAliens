@@ -1,30 +1,16 @@
 #include <memory>
 
-#include <iostream>
-
 #include "raylib.h"
 #include "raymath.h"
-
+#include "tmx.h"
 
 #include "game.hpp"
 #include "player.hpp"
 #include "assetManager.hpp"
 #include "gameObjects.hpp"
 
-
-
 Game::Game()
 {
-/*
-	this->Ground = LoadTexture("/mnt/tmpfs/assets/new_map_format/ground.png");
-	for (int x = 0; x * 32 <= ground.width; x++)
-	{
-		for (int y = 0; y * 32 <= ground.height; y++)
-		{
-			this->AllObjects.push_back(std::make_shared<BasicGameObject>((float) x, (float) y, LoadTextureFromImage(ImageFromImage(ground, {(float) x, (float) y, 32, 32}))));
-		}
-	}
-	*/
 	this->AssetManagerInstance = std::make_unique<AssetManager>();
 
 	std::shared_ptr PlayerInstance = std::make_shared<Player>(500, 500, *(this->AssetManagerInstance));
@@ -34,6 +20,19 @@ Game::Game()
 
 	this->PlayerInstance = PlayerInstance;
 
+	tmx_map *map = tmx_load("/mnt/tmpfs/assets/new_map/unified_map.tmx");
+
+	tmx_layer *walls_layer = tmx_find_layer_by_name(map, "Walls");
+	//tmx_layer *props_layer = tmx_find_layer_by_name(map, "Props");
+	//tmx_layer *spawners_layer = tmx_find_layer_by_name(map, "Spawners");
+
+	Game::InitialiseMapObjects(map, walls_layer);
+	tmx_map_free(map);
+
+	this->Camera = { 0 };
+	this->Camera.offset = { GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f };
+	this->Camera.rotation = 0.0f;
+    this->Camera.zoom = 1.0f;
 }
 
 Game::~Game()
@@ -41,15 +40,23 @@ Game::~Game()
 
 void Game::Draw()
 {
-	//DrawTexture(this->Ground, 0, 0, WHITE);
+	BeginDrawing();
+	ClearBackground(RAYWHITE);
+	BeginMode2D(this->Camera);
+	
 	for (auto const &obj : this->AllObjects)
 		obj->Draw();
+	
+	EndMode2D();
+	EndDrawing();
 }
 
 void Game::Update()
 {
 	for (auto const &obj : this->UpdatableObjects)
 		obj->Update();
+	
+	this->Camera.target = {this->PlayerInstance->Rect.x, this->PlayerInstance->Rect.y};
 }
 
 void Game::HandleInput()
@@ -59,4 +66,25 @@ void Game::HandleInput()
 
 	if (this->PlayerInstance->Direction.x != 0.0f && this->PlayerInstance->Direction.y != 0.0f)
 		this->PlayerInstance->Direction = Vector2Normalize(this->PlayerInstance->Direction);
+}
+
+void Game::InitialiseMapObjects(tmx_map* map, tmx_layer* layer)
+{
+	for (int cell_y = 0; cell_y < map->height; cell_y++)
+	{
+		for (int cell_x = 0; cell_x < map->width; cell_x++)
+		{
+			int32_t cell = layer->content.gids[cell_y * map->width + cell_x];
+			int32_t GID = cell & TMX_FLIP_BITS_REMOVAL;
+
+			if (GID == 0)
+				continue;
+
+			this->AllObjects.push_back(
+					std::make_shared<Wall>(
+						(float) cell_x * TILESIZE, (float) cell_y * TILESIZE, this->AssetManagerInstance->MapTextures[cell]
+						)
+					);
+		}
+	}
 }

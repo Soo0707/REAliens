@@ -13,11 +13,7 @@ int main(void)
 	{
 		game.Update();
 		game.HandleInput();
-
-		BeginDrawing();
 		game.Draw();
-		ClearBackground(RAYWHITE);
-		EndDrawing();
 	}
 	CloseWindow();
 
