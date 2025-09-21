@@ -13,6 +13,8 @@ AssetManager::AssetManager()
 	AssetManager::LoadStaticTextures();
 	AssetManager::LoadEntityTextures();
 	AssetManager::LoadMapTextures();
+
+	this->Ground = LoadTexture("assets/map/ground.png");
 }
 
 AssetManager::~AssetManager()
@@ -25,6 +27,9 @@ AssetManager::~AssetManager()
 void AssetManager::LoadStaticTextures()
 {
 	std::filesystem::path path = "assets/static_textures";
+
+	if (!std::filesystem::exists(path))
+		exit(1);
 
 	for (auto const &item : std::filesystem::directory_iterator(path))
 	{
@@ -62,6 +67,9 @@ StaticTextureKey AssetManager::GetStaticTextureKeyFromString(std::string filenam
 void AssetManager::LoadEntityTextures()
 {
 	std::filesystem::path base_path = "assets/entity_textures";
+	
+	if (!std::filesystem::exists(base_path))
+		exit(1);
 
 	for (auto const &directory : std::filesystem::directory_iterator(base_path))
 	{
@@ -125,25 +133,25 @@ EntityTextureKey AssetManager::GetEntityTextureKeyFromString(std::string folder_
 
 void AssetManager::LoadMapTextures()
 {
-	tmx_map *map = tmx_load("/mnt/tmpfs/assets/new_map/unified_map.tmx");
-	Image tileset = LoadImage("/mnt/tmpfs/assets/new_map/unified_tileset.png");
+	tmx_map *map = tmx_load("assets/map/map.tmx");
+	Image tileset = LoadImage("assets/map/unified_tileset.png");
 	
 	if (map == nullptr)
-		return;
+		exit(1);
 
 	tmx_layer *walls_layer = tmx_find_layer_by_name(map, "Walls");
-	tmx_layer *props_layer = tmx_find_layer_by_name(map, "Props");
-	tmx_layer *spawners_layer = tmx_find_layer_by_name(map, "Spawners");
+	//tmx_layer *props_layer = tmx_find_layer_by_name(map, "Props");
+	//tmx_layer *spawners_layer = tmx_find_layer_by_name(map, "Spawners");
 
-	if (walls_layer == nullptr || props_layer == nullptr || spawners_layer == nullptr) 
-		return;
+	if (walls_layer == nullptr ) //|| props_layer == nullptr || spawners_layer == nullptr) 
+		exit(1);
 
 	if (map->ts_head == nullptr)
-		return;
+		exit(1);
 
 	AssetManager::LoadMapTexturesHelper(map, walls_layer, &tileset);
-	AssetManager::LoadMapTexturesHelper(map, props_layer, &tileset);
-	AssetManager::LoadMapTexturesHelper(map, spawners_layer, &tileset);
+	//AssetManager::LoadMapTexturesHelper(map, props_layer, &tileset);
+	//AssetManager::LoadMapTexturesHelper(map, spawners_layer, &tileset);
 
 	tmx_map_free(map);
 	UnloadImage(tileset);
@@ -172,11 +180,11 @@ void AssetManager::LoadMapTexturesHelper(tmx_map* map, tmx_layer* layer, Image* 
 			if (GID == 0)
 				continue;
 
-			int32_t is_horizontally_flipped = cell & TMX_FLIPPED_HORIZONTALLY;
-			int32_t is_vertically_flipped = cell & TMX_FLIPPED_VERTICALLY;
-			int32_t is_diagonally_flipped = cell & TMX_FLIPPED_DIAGONALLY;
+			int32_t horizontal_flip = cell & TMX_FLIPPED_HORIZONTALLY;
+			int32_t vertical_flip = cell & TMX_FLIPPED_VERTICALLY;
+			int32_t diagonal_flip = cell & TMX_FLIPPED_DIAGONALLY;
 
-			if (this->MapTextures.count(GID))
+			if (this->MapTextures.count(cell))
 				continue;
 
 			int x = ((GID - firstGID) % tileset_columns) * TILESIZE;
@@ -184,20 +192,19 @@ void AssetManager::LoadMapTexturesHelper(tmx_map* map, tmx_layer* layer, Image* 
 
 			Image tile_texture = ImageFromImage(*tileset, {(float) x, (float) y, TILESIZE, TILESIZE});
 
-			if (is_horizontally_flipped)
+			if (diagonal_flip)
+			{
+				ImageRotateCW(&tile_texture);
+				ImageFlipHorizontal(&tile_texture);
+			}
+
+			if (horizontal_flip)
 				ImageFlipHorizontal(&tile_texture);
 
-			if (is_vertically_flipped)
+			if (vertical_flip)
 				ImageFlipVertical(&tile_texture);
 
-			if (is_diagonally_flipped && is_horizontally_flipped)
-				ImageRotateCW(&tile_texture);
-
-			if (is_diagonally_flipped && is_vertically_flipped)
-				ImageRotateCCW(&tile_texture);
-			
 			this->MapTextures[cell] = LoadTextureFromImage(tile_texture);
 		}
 	}
 }
-

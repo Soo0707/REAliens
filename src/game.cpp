@@ -1,4 +1,5 @@
 #include <memory>
+#include <iostream>
 
 #include "raylib.h"
 #include "raymath.h"
@@ -20,7 +21,10 @@ Game::Game()
 
 	this->PlayerInstance = PlayerInstance;
 
-	tmx_map *map = tmx_load("/mnt/tmpfs/assets/new_map/unified_map.tmx");
+	tmx_map *map = tmx_load("assets/map/map.tmx");
+	
+	if (map == nullptr)
+		exit(1);
 
 	tmx_layer *walls_layer = tmx_find_layer_by_name(map, "Walls");
 	//tmx_layer *props_layer = tmx_find_layer_by_name(map, "Props");
@@ -44,6 +48,7 @@ void Game::Draw()
 	ClearBackground(RAYWHITE);
 	BeginMode2D(this->Camera);
 	
+	DrawTexture(this->AssetManagerInstance->Ground, 0, 0, WHITE);
 	for (auto const &obj : this->AllObjects)
 		obj->Draw();
 	
@@ -79,6 +84,9 @@ void Game::InitialiseMapObjects(tmx_map* map, tmx_layer* layer)
 
 			if (GID == 0)
 				continue;
+
+			if (!this->AssetManagerInstance->MapTextures.count(cell))
+				exit(1);
 
 			this->AllObjects.push_back(
 					std::make_shared<Wall>(

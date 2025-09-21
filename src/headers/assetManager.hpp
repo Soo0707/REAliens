@@ -46,7 +46,9 @@ class AssetManager
 		std::map<EntityTextureKey, std::vector<Texture2D>> EntityTextures;
 		std::map<StaticTextureKey, Texture2D> StaticTextures;
 
+		Texture2D Ground;
 		std::map<int32_t, Texture2D> MapTextures;
+
 	private:
 		void LoadEntityTextures();
 		void UnloadEntityTextures();
@@ -59,4 +61,5 @@ class AssetManager
 		void LoadMapTextures();
 		void UnloadMapTextures();
 		void LoadMapTexturesHelper(tmx_map* map, tmx_layer* layer, Image* tileset);
+
 };
