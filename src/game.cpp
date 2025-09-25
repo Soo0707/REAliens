@@ -1,4 +1,5 @@
 #include <memory>
+#include <cmath>
 #include <iostream>
 
 #include "raylib.h"
@@ -9,6 +10,7 @@
 #include "player.hpp"
 #include "assetManager.hpp"
 #include "gameObjects.hpp"
+#include "projectiles.hpp"
 
 Game::Game()
 {
@@ -87,6 +89,29 @@ void Game::HandleInput()
 
 	if (this->PlayerInstance->Direction.x != 0.0f && this->PlayerInstance->Direction.y != 0.0f)
 		this->PlayerInstance->Direction = Vector2Normalize(this->PlayerInstance->Direction);
+
+	if (IsMouseButtonPressed(0))
+	{
+		Rectangle player_rect = this->PlayerInstance->Rect;
+
+		Vector2 player_centre = {player_rect.x + player_rect.width / 2, player_rect.y + player_rect.height / 2 };
+		Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), this->Camera);
+
+		Vector2 direction = Vector2Subtract(mouse_pos, player_centre);
+		
+		if (direction.x != 0.0f || direction.y != 0.0f)
+			direction = Vector2Normalize(direction);
+		
+		Texture2D texture = this->AssetManagerInstance->StaticTextures[StaticTextureKey::Projectile];
+
+		float angle = atan2(direction.y, direction.x) * 180 / 3.142;
+
+		std::shared_ptr pro = std::make_shared<Projectile>(player_centre.x, player_centre.y, texture, 600, direction, angle, 1.0f);
+
+		this->AllObjects.push_back(pro);
+		this->UpdatableObjects.push_back(pro);
+	
+	}
 }
 
 void Game::InitialiseMapObjects(tmx_map* map, tmx_layer* layer, const unsigned int type)
