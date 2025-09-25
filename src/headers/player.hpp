@@ -4,18 +4,18 @@
 #include "raylib.h"
 #include "assetManager.hpp"
 
-class Player : public UpdatableGameObject
+class Player : public MovableGameObject
 {
 	public:
 		Player(float pos_x, float pos_y, AssetManager &assets);
 		~Player(); 
 		
-		void Draw() override;
+		void Draw(); //override;
 		void Update() override;
 		
 		int Health = 100;
-		unsigned int Speed = 300;
-		Vector2 Direction = {0.0f, 0.0f};
+		//unsigned int Speed = 300;
+		//Vector2 Direction = {0.0f, 0.0f};
 
 	private:
 		AssetManager& Assets;
@@ -25,7 +25,7 @@ class Player : public UpdatableGameObject
 		EntityTextureKey CurrentTextures = EntityTextureKey::PlayerSouth;
 
 		void Animate();
-		void MoveX();
-		void MoveY();
+		//void MoveX();
+		//void MoveY();
 		void SetCurrentTextures();
 };

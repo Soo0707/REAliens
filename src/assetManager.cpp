@@ -140,18 +140,18 @@ void AssetManager::LoadMapTextures()
 		exit(1);
 
 	tmx_layer *walls_layer = tmx_find_layer_by_name(map, "Walls");
-	//tmx_layer *props_layer = tmx_find_layer_by_name(map, "Props");
-	//tmx_layer *spawners_layer = tmx_find_layer_by_name(map, "Spawners");
+	tmx_layer *props_layer = tmx_find_layer_by_name(map, "Props");
+	tmx_layer *spawners_layer = tmx_find_layer_by_name(map, "Spawners");
 
-	if (walls_layer == nullptr ) //|| props_layer == nullptr || spawners_layer == nullptr) 
+	if (walls_layer == nullptr || props_layer == nullptr || spawners_layer == nullptr) 
 		exit(1);
 
 	if (map->ts_head == nullptr)
 		exit(1);
 
 	AssetManager::LoadMapTexturesHelper(map, walls_layer, &tileset);
-	//AssetManager::LoadMapTexturesHelper(map, props_layer, &tileset);
-	//AssetManager::LoadMapTexturesHelper(map, spawners_layer, &tileset);
+	AssetManager::LoadMapTexturesHelper(map, props_layer, &tileset);
+	AssetManager::LoadMapTexturesHelper(map, spawners_layer, &tileset);
 
 	tmx_map_free(map);
 	UnloadImage(tileset);

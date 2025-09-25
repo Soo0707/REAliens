@@ -10,6 +10,10 @@
 #include "assetManager.hpp"
 #include "gameObjects.hpp"
 
+#define WALLS_LAYER 1
+#define PROPS_LAYER 2
+#define SPAWNERS_LAYER 3
+
 class Game
 {
 	public:
@@ -20,20 +24,27 @@ class Game
 		void HandleInput();
 
 	private:
-		void InitialiseMapObjects(tmx_map* map, tmx_layer* layer);
+		void InitialiseMapObjects(tmx_map* map, tmx_layer* layer, const unsigned int type);
+
+		void ResolveCollisionsX();
+		void ResolveCollisionsY();
 
 		std::vector<std::shared_ptr<BasicGameObject>> AllObjects;
 		std::vector<std::shared_ptr<UpdatableGameObject>> UpdatableObjects;
+		std::vector<std::shared_ptr<MovableGameObject>> MovableObjects;
+
+		std::vector<std::shared_ptr<Wall>> Walls;
+		std::vector<std::shared_ptr<BasicGameObject>> Collidables;
+		std::vector<std::shared_ptr<Spawner>> Spawners;
 
 		std::unique_ptr<AssetManager> AssetManagerInstance;
 		std::shared_ptr<Player> PlayerInstance;
+		
+		std::vector<std::shared_ptr<MovableGameObject>> Enemies;
 
 		Camera2D Camera;
 		
-		//Texture2D Ground;
 
-	//std::vector<std::unique_ptr> Collidables;
-	//std::vector<std::unique_ptr> Enemies;
 
 	//std::vector<std::unique_ptr> EnemyProjectiles;
 	//std::vector<std::unique_ptr> PlayerProjectiles;

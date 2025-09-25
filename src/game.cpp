@@ -18,6 +18,7 @@ Game::Game()
 
 	this->AllObjects.push_back(PlayerInstance);
 	this->UpdatableObjects.push_back(PlayerInstance);
+	this->MovableObjects.push_back(PlayerInstance);
 
 	this->PlayerInstance = PlayerInstance;
 
@@ -27,10 +28,15 @@ Game::Game()
 		exit(1);
 
 	tmx_layer *walls_layer = tmx_find_layer_by_name(map, "Walls");
-	//tmx_layer *props_layer = tmx_find_layer_by_name(map, "Props");
-	//tmx_layer *spawners_layer = tmx_find_layer_by_name(map, "Spawners");
+	tmx_layer *props_layer = tmx_find_layer_by_name(map, "Props");
+	tmx_layer *spawners_layer = tmx_find_layer_by_name(map, "Spawners");
+	
+	if (walls_layer == nullptr || props_layer == nullptr || spawners_layer == nullptr) 
+		exit(1);
 
-	Game::InitialiseMapObjects(map, walls_layer);
+	Game::InitialiseMapObjects(map, walls_layer, WALLS_LAYER);
+	Game::InitialiseMapObjects(map, props_layer, PROPS_LAYER);
+	Game::InitialiseMapObjects(map, spawners_layer, SPAWNERS_LAYER);
 	tmx_map_free(map);
 
 	this->Camera = { 0 };
@@ -58,6 +64,16 @@ void Game::Draw()
 
 void Game::Update()
 {
+	for (auto const &obj : this->MovableObjects)
+		obj->MoveX();
+
+	Game::ResolveCollisionsX();
+	
+	for (auto const &obj : this->MovableObjects)
+		obj->MoveY();
+
+	Game::ResolveCollisionsY();
+	
 	for (auto const &obj : this->UpdatableObjects)
 		obj->Update();
 	
@@ -73,7 +89,7 @@ void Game::HandleInput()
 		this->PlayerInstance->Direction = Vector2Normalize(this->PlayerInstance->Direction);
 }
 
-void Game::InitialiseMapObjects(tmx_map* map, tmx_layer* layer)
+void Game::InitialiseMapObjects(tmx_map* map, tmx_layer* layer, const unsigned int type)
 {
 	for (int cell_y = 0; cell_y < map->height; cell_y++)
 	{
@@ -88,11 +104,74 @@ void Game::InitialiseMapObjects(tmx_map* map, tmx_layer* layer)
 			if (!this->AssetManagerInstance->MapTextures.count(cell))
 				exit(1);
 
-			this->AllObjects.push_back(
-					std::make_shared<Wall>(
-						(float) cell_x * TILESIZE, (float) cell_y * TILESIZE, this->AssetManagerInstance->MapTextures[cell]
-						)
-					);
+			Texture2D texture = this->AssetManagerInstance->MapTextures[cell];
+			float x_pos = cell_x * TILESIZE;
+			float y_pos = cell_y * TILESIZE;
+
+			switch (type)
+			{
+				case WALLS_LAYER:
+				{
+					std::shared_ptr<Wall> obj = std::make_shared<Wall>(x_pos, y_pos, texture);
+					this->AllObjects.push_back(obj);
+					this->Collidables.push_back(obj);
+					this->Walls.push_back(obj);
+				}
+				case PROPS_LAYER:
+				{
+					std::shared_ptr<BasicGameObject> obj = std::make_shared<BasicGameObject>(x_pos, y_pos, texture);
+					this->AllObjects.push_back(obj);
+					this->Collidables.push_back(obj);
+				}
+				case SPAWNERS_LAYER:
+				{
+					std::shared_ptr<Spawner> obj = std::make_shared<Spawner>(x_pos, y_pos, texture);
+
+					this->AllObjects.push_back(obj);
+					this->Collidables.push_back(obj);
+					this->Spawners.push_back(obj);
+				}
+			}
+
 		}
 	}
 }
+
+void Game::ResolveCollisionsX()
+{
+	for (auto const& m_obj : this->MovableObjects)
+	{
+		bool collided = false;
+		for (auto const& static_obj : this->Collidables)
+		{
+			if (CheckCollisionRecs(m_obj->NextRect, static_obj->Rect))
+			{
+				m_obj->Direction.x = 0;
+				collided = true;
+				break;
+			}
+		}
+		if (!collided)
+			m_obj->Rect.x = m_obj->NextRect.x;
+	}
+}
+
+void Game::ResolveCollisionsY()
+{
+	for (auto const& m_obj : this->MovableObjects)
+	{
+		bool collided = false;
+		for (auto const& static_obj : this->Collidables)
+		{
+			if (CheckCollisionRecs(m_obj->NextRect, static_obj->Rect))
+			{
+				m_obj->Direction.y = 0;
+				collided = true;
+				break;
+			}
+		}
+		if (!collided)
+			m_obj->Rect.y = m_obj->NextRect.y;
+	}
+}
+

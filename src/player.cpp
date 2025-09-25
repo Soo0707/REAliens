@@ -5,18 +5,21 @@
 #include <cmath>
 
 Player::Player(float pos_x, float pos_y, AssetManager &assets) :
-	Assets(assets), UpdatableGameObject(pos_x, pos_y, assets.EntityTextures[EntityTextureKey::PlayerSouth][0])
-{}
+	Assets(assets), MovableGameObject(pos_x, pos_y, assets.EntityTextures[EntityTextureKey::PlayerSouth][0])
+{
+	this->Speed = 300;
+}
 
 Player::~Player()
 {}
 
 void Player::Update()
 {
-	Player::MoveX();
-	Player::MoveY();
 	Player::SetCurrentTextures();
 	Player::Animate();
+
+	this->Rect.width = this->Image.width;
+	this->Rect.height = this->Image.height;
 }
 
 void Player::Draw()
@@ -33,16 +36,6 @@ void Player::Animate()
 		this->ImageIndex = 0;
 
 	this->Image = this->Assets.EntityTextures[this->CurrentTextures][(int) this->ImageIndex % this->Assets.EntityTextures[this->CurrentTextures].size()];
-}
-
-void Player::MoveX()
-{
-	this->Rect.x += this->Speed * this->Direction.x * GetFrameTime();
-}
-
-void Player::MoveY()
-{
-	this->Rect.y += this->Speed * this->Direction.y * GetFrameTime();
 }
 
 void Player::SetCurrentTextures()
