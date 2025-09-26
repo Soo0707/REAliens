@@ -1,6 +1,6 @@
 #include "assetManager.hpp"
 
-#include <map>
+#include <unordered_map>
 #include <filesystem>
 #include <string>
 #include <algorithm>
@@ -53,7 +53,7 @@ void AssetManager::UnloadStaticTextures()
 
 StaticTextureKey AssetManager::GetStaticTextureKeyFromString(std::string filename)
 {
-	static const std::map<std::string, StaticTextureKey> Lookup =
+	static const std::unordered_map<std::string, StaticTextureKey> Lookup =
 	{
 		{ "circle.png", StaticTextureKey::Circle },
 		{ "lazer.png", StaticTextureKey::Lazer },
@@ -111,7 +111,7 @@ void AssetManager::UnloadEntityTextures()
 
 EntityTextureKey AssetManager::GetEntityTextureKeyFromString(std::string folder_name)
 {
-	static const std::map<std::string, EntityTextureKey> Lookup =
+	static const std::unordered_map<std::string, EntityTextureKey> Lookup =
 	{
 		{ "player_north", EntityTextureKey::PlayerNorth },
 		{ "player_south", EntityTextureKey::PlayerSouth },

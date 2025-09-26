@@ -5,7 +5,7 @@ BasicGameObject::BasicGameObject(float pos_x, float pos_y, Texture2D initial_ima
 	Rect({pos_x, pos_y, (float) initial_image.width, (float) initial_image.height}), Image(initial_image)
 {}
 
-void BasicGameObject::Draw()
+void BasicGameObject::Draw() const
 {
 	DrawTexture(this->Image, (int) this->Rect.x, (int) this->Rect.y, WHITE);
 }

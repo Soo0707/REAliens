@@ -11,18 +11,14 @@
 #include "assetManager.hpp"
 #include "gameObjects.hpp"
 #include "projectiles.hpp"
+#include "collisions.hpp"
 
 Game::Game()
 {
 	this->AssetManagerInstance = std::make_unique<AssetManager>();
 
-	std::shared_ptr PlayerInstance = std::make_shared<Player>(500, 500, *(this->AssetManagerInstance));
+	this->PlayerInstance = std::make_unique<Player>(500, 500, *(this->AssetManagerInstance));
 
-	this->AllObjects.push_back(PlayerInstance);
-	this->UpdatableObjects.push_back(PlayerInstance);
-	this->MovableObjects.push_back(PlayerInstance);
-
-	this->PlayerInstance = PlayerInstance;
 
 	tmx_map *map = tmx_load("assets/map/map.tmx");
 	
@@ -57,28 +53,35 @@ void Game::Draw()
 	BeginMode2D(this->Camera);
 	
 	DrawTexture(this->AssetManagerInstance->Ground, 0, 0, WHITE);
-	for (auto const &obj : this->AllObjects)
-		obj->Draw();
-	
+
+	for (auto const &wall : this->Walls)
+		wall.Draw();
+
+	for (auto const &prop : this->Props)
+		prop.Draw();
+
+	for (auto const &projectile : this->Projectiles)
+		projectile.Draw();
+
+	this->PlayerInstance->Draw();
+
 	EndMode2D();
 	EndDrawing();
 }
 
 void Game::Update()
 {
-	for (auto const &obj : this->MovableObjects)
-		obj->MoveX();
+	this->PlayerInstance->MoveX();
+	Collisions::ResolveCollisionPlayerX(*(this->PlayerInstance), this->Walls, this->Props);
+	
+	this->PlayerInstance->MoveY();
+	Collisions::ResolveCollisionPlayerY(*(this->PlayerInstance), this->Walls, this->Props);
 
-	Game::ResolveCollisionsX();
+	this->PlayerInstance->Update();
 	
-	for (auto const &obj : this->MovableObjects)
-		obj->MoveY();
+	for (auto &projectile : this->Projectiles)
+		projectile.Update();
 
-	Game::ResolveCollisionsY();
-	
-	for (auto const &obj : this->UpdatableObjects)
-		obj->Update();
-	
 	this->Camera.target = {this->PlayerInstance->Rect.x, this->PlayerInstance->Rect.y};
 }
 
@@ -106,10 +109,7 @@ void Game::HandleInput()
 
 		float angle = atan2(direction.y, direction.x) * 180 / 3.142;
 
-		std::shared_ptr pro = std::make_shared<Projectile>(player_centre.x, player_centre.y, texture, 600, direction, angle, 1.0f);
-
-		this->AllObjects.push_back(pro);
-		this->UpdatableObjects.push_back(pro);
+		this->Projectiles.emplace_back(player_centre.x, player_centre.y, texture, 600, direction, angle, 1.0f);
 	
 	}
 }
@@ -137,66 +137,19 @@ void Game::InitialiseMapObjects(tmx_map* map, tmx_layer* layer, const unsigned i
 			{
 				case WALLS_LAYER:
 				{
-					std::shared_ptr<Wall> obj = std::make_shared<Wall>(x_pos, y_pos, texture);
-					this->AllObjects.push_back(obj);
-					this->Collidables.push_back(obj);
-					this->Walls.push_back(obj);
+					this->Walls.emplace_back(x_pos, y_pos, texture);
 				}
 				case PROPS_LAYER:
 				{
-					std::shared_ptr<BasicGameObject> obj = std::make_shared<BasicGameObject>(x_pos, y_pos, texture);
-					this->AllObjects.push_back(obj);
-					this->Collidables.push_back(obj);
+					this->Props.emplace_back(x_pos, y_pos, texture);
+
 				}
 				case SPAWNERS_LAYER:
 				{
-					std::shared_ptr<Spawner> obj = std::make_shared<Spawner>(x_pos, y_pos, texture);
-
-					this->AllObjects.push_back(obj);
-					this->Collidables.push_back(obj);
-					this->Spawners.push_back(obj);
+					this->Spawners.emplace_back(x_pos, y_pos, texture);
 				}
 			}
 
 		}
 	}
 }
-
-void Game::ResolveCollisionsX()
-{
-	for (auto const& m_obj : this->MovableObjects)
-	{
-		bool collided = false;
-		for (auto const& static_obj : this->Collidables)
-		{
-			if (CheckCollisionRecs(m_obj->NextRect, static_obj->Rect))
-			{
-				m_obj->Direction.x = 0;
-				collided = true;
-				break;
-			}
-		}
-		if (!collided)
-			m_obj->Rect.x = m_obj->NextRect.x;
-	}
-}
-
-void Game::ResolveCollisionsY()
-{
-	for (auto const& m_obj : this->MovableObjects)
-	{
-		bool collided = false;
-		for (auto const& static_obj : this->Collidables)
-		{
-			if (CheckCollisionRecs(m_obj->NextRect, static_obj->Rect))
-			{
-				m_obj->Direction.y = 0;
-				collided = true;
-				break;
-			}
-		}
-		if (!collided)
-			m_obj->Rect.y = m_obj->NextRect.y;
-	}
-}
-

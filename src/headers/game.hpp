@@ -9,6 +9,7 @@
 #include "player.hpp"
 #include "assetManager.hpp"
 #include "gameObjects.hpp"
+#include "projectiles.hpp"
 
 #define WALLS_LAYER 1
 #define PROPS_LAYER 2
@@ -29,18 +30,19 @@ class Game
 		void ResolveCollisionsX();
 		void ResolveCollisionsY();
 
-		std::vector<std::shared_ptr<BasicGameObject>> AllObjects;
-		std::vector<std::shared_ptr<UpdatableGameObject>> UpdatableObjects;
-		std::vector<std::shared_ptr<MovableGameObject>> MovableObjects;
+		//std::vector<std::shared_ptr<BasicGameObject>> AllObjects;
+		//std::vector<std::shared_ptr<UpdatableGameObject>> UpdatableObjects;
+		//std::vector<std::shared_ptr<MovableGameObject>> MovableObjects;
 
-		std::vector<std::shared_ptr<Wall>> Walls;
-		std::vector<std::shared_ptr<BasicGameObject>> Collidables;
-		std::vector<std::shared_ptr<Spawner>> Spawners;
+		std::vector<Wall> Walls;
+		std::vector<BasicGameObject> Props;
+		std::vector<Spawner> Spawners;
+		std::vector<MovableGameObject> Enemies;
+		std::vector<Projectile> Projectiles;
 
 		std::unique_ptr<AssetManager> AssetManagerInstance;
-		std::shared_ptr<Player> PlayerInstance;
+		std::unique_ptr<Player> PlayerInstance;
 		
-		std::vector<std::shared_ptr<MovableGameObject>> Enemies;
 
 		Camera2D Camera;
 		

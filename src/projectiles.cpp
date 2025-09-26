@@ -6,7 +6,7 @@ Projectile::Projectile(float pos_x, float pos_y, Texture2D initial_image, unsign
 	UpdatableGameObject(pos_x, pos_y, initial_image), Speed(speed), Direction(direction), Rotation(rotation), Scale(scale)
 {}
 
-void Projectile::Draw()
+void Projectile::Draw() const
 {
 	Vector2 position = (Vector2) { this->Rect.x, this->Rect.y };
 	DrawTextureEx(this->Image, position, this->Rotation, this->Scale, WHITE);

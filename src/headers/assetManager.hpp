@@ -1,6 +1,6 @@
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <string>
 #include <cstdint>
@@ -43,11 +43,11 @@ class AssetManager
 		AssetManager();
 		~AssetManager();
 
-		std::map<EntityTextureKey, std::vector<Texture2D>> EntityTextures;
-		std::map<StaticTextureKey, Texture2D> StaticTextures;
+		std::unordered_map<EntityTextureKey, std::vector<Texture2D>> EntityTextures;
+		std::unordered_map<StaticTextureKey, Texture2D> StaticTextures;
 
 		Texture2D Ground;
-		std::map<int32_t, Texture2D> MapTextures;
+		std::unordered_map<int32_t, Texture2D> MapTextures;
 
 	private:
 		void LoadEntityTextures();
