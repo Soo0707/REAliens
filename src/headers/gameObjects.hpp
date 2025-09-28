@@ -2,53 +2,41 @@
 
 #include "raylib.h"
 
-class BasicGameObject
+class Prop
 {
 	public:
-		BasicGameObject(float pos_x, float pos_y, Texture2D initial_image);
-		virtual ~BasicGameObject() = default;
-		virtual void Draw() const;
+		Prop(float pos_x, float pos_y, Texture2D image);
+		~Prop() = default;
+		void Draw() const;
 		Rectangle Rect;
 
-	protected:
+	private:
 		Texture2D Image;
 };
 
-class UpdatableGameObject : public BasicGameObject
+class Wall
 {
 	public:
-		UpdatableGameObject(float pos_x, float pos_y, Texture2D initial_image);
-		virtual ~UpdatableGameObject() = default;
-		virtual void Update() = 0;
-};
-
-class MovableGameObject : public UpdatableGameObject
-{
-	public:
-		MovableGameObject(float pos_x, float pos_y, Texture2D initial_image);
-		virtual ~MovableGameObject() = default;
-
-		virtual void MoveX();
-		virtual void MoveY();
-
-		Vector2 Direction = { 0.0f, 0.0f };
-		Rectangle NextRect = { 0.0f, 0.0f, 0, 0 };
-		unsigned int Speed = 100;
-};
-
-class Wall : public BasicGameObject
-{
-	public:
-		Wall(float pos_x, float pos_y, Texture2D initial_image);
+		Wall(float pos_x, float pos_y, Texture2D image);
 		~Wall() = default;
-		
+		Rectangle Rect;
+
+		void Draw() const;
+	
 	private:
 		bool Destroyed = false;
+		Texture2D Image;
 };
 
-class Spawner : public BasicGameObject
+class Spawner
 {
 	public:
-		Spawner(float pos_x, float pos_y, Texture2D initial_image);
+		Spawner(float pos_x, float pos_y, Texture2D image);
 		~Spawner() = default;
+		Rectangle Rect;
+
+		void Draw() const;
+	
+	private:
+		Texture2D Image;
 };

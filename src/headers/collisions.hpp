@@ -4,13 +4,13 @@
 #include <memory>
 #include "gameObjects.hpp"
 #include "player.hpp"
+#include "projectiles.hpp"
+#include "raylib.h"
 
 namespace Collisions
 {
-	void ResolveCollisionsX(std::vector<std::shared_ptr<MovableGameObject>>movable_objects, std::vector<std::shared_ptr<BasicGameObject>>collidables);
-	void ResolveCollisionsY(std::vector<std::shared_ptr<MovableGameObject>>movable_objects, std::vector<std::shared_ptr<BasicGameObject>>collidables);
+	void ResolveCollisionPlayerX(Player& player, std::vector<Wall>& walls, std::vector<Prop>& props, std::vector<Spawner>& spawners);
+	void ResolveCollisionPlayerY(Player& player, std::vector<Wall>& walls, std::vector<Prop>& props, std::vector<Spawner>& spawners);
 
-
-	void ResolveCollisionPlayerX(Player& player, std::vector<Wall> walls, std::vector<BasicGameObject> props);
-	void ResolveCollisionPlayerY(Player& player, std::vector<Wall> walls, std::vector<BasicGameObject> props);
+	void ProjectileCollisions(std::vector<Projectile>& projectile, std::vector<Wall>& walls, const Rectangle& update_area);
 }

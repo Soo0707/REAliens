@@ -33,7 +33,7 @@ enum class StaticTextureKey
 	None,
 	Circle,
 	Lazer,
-	Projectile,
+	Bullet,
 	Xp
 };
 

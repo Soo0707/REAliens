@@ -57,7 +57,7 @@ StaticTextureKey AssetManager::GetStaticTextureKeyFromString(std::string filenam
 	{
 		{ "circle.png", StaticTextureKey::Circle },
 		{ "lazer.png", StaticTextureKey::Lazer },
-		{ "projectile.png", StaticTextureKey::Projectile },
+		{ "bullet.png", StaticTextureKey::Bullet },
 		{ "xp.png", StaticTextureKey::Xp }
 	};
 

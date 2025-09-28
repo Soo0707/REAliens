@@ -1,31 +1,36 @@
 #pragma once
 
-#include "gameObjects.hpp"
 #include "raylib.h"
 #include "assetManager.hpp"
 
-class Player : public MovableGameObject
+class Player
 {
 	public:
 		Player(float pos_x, float pos_y, AssetManager &assets);
 		~Player(); 
 		
-		void Draw(); //override;
-		void Update() override;
+		void MoveX();
+		void MoveY();
+		void Update();
+		void Draw() const;
 		
 		int Health = 100;
-		//unsigned int Speed = 300;
-		//Vector2 Direction = {0.0f, 0.0f};
+
+		Vector2 Direction = { 0.0f, 0.0f };
+		Rectangle Rect;
+		Rectangle NextRect = { 0.0f, 0.0f, 0, 0 };
+		unsigned int Speed = 100;
 
 	private:
 		AssetManager& Assets;
+
+		Texture2D Image;
+
 		float ImageIndex = 0.0f;
 		float AnimationSpeed = 10.0f;
 
 		EntityTextureKey CurrentTextures = EntityTextureKey::PlayerSouth;
 
 		void Animate();
-		//void MoveX();
-		//void MoveY();
 		void SetCurrentTextures();
 };

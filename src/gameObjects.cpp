@@ -1,39 +1,31 @@
 #include "gameObjects.hpp"
 #include "raylib.h"
 
-BasicGameObject::BasicGameObject(float pos_x, float pos_y, Texture2D initial_image):
-	Rect({pos_x, pos_y, (float) initial_image.width, (float) initial_image.height}), Image(initial_image)
+Prop::Prop(float pos_x, float pos_y, Texture2D image):
+	Rect({pos_x, pos_y, (float) image.width, (float) image.height}), Image(image)
 {}
 
-void BasicGameObject::Draw() const
+void Prop::Draw() const
 {
 	DrawTexture(this->Image, (int) this->Rect.x, (int) this->Rect.y, WHITE);
 }
 
-UpdatableGameObject::UpdatableGameObject(float pos_x, float pos_y, Texture2D initial_image):
-	BasicGameObject(pos_x, pos_y, initial_image)
+
+Wall::Wall(float pos_x, float pos_y, Texture2D image):
+	Rect({pos_x, pos_y, (float) image.width, (float) image.height}), Image(image)
 {}
 
-MovableGameObject::MovableGameObject(float pos_x, float pos_y, Texture2D initial_image):
-	UpdatableGameObject(pos_x, pos_y, initial_image)
-{}
-
-void MovableGameObject::MoveX()
+void Wall::Draw() const
 {
-	this->NextRect.x = this->Rect.x + this->Speed * this->Direction.x * GetFrameTime();
-	this->NextRect.width = this->Rect.width;
+	DrawTexture(this->Image, (int) this->Rect.x, (int) this->Rect.y, WHITE);
 }
 
-void MovableGameObject::MoveY()
+
+Spawner::Spawner(float pos_x, float pos_y, Texture2D image):
+	Rect({pos_x, pos_y, (float) image.width, (float) image.height}), Image(image)
+{}
+
+void Spawner::Draw() const
 {
-	this->NextRect.y = this->Rect.y + this->Speed * this->Direction.y * GetFrameTime();
-	this->NextRect.height = this->Rect.height;
+	DrawTexture(this->Image, (int) this->Rect.x, (int) this->Rect.y, WHITE);
 }
-
-Wall::Wall(float pos_x, float pos_y, Texture2D initial_image):
-	BasicGameObject(pos_x, pos_y, initial_image)
-{}
-
-Spawner::Spawner(float pos_x, float pos_y, Texture2D initial_image):
-	BasicGameObject(pos_x, pos_y, initial_image)
-{}

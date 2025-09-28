@@ -10,10 +10,23 @@
 #include "assetManager.hpp"
 #include "gameObjects.hpp"
 #include "projectiles.hpp"
+#include "enemy.hpp"
 
 #define WALLS_LAYER 1
 #define PROPS_LAYER 2
 #define SPAWNERS_LAYER 3
+
+enum class EffectKey
+{
+	BulletTimeout,
+	BulletDamage,
+	BulletSpeed,
+
+	LazerTimeout,
+	LazerDamage,
+	LazerScale,
+	LazerSpeed
+};
 
 class Game
 {
@@ -27,29 +40,29 @@ class Game
 	private:
 		void InitialiseMapObjects(tmx_map* map, tmx_layer* layer, const unsigned int type);
 
-		void ResolveCollisionsX();
-		void ResolveCollisionsY();
-
-		//std::vector<std::shared_ptr<BasicGameObject>> AllObjects;
-		//std::vector<std::shared_ptr<UpdatableGameObject>> UpdatableObjects;
-		//std::vector<std::shared_ptr<MovableGameObject>> MovableObjects;
-
 		std::vector<Wall> Walls;
-		std::vector<BasicGameObject> Props;
+		std::vector<Prop> Props;
 		std::vector<Spawner> Spawners;
-		std::vector<MovableGameObject> Enemies;
+		std::vector<Enemy> Enemies;
 		std::vector<Projectile> Projectiles;
 
 		std::unique_ptr<AssetManager> AssetManagerInstance;
 		std::unique_ptr<Player> PlayerInstance;
-		
 
+		std::unordered_map<EffectKey, float> Effects = 
+		{
+			{ EffectKey::BulletTimeout, 250/60 },
+			{ EffectKey::BulletDamage, 25.0f },
+			{ EffectKey::BulletSpeed, 1000.0f },
+
+			{ EffectKey::LazerTimeout, 750/60 },
+			{ EffectKey::LazerDamage, 25.0f },
+			{ EffectKey::LazerScale, 1.0f },
+			{ EffectKey::LazerSpeed, 3000.0f }
+		};
+		
 		Camera2D Camera;
-		
-
-
-	//std::vector<std::unique_ptr> EnemyProjectiles;
-	//std::vector<std::unique_ptr> PlayerProjectiles;
+		Rectangle UpdateArea;
 };
 
 

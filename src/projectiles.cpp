@@ -2,8 +2,8 @@
 #include "projectiles.hpp"
 #include "raylib.h"
 
-Projectile::Projectile(float pos_x, float pos_y, Texture2D initial_image, unsigned int speed, Vector2 direction, float rotation, float scale):
-	UpdatableGameObject(pos_x, pos_y, initial_image), Speed(speed), Direction(direction), Rotation(rotation), Scale(scale)
+Projectile::Projectile(float pos_x, float pos_y, Texture2D image, unsigned int speed, Vector2 direction, float rotation, float scale, ProjectileType type, float damage):
+	Rect({pos_x, pos_y, image.width * scale, image.height * scale}), Speed(speed), Direction(direction), Rotation(rotation), Scale(scale), Type(type), Damage(damage), Image(image)
 {}
 
 void Projectile::Draw() const

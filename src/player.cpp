@@ -5,9 +5,9 @@
 #include <cmath>
 
 Player::Player(float pos_x, float pos_y, AssetManager &assets) :
-	Assets(assets), MovableGameObject(pos_x, pos_y, assets.EntityTextures[EntityTextureKey::PlayerSouth][0])
+	Assets(assets), Image(assets.EntityTextures[EntityTextureKey::PlayerSouth][0]), Speed(300)
 {
-	this->Speed = 300;
+	this->Rect = {pos_x, pos_y, (float) this->Image.width, (float) this->Image.height};
 }
 
 Player::~Player()
@@ -22,9 +22,8 @@ void Player::Update()
 	this->Rect.height = this->Image.height;
 }
 
-void Player::Draw()
+void Player::Draw() const
 {
-	// NOTE TO SELF, change the alpha value of the tint to flash white
 	DrawTexture(this->Image, (int) this->Rect.x, (int) this->Rect.y, WHITE); 
 }
 
@@ -48,4 +47,16 @@ void Player::SetCurrentTextures()
 		this->CurrentTextures = EntityTextureKey::PlayerSouth;
 	else if (this->Direction.y < 0)
 		this->CurrentTextures = EntityTextureKey::PlayerNorth;
+}
+
+void Player::MoveX()
+{
+	this->NextRect.x = this->Rect.x + this->Speed * this->Direction.x * GetFrameTime();
+	this->NextRect.width = this->Rect.width;
+}
+
+void Player::MoveY()
+{
+	this->NextRect.y = this->Rect.y + this->Speed * this->Direction.y * GetFrameTime();
+	this->NextRect.height = this->Rect.height;
 }

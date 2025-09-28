@@ -1,6 +1,9 @@
 #include <memory>
 #include <cmath>
 #include <iostream>
+#include <algorithm>
+#include <array>
+#include <unordered_map>
 
 #include "raylib.h"
 #include "raymath.h"
@@ -12,13 +15,13 @@
 #include "gameObjects.hpp"
 #include "projectiles.hpp"
 #include "collisions.hpp"
+#include "enemy.hpp"
 
 Game::Game()
 {
 	this->AssetManagerInstance = std::make_unique<AssetManager>();
 
 	this->PlayerInstance = std::make_unique<Player>(500, 500, *(this->AssetManagerInstance));
-
 
 	tmx_map *map = tmx_load("assets/map/map.tmx");
 	
@@ -41,6 +44,9 @@ Game::Game()
 	this->Camera.offset = { GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f };
 	this->Camera.rotation = 0.0f;
     this->Camera.zoom = 1.0f;
+	
+	Vector2 player_pos = { this->PlayerInstance->Rect.x, this->PlayerInstance->Rect.y };
+	this->UpdateArea = {player_pos.x - (GetScreenWidth() / 2.0f), player_pos.y - (GetScreenHeight() / 2.0f), (float) GetScreenWidth(), (float) GetScreenHeight()};
 }
 
 Game::~Game()
@@ -55,13 +61,28 @@ void Game::Draw()
 	DrawTexture(this->AssetManagerInstance->Ground, 0, 0, WHITE);
 
 	for (auto const &wall : this->Walls)
-		wall.Draw();
+	{
+		if (CheckCollisionRecs(this->UpdateArea, wall.Rect))
+			wall.Draw();
+	}
 
 	for (auto const &prop : this->Props)
-		prop.Draw();
+	{
+		if (CheckCollisionRecs(this->UpdateArea, prop.Rect))
+			prop.Draw();
+	}
+
+	for (auto const &spawner : this->Spawners)
+	{
+		if (CheckCollisionRecs(this->UpdateArea, spawner.Rect))
+			spawner.Draw();
+	}
 
 	for (auto const &projectile : this->Projectiles)
-		projectile.Draw();
+	{
+		if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
+			projectile.Draw();
+	}
 
 	this->PlayerInstance->Draw();
 
@@ -72,17 +93,29 @@ void Game::Draw()
 void Game::Update()
 {
 	this->PlayerInstance->MoveX();
-	Collisions::ResolveCollisionPlayerX(*(this->PlayerInstance), this->Walls, this->Props);
+	Collisions::ResolveCollisionPlayerX(*(this->PlayerInstance), this->Walls, this->Props, this->Spawners);
 	
 	this->PlayerInstance->MoveY();
-	Collisions::ResolveCollisionPlayerY(*(this->PlayerInstance), this->Walls, this->Props);
+	Collisions::ResolveCollisionPlayerY(*(this->PlayerInstance), this->Walls, this->Props, this->Spawners);
 
 	this->PlayerInstance->Update();
 	
 	for (auto &projectile : this->Projectiles)
 		projectile.Update();
 
-	this->Camera.target = {this->PlayerInstance->Rect.x, this->PlayerInstance->Rect.y};
+	Collisions::ProjectileCollisions(this->Projectiles, this->Walls, this->UpdateArea);
+	std::erase_if(this->Projectiles, [](Projectile& proj){ return proj.Kill; });
+
+	for (auto &enemy : this->Enemies)
+	{
+		enemy.Update();
+		enemy.SetDirection(this->PlayerInstance->Rect);
+	}
+
+	this->Camera.target = { this->PlayerInstance->Rect.x, this->PlayerInstance->Rect.y };
+
+	this->UpdateArea.x = this->PlayerInstance->Rect.x - GetScreenWidth() / 2.0f;
+	this->UpdateArea.y = this->PlayerInstance->Rect.y - GetScreenHeight() / 2.0f;
 }
 
 void Game::HandleInput()
@@ -105,12 +138,34 @@ void Game::HandleInput()
 		if (direction.x != 0.0f || direction.y != 0.0f)
 			direction = Vector2Normalize(direction);
 		
-		Texture2D texture = this->AssetManagerInstance->StaticTextures[StaticTextureKey::Projectile];
+		Texture2D texture = this->AssetManagerInstance->StaticTextures[StaticTextureKey::Bullet];
 
+		float speed = this->Effects[EffectKey::BulletSpeed];
+		float damage = this->Effects[EffectKey::BulletDamage];
+		
 		float angle = atan2(direction.y, direction.x) * 180 / 3.142;
 
-		this->Projectiles.emplace_back(player_centre.x, player_centre.y, texture, 600, direction, angle, 1.0f);
+		this->Projectiles.emplace_back(player_centre.x, player_centre.y, texture, speed, direction, angle, 1.0f, ProjectileType::Bullet, damage);
+	}
 	
+	if (IsMouseButtonPressed(1))
+	{
+		static constexpr std::array<Vector2, 4> directions = { Vector2{1.0f, 0.0f}, Vector2{0.0f, 1.0f}, Vector2{-1.0f, 0.0f}, Vector2{0.0f, -1.0f} };
+
+		Rectangle player_rect = this->PlayerInstance->Rect;
+
+		Vector2 player_centre = { player_rect.x + player_rect.width / 2, player_rect.y + player_rect.height / 2 };
+	
+		Texture2D texture = this->AssetManagerInstance->StaticTextures[StaticTextureKey::Lazer];
+		
+		float speed = this->Effects[EffectKey::LazerSpeed];
+		float damage = this->Effects[EffectKey::LazerDamage];
+
+		for (auto const &direction : directions)
+		{
+			float angle = atan2(direction.y, direction.x) * 180 / 3.142;
+			this->Projectiles.emplace_back(player_centre.x, player_centre.y, texture, speed, direction, angle, 1.0f, ProjectileType::Lazer, damage);
+		}
 	}
 }
 
@@ -138,18 +193,19 @@ void Game::InitialiseMapObjects(tmx_map* map, tmx_layer* layer, const unsigned i
 				case WALLS_LAYER:
 				{
 					this->Walls.emplace_back(x_pos, y_pos, texture);
+					break;
 				}
 				case PROPS_LAYER:
 				{
 					this->Props.emplace_back(x_pos, y_pos, texture);
-
+					break;
 				}
 				case SPAWNERS_LAYER:
 				{
 					this->Spawners.emplace_back(x_pos, y_pos, texture);
+					break;
 				}
 			}
-
 		}
 	}
 }

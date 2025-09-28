@@ -1,7 +1,8 @@
 #!/bin/bash
 
-x86_64-w64-mingw32-g++ src/main.cpp src/game.cpp src/player.cpp src/gameObjects.cpp src/assetManager.cpp src/projectiles.cpp src/collisions.cpp\
+x86_64-w64-mingw32-g++ src/main.cpp src/game.cpp src/player.cpp src/gameObjects.cpp src/assetManager.cpp src/projectiles.cpp src/collisions.cpp src/enemy.cpp\
  -o /mnt/tmpfs/out.exe\
+ -std=c++20\
  -Iinclude/\
  -Isrc/headers/\
  -Llib/\
