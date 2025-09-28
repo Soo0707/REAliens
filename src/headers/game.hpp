@@ -16,13 +16,15 @@
 #define PROPS_LAYER 2
 #define SPAWNERS_LAYER 3
 
+#define TICK_TIME  (1/60)
+
 enum class EffectKey
 {
-	BulletTimeout,
+	BulletCooldown,
 	BulletDamage,
 	BulletSpeed,
 
-	LazerTimeout,
+	LazerCooldown,
 	LazerDamage,
 	LazerScale,
 	LazerSpeed
@@ -51,15 +53,24 @@ class Game
 
 		std::unordered_map<EffectKey, float> Effects = 
 		{
-			{ EffectKey::BulletTimeout, 250/60 },
+			{ EffectKey::BulletCooldown, 250 },
 			{ EffectKey::BulletDamage, 25.0f },
 			{ EffectKey::BulletSpeed, 1000.0f },
 
-			{ EffectKey::LazerTimeout, 750/60 },
+			{ EffectKey::LazerCooldown, 750 },
 			{ EffectKey::LazerDamage, 25.0f },
 			{ EffectKey::LazerScale, 1.0f },
 			{ EffectKey::LazerSpeed, 3000.0f }
 		};
+
+		unsigned int LastLMB = 0;
+		bool CanLMB = true;
+
+		unsigned int LastRMB = 0;
+		bool CanRMB = true;
+
+		double Accumulator = 0.0f;
+		size_t Ticks = 0;
 		
 		Camera2D Camera;
 		Rectangle UpdateArea;

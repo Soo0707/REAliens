@@ -92,6 +92,8 @@ void Game::Draw()
 
 void Game::Update()
 {
+	this->Accumulator += GetFrameTime();
+
 	this->PlayerInstance->MoveX();
 	Collisions::ResolveCollisionPlayerX(*(this->PlayerInstance), this->Walls, this->Props, this->Spawners);
 	
@@ -116,6 +118,18 @@ void Game::Update()
 
 	this->UpdateArea.x = this->PlayerInstance->Rect.x - GetScreenWidth() / 2.0f;
 	this->UpdateArea.y = this->PlayerInstance->Rect.y - GetScreenHeight() / 2.0f;
+
+	if (this->Ticks - this->LastLMB >= this->Effects[EffectKey::BulletCooldown])
+		this->CanLMB = true;
+
+	if (this->Ticks - this->LastRMB >= this->Effects[EffectKey::LazerCooldown])
+		this->CanRMB = true;
+
+	if (this->Accumulator >= TICK_TIME)
+	{
+		this->Ticks++;
+		this->Accumulator = 0.0f;
+	}
 }
 
 void Game::HandleInput()
@@ -126,7 +140,7 @@ void Game::HandleInput()
 	if (this->PlayerInstance->Direction.x != 0.0f && this->PlayerInstance->Direction.y != 0.0f)
 		this->PlayerInstance->Direction = Vector2Normalize(this->PlayerInstance->Direction);
 
-	if (IsMouseButtonPressed(0))
+	if (IsMouseButtonPressed(0) && this->CanLMB)
 	{
 		Rectangle player_rect = this->PlayerInstance->Rect;
 
@@ -146,11 +160,15 @@ void Game::HandleInput()
 		float angle = atan2(direction.y, direction.x) * 180 / 3.142;
 
 		this->Projectiles.emplace_back(player_centre.x, player_centre.y, texture, speed, direction, angle, 1.0f, ProjectileType::Bullet, damage);
+
+		this->CanLMB = false;
+		this->LastLMB = this->Ticks;
 	}
 	
-	if (IsMouseButtonPressed(1))
+	if (IsMouseButtonPressed(1) && this->CanRMB)
 	{
 		static constexpr std::array<Vector2, 4> directions = { Vector2{1.0f, 0.0f}, Vector2{0.0f, 1.0f}, Vector2{-1.0f, 0.0f}, Vector2{0.0f, -1.0f} };
+		static constexpr std::array<float, 4> angles = { 0.0f, 90.0f, 0, 90.0f };
 
 		Rectangle player_rect = this->PlayerInstance->Rect;
 
@@ -161,11 +179,11 @@ void Game::HandleInput()
 		float speed = this->Effects[EffectKey::LazerSpeed];
 		float damage = this->Effects[EffectKey::LazerDamage];
 
-		for (auto const &direction : directions)
-		{
-			float angle = atan2(direction.y, direction.x) * 180 / 3.142;
-			this->Projectiles.emplace_back(player_centre.x, player_centre.y, texture, speed, direction, angle, 1.0f, ProjectileType::Lazer, damage);
-		}
+		for (int i = 0; i < 4; i++)
+			this->Projectiles.emplace_back(player_centre.x, player_centre.y, texture, speed, directions[i], angles[i], 1.0f, ProjectileType::Lazer, damage);
+
+		this->CanRMB = false;
+		this->LastRMB = this->Ticks;
 	}
 }
 
