@@ -51,12 +51,10 @@ void Player::SetCurrentTextures()
 
 void Player::MoveX()
 {
-	this->NextRect.x = this->Rect.x + this->Speed * this->Direction.x * GetFrameTime();
-	this->NextRect.width = this->Rect.width;
+	this->Rect.x += this->Speed * this->Direction.x * GetFrameTime();
 }
 
 void Player::MoveY()
 {
-	this->NextRect.y = this->Rect.y + this->Speed * this->Direction.y * GetFrameTime();
-	this->NextRect.height = this->Rect.height;
+	this->Rect.y += this->Speed * this->Direction.y * GetFrameTime();
 }

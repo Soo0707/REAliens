@@ -102,47 +102,50 @@ void Game::Update()
 {
 	this->Accumulator += GetFrameTime();
 
-	this->PlayerInstance->MoveX();
-	Collisions::ResolveCollisionPlayerX(*(this->PlayerInstance), this->Walls, this->Props, this->Spawners);
+	if (this->Accumulator >= MAX_TICK_TIME)
+		this->Accumulator = MAX_TICK_TIME;
 	
-	this->PlayerInstance->MoveY();
-	Collisions::ResolveCollisionPlayerY(*(this->PlayerInstance), this->Walls, this->Props, this->Spawners);
-
-	this->PlayerInstance->Update();
-	
-	for (auto &projectile : this->Projectiles)
-		projectile.Update();
-
-	Collisions::ProjectileCollisions(this->Projectiles, this->Walls, this->UpdateArea);
-	std::erase_if(this->Projectiles, [](Projectile& proj){ return proj.Kill; });
-
-	for (auto &enemy : this->Enemies)
+	while (this->Accumulator >= TICK_TIME);
 	{
-		enemy.Update(this->PlayerInstance->Rect);
+		this->PlayerInstance->MoveX();
+		Collisions::ResolveCollisionPlayerX(*(this->PlayerInstance), this->Walls, this->Props, this->Spawners);
 		
-		enemy.MoveX();
-		Collisions::ResolveCollisionEnemyX(enemy, this->Walls, this->Props, this->Spawners);
+		this->PlayerInstance->MoveY();
+		Collisions::ResolveCollisionPlayerY(*(this->PlayerInstance), this->Walls, this->Props, this->Spawners);
 
-		enemy.MoveY();
-		Collisions::ResolveCollisionEnemyY(enemy, this->Walls, this->Props, this->Spawners);
-	}
+		this->PlayerInstance->Update();
+		
+		for (auto &projectile : this->Projectiles)
+			projectile.Update();
 
-	this->Camera.target = { this->PlayerInstance->Rect.x, this->PlayerInstance->Rect.y };
+		Collisions::ProjectileCollisions(this->Projectiles, this->Walls, this->UpdateArea);
+		std::erase_if(this->Projectiles, [](Projectile& proj){ return proj.Kill; });
 
-	this->UpdateArea.x = this->PlayerInstance->Rect.x - GetScreenWidth() / 2.0f;
-	this->UpdateArea.y = this->PlayerInstance->Rect.y - GetScreenHeight() / 2.0f;
+		for (auto &enemy : this->Enemies)
+		{
+			enemy.Update(this->PlayerInstance->Rect);
+			
+			enemy.MoveX();
+			Collisions::ResolveCollisionEnemyX(enemy, this->Walls, this->Props, this->Spawners);
+
+			enemy.MoveY();
+			Collisions::ResolveCollisionEnemyY(enemy, this->Walls, this->Props, this->Spawners);
+		}
+
+		this->UpdateArea.x = this->PlayerInstance->Rect.x - GetScreenWidth() / 2.0f;
+		this->UpdateArea.y = this->PlayerInstance->Rect.y - GetScreenHeight() / 2.0f;
+		
+		this->Camera.target = { this->PlayerInstance->Rect.x, this->PlayerInstance->Rect.y };
+
+		this->Accumulator -= TICK_TIME;
+		this->Ticks++;
+	} 
 
 	if (this->Ticks - this->LastLMB >= this->Effects[EffectKey::BulletCooldown])
 		this->CanLMB = true;
 
 	if (this->Ticks - this->LastRMB >= this->Effects[EffectKey::LazerCooldown])
 		this->CanRMB = true;
-
-	if (this->Accumulator >= TICK_TIME)
-	{
-		this->Ticks++;
-		this->Accumulator = 0.0f;
-	}
 }
 
 void Game::HandleInput()

@@ -18,7 +18,6 @@ class Player
 
 		Vector2 Direction = { 0.0f, 0.0f };
 		Rectangle Rect;
-		Rectangle NextRect = { 0.0f, 0.0f, 0, 0 };
 		unsigned int Speed = 100;
 
 	private:

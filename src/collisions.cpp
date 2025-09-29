@@ -3,71 +3,81 @@
 #include "projectiles.hpp"
 #include "raylib.h"
 
+void Collisions::PlayerCollisionResolverX(Player& player, const Rectangle& rect)
+{
+	if (player.Direction.x > 0)
+		player.Rect.x = rect.x - player.Rect.width - buffer; 
+	else if (player.Direction.x < 0)
+		player.Rect.x = rect.x + rect.width + buffer;
+}
+
+void Collisions::PlayerCollisionResolverY(Player& player, const Rectangle& rect)
+{
+	if (player.Direction.y > 0)
+		player.Rect.y = rect.y - player.Rect.height - buffer;
+	else if (player.Direction.y < 0)
+		player.Rect.y = rect.y + rect.height + buffer;
+}
+
 void Collisions::ResolveCollisionPlayerX(Player& player, std::vector<Wall>& walls, std::vector<Prop>& props, std::vector<Spawner>& spawners)
 {
-	bool collided = false;
 	for (auto const& wall : walls)
 	{
-		if (CheckCollisionRecs(player.NextRect, wall.Rect))
+		if (CheckCollisionRecs(player.Rect, wall.Rect))
 		{
-			collided = true;
-			break;
+			Collisions::PlayerCollisionResolverX(player, wall.Rect);
+			return;
 		}
 	}
 	
-	if (!collided)
+	for (auto const& prop : props)
 	{
-		for (auto const& prop : props)
+		if (CheckCollisionRecs(player.Rect, prop.Rect))
 		{
-			if (CheckCollisionRecs(player.NextRect, prop.Rect))
-				collided = true;
+			Collisions::PlayerCollisionResolverX(player, prop.Rect);
+			return;
 		}
 	}
 
-	if (!collided)
+	for (auto const& spawner : spawners)
 	{
-		for (auto const& spawner : spawners)
+		if (CheckCollisionRecs(player.Rect, spawner.Rect))
 		{
-			if (CheckCollisionRecs(player.NextRect, spawner.Rect))
-				collided = true;
+			Collisions::PlayerCollisionResolverX(player, spawner.Rect);
+			return;
 		}
 	}
-	
-	(collided) ? (player.Direction.x = 0) : (player.Rect.x = player.NextRect.x);
 }
 
 
 void Collisions::ResolveCollisionPlayerY(Player& player, std::vector<Wall>& walls, std::vector<Prop>& props, std::vector<Spawner>& spawners)
 {
-	bool collided = false;
 	for (auto const& wall : walls)
 	{
-		if (CheckCollisionRecs(player.NextRect, wall.Rect))
+		if (CheckCollisionRecs(player.Rect, wall.Rect))
 		{
-			collided = true;
-			break;
+			Collisions::PlayerCollisionResolverY(player, wall.Rect);
+			return;
 		}
 	}
 	
-	if (!collided)
+	for (auto const& prop : props)
 	{
-		for (auto const& prop : props)
+		if (CheckCollisionRecs(player.Rect, prop.Rect))
 		{
-			if (CheckCollisionRecs(player.NextRect, prop.Rect))
-				collided = true;
+			Collisions::PlayerCollisionResolverY(player, prop.Rect);
+			return;
 		}
 	}
 
-	if (!collided)
+	for (auto const& spawner : spawners)
 	{
-		for (auto const& spawner : spawners)
+		if (CheckCollisionRecs(player.Rect, spawner.Rect))
 		{
-			if (CheckCollisionRecs(player.NextRect, spawner.Rect))
-				collided = true;
+			Collisions::PlayerCollisionResolverY(player, spawner.Rect);
+			return;
 		}
 	}
-	
-	(collided) ? (player.Direction.y = 0) : (player.Rect.y = player.NextRect.y);
 }
 
 void Collisions::ProjectileCollisions(std::vector<Projectile>& projectiles, std::vector<Wall>& walls, const Rectangle& update_area)
@@ -94,69 +104,80 @@ void Collisions::ProjectileCollisions(std::vector<Projectile>& projectiles, std:
 	}
 }
 
+void Collisions::EnemyCollisionResolverX(Enemy& enemy, const Rectangle& rect)
+{
+	if (enemy.Direction.x > 0)
+		enemy.Rect.x = rect.x - enemy.Rect.width - buffer; 
+	else if (enemy.Direction.x < 0)
+		enemy.Rect.x = rect.x + rect.width + buffer;
+}
+
+void Collisions::EnemyCollisionResolverY(Enemy& enemy, const Rectangle& rect)
+{
+	if (enemy.Direction.y > 0)
+		enemy.Rect.y = rect.y - enemy.Rect.height - buffer;
+	else if (enemy.Direction.y < 0)
+		enemy.Rect.y = rect.y + rect.height + buffer;
+}
+
 void Collisions::ResolveCollisionEnemyX(Enemy& enemy, std::vector<Wall>& walls, std::vector<Prop>& props, std::vector<Spawner>& spawners)
 {
-	bool collided = false;
 	for (auto const& wall : walls)
 	{
-		if (CheckCollisionRecs(enemy.NextRect, wall.Rect))
+		if (CheckCollisionRecs(enemy.Rect, wall.Rect))
 		{
-			collided = true;
-			break;
+			EnemyCollisionResolverX(enemy, wall.Rect);
+			return;
 		}
 	}
 	
-	if (!collided)
+	for (auto const& prop : props)
 	{
-		for (auto const& prop : props)
+		if (CheckCollisionRecs(enemy.Rect, prop.Rect))
 		{
-			if (CheckCollisionRecs(enemy.NextRect, prop.Rect))
-				collided = true;
+			EnemyCollisionResolverX(enemy, prop.Rect);
+			return;
 		}
 	}
 
-	if (!collided)
+	for (auto const& spawner : spawners)
 	{
-		for (auto const& spawner : spawners)
+		if (CheckCollisionRecs(enemy.Rect, spawner.Rect))
 		{
-			if (CheckCollisionRecs(enemy.NextRect, spawner.Rect))
-				collided = true;
+			EnemyCollisionResolverX(enemy, spawner.Rect);
+			return;
 		}
 	}
 	
-	(collided) ? (enemy.Direction.x = 0) : (enemy.Rect.x = enemy.NextRect.x);
 }
 
 
 void Collisions::ResolveCollisionEnemyY(Enemy& enemy, std::vector<Wall>& walls, std::vector<Prop>& props, std::vector<Spawner>& spawners)
 {
-	bool collided = false;
 	for (auto const& wall : walls)
 	{
-		if (CheckCollisionRecs(enemy.NextRect, wall.Rect))
+		if (CheckCollisionRecs(enemy.Rect, wall.Rect))
 		{
-			collided = true;
-			break;
+			EnemyCollisionResolverY(enemy, wall.Rect);
+			return;
 		}
 	}
 	
-	if (!collided)
+	for (auto const& prop : props)
 	{
-		for (auto const& prop : props)
+		if (CheckCollisionRecs(enemy.Rect, prop.Rect))
 		{
-			if (CheckCollisionRecs(enemy.NextRect, prop.Rect))
-				collided = true;
+			EnemyCollisionResolverY(enemy, prop.Rect);
+			return;
 		}
 	}
 
-	if (!collided)
+	for (auto const& spawner : spawners)
 	{
-		for (auto const& spawner : spawners)
+		if (CheckCollisionRecs(enemy.Rect, spawner.Rect))
 		{
-			if (CheckCollisionRecs(enemy.NextRect, spawner.Rect))
-				collided = true;
+			EnemyCollisionResolverY(enemy, spawner.Rect);
+			return;
 		}
 	}
-	
-	(collided) ? (enemy.Direction.y = 0) : (enemy.Rect.y = enemy.NextRect.y);
 }

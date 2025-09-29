@@ -16,7 +16,9 @@
 #define PROPS_LAYER 2
 #define SPAWNERS_LAYER 3
 
-#define TICK_TIME  (1/60)
+static constexpr float TICK_TIME = (1.0/60.0);
+static constexpr float MAX_TICK_TIME = (1.0/5.0);
+
 
 enum class EffectKey
 {
@@ -69,7 +71,7 @@ class Game
 		unsigned int LastRMB = 0;
 		bool CanRMB = true;
 
-		double Accumulator = 0.0f;
+		float Accumulator = 0.0f;
 		size_t Ticks = 0;
 		
 		Camera2D Camera;

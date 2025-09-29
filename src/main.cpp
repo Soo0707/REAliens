@@ -3,8 +3,9 @@
 
 int main(void)
 {
+	int CurrentMonitor = GetCurrentMonitor();
 
-	SetTargetFPS(60);
+	SetTargetFPS(GetMonitorRefreshRate(CurrentMonitor));
 	InitWindow(1280, 720, "RE::Aliens");
 
 	Game game = Game();
