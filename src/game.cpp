@@ -47,6 +47,8 @@ Game::Game()
 	
 	Vector2 player_pos = { this->PlayerInstance->Rect.x, this->PlayerInstance->Rect.y };
 	this->UpdateArea = {player_pos.x - (GetScreenWidth() / 2.0f), player_pos.y - (GetScreenHeight() / 2.0f), (float) GetScreenWidth(), (float) GetScreenHeight()};
+
+	this->Enemies.emplace_back(600, 600, *(this->AssetManagerInstance), EntityTextureKey::Australian, EnemyType::Australian);
 }
 
 Game::~Game()
@@ -84,6 +86,12 @@ void Game::Draw()
 			projectile.Draw();
 	}
 
+	for (auto &enemy : this->Enemies)
+	{
+		if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
+			enemy.Draw();
+	}
+
 	this->PlayerInstance->Draw();
 
 	EndMode2D();
@@ -110,8 +118,13 @@ void Game::Update()
 
 	for (auto &enemy : this->Enemies)
 	{
-		enemy.Update();
-		enemy.SetDirection(this->PlayerInstance->Rect);
+		enemy.Update(this->PlayerInstance->Rect);
+		
+		enemy.MoveX();
+		Collisions::ResolveCollisionEnemyX(enemy, this->Walls, this->Props, this->Spawners);
+
+		enemy.MoveY();
+		Collisions::ResolveCollisionEnemyY(enemy, this->Walls, this->Props, this->Spawners);
 	}
 
 	this->Camera.target = { this->PlayerInstance->Rect.x, this->PlayerInstance->Rect.y };
@@ -209,20 +222,14 @@ void Game::InitialiseMapObjects(tmx_map* map, tmx_layer* layer, const unsigned i
 			switch (type)
 			{
 				case WALLS_LAYER:
-				{
 					this->Walls.emplace_back(x_pos, y_pos, texture);
 					break;
-				}
 				case PROPS_LAYER:
-				{
 					this->Props.emplace_back(x_pos, y_pos, texture);
 					break;
-				}
 				case SPAWNERS_LAYER:
-				{
 					this->Spawners.emplace_back(x_pos, y_pos, texture);
 					break;
-				}
 			}
 		}
 	}

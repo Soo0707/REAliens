@@ -30,7 +30,7 @@ class Enemy
 		void SetDirection(Rectangle& player_rect);
 
 		void Draw();
-		void Update();
+		void Update(Rectangle& player_rect);
 		
 		int Health;
 		int Damage;

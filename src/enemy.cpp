@@ -6,7 +6,7 @@
 Enemy::Enemy(float pos_x, float pos_y, AssetManager &assets, EntityTextureKey texture_key, EnemyType type) :
 	Assets(assets), Image(assets.EntityTextures[texture_key][0]), TextureKey(texture_key), Type(type), UniqueState(UniqueStates::None)
 {
-	this->Rect = {pos_x, pos_y, (float) this->Image.width, (float) this->Image.height};
+	this->Rect = { pos_x, pos_y, (float) this->Image.width, (float) this->Image.height };
 
 	switch (type)
 	{
@@ -72,9 +72,10 @@ Enemy::Enemy(float pos_x, float pos_y, AssetManager &assets, EntityTextureKey te
 Enemy::~Enemy()
 {}
 
-void Enemy::Update()
+void Enemy::Update(Rectangle& player_rect)
 {
 	Enemy::Animate();
+	Enemy::SetDirection(player_rect);
 }
 
 void Enemy::Draw()
@@ -118,6 +119,8 @@ void Enemy::SetDirection(Rectangle& player_rect)
 	this->Direction.x = player_rect.x - this->Rect.x;
 	this->Direction.y = player_rect.y - this->Rect.y;
 
-	if (this->Direction.x != 0.0f || this->Direction.y != 0.0f)
+	if ((this->Direction.x != 0.0f || this->Direction.y != 0.0f) && Vector2Length(this->Direction) >= 32)
 		this->Direction = Vector2Normalize(this->Direction);
+	else
+		this->Direction = Vector2 { 0.0f, 0.0f };
 }

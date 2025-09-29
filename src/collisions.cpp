@@ -93,3 +93,70 @@ void Collisions::ProjectileCollisions(std::vector<Projectile>& projectiles, std:
 		}
 	}
 }
+
+void Collisions::ResolveCollisionEnemyX(Enemy& enemy, std::vector<Wall>& walls, std::vector<Prop>& props, std::vector<Spawner>& spawners)
+{
+	bool collided = false;
+	for (auto const& wall : walls)
+	{
+		if (CheckCollisionRecs(enemy.NextRect, wall.Rect))
+		{
+			collided = true;
+			break;
+		}
+	}
+	
+	if (!collided)
+	{
+		for (auto const& prop : props)
+		{
+			if (CheckCollisionRecs(enemy.NextRect, prop.Rect))
+				collided = true;
+		}
+	}
+
+	if (!collided)
+	{
+		for (auto const& spawner : spawners)
+		{
+			if (CheckCollisionRecs(enemy.NextRect, spawner.Rect))
+				collided = true;
+		}
+	}
+	
+	(collided) ? (enemy.Direction.x = 0) : (enemy.Rect.x = enemy.NextRect.x);
+}
+
+
+void Collisions::ResolveCollisionEnemyY(Enemy& enemy, std::vector<Wall>& walls, std::vector<Prop>& props, std::vector<Spawner>& spawners)
+{
+	bool collided = false;
+	for (auto const& wall : walls)
+	{
+		if (CheckCollisionRecs(enemy.NextRect, wall.Rect))
+		{
+			collided = true;
+			break;
+		}
+	}
+	
+	if (!collided)
+	{
+		for (auto const& prop : props)
+		{
+			if (CheckCollisionRecs(enemy.NextRect, prop.Rect))
+				collided = true;
+		}
+	}
+
+	if (!collided)
+	{
+		for (auto const& spawner : spawners)
+		{
+			if (CheckCollisionRecs(enemy.NextRect, spawner.Rect))
+				collided = true;
+		}
+	}
+	
+	(collided) ? (enemy.Direction.y = 0) : (enemy.Rect.y = enemy.NextRect.y);
+}
