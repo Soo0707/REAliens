@@ -51,10 +51,9 @@ class Game
 		void HandleInput();
 
 	private:
-		void InitialiseMapObjects(tmx_map* map, tmx_layer* layer, const unsigned int type);
+		void InitialiseMapObjects(tmx_map* map, tmx_layer* layer);
 		void SpawnEnemies();
 
-		std::vector<Wall> Walls;
 		std::vector<Prop> Props;
 		
 		std::shared_mutex EnemiesMutex;

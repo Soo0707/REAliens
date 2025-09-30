@@ -28,14 +28,12 @@ Game::Game()
 	if (map == nullptr)
 		exit(1);
 
-	tmx_layer *walls_layer = tmx_find_layer_by_name(map, "Walls");
 	tmx_layer *props_layer = tmx_find_layer_by_name(map, "Props");
 	
-	if (walls_layer == nullptr || props_layer == nullptr)
+	if (props_layer == nullptr)
 		exit(1);
 
-	Game::InitialiseMapObjects(map, walls_layer, WALLS_LAYER);
-	Game::InitialiseMapObjects(map, props_layer, PROPS_LAYER);
+	Game::InitialiseMapObjects(map, props_layer);
 	tmx_map_free(map);
 
 	this->Camera = { 0 };
@@ -62,12 +60,6 @@ void Game::Draw()
 	BeginMode2D(this->Camera);
 	
 	DrawTexture(this->AssetManagerInstance->Ground, 0, 0, WHITE);
-
-	for (auto const &wall : this->Walls)
-	{
-		if (CheckCollisionRecs(this->UpdateArea, wall.Rect))
-			wall.Draw();
-	}
 
 	for (auto const &prop : this->Props)
 	{
@@ -103,10 +95,8 @@ void Game::Update()
 	while (this->Accumulator >= TICK_TIME);
 	{
 		this->PlayerInstance->MoveX();
-		Collisions::PlayerCollisionX(*(this->PlayerInstance), this->Walls, this->Props);
 		
 		this->PlayerInstance->MoveY();
-		Collisions::PlayerCollisionY(*(this->PlayerInstance), this->Walls, this->Props);
 
 		this->PlayerInstance->Update();
 
@@ -120,7 +110,7 @@ void Game::Update()
 			if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
 			{
 				projectile.Update();
-				Collisions::ProjectileCollision(projectile, this->Walls, this->Enemies, this->Ticks);
+				Collisions::ProjectileCollision(projectile, this->Enemies, this->Ticks);
 			}
 			else
 				projectile.Kill = true;
@@ -134,10 +124,8 @@ void Game::Update()
 				enemy.Update(this->PlayerInstance->Rect, this->Ticks);
 				
 				enemy.MoveX();
-				Collisions::EnemyCollisionX(enemy, this->Walls, this->Props);
 
 				enemy.MoveY();
-				Collisions::EnemyCollisionY(enemy, this->Walls, this->Props);
 
 				Collisions::LeAttack(*(this->PlayerInstance), enemy, this->Effects, this->EffectTimeouts);
 			}
@@ -216,7 +204,7 @@ void Game::HandleInput()
 	}
 }
 
-void Game::InitialiseMapObjects(tmx_map* map, tmx_layer* layer, const unsigned int type)
+void Game::InitialiseMapObjects(tmx_map* map, tmx_layer* layer)
 {
 	for (int cell_y = 0; cell_y < map->height; cell_y++)
 	{
@@ -235,15 +223,7 @@ void Game::InitialiseMapObjects(tmx_map* map, tmx_layer* layer, const unsigned i
 			float x_pos = cell_x * TILESIZE;
 			float y_pos = cell_y * TILESIZE;
 
-			switch (type)
-			{
-				case WALLS_LAYER:
-					this->Walls.emplace_back(x_pos, y_pos, texture);
-					break;
-				case PROPS_LAYER:
-					this->Props.emplace_back(x_pos, y_pos, texture);
-					break;
-			}
+			this->Props.emplace_back(x_pos, y_pos, texture);
 		}
 	}
 }

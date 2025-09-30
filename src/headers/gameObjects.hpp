@@ -14,17 +14,3 @@ class Prop
 	private:
 		Texture2D Image;
 };
-
-class Wall
-{
-	public:
-		Wall(float pos_x, float pos_y, Texture2D image);
-		~Wall() = default;
-		Rectangle Rect;
-
-		void Draw() const;
-	
-	private:
-		bool Destroyed = false;
-		Texture2D Image;
-};
