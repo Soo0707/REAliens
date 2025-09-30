@@ -16,7 +16,7 @@ Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, Ene
 		{
 			this->TextureKey = EntityTextureKey::Australian;
 			this->Damage = 5;
-			this->Speed = 350;
+			this->Speed = 175;
 			this->AnimationSpeed = 10.0f;
 			this->Health = 75;
 
@@ -30,7 +30,7 @@ Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, Ene
 		{
 			this->TextureKey = EntityTextureKey::BigMan;
 			this->Damage = 50;
-			this->Speed = 150;
+			this->Speed = 175;
 			this->AnimationSpeed = 10.0f;
 			this->Health = 500;
 
@@ -43,7 +43,7 @@ Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, Ene
 		{
 			this->TextureKey = EntityTextureKey::Bomber;
 			this->Damage = 15;
-			this->Speed = 700;
+			this->Speed = 350;
 			this->AnimationSpeed = 10.0f;
 			this->Health = 100;
 
@@ -57,7 +57,7 @@ Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, Ene
 		{
 			this->TextureKey = EntityTextureKey::Drunkard;
 			this->Damage = 5;
-			this->Speed = 500;
+			this->Speed = 250;
 			this->AnimationSpeed = 60.0f;
 			this->Health = 50;
 
@@ -72,7 +72,7 @@ Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, Ene
 			this->TextureKey = EntityTextureKey::Pleb;
 
 			this->Damage = 5;
-			this->Speed = 300;
+			this->Speed = 150;
 			this->AnimationSpeed = 10.0f;
 			this->Health = 75;
 
@@ -86,7 +86,7 @@ Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, Ene
 		{
 			this->TextureKey = EntityTextureKey::Poison;
 			this->Damage = 5;
-			this->Speed = 450;
+			this->Speed = 225;
 			this->AnimationSpeed = 60;
 			this->Health = 100;
 
@@ -175,7 +175,9 @@ void Enemy::SetDirection(Rectangle& player_rect)
 	this->Direction.x = player_rect.x - this->Rect.x;
 	this->Direction.y = player_rect.y - this->Rect.y;
 
-	if ((this->Direction.x != 0.0f || this->Direction.y != 0.0f) && Vector2Length(this->Direction) >= 32)
+	float distance = Vector2Length(this->Direction);
+
+	if ((this->Direction.x != 0.0f || this->Direction.y != 0.0f) && distance >= 32)
 		this->Direction = Vector2Normalize(this->Direction);
 	else
 		this->Direction = Vector2 { 0.0f, 0.0f };

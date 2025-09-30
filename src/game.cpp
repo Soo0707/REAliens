@@ -139,7 +139,7 @@ void Game::Update()
 				enemy.MoveY();
 				Collisions::EnemyCollisionY(enemy, this->Walls, this->Props);
 
-				Collisions::LeAttack(*(this->PlayerInstance), enemy, this->Effects);
+				Collisions::LeAttack(*(this->PlayerInstance), enemy, this->Effects, this->EffectTimeouts);
 			}
 		}
 		std::erase_if(this->Enemies, [](Enemy& enemy) { return (enemy.Health <= 0); });
@@ -253,7 +253,7 @@ void Game::SpawnEnemies()
 	std::vector<Vector2> rand_nums;
 
 	for (int i = 0; i < this->Level * 5; i++)
-		rand_nums.emplace_back( Vector2{ GetRandomValue(-10, 10), GetRandomValue(-10, 10) });
+		rand_nums.emplace_back(Vector2{ (float) GetRandomValue(-20, 20), (float) GetRandomValue(-20, 20) });
 
 	for (auto const& location : rand_nums)
 	{

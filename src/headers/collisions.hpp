@@ -27,5 +27,5 @@ namespace Collisions
 	void EnemyCollisionResolverX(Enemy& enemy, const Rectangle& rect);
 	void EnemyCollisionResolverY(Enemy& enemy, const Rectangle& rect);
 
-	void LeAttack(Player& player, Enemy& enemy, std::unordered_map<EffectKey, float>& effects);
+	void LeAttack(Player& player, Enemy& enemy, std::unordered_map<EffectKey, float>& effects, std::unordered_map<EffectKey, size_t>& effect_timeouts);
 }

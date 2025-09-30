@@ -10,6 +10,8 @@ void Collisions::PlayerCollisionResolverX(Player& player, const Rectangle& rect)
 		player.Rect.x = rect.x - player.Rect.width - buffer; 
 	else if (player.Direction.x < 0)
 		player.Rect.x = rect.x + rect.width + buffer;
+
+	player.Direction.x = 0;
 }
 
 void Collisions::PlayerCollisionResolverY(Player& player, const Rectangle& rect)
@@ -18,6 +20,8 @@ void Collisions::PlayerCollisionResolverY(Player& player, const Rectangle& rect)
 		player.Rect.y = rect.y - player.Rect.height - buffer;
 	else if (player.Direction.y < 0)
 		player.Rect.y = rect.y + rect.height + buffer;
+
+	player.Direction.y = 0;
 }
 
 void Collisions::PlayerCollisionX(Player& player, std::vector<Wall>& walls, std::vector<Prop>& props)
@@ -69,6 +73,8 @@ void Collisions::EnemyCollisionResolverX(Enemy& enemy, const Rectangle& rect)
 		enemy.Rect.x = rect.x - enemy.Rect.width - buffer; 
 	else if (enemy.Direction.x < 0)
 		enemy.Rect.x = rect.x + rect.width + buffer;
+	
+	enemy.Direction.x = 0;
 }
 
 void Collisions::EnemyCollisionResolverY(Enemy& enemy, const Rectangle& rect)
@@ -77,6 +83,8 @@ void Collisions::EnemyCollisionResolverY(Enemy& enemy, const Rectangle& rect)
 		enemy.Rect.y = rect.y - enemy.Rect.height - buffer;
 	else if (enemy.Direction.y < 0)
 		enemy.Rect.y = rect.y + rect.height + buffer;
+
+	enemy.Direction.y = 0;
 }
 
 void Collisions::EnemyCollisionX(Enemy& enemy, std::vector<Wall>& walls, std::vector<Prop>& props)
@@ -150,12 +158,12 @@ void Collisions::ProjectileCollision(Projectile& proj, std::vector<Wall>& walls,
 	}
 }
 
-void Collisions::LeAttack(Player& player, Enemy& enemy, std::unordered_map<EffectKey, float>& effects)
+void Collisions::LeAttack(Player& player, Enemy& enemy, std::unordered_map<EffectKey, float>& effects, std::unordered_map<EffectKey, size_t>& effect_timeouts)
 {
 	if (CheckCollisionRecs(player.Rect, enemy.Rect))
 	{
 		player.Health -= enemy.Damage;
-
+/*
 		switch(enemy.Type)
 		{
 			case EnemyType::Australian:
@@ -171,5 +179,6 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, std::unordered_map<Effec
 				effects[EffectKey::Trapped] = (float) 5;
 				break;
 		}
+		*/
 	}
 }
