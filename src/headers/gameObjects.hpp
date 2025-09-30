@@ -1,6 +1,7 @@
 #pragma once
 
 #include "raylib.h"
+#include <cstddef>
 
 class Prop
 {
@@ -25,18 +26,5 @@ class Wall
 	
 	private:
 		bool Destroyed = false;
-		Texture2D Image;
-};
-
-class Spawner
-{
-	public:
-		Spawner(float pos_x, float pos_y, Texture2D image);
-		~Spawner() = default;
-		Rectangle Rect;
-
-		void Draw() const;
-	
-	private:
 		Texture2D Image;
 };

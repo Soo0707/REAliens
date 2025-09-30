@@ -2,6 +2,7 @@
 #include "gameObjects.hpp"
 #include "projectiles.hpp"
 #include "raylib.h"
+#include "game.hpp"
 
 void Collisions::PlayerCollisionResolverX(Player& player, const Rectangle& rect)
 {
@@ -19,7 +20,7 @@ void Collisions::PlayerCollisionResolverY(Player& player, const Rectangle& rect)
 		player.Rect.y = rect.y + rect.height + buffer;
 }
 
-void Collisions::ResolveCollisionPlayerX(Player& player, std::vector<Wall>& walls, std::vector<Prop>& props, std::vector<Spawner>& spawners)
+void Collisions::PlayerCollisionX(Player& player, std::vector<Wall>& walls, std::vector<Prop>& props)
 {
 	for (auto const& wall : walls)
 	{
@@ -38,19 +39,10 @@ void Collisions::ResolveCollisionPlayerX(Player& player, std::vector<Wall>& wall
 			return;
 		}
 	}
-
-	for (auto const& spawner : spawners)
-	{
-		if (CheckCollisionRecs(player.Rect, spawner.Rect))
-		{
-			Collisions::PlayerCollisionResolverX(player, spawner.Rect);
-			return;
-		}
-	}
 }
 
 
-void Collisions::ResolveCollisionPlayerY(Player& player, std::vector<Wall>& walls, std::vector<Prop>& props, std::vector<Spawner>& spawners)
+void Collisions::PlayerCollisionY(Player& player, std::vector<Wall>& walls, std::vector<Prop>& props)
 {
 	for (auto const& wall : walls)
 	{
@@ -67,39 +59,6 @@ void Collisions::ResolveCollisionPlayerY(Player& player, std::vector<Wall>& wall
 		{
 			Collisions::PlayerCollisionResolverY(player, prop.Rect);
 			return;
-		}
-	}
-
-	for (auto const& spawner : spawners)
-	{
-		if (CheckCollisionRecs(player.Rect, spawner.Rect))
-		{
-			Collisions::PlayerCollisionResolverY(player, spawner.Rect);
-			return;
-		}
-	}
-}
-
-void Collisions::ProjectileCollisions(std::vector<Projectile>& projectiles, std::vector<Wall>& walls, const Rectangle& update_area)
-{
-	for (auto &proj : projectiles)
-	{
-		if (!CheckCollisionRecs(proj.Rect, update_area))
-		{
-			proj.Kill = true;
-			continue;
-		}
-
-		if (proj.Type != ProjectileType::Lazer)
-		{
-			for (auto const &wall : walls)
-			{
-				if (CheckCollisionRecs(proj.Rect, wall.Rect))
-				{
-					proj.Kill = true;
-					break;
-				}
-			}
 		}
 	}
 }
@@ -120,7 +79,7 @@ void Collisions::EnemyCollisionResolverY(Enemy& enemy, const Rectangle& rect)
 		enemy.Rect.y = rect.y + rect.height + buffer;
 }
 
-void Collisions::ResolveCollisionEnemyX(Enemy& enemy, std::vector<Wall>& walls, std::vector<Prop>& props, std::vector<Spawner>& spawners)
+void Collisions::EnemyCollisionX(Enemy& enemy, std::vector<Wall>& walls, std::vector<Prop>& props)
 {
 	for (auto const& wall : walls)
 	{
@@ -140,19 +99,9 @@ void Collisions::ResolveCollisionEnemyX(Enemy& enemy, std::vector<Wall>& walls, 
 		}
 	}
 
-	for (auto const& spawner : spawners)
-	{
-		if (CheckCollisionRecs(enemy.Rect, spawner.Rect))
-		{
-			EnemyCollisionResolverX(enemy, spawner.Rect);
-			return;
-		}
-	}
-	
 }
 
-
-void Collisions::ResolveCollisionEnemyY(Enemy& enemy, std::vector<Wall>& walls, std::vector<Prop>& props, std::vector<Spawner>& spawners)
+void Collisions::EnemyCollisionY(Enemy& enemy, std::vector<Wall>& walls, std::vector<Prop>& props)
 {
 	for (auto const& wall : walls)
 	{
@@ -171,13 +120,56 @@ void Collisions::ResolveCollisionEnemyY(Enemy& enemy, std::vector<Wall>& walls, 
 			return;
 		}
 	}
+}
 
-	for (auto const& spawner : spawners)
+void Collisions::ProjectileCollision(Projectile& proj, std::vector<Wall>& walls, std::vector<Enemy>& enemies, size_t& ticks)
+{
+	if (proj.Type != ProjectileType::Lazer)
 	{
-		if (CheckCollisionRecs(enemy.Rect, spawner.Rect))
+		for (auto const &wall : walls)
 		{
-			EnemyCollisionResolverY(enemy, spawner.Rect);
-			return;
+			if (CheckCollisionRecs(proj.Rect, wall.Rect))
+			{
+				proj.Kill = true;
+				break;
+			}
+		}
+	}
+
+	for (auto &enemy : enemies)
+	{
+		if (CheckCollisionRecs(proj.Rect, enemy.Rect))
+		{
+			enemy.Health -= proj.Damage;
+			enemy.Flash = true;
+			enemy.FlashTriggered = ticks;
+			
+			if (proj.Type == ProjectileType::Bullet)
+				proj.Kill = true;
+		}
+	}
+}
+
+void Collisions::LeAttack(Player& player, Enemy& enemy, std::unordered_map<EffectKey, float>& effects)
+{
+	if (CheckCollisionRecs(player.Rect, enemy.Rect))
+	{
+		player.Health -= enemy.Damage;
+
+		switch(enemy.Type)
+		{
+			case EnemyType::Australian:
+				effects[EffectKey::Aussie] = 0.0f;
+				break;
+			case EnemyType::Bomber:
+				enemy.UniqueState = UniqueStates::BomberExplode;
+				break;
+			case EnemyType::Poison:
+				effects[EffectKey::Poisoned] = (float) 0.5f * enemy.Damage;
+				break;
+			case EnemyType::Trapper:
+				effects[EffectKey::Trapped] = (float) 5;
+				break;
 		}
 	}
 }

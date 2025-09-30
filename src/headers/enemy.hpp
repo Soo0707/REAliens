@@ -2,6 +2,10 @@
 
 #include "raylib.h"
 #include "assetManager.hpp"
+#include <memory>
+#include <cstddef>
+
+static constexpr unsigned int FLASH_DURATION = 120;
 
 enum class EnemyType
 {
@@ -16,13 +20,15 @@ enum class EnemyType
 
 enum class UniqueStates
 {
-	None
+	None,
+	BomberExplode,
+	OverrideDirection
 };
 
 class Enemy
 {
 	public:
-		Enemy(float pos_x, float pos_y, AssetManager &assets, EntityTextureKey texture_key, EnemyType type);
+		Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, EnemyType type, UniqueStates state);
 		~Enemy(); 
 		
 		void MoveX();
@@ -30,7 +36,7 @@ class Enemy
 		void SetDirection(Rectangle& player_rect);
 
 		void Draw();
-		void Update(Rectangle& player_rect);
+		void Update(Rectangle& player_rect, size_t& ticks);
 		
 		int Health;
 		int Damage;
@@ -40,12 +46,21 @@ class Enemy
 
 		unsigned int Speed;
 		bool Flash = false;
+		size_t FlashTriggered = 0;
+
+		bool CanLeAttack = true;
+		size_t LastLeAttack = 0;
+		unsigned int LeAttackCooldown = 5000;
+
+		bool CanSecondary = true;
+		size_t LastSecondary = 0;
+		unsigned int SecondaryCooldown;
 
 		EnemyType Type;
 		UniqueStates UniqueState;
 
 	private:
-		AssetManager& Assets;
+		std::shared_ptr<AssetManager> Assets;
 		EntityTextureKey TextureKey;
 
 		Texture2D Image;

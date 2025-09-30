@@ -3,8 +3,10 @@
 #include "raylib.h"
 #include "raymath.h"
 
-Enemy::Enemy(float pos_x, float pos_y, AssetManager &assets, EntityTextureKey texture_key, EnemyType type) :
-	Assets(assets), Image(assets.EntityTextures[texture_key][0]), TextureKey(texture_key), Type(type), UniqueState(UniqueStates::None)
+#include <cstddef>
+
+Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, EnemyType type, UniqueStates state) :
+	Assets(assets), Type(type), UniqueState(state)
 {
 	this->Rect = { pos_x, pos_y, (float) this->Image.width, (float) this->Image.height };
 
@@ -12,78 +14,134 @@ Enemy::Enemy(float pos_x, float pos_y, AssetManager &assets, EntityTextureKey te
 	{
 		case EnemyType::Australian:
 		{
+			this->TextureKey = EntityTextureKey::Australian;
 			this->Damage = 5;
 			this->Speed = 350;
 			this->AnimationSpeed = 10.0f;
 			this->Health = 75;
+
+			this->CanSecondary = false;
+			this->LastSecondary = -1;
+			this->SecondaryCooldown = -1;
+
 			break;
 		}
 		case EnemyType::BigMan:
 		{
+			this->TextureKey = EntityTextureKey::BigMan;
 			this->Damage = 50;
 			this->Speed = 150;
 			this->AnimationSpeed = 10.0f;
 			this->Health = 500;
+
+			this->CanSecondary = false;
+			this->LastSecondary = -1;
+			this->SecondaryCooldown = -1;
 			break;
 		}
 		case EnemyType::Bomber:
 		{
+			this->TextureKey = EntityTextureKey::Bomber;
 			this->Damage = 15;
 			this->Speed = 700;
 			this->AnimationSpeed = 10.0f;
 			this->Health = 100;
+
+			this->CanSecondary = false;
+			this->LastSecondary = -1;
+			this->SecondaryCooldown = -1;
+
 			break;
 		}
 		case EnemyType::Drunkard:
 		{
+			this->TextureKey = EntityTextureKey::Drunkard;
 			this->Damage = 5;
 			this->Speed = 500;
 			this->AnimationSpeed = 60.0f;
 			this->Health = 50;
+
+			this->CanSecondary = true;
+			this->LastSecondary = 0;
+			this->SecondaryCooldown = 5000;
+
 			break;
 		}
 		case EnemyType::Pleb:
 		{
+			this->TextureKey = EntityTextureKey::Pleb;
+
 			this->Damage = 5;
 			this->Speed = 300;
 			this->AnimationSpeed = 10.0f;
 			this->Health = 75;
+
+			this->CanSecondary = false;
+			this->LastSecondary = -1;
+			this->SecondaryCooldown = -1;
+
 			break;
 		}
 		case EnemyType::Poison:
 		{
+			this->TextureKey = EntityTextureKey::Poison;
 			this->Damage = 5;
 			this->Speed = 450;
 			this->AnimationSpeed = 60;
 			this->Health = 100;
+
+			this->CanSecondary = false;
+			this->LastSecondary = -1;
+			this->SecondaryCooldown = -1;
+
 			break;
 		}
 		case EnemyType::Trapper:
 		{
+			this->TextureKey = EntityTextureKey::Trapper;
 			this->Damage = 10;
 			this->Speed = 430;
 			this->AnimationSpeed = 50.0f;
 			this->Health = 100;
+
+			this->CanSecondary = false;
+			this->LastSecondary = -1;
+			this->SecondaryCooldown = -1;
+
 			break;
 		}
 	}
+
+	this->Image = this->Assets->EntityTextures[this->TextureKey][0];
 }
 
 Enemy::~Enemy()
 {}
 
-void Enemy::Update(Rectangle& player_rect)
+void Enemy::Update(Rectangle& player_rect, size_t& ticks)
 {
 	Enemy::Animate();
-	Enemy::SetDirection(player_rect);
+
+	if (this->UniqueState != UniqueStates::OverrideDirection)
+		Enemy::SetDirection(player_rect);
+
+	if (ticks - this->LastLeAttack >= this->LeAttackCooldown)
+		this->CanLeAttack = true;
+
+	if (this->SecondaryCooldown > 0 && (ticks - this->LastSecondary >= this->SecondaryCooldown))
+		this->CanSecondary = true;
+
+	if (ticks - this->FlashTriggered >= FLASH_DURATION)
+		this->Flash = false;
 }
 
 void Enemy::Draw()
 {
 	if (this->Flash)
 	{
-		DrawTexture(this->Image, (int) this->Rect.x, (int) this->Rect.y, {255, 255, 255, 0});
-		this->Flash = false;
+		BeginBlendMode(BLEND_ADDITIVE);
+		DrawTexture(this->Image, (int) this->Rect.x, (int) this->Rect.y, WHITE);
+		EndBlendMode();
 	}
 	else
 		DrawTexture(this->Image, (int) this->Rect.x, (int) this->Rect.y, WHITE); 
@@ -96,7 +154,7 @@ void Enemy::Animate()
 	else
 		this->ImageIndex = 0;
 
-	this->Image = this->Assets.EntityTextures[this->TextureKey][(int) this->ImageIndex % this->Assets.EntityTextures[this->TextureKey].size()];
+	this->Image = this->Assets->EntityTextures[this->TextureKey][(int) this->ImageIndex % this->Assets->EntityTextures[this->TextureKey].size()];
 }
 
 void Enemy::MoveX()

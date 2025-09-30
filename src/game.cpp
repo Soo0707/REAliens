@@ -19,7 +19,7 @@
 
 Game::Game()
 {
-	this->AssetManagerInstance = std::make_unique<AssetManager>();
+	this->AssetManagerInstance = std::make_shared<AssetManager>();
 
 	this->PlayerInstance = std::make_unique<Player>(500, 500, *(this->AssetManagerInstance));
 
@@ -30,14 +30,12 @@ Game::Game()
 
 	tmx_layer *walls_layer = tmx_find_layer_by_name(map, "Walls");
 	tmx_layer *props_layer = tmx_find_layer_by_name(map, "Props");
-	tmx_layer *spawners_layer = tmx_find_layer_by_name(map, "Spawners");
 	
-	if (walls_layer == nullptr || props_layer == nullptr || spawners_layer == nullptr) 
+	if (walls_layer == nullptr || props_layer == nullptr)
 		exit(1);
 
 	Game::InitialiseMapObjects(map, walls_layer, WALLS_LAYER);
 	Game::InitialiseMapObjects(map, props_layer, PROPS_LAYER);
-	Game::InitialiseMapObjects(map, spawners_layer, SPAWNERS_LAYER);
 	tmx_map_free(map);
 
 	this->Camera = { 0 };
@@ -48,7 +46,7 @@ Game::Game()
 	Vector2 player_pos = { this->PlayerInstance->Rect.x, this->PlayerInstance->Rect.y };
 	this->UpdateArea = {player_pos.x - (GetScreenWidth() / 2.0f), player_pos.y - (GetScreenHeight() / 2.0f), (float) GetScreenWidth(), (float) GetScreenHeight()};
 
-	this->Enemies.emplace_back(600, 600, *(this->AssetManagerInstance), EntityTextureKey::Australian, EnemyType::Australian);
+	Game::SpawnEnemies();
 }
 
 Game::~Game()
@@ -56,6 +54,9 @@ Game::~Game()
 
 void Game::Draw()
 {
+	if (this->Effects.count(EffectKey::Aussie))
+		this->Camera.rotation = 180.0f;
+
 	BeginDrawing();
 	ClearBackground(RAYWHITE);
 	BeginMode2D(this->Camera);
@@ -72,12 +73,6 @@ void Game::Draw()
 	{
 		if (CheckCollisionRecs(this->UpdateArea, prop.Rect))
 			prop.Draw();
-	}
-
-	for (auto const &spawner : this->Spawners)
-	{
-		if (CheckCollisionRecs(this->UpdateArea, spawner.Rect))
-			spawner.Draw();
 	}
 
 	for (auto const &projectile : this->Projectiles)
@@ -108,34 +103,46 @@ void Game::Update()
 	while (this->Accumulator >= TICK_TIME);
 	{
 		this->PlayerInstance->MoveX();
-		Collisions::ResolveCollisionPlayerX(*(this->PlayerInstance), this->Walls, this->Props, this->Spawners);
+		Collisions::PlayerCollisionX(*(this->PlayerInstance), this->Walls, this->Props);
 		
 		this->PlayerInstance->MoveY();
-		Collisions::ResolveCollisionPlayerY(*(this->PlayerInstance), this->Walls, this->Props, this->Spawners);
+		Collisions::PlayerCollisionY(*(this->PlayerInstance), this->Walls, this->Props);
 
 		this->PlayerInstance->Update();
-		
-		for (auto &projectile : this->Projectiles)
-			projectile.Update();
-
-		Collisions::ProjectileCollisions(this->Projectiles, this->Walls, this->UpdateArea);
-		std::erase_if(this->Projectiles, [](Projectile& proj){ return proj.Kill; });
-
-		for (auto &enemy : this->Enemies)
-		{
-			enemy.Update(this->PlayerInstance->Rect);
-			
-			enemy.MoveX();
-			Collisions::ResolveCollisionEnemyX(enemy, this->Walls, this->Props, this->Spawners);
-
-			enemy.MoveY();
-			Collisions::ResolveCollisionEnemyY(enemy, this->Walls, this->Props, this->Spawners);
-		}
 
 		this->UpdateArea.x = this->PlayerInstance->Rect.x - GetScreenWidth() / 2.0f;
 		this->UpdateArea.y = this->PlayerInstance->Rect.y - GetScreenHeight() / 2.0f;
 		
 		this->Camera.target = { this->PlayerInstance->Rect.x, this->PlayerInstance->Rect.y };
+
+		for (auto &projectile : this->Projectiles)
+		{
+			if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
+			{
+				projectile.Update();
+				Collisions::ProjectileCollision(projectile, this->Walls, this->Enemies, this->Ticks);
+			}
+			else
+				projectile.Kill = true;
+		}
+		std::erase_if(this->Projectiles, [](Projectile& proj){ return proj.Kill; });
+
+		for (auto &enemy : this->Enemies)
+		{
+			if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
+			{
+				enemy.Update(this->PlayerInstance->Rect, this->Ticks);
+				
+				enemy.MoveX();
+				Collisions::EnemyCollisionX(enemy, this->Walls, this->Props);
+
+				enemy.MoveY();
+				Collisions::EnemyCollisionY(enemy, this->Walls, this->Props);
+
+				Collisions::LeAttack(*(this->PlayerInstance), enemy, this->Effects);
+			}
+		}
+		std::erase_if(this->Enemies, [](Enemy& enemy) { return (enemy.Health <= 0); });
 
 		this->Accumulator -= TICK_TIME;
 		this->Ticks++;
@@ -146,6 +153,12 @@ void Game::Update()
 
 	if (this->Ticks - this->LastRMB >= this->Effects[EffectKey::LazerCooldown])
 		this->CanRMB = true;
+
+	if ((this->Ticks - this->LastSpawn >= this->SpawnTimeout) || this->Enemies.size() == 0)
+	{
+		Game::SpawnEnemies();
+		this->LastSpawn = this->Ticks;
+	}
 }
 
 void Game::HandleInput()
@@ -230,10 +243,25 @@ void Game::InitialiseMapObjects(tmx_map* map, tmx_layer* layer, const unsigned i
 				case PROPS_LAYER:
 					this->Props.emplace_back(x_pos, y_pos, texture);
 					break;
-				case SPAWNERS_LAYER:
-					this->Spawners.emplace_back(x_pos, y_pos, texture);
-					break;
 			}
 		}
+	}
+}
+
+void Game::SpawnEnemies()
+{
+	std::vector<Vector2> rand_nums;
+
+	for (int i = 0; i < this->Level * 5; i++)
+		rand_nums.emplace_back( Vector2{ GetRandomValue(-10, 10), GetRandomValue(-10, 10) });
+
+	for (auto const& location : rand_nums)
+	{
+		float x = this->PlayerInstance->Rect.x + location.x * 32;
+		float y = this->PlayerInstance->Rect.y + location.y * 32;
+
+		EnemyType type = (EnemyType) GetRandomValue(0, 6);
+
+		this->Enemies.emplace_back(x, y, this->AssetManagerInstance, type, UniqueStates::None);
 	}
 }
