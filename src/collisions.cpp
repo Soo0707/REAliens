@@ -1,6 +1,6 @@
 #include "collisions.hpp"
 #include "game.hpp"
-
+#include "raymath.h"
 
 void Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, size_t& ticks)
 {
@@ -42,3 +42,4 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, std::unordered_map<Effec
 		*/
 	}
 }
+

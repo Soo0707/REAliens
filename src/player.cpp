@@ -17,9 +17,7 @@ void Player::Update()
 {
 	Player::SetCurrentTextures();
 	Player::Animate();
-
-	this->Rect.width = this->Image.width;
-	this->Rect.height = this->Image.height;
+	Player::Move();
 }
 
 void Player::Draw() const
@@ -49,12 +47,10 @@ void Player::SetCurrentTextures()
 		this->CurrentTextures = EntityTextureKey::PlayerNorth;
 }
 
-void Player::MoveX()
+void Player::Move()
 {
 	this->Rect.x += this->Speed * this->Direction.x * GetFrameTime();
-}
-
-void Player::MoveY()
-{
 	this->Rect.y += this->Speed * this->Direction.y * GetFrameTime();
+	this->Rect.width = this->Image.width;
+	this->Rect.height = this->Image.height;
 }

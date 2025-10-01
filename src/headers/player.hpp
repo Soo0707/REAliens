@@ -9,8 +9,7 @@ class Player
 		Player(float pos_x, float pos_y, AssetManager &assets);
 		~Player(); 
 		
-		void MoveX();
-		void MoveY();
+		void Move();
 		void Update();
 		void Draw() const;
 		

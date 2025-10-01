@@ -121,6 +121,7 @@ Enemy::~Enemy()
 void Enemy::Update(Rectangle& player_rect, size_t& ticks)
 {
 	Enemy::Animate();
+	Enemy::Move();
 
 	if (this->UniqueState != UniqueStates::OverrideDirection)
 		Enemy::SetDirection(player_rect);
@@ -157,14 +158,12 @@ void Enemy::Animate()
 	this->Image = this->Assets->EntityTextures[this->TextureKey][(int) this->ImageIndex % this->Assets->EntityTextures[this->TextureKey].size()];
 }
 
-void Enemy::MoveX()
+void Enemy::Move()
 {
 	this->Rect.x = this->Rect.x + this->Speed * this->Direction.x * GetFrameTime();
-}
-
-void Enemy::MoveY()
-{
 	this->Rect.y = this->Rect.y + this->Speed * this->Direction.y * GetFrameTime();
+	this->Rect.width = this->Image.width;
+	this->Rect.height = this->Image.height;
 }
 
 void Enemy::SecondaryAttack()

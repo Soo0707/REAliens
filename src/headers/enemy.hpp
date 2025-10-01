@@ -31,8 +31,7 @@ class Enemy
 		Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, EnemyType type, UniqueStates state);
 		~Enemy(); 
 		
-		void MoveX();
-		void MoveY();
+		void Move();
 		void SetDirection(Rectangle& player_rect);
 
 		void Draw();

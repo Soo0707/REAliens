@@ -31,6 +31,10 @@ enum class EffectKey
 	LazerScale,
 	LazerSpeed,
 
+	CircleDamage,
+	CircleSize,
+	CircleVelocity,
+
 	PlayerSpeed,
 	Drunk,
 	Poisoned,

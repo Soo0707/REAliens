@@ -7,7 +7,6 @@
 
 #include "raylib.h"
 #include "raymath.h"
-#include "tmx.h"
 
 #include "game.hpp"
 #include "player.hpp"
@@ -23,19 +22,6 @@ Game::Game()
 
 	this->PlayerInstance = std::make_unique<Player>(500, 500, *(this->AssetManagerInstance));
 
-	tmx_map *map = tmx_load("assets/map/map.tmx");
-	
-	if (map == nullptr)
-		exit(1);
-
-	tmx_layer *props_layer = tmx_find_layer_by_name(map, "Props");
-	
-	if (props_layer == nullptr)
-		exit(1);
-
-	Game::InitialiseMapObjects(map, props_layer);
-	tmx_map_free(map);
-
 	this->Camera = { 0 };
 	this->Camera.offset = { GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f };
 	this->Camera.rotation = 0.0f;
@@ -43,8 +29,6 @@ Game::Game()
 	
 	Vector2 player_pos = { this->PlayerInstance->Rect.x, this->PlayerInstance->Rect.y };
 	this->UpdateArea = {player_pos.x - (GetScreenWidth() / 2.0f), player_pos.y - (GetScreenHeight() / 2.0f), (float) GetScreenWidth(), (float) GetScreenHeight()};
-
-	Game::SpawnEnemies();
 }
 
 Game::~Game()
@@ -61,12 +45,6 @@ void Game::Draw()
 	
 	DrawTexture(this->AssetManagerInstance->Ground, 0, 0, WHITE);
 
-	for (auto const &prop : this->Props)
-	{
-		if (CheckCollisionRecs(this->UpdateArea, prop.Rect))
-			prop.Draw();
-	}
-
 	for (auto const &projectile : this->Projectiles)
 	{
 		if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
@@ -77,6 +55,12 @@ void Game::Draw()
 	{
 		if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
 			enemy.Draw();
+	}
+
+	for (auto const &prop : this->Props)
+	{
+		if (CheckCollisionRecs(this->UpdateArea, prop.Rect))
+			prop.Draw();
 	}
 
 	this->PlayerInstance->Draw();
@@ -94,12 +78,8 @@ void Game::Update()
 	
 	while (this->Accumulator >= TICK_TIME);
 	{
-		this->PlayerInstance->MoveX();
-		
-		this->PlayerInstance->MoveY();
-
 		this->PlayerInstance->Update();
-
+		
 		this->UpdateArea.x = this->PlayerInstance->Rect.x - GetScreenWidth() / 2.0f;
 		this->UpdateArea.y = this->PlayerInstance->Rect.y - GetScreenHeight() / 2.0f;
 		
@@ -122,11 +102,6 @@ void Game::Update()
 			if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
 			{
 				enemy.Update(this->PlayerInstance->Rect, this->Ticks);
-				
-				enemy.MoveX();
-
-				enemy.MoveY();
-
 				Collisions::LeAttack(*(this->PlayerInstance), enemy, this->Effects, this->EffectTimeouts);
 			}
 		}
@@ -141,12 +116,13 @@ void Game::Update()
 
 	if (this->Ticks - this->LastRMB >= this->Effects[EffectKey::LazerCooldown])
 		this->CanRMB = true;
-
+/*
 	if ((this->Ticks - this->LastSpawn >= this->SpawnTimeout) || this->Enemies.size() == 0)
 	{
 		Game::SpawnEnemies();
 		this->LastSpawn = this->Ticks;
 	}
+	*/
 }
 
 void Game::HandleInput()
@@ -173,7 +149,7 @@ void Game::HandleInput()
 
 		float speed = this->Effects[EffectKey::BulletSpeed];
 		float damage = this->Effects[EffectKey::BulletDamage];
-		
+
 		float angle = atan2(direction.y, direction.x) * 180 / 3.142;
 
 		this->Projectiles.emplace_back(player_centre.x, player_centre.y, texture, speed, direction, angle, 1.0f, ProjectileType::Bullet, damage);
@@ -195,9 +171,10 @@ void Game::HandleInput()
 		
 		float speed = this->Effects[EffectKey::LazerSpeed];
 		float damage = this->Effects[EffectKey::LazerDamage];
+		float scale = this->Effects[EffectKey::LazerScale];
 
 		for (int i = 0; i < 4; i++)
-			this->Projectiles.emplace_back(player_centre.x, player_centre.y, texture, speed, directions[i], angles[i], 1.0f, ProjectileType::Lazer, damage);
+			this->Projectiles.emplace_back(player_centre.x, player_centre.y, texture, speed, directions[i], angles[i], scale, ProjectileType::Lazer, damage);
 
 		this->CanRMB = false;
 		this->LastRMB = this->Ticks;
