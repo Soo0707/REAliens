@@ -6,13 +6,11 @@
 #include <algorithm>
 
 #include "raylib.h"
-#include "tmx.h"
 
 AssetManager::AssetManager()
 {
 	AssetManager::LoadStaticTextures();
 	AssetManager::LoadEntityTextures();
-	AssetManager::LoadMapTextures();
 
 	this->Ground = LoadTexture("assets/map/ground.png");
 }
@@ -21,7 +19,6 @@ AssetManager::~AssetManager()
 {
 	AssetManager::UnloadStaticTextures();
 	AssetManager::UnloadEntityTextures();
-	AssetManager::UnloadMapTextures();
 }
 
 void AssetManager::LoadStaticTextures()
@@ -129,78 +126,4 @@ EntityTextureKey AssetManager::GetEntityTextureKeyFromString(std::string folder_
 	};
 
 	return (Lookup.count(folder_name)) ? Lookup.at(folder_name) : EntityTextureKey::None;
-}
-
-void AssetManager::LoadMapTextures()
-{
-	tmx_map *map = tmx_load("assets/map/map.tmx");
-	Image tileset = LoadImage("assets/map/unified_tileset.png");
-	
-	if (map == nullptr)
-		exit(1);
-
-	tmx_layer *props_layer = tmx_find_layer_by_name(map, "Props");
-
-	if (props_layer == nullptr) 
-		exit(1);
-
-	if (map->ts_head == nullptr)
-		exit(1);
-
-	AssetManager::LoadMapTexturesHelper(map, props_layer, &tileset);
-
-	tmx_map_free(map);
-	UnloadImage(tileset);
-}
-
-void AssetManager::UnloadMapTextures()
-{
-	for (auto const &pair : this->MapTextures)
-	{
-		UnloadTexture(this->MapTextures[pair.first]);
-	}
-}
-
-void AssetManager::LoadMapTexturesHelper(tmx_map* map, tmx_layer* layer, Image* tileset)
-{
-	int32_t firstGID = map->ts_head->firstgid;
-	int tileset_columns = tileset->width / TILESIZE;
-
-	for (int cell_y = 0; cell_y < map->height; cell_y++)
-	{
-		for (int cell_x = 0; cell_x < map->width; cell_x++)
-		{
-			int32_t cell = layer->content.gids[cell_y * map->width + cell_x];
-			int32_t GID = cell & TMX_FLIP_BITS_REMOVAL;
-
-			if (GID == 0)
-				continue;
-
-			int32_t horizontal_flip = cell & TMX_FLIPPED_HORIZONTALLY;
-			int32_t vertical_flip = cell & TMX_FLIPPED_VERTICALLY;
-			int32_t diagonal_flip = cell & TMX_FLIPPED_DIAGONALLY;
-
-			if (this->MapTextures.count(cell))
-				continue;
-
-			int x = ((GID - firstGID) % tileset_columns) * TILESIZE;
-			int y = ((GID - firstGID) / tileset_columns) * TILESIZE;
-
-			Image tile_texture = ImageFromImage(*tileset, {(float) x, (float) y, TILESIZE, TILESIZE});
-
-			if (diagonal_flip)
-			{
-				ImageRotateCW(&tile_texture);
-				ImageFlipHorizontal(&tile_texture);
-			}
-
-			if (horizontal_flip)
-				ImageFlipHorizontal(&tile_texture);
-
-			if (vertical_flip)
-				ImageFlipVertical(&tile_texture);
-
-			this->MapTextures[cell] = LoadTextureFromImage(tile_texture);
-		}
-	}
 }

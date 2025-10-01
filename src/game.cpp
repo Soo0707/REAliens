@@ -57,12 +57,6 @@ void Game::Draw()
 			enemy.Draw();
 	}
 
-	for (auto const &prop : this->Props)
-	{
-		if (CheckCollisionRecs(this->UpdateArea, prop.Rect))
-			prop.Draw();
-	}
-
 	this->PlayerInstance->Draw();
 
 	EndMode2D();
@@ -178,30 +172,6 @@ void Game::HandleInput()
 
 		this->CanRMB = false;
 		this->LastRMB = this->Ticks;
-	}
-}
-
-void Game::InitialiseMapObjects(tmx_map* map, tmx_layer* layer)
-{
-	for (int cell_y = 0; cell_y < map->height; cell_y++)
-	{
-		for (int cell_x = 0; cell_x < map->width; cell_x++)
-		{
-			int32_t cell = layer->content.gids[cell_y * map->width + cell_x];
-			int32_t GID = cell & TMX_FLIP_BITS_REMOVAL;
-
-			if (GID == 0)
-				continue;
-
-			if (!this->AssetManagerInstance->MapTextures.count(cell))
-				exit(1);
-
-			Texture2D texture = this->AssetManagerInstance->MapTextures[cell];
-			float x_pos = cell_x * TILESIZE;
-			float y_pos = cell_y * TILESIZE;
-
-			this->Props.emplace_back(x_pos, y_pos, texture);
-		}
 	}
 }
 

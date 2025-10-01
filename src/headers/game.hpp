@@ -5,16 +5,12 @@
 #include <shared_mutex>
 
 #include "raylib.h"
-#include "tmx.h"
 
 #include "player.hpp"
 #include "assetManager.hpp"
 #include "gameObjects.hpp"
 #include "projectiles.hpp"
 #include "enemy.hpp"
-
-#define WALLS_LAYER 1
-#define PROPS_LAYER 2
 
 static constexpr float TICK_TIME = (1.0/60.0);
 static constexpr float MAX_TICK_TIME = (1.0/5.0);
@@ -55,11 +51,8 @@ class Game
 		void HandleInput();
 
 	private:
-		void InitialiseMapObjects(tmx_map* map, tmx_layer* layer);
 		void SpawnEnemies();
 
-		std::vector<Prop> Props;
-		
 		std::shared_mutex EnemiesMutex;
 		std::vector<Enemy> Enemies;
 

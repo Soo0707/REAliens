@@ -3,12 +3,8 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
-#include <cstdint>
 
 #include "raylib.h"
-#include "tmx.h"
-
-constexpr unsigned int TILESIZE = 32;
 
 enum class EntityTextureKey
 {
@@ -47,7 +43,6 @@ class AssetManager
 		std::unordered_map<StaticTextureKey, Texture2D> StaticTextures;
 
 		Texture2D Ground;
-		std::unordered_map<int32_t, Texture2D> MapTextures;
 
 	private:
 		void LoadEntityTextures();
@@ -57,9 +52,4 @@ class AssetManager
 		void LoadStaticTextures();
 		void UnloadStaticTextures();
 		StaticTextureKey GetStaticTextureKeyFromString(std::string filename);
-
-		void LoadMapTextures();
-		void UnloadMapTextures();
-		void LoadMapTexturesHelper(tmx_map* map, tmx_layer* layer, Image* tileset);
-
 };
