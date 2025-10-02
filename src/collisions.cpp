@@ -18,7 +18,7 @@ void Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemi
 	}
 }
 
-void Collisions::LeAttack(Player& player, Enemy& enemy, std::unordered_map<EffectKey, float>& effects, std::unordered_map<EffectKey, size_t>& effect_timeouts)
+void Collisions::LeAttack(Player& player, Enemy& enemy, std::unordered_map<EffectKey, float>& effects, std::unordered_map<EventKey, size_t>& events)
 {
 	if (CheckCollisionRecs(player.Rect, enemy.Rect))
 	{

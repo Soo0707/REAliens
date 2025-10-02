@@ -5,7 +5,7 @@
 #include <memory>
 #include <cstddef>
 
-static constexpr unsigned int FLASH_DURATION = 120;
+static constexpr unsigned int FLASH_DURATION = 10;
 
 enum class EnemyType
 {
@@ -32,6 +32,7 @@ class Enemy
 		~Enemy(); 
 		
 		void Move();
+		void Animate();
 		void SetDirection(Rectangle& player_rect);
 
 		void Draw();
@@ -67,6 +68,5 @@ class Enemy
 		float ImageIndex = 0.0f;
 		float AnimationSpeed;
 
-		void Animate();
 		void SecondaryAttack();
 };

@@ -11,6 +11,7 @@ class Player
 		
 		void Move();
 		void Update();
+		void Animate();
 		void Draw() const;
 		
 		int Health = 100;
@@ -29,6 +30,5 @@ class Player
 
 		EntityTextureKey CurrentTextures = EntityTextureKey::PlayerSouth;
 
-		void Animate();
 		void SetCurrentTextures();
 };

@@ -8,11 +8,10 @@
 
 #include "player.hpp"
 #include "assetManager.hpp"
-#include "gameObjects.hpp"
 #include "projectiles.hpp"
 #include "enemy.hpp"
 
-static constexpr float TICK_TIME = (1.0/60.0);
+static constexpr float TICK_TIME = (1.0/240.0);
 static constexpr float MAX_TICK_TIME = (1.0/5.0);
 
 
@@ -21,6 +20,8 @@ enum class EffectKey
 	BulletCooldown,
 	BulletDamage,
 	BulletSpeed,
+	Buckshot,
+	BuckshotSpread,
 
 	LazerCooldown,
 	LazerDamage,
@@ -41,6 +42,15 @@ enum class EffectKey
 	Milk
 };
 
+enum class EventKey
+{
+	GreenbullExpire,
+	MilkExpire,
+	PoisonedExpire,
+	DrunkExpire,
+	AussieExpire
+};
+
 class Game
 {
 	public:
@@ -52,6 +62,7 @@ class Game
 
 	private:
 		void SpawnEnemies();
+		void LoopOverMap(Rectangle& m_obj);
 
 		std::shared_mutex EnemiesMutex;
 		std::vector<Enemy> Enemies;
@@ -63,17 +74,19 @@ class Game
 
 		std::unordered_map<EffectKey, float> Effects = 
 		{
-			{ EffectKey::BulletCooldown, 2500 },
+			{ EffectKey::BulletCooldown, 150 },
 			{ EffectKey::BulletDamage, 25.0f },
 			{ EffectKey::BulletSpeed, 1000.0f },
+			{ EffectKey::Buckshot, 3 },
+			{ EffectKey::BuckshotSpread, 3.142 / 4 },
 
-			{ EffectKey::LazerCooldown, 7500 },
+			{ EffectKey::LazerCooldown, 450 },
 			{ EffectKey::LazerDamage, 25.0f },
 			{ EffectKey::LazerScale, 1.0f },
 			{ EffectKey::LazerSpeed, 3000.0f }
 		};
 
-		std::unordered_map<EffectKey, size_t> EffectTimeouts;
+		std::unordered_map<EventKey, size_t> Events;
 
 		unsigned int LastLMB = 0;
 		bool CanLMB = true;
@@ -85,7 +98,7 @@ class Game
 		size_t Ticks = 0;
 		
 		size_t LastSpawn = 0;
-		size_t SpawnTimeout = 40000;
+		size_t SpawnTimeout = 1000;
 
 		unsigned int Level = 1;
 

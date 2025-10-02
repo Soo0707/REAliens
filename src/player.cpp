@@ -1,6 +1,8 @@
 #include "player.hpp"
 #include "assetManager.hpp"
 #include "raylib.h"
+#include "raymath.h"
+#include "game.hpp"
 
 #include <cmath>
 
@@ -16,13 +18,12 @@ Player::~Player()
 void Player::Update()
 {
 	Player::SetCurrentTextures();
-	Player::Animate();
 	Player::Move();
 }
 
 void Player::Draw() const
 {
-	DrawTexture(this->Image, (int) this->Rect.x, (int) this->Rect.y, WHITE); 
+	DrawTextureV(this->Image, (Vector2) { this->Rect.x, this->Rect.y }, WHITE);
 }
 
 void Player::Animate()
@@ -49,8 +50,8 @@ void Player::SetCurrentTextures()
 
 void Player::Move()
 {
-	this->Rect.x += this->Speed * this->Direction.x * GetFrameTime();
-	this->Rect.y += this->Speed * this->Direction.y * GetFrameTime();
+	this->Rect.x += this->Speed * this->Direction.x * TICK_TIME;
+	this->Rect.y += this->Speed * this->Direction.y * TICK_TIME;
 	this->Rect.width = this->Image.width;
 	this->Rect.height = this->Image.height;
 }

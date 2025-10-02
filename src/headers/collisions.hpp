@@ -10,5 +10,5 @@
 namespace Collisions
 {
 	void ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, size_t& ticks);
-	void LeAttack(Player& player, Enemy& enemy, std::unordered_map<EffectKey, float>& effects, std::unordered_map<EffectKey, size_t>& effect_timeouts);
+	void LeAttack(Player& player, Enemy& enemy, std::unordered_map<EffectKey, float>& effects, std::unordered_map<EventKey, size_t>& events);
 }

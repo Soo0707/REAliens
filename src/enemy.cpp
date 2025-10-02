@@ -2,14 +2,13 @@
 #include "assetManager.hpp"
 #include "raylib.h"
 #include "raymath.h"
-
+#include "game.hpp"
 #include <cstddef>
+
 
 Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, EnemyType type, UniqueStates state) :
 	Assets(assets), Type(type), UniqueState(state)
 {
-	this->Rect = { pos_x, pos_y, (float) this->Image.width, (float) this->Image.height };
-
 	switch (type)
 	{
 		case EnemyType::Australian:
@@ -113,6 +112,7 @@ Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, Ene
 	}
 
 	this->Image = this->Assets->EntityTextures[this->TextureKey][0];
+	this->Rect = { pos_x, pos_y, (float) this->Image.width, (float) this->Image.height };
 }
 
 Enemy::~Enemy()
@@ -120,7 +120,6 @@ Enemy::~Enemy()
 
 void Enemy::Update(Rectangle& player_rect, size_t& ticks)
 {
-	Enemy::Animate();
 	Enemy::Move();
 
 	if (this->UniqueState != UniqueStates::OverrideDirection)
@@ -141,11 +140,11 @@ void Enemy::Draw()
 	if (this->Flash)
 	{
 		BeginBlendMode(BLEND_ADDITIVE);
-		DrawTexture(this->Image, (int) this->Rect.x, (int) this->Rect.y, WHITE);
+		DrawTextureV(this->Image, (Vector2) { this->Rect.x, this->Rect.y }, WHITE);
 		EndBlendMode();
 	}
 	else
-		DrawTexture(this->Image, (int) this->Rect.x, (int) this->Rect.y, WHITE); 
+		DrawTextureV(this->Image, (Vector2) { this->Rect.x, this->Rect.y }, WHITE);
 }
 
 void Enemy::Animate()
@@ -160,8 +159,8 @@ void Enemy::Animate()
 
 void Enemy::Move()
 {
-	this->Rect.x = this->Rect.x + this->Speed * this->Direction.x * GetFrameTime();
-	this->Rect.y = this->Rect.y + this->Speed * this->Direction.y * GetFrameTime();
+	this->Rect.x += this->Speed * this->Direction.x * TICK_TIME;
+	this->Rect.y += this->Speed * this->Direction.y * TICK_TIME;
 	this->Rect.width = this->Image.width;
 	this->Rect.height = this->Image.height;
 }
@@ -174,9 +173,7 @@ void Enemy::SetDirection(Rectangle& player_rect)
 	this->Direction.x = player_rect.x - this->Rect.x;
 	this->Direction.y = player_rect.y - this->Rect.y;
 
-	float distance = Vector2Length(this->Direction);
-
-	if ((this->Direction.x != 0.0f || this->Direction.y != 0.0f) && distance >= 32)
+	if ((this->Direction.x != 0.0f || this->Direction.y != 0.0f))
 		this->Direction = Vector2Normalize(this->Direction);
 	else
 		this->Direction = Vector2 { 0.0f, 0.0f };
