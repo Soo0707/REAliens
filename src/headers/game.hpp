@@ -8,48 +8,12 @@
 
 #include "player.hpp"
 #include "assetManager.hpp"
+
 #include "projectiles.hpp"
 #include "enemy.hpp"
 
 static constexpr float TICK_TIME = (1.0/240.0);
 static constexpr float MAX_TICK_TIME = (1.0/5.0);
-
-
-enum class EffectKey
-{
-	BulletCooldown,
-	BulletDamage,
-	BulletSpeed,
-	Buckshot,
-	BuckshotSpread,
-
-	LazerCooldown,
-	LazerDamage,
-	LazerScale,
-	LazerSpeed,
-
-	CircleDamage,
-	CircleSize,
-	CircleVelocity,
-
-	PlayerSpeed,
-	Drunk,
-	Poisoned,
-	Trapped,
-	Aussie,
-
-	Greenbull,
-	Milk
-};
-
-enum class EventKey
-{
-	GreenbullExpire,
-	MilkExpire,
-	PoisonedExpire,
-	DrunkExpire,
-	AussieExpire
-};
 
 class Game
 {
@@ -69,24 +33,10 @@ class Game
 
 		std::vector<Projectile> Projectiles;
 
-		std::shared_ptr<AssetManager> AssetManagerInstance;
+		std::shared_ptr<AssetManager> Assets;
 		std::unique_ptr<Player> PlayerInstance;
 
-		std::unordered_map<EffectKey, float> Effects = 
-		{
-			{ EffectKey::BulletCooldown, 150 },
-			{ EffectKey::BulletDamage, 25.0f },
-			{ EffectKey::BulletSpeed, 1000.0f },
-			{ EffectKey::Buckshot, 3 },
-			{ EffectKey::BuckshotSpread, 3.142 / 4 },
-
-			{ EffectKey::LazerCooldown, 450 },
-			{ EffectKey::LazerDamage, 25.0f },
-			{ EffectKey::LazerScale, 1.0f },
-			{ EffectKey::LazerSpeed, 3000.0f }
-		};
-
-		std::unordered_map<EventKey, size_t> Events;
+		std::shared_ptr<AttributeManager> Attributes;
 
 		unsigned int LastLMB = 0;
 		bool CanLMB = true;

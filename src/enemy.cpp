@@ -1,117 +1,27 @@
 #include "enemy.hpp"
+#include "enemyData.hpp"
+
 #include "assetManager.hpp"
 #include "raylib.h"
 #include "raymath.h"
 #include "game.hpp"
+#include "assetManager.hpp"
+
 #include <cstddef>
 
-
-Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, EnemyType type, UniqueStates state) :
-	Assets(assets), Type(type), UniqueState(state)
+Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, EnemyType type, BehaviourModifier modifier) :
+	Assets(assets), Type(type), Modifier(modifier)
 {
-	switch (type)
-	{
-		case EnemyType::Australian:
-		{
-			this->TextureKey = EntityTextureKey::Australian;
-			this->Damage = 5;
-			this->Speed = 175;
-			this->AnimationSpeed = 10.0f;
-			this->Health = 75;
+	this->TextureKey = EnemyAttributes.at(this->Type).texture_key;
+	this->Speed = EnemyAttributes.at(this->Type).speed;
+	this->AnimationSpeed = EnemyAttributes.at(this->Type).animation_speed;
+	this->Health = EnemyAttributes.at(this->Type).health;
 
-			this->CanSecondary = false;
-			this->LastSecondary = -1;
-			this->SecondaryCooldown = -1;
+	this->CanSecondary = EnemyAttributes.at(this->Type).can_secondary;
+	this->LastSecondary = EnemyAttributes.at(this->Type).last_secondary;
+	this->SecondaryCooldown = EnemyAttributes.at(this->Type).secondary_cooldown;
 
-			break;
-		}
-		case EnemyType::BigMan:
-		{
-			this->TextureKey = EntityTextureKey::BigMan;
-			this->Damage = 50;
-			this->Speed = 175;
-			this->AnimationSpeed = 10.0f;
-			this->Health = 500;
-
-			this->CanSecondary = false;
-			this->LastSecondary = -1;
-			this->SecondaryCooldown = -1;
-			break;
-		}
-		case EnemyType::Bomber:
-		{
-			this->TextureKey = EntityTextureKey::Bomber;
-			this->Damage = 15;
-			this->Speed = 350;
-			this->AnimationSpeed = 10.0f;
-			this->Health = 100;
-
-			this->CanSecondary = false;
-			this->LastSecondary = -1;
-			this->SecondaryCooldown = -1;
-
-			break;
-		}
-		case EnemyType::Drunkard:
-		{
-			this->TextureKey = EntityTextureKey::Drunkard;
-			this->Damage = 5;
-			this->Speed = 250;
-			this->AnimationSpeed = 60.0f;
-			this->Health = 50;
-
-			this->CanSecondary = true;
-			this->LastSecondary = 0;
-			this->SecondaryCooldown = 5000;
-
-			break;
-		}
-		case EnemyType::Pleb:
-		{
-			this->TextureKey = EntityTextureKey::Pleb;
-
-			this->Damage = 5;
-			this->Speed = 150;
-			this->AnimationSpeed = 10.0f;
-			this->Health = 75;
-
-			this->CanSecondary = false;
-			this->LastSecondary = -1;
-			this->SecondaryCooldown = -1;
-
-			break;
-		}
-		case EnemyType::Poison:
-		{
-			this->TextureKey = EntityTextureKey::Poison;
-			this->Damage = 5;
-			this->Speed = 225;
-			this->AnimationSpeed = 60;
-			this->Health = 100;
-
-			this->CanSecondary = false;
-			this->LastSecondary = -1;
-			this->SecondaryCooldown = -1;
-
-			break;
-		}
-		case EnemyType::Trapper:
-		{
-			this->TextureKey = EntityTextureKey::Trapper;
-			this->Damage = 10;
-			this->Speed = 430;
-			this->AnimationSpeed = 50.0f;
-			this->Health = 100;
-
-			this->CanSecondary = false;
-			this->LastSecondary = -1;
-			this->SecondaryCooldown = -1;
-
-			break;
-		}
-	}
-
-	this->Image = this->Assets->EntityTextures[this->TextureKey][0];
+	this->Image = this->Assets->EntityTextures.at(this->TextureKey)[0];
 	this->Rect = { pos_x, pos_y, (float) this->Image.width, (float) this->Image.height };
 }
 
@@ -122,7 +32,7 @@ void Enemy::Update(Rectangle& player_rect, size_t& ticks)
 {
 	Enemy::Move();
 
-	if (this->UniqueState != UniqueStates::OverrideDirection)
+	if (this->Modifier != BehaviourModifier::OverrideDirection)
 		Enemy::SetDirection(player_rect);
 
 	if (ticks - this->LastLeAttack >= this->LeAttackCooldown)

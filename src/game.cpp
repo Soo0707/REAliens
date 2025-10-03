@@ -1,14 +1,14 @@
 #include <memory>
 #include <cmath>
-#include <iostream>
 #include <algorithm>
 #include <array>
-#include <unordered_map>
-
+#include <iostream>
 #include "raylib.h"
 #include "raymath.h"
 
 #include "game.hpp"
+#include "attributes.hpp"
+
 #include "player.hpp"
 #include "assetManager.hpp"
 #include "projectiles.hpp"
@@ -17,9 +17,10 @@
 
 Game::Game()
 {
-	this->AssetManagerInstance = std::make_shared<AssetManager>();
+	this->Attributes = std::make_shared<AttributeManager>();
+	this->Assets = std::make_shared<AssetManager>();
 
-	this->PlayerInstance = std::make_unique<Player>(500, 500, *(this->AssetManagerInstance));
+	this->PlayerInstance = std::make_unique<Player>(500, 500, *(this->Assets));
 
 	this->Camera = { 0 };
 	this->Camera.offset = { GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f };
@@ -28,6 +29,8 @@ Game::Game()
 	
 	Vector2 player_pos = { this->PlayerInstance->Rect.x, this->PlayerInstance->Rect.y };
 	this->UpdateArea = {player_pos.x - (GetScreenWidth() / 2.0f), player_pos.y - (GetScreenHeight() / 2.0f), (float) GetScreenWidth(), (float) GetScreenHeight()};
+
+	this->Projectiles.emplace_back(500, 500, (Vector2) {0, 0}, ProjectileType::Circle, this->Attributes, *this->Assets);
 }
 
 Game::~Game()
@@ -35,14 +38,14 @@ Game::~Game()
 
 void Game::Draw()
 {
-	if (this->Effects.count(EffectKey::Aussie))
+	if (this->Attributes->Data.count(Attribute::Aussie))
 		this->Camera.rotation = 180.0f;
 
 	BeginDrawing();
 	ClearBackground(BLACK);
 	BeginMode2D(this->Camera);
 	
-	DrawTexture(this->AssetManagerInstance->Ground, 0, 0, WHITE);
+	DrawTexture(this->Assets->Ground, 0, 0, WHITE);
 
 	for (auto const &projectile : this->Projectiles)
 	{
@@ -73,10 +76,10 @@ void Game::Update()
 	
 	while (this->Accumulator >= TICK_TIME)
 	{
-		if (this->Ticks - this->LastLMB >= this->Effects[EffectKey::BulletCooldown])
+		if (this->Ticks - this->LastLMB >= this->Attributes->Data[Attribute::BulletCooldown])
 			this->CanLMB = true;
 
-		if (this->Ticks - this->LastRMB >= this->Effects[EffectKey::LazerCooldown])
+		if (this->Ticks - this->LastRMB >= this->Attributes->Data[Attribute::LazerCooldown])
 			this->CanRMB = true;
 
 		if ((this->Ticks - this->LastSpawn >= this->SpawnTimeout) || this->Enemies.size() == 0)
@@ -98,9 +101,12 @@ void Game::Update()
 		{
 			if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
 			{
-				projectile.Update();
-				Game::LoopOverMap(projectile.Rect);
-				Collisions::ProjectileCollision(projectile, this->Enemies, this->Ticks);
+				projectile.Update(this->PlayerInstance->Rect);
+
+				if (projectile.Type != ProjectileType::Circle)
+					Game::LoopOverMap(projectile.Rect);
+				
+				Collisions::ProjectileCollision(projectile, this->Enemies, *this->Attributes, this->Ticks);
 			}
 			else
 				projectile.Kill = true;
@@ -113,7 +119,7 @@ void Game::Update()
 			{
 				enemy.Update(this->PlayerInstance->Rect, this->Ticks);
 				Game::LoopOverMap(enemy.Rect);
-				Collisions::LeAttack(*(this->PlayerInstance), enemy, this->Effects, this->Events);
+				Collisions::LeAttack(*(this->PlayerInstance), enemy, *this->Attributes);
 			}
 		}
 		std::erase_if(this->Enemies, [](Enemy& enemy) { return (enemy.Health <= 0); });
@@ -146,15 +152,13 @@ void Game::HandleInput()
 
 		float centre_rotation = atan2(centre_direction.y, centre_direction.x) * 180 / 3.142;
 
-		Texture2D texture = this->AssetManagerInstance->StaticTextures[StaticTextureKey::Bullet];
+		Texture2D texture = this->Assets->StaticTextures[StaticTextureKey::Bullet];
 
-		float speed = this->Effects[EffectKey::BulletSpeed];
-		float damage = this->Effects[EffectKey::BulletDamage];
 
-		this->Projectiles.emplace_back(player_centre.x, player_centre.y, texture, speed, centre_direction, centre_rotation, 1.0f, ProjectileType::Bullet, damage);
+		this->Projectiles.emplace_back(player_centre.x, player_centre.y, centre_direction, ProjectileType::Bullet, this->Attributes, *this->Assets);
 
-		float spread_angle = this->Effects[EffectKey::BuckshotSpread];
-		int buckshot = (int) (this->Effects[EffectKey::Buckshot] - 1) / 2;
+		float spread_angle = this->Attributes->Data[Attribute::BuckshotSpread];
+		int buckshot = (int) (this->Attributes->Data[Attribute::Buckshot] - 1) / 2;
 
 		for (int i = 1; i <= buckshot; i++)
 		{
@@ -169,17 +173,8 @@ void Game::HandleInput()
 				centre_direction.x * sin(-spread_angle * i) + centre_direction.y * cos(-spread_angle * i) 
 			};
 
-			if (direction_pos.x != 0.0f || direction_pos.y != 0.0f)
-				direction_pos = Vector2Normalize(direction_pos);
-
-			if (direction_neg.x != 0.0f || direction_neg.y != 0.0f)
-				direction_neg = Vector2Normalize(direction_neg);
-			
-			float rotation_pos = atan2(direction_pos.y, direction_pos.x) * 180 / 3.142;
-			float rotation_neg = atan2(direction_neg.y, direction_neg.x) * 180 / 3.142;
-
-			this->Projectiles.emplace_back(player_centre.x, player_centre.y, texture, speed, direction_pos, rotation_pos, 1.0f, ProjectileType::Bullet, damage);
-			this->Projectiles.emplace_back(player_centre.x, player_centre.y, texture, speed, direction_neg, rotation_neg, 1.0f, ProjectileType::Bullet, damage);
+			this->Projectiles.emplace_back(player_centre.x, player_centre.y, direction_pos, ProjectileType::Bullet, this->Attributes, *this->Assets);
+			this->Projectiles.emplace_back(player_centre.x, player_centre.y, direction_neg, ProjectileType::Bullet, this->Attributes, *this->Assets);
 		}
 
 		this->CanLMB = false;
@@ -189,20 +184,13 @@ void Game::HandleInput()
 	if (IsMouseButtonDown(1) && this->CanRMB)
 	{
 		static constexpr std::array<Vector2, 4> directions = { Vector2{1.0f, 0.0f}, Vector2{0.0f, 1.0f}, Vector2{-1.0f, 0.0f}, Vector2{0.0f, -1.0f} };
-		static constexpr std::array<float, 4> angles = { 0.0f, 90.0f, 0, 90.0f };
 
 		Rectangle player_rect = this->PlayerInstance->Rect;
 
 		Vector2 player_centre = { player_rect.x + player_rect.width / 2, player_rect.y + player_rect.height / 2 };
-	
-		Texture2D texture = this->AssetManagerInstance->StaticTextures[StaticTextureKey::Lazer];
 		
-		float speed = this->Effects[EffectKey::LazerSpeed];
-		float damage = this->Effects[EffectKey::LazerDamage];
-		float scale = this->Effects[EffectKey::LazerScale];
-
 		for (int i = 0; i < 4; i++)
-			this->Projectiles.emplace_back(player_centre.x, player_centre.y, texture, speed, directions[i], angles[i], scale, ProjectileType::Lazer, damage);
+			this->Projectiles.emplace_back(player_centre.x, player_centre.y, directions[i], ProjectileType::Lazer, this->Attributes, *this->Assets);
 
 		this->CanRMB = false;
 		this->LastRMB = this->Ticks;
@@ -229,14 +217,14 @@ void Game::SpawnEnemies()
 
 		EnemyType type = (EnemyType) GetRandomValue(0, 6);
 
-		this->Enemies.emplace_back(x, y, this->AssetManagerInstance, type, UniqueStates::None);
+		this->Enemies.emplace_back(x, y, this->Assets, type, BehaviourModifier::None);
 	}
 }
 
 void Game::LoopOverMap(Rectangle& m_obj)
 {
-	static float map_width = this->AssetManagerInstance->Ground.width;
-	static float map_height = this->AssetManagerInstance->Ground.height;
+	static float map_width = this->Assets->Ground.width;
+	static float map_height = this->Assets->Ground.height;
 
 	if (m_obj.x < 0)
 		m_obj.x = map_width - m_obj.width;

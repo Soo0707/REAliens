@@ -18,7 +18,7 @@ enum class EnemyType
 	Trapper
 };
 
-enum class UniqueStates
+enum class BehaviourModifier
 {
 	None,
 	BomberExplode,
@@ -28,7 +28,7 @@ enum class UniqueStates
 class Enemy
 {
 	public:
-		Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, EnemyType type, UniqueStates state);
+		Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, EnemyType type, BehaviourModifier modifier);
 		~Enemy(); 
 		
 		void Move();
@@ -38,13 +38,12 @@ class Enemy
 		void Draw();
 		void Update(Rectangle& player_rect, size_t& ticks);
 		
-		int Health;
-		int Damage;
+		float Health;
 
 		Vector2 Direction = { 0.0f, 0.0f };
 		Rectangle Rect;
 
-		unsigned int Speed;
+		float Speed;
 		bool Flash = false;
 		size_t FlashTriggered = 0;
 
@@ -57,7 +56,7 @@ class Enemy
 		unsigned int SecondaryCooldown;
 
 		EnemyType Type;
-		UniqueStates UniqueState;
+		BehaviourModifier Modifier;
 
 	private:
 		std::shared_ptr<AssetManager> Assets;
