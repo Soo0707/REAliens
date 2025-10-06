@@ -40,6 +40,14 @@ enum class EventKey
 	AussieExpire
 };
 
+enum class State
+{
+	Game,
+	PowerupMenu,
+	PauseMenu,
+	StartMenu
+};
+
 class GlobalDataWrapper
 {
 	public:
@@ -69,8 +77,9 @@ class GlobalDataWrapper
 
 		std::unordered_map<EventKey, size_t> Events;
 
-		bool ShowPowerupOverlay = false;
+		State ActiveState = State::PowerupMenu;
+
 		unsigned int Level = 1;
-		unsigned int XpLevelUpTreshold = 2;
+		unsigned int LevelUpTreshold = 2;
 		unsigned int CollectedXp = 0;
 };

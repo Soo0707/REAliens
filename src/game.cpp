@@ -92,7 +92,17 @@ void Game::Update()
 			Game::SpawnEnemies();
 			this->LastSpawn = this->Ticks;
 		}
+
+		if (this->GlobalData->CollectedXp >= this->GlobalData->LevelUpTreshold)
+		{
+			this->GlobalData->Level++;
+			this->GlobalData->CollectedXp = 0;
+			this->GlobalData->LevelUpTreshold *= 2;
+			this->GlobalData->ActiveState = State::PowerupMenu;
+		}
 		
+		Game::HandleInput();
+
 		this->PlayerInstance->Update();
 
 		Game::LoopOverMap(this->PlayerInstance->Rect);
@@ -148,11 +158,13 @@ void Game::Update()
 		this->Accumulator -= TICK_TIME;
 		this->Ticks++;
 	} 
-
 }
 
 void Game::HandleInput()
 {
+	if (IsKeyDown(KEY_ESCAPE))
+		this->GlobalData->ActiveState = State::PauseMenu;
+
 	this->PlayerInstance->Direction.x = IsKeyDown(KEY_D) - IsKeyDown(KEY_A);
 	this->PlayerInstance->Direction.y = IsKeyDown(KEY_S) - IsKeyDown(KEY_W);
 

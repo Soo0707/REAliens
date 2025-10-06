@@ -3,34 +3,50 @@
 #include "globalDataWrapper.hpp"
 #include "powerupOverlay.hpp"
 
+static constexpr int REFERENCE_WIDTH = 1280;
+static constexpr int REFERENCE_HEIGHT = 720;
+
 int main(void)
 {
 	int CurrentMonitor = GetCurrentMonitor();
 
 	SetTargetFPS(GetMonitorRefreshRate(CurrentMonitor));
-	InitWindow(1280, 720, "RE::Aliens");
+	InitWindow(REFERENCE_WIDTH, REFERENCE_HEIGHT, "RE::Aliens");
+	SetExitKey(KEY_NULL);
 
 	std::shared_ptr<GlobalDataWrapper> global_data = std::make_shared<GlobalDataWrapper>();
 
 	Game game = Game(global_data);
 	PowerupOverlay powerup_overlay = PowerupOverlay(global_data);
 	
-	while(!WindowShouldClose())
+	while (!WindowShouldClose())
 	{
-		game.Update();
-		game.HandleInput();
-		
-		if (global_data->ShowPowerupOverlay)
-			powerup_overlay.HandleInput();
+		switch (global_data->ActiveState)
+		{
+			case State::Game:
+				game.Update();
 
-		BeginDrawing();
-		ClearBackground(BLACK);
-		game.Draw();
+				BeginDrawing();
+				ClearBackground(BLACK);
 
-		if (global_data->ShowPowerupOverlay)
-			powerup_overlay.Draw();
-		
-		EndDrawing();
+				game.Draw();
+				EndDrawing();
+				break;
+			case State::PowerupMenu:
+				powerup_overlay.HandleInput();
+
+				BeginDrawing();
+				ClearBackground(BLACK);
+
+				powerup_overlay.Draw();
+
+				EndDrawing();
+				break;
+				/*
+			case State::PauseMenu:
+				break;
+				*/
+		}
 	}
 	CloseWindow();
 

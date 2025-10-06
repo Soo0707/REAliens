@@ -12,14 +12,7 @@ PowerupOverlay::PowerupOverlay(std::shared_ptr<GlobalDataWrapper> global_data) :
 	int screen_width = GetScreenWidth();
 	int screen_height = GetScreenHeight();
 
-	int box_width = (int) screen_width * 4.0 / 6.0;
-	int box_height = (int) screen_height * 1.0 / 8.0;
-	
-	this->Rect = { (float) screen_width * 1.0 / 6.0, (float) screen_height * 4.0 / 5.0, box_width, box_height };
-
-	this->Left = { this->Rect.x + PADDING,  this->Rect.y + PADDING };
-	this->Middle = { this->Rect.x + this->Rect.width / 2.0, this->Rect.y + PADDING };
-	this->Right = { this->Rect.x + this->Rect.width - PADDING, this->Rect.y + PADDING };
+	this->Rect = { 390, 160, 500, 400 };
 
 	PowerupOverlay::GenerateList();
 }
@@ -29,16 +22,17 @@ PowerupOverlay::~PowerupOverlay()
 
 void PowerupOverlay::Draw()
 {
-	// i know this is bad, i can't be bothered to space them correctly
-	DrawRectangleRounded(this->Rect, 0.2, 0, {0, 0, 0, 200});
+	DrawRectangleRounded(this->Rect, 0.2, 0, {0, 0, 0, 255});
 
-	int x1 = this->Left.x;
-	int x2 = this->Middle.x - MeasureText(this->SelectionList[1].DisplayName.c_str() , 24);
-	int x3 = this->Right.x - MeasureText(this->SelectionList[2].DisplayName.c_str() , 24);
+	float mid = this->Rect.x + this->Rect.width / 2.0f;
 
-	DrawText(this->SelectionList[0].DisplayName.c_str(), x1, this->Left.y, 24, WHITE);
-	DrawText(this->SelectionList[1].DisplayName.c_str(), x2, this->Left.y, 24, WHITE);
-	DrawText(this->SelectionList[2].DisplayName.c_str(), x3, this->Left.y, 24, WHITE);
+	int x1 = mid - MeasureText(this->SelectionList[0].DisplayName.c_str(), 24) / 2.0f;
+	int x2 = mid - MeasureText(this->SelectionList[1].DisplayName.c_str() , 24) / 2.0f;
+	int x3 = mid - MeasureText(this->SelectionList[2].DisplayName.c_str() , 24) / 2.0f;
+
+	DrawText(this->SelectionList[0].DisplayName.c_str(), x1, 260, 24, VIOLET);
+	DrawText(this->SelectionList[1].DisplayName.c_str(), x2, 360, 24, VIOLET);
+	DrawText(this->SelectionList[2].DisplayName.c_str(), x3, 460, 24, VIOLET);
 }
 
 void PowerupOverlay::GenerateList()
@@ -72,8 +66,6 @@ void PowerupOverlay::HandleInput()
 		PowerupOverlay::ApplyPowerup(this->SelectionList[1].Powerup);
 	else if (IsKeyPressed(KEY_THREE))
 		PowerupOverlay::ApplyPowerup(this->SelectionList[2].Powerup);
-
-	this->GlobalData->ShowPowerupOverlay = false;
 }
 
 void PowerupOverlay::ApplyPowerup(Powerup powerup)
@@ -121,4 +113,6 @@ void PowerupOverlay::ApplyPowerup(Powerup powerup)
 		case Powerup::Regeneration:
 			break;
 	}
+
+	this->GlobalData->ActiveState = State::Game;
 }
