@@ -1,21 +1,22 @@
 #include "collisions.hpp"
-#include "attributes.hpp"
+
+#include "globalDataWrapper.hpp"
 #include "game.hpp"
 #include "raymath.h"
 
-void Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, AttributeManager& attributes, size_t& ticks)
+void Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, GlobalDataWrapper& global_data, size_t& ticks)
 {
 	float damage;
 	switch (proj.Type)
 	{
 		case ProjectileType::Lazer:
-			damage = attributes.Data.at(Attribute::LazerDamage);
+			damage = global_data.Attributes.at(Attribute::LazerDamage);
 			break;
 		case ProjectileType::Bullet:
-			damage = attributes.Data.at(Attribute::BulletDamage);
+			damage = global_data.Attributes.at(Attribute::BulletDamage);
 			break;
 		case ProjectileType::Circle:
-			damage = attributes.Data.at(Attribute::CircleDamage);
+			damage = global_data.Attributes.at(Attribute::CircleDamage);
 			break;
 		default:
 			damage = 0;
@@ -35,14 +36,14 @@ void Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemi
 	}
 }
 
-void Collisions::LeAttack(Player& player, Enemy& enemy, AttributeManager& attributes)
+void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& global_data)
 {
 	if (CheckCollisionRecs(player.Rect, enemy.Rect))
 	{
 		switch(enemy.Type)
 		{
 			case EnemyType::Australian:
-				attributes.Data[Attribute::Aussie] = 0.0f;
+				global_data.Attributes[Attribute::Aussie] = 0.0f;
 				break;
 			case EnemyType::Bomber:
 				//enemy.UniqueState = UniqueStates::BomberExplode;

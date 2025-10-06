@@ -1,6 +1,6 @@
 #!/bin/bash
 
-x86_64-w64-mingw32-g++ src/main.cpp src/game.cpp src/player.cpp src/assetManager.cpp src/projectiles.cpp src/collisions.cpp src/enemy.cpp\
+x86_64-w64-mingw32-g++ src/main.cpp src/game.cpp src/player.cpp src/assetManager.cpp src/projectiles.cpp src/collisions.cpp src/enemy.cpp src/powerupOverlay.cpp\
  -o /mnt/tmpfs/out.exe\
  -O3\
  -std=c++20\

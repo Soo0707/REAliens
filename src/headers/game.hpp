@@ -8,6 +8,7 @@
 
 #include "player.hpp"
 #include "assetManager.hpp"
+#include "globalDataWrapper.hpp"
 
 #include "projectiles.hpp"
 #include "enemy.hpp"
@@ -18,7 +19,7 @@ static constexpr float MAX_TICK_TIME = (1.0/5.0);
 class Game
 {
 	public:
-		Game();
+		Game(std::shared_ptr<GlobalDataWrapper> global_data);
 		~Game();
 		void Draw();
 		void Update();
@@ -32,11 +33,12 @@ class Game
 		std::vector<Enemy> Enemies;
 
 		std::vector<Projectile> Projectiles;
+		//std::vector<Xp> Xps;
 
 		std::shared_ptr<AssetManager> Assets;
 		std::unique_ptr<Player> PlayerInstance;
 
-		std::shared_ptr<AttributeManager> Attributes;
+		std::shared_ptr<GlobalDataWrapper> GlobalData;
 
 		unsigned int LastLMB = 0;
 		bool CanLMB = true;
@@ -49,8 +51,6 @@ class Game
 		
 		size_t LastSpawn = 0;
 		size_t SpawnTimeout = 1000;
-
-		unsigned int Level = 1;
 
 		Camera2D Camera;
 		Rectangle UpdateArea;

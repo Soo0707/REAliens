@@ -40,21 +40,21 @@ enum class EventKey
 	AussieExpire
 };
 
-class AttributeManager
+class GlobalDataWrapper
 {
 	public:
-		AttributeManager() = default;
+		GlobalDataWrapper() = default;
 
-		AttributeManager(const AttributeManager&) = delete;
-		AttributeManager& operator=(const AttributeManager&) = delete;
+		GlobalDataWrapper(const GlobalDataWrapper&) = delete;
+		GlobalDataWrapper& operator=(const GlobalDataWrapper&) = delete;
 
-		std::unordered_map<Attribute, float> Data = 
+		std::unordered_map<Attribute, float> Attributes = 
 		{
 			{ Attribute::BulletCooldown, 150 },
 			{ Attribute::BulletDamage, 25.0f },
 			{ Attribute::BulletSpeed, 1000.0f },
 			{ Attribute::Buckshot, 3 },
-			{ Attribute::BuckshotSpread, 3.142 / 4 },
+			{ Attribute::BuckshotSpread, 3.142 / 8 },
 
 			{ Attribute::LazerCooldown, 450 },
 			{ Attribute::LazerDamage, 25.0f },
@@ -68,4 +68,9 @@ class AttributeManager
 		};
 
 		std::unordered_map<EventKey, size_t> Events;
+
+		bool ShowPowerupOverlay = false;
+		unsigned int Level = 1;
+		unsigned int XpLevelUpTreshold = 2;
+		unsigned int CollectedXp = 0;
 };

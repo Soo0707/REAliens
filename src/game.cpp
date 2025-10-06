@@ -7,7 +7,7 @@
 #include "raymath.h"
 
 #include "game.hpp"
-#include "attributes.hpp"
+#include "globalDataWrapper.hpp"
 
 #include "player.hpp"
 #include "assetManager.hpp"
@@ -15,9 +15,8 @@
 #include "collisions.hpp"
 #include "enemy.hpp"
 
-Game::Game()
+Game::Game(std::shared_ptr<GlobalDataWrapper> global_data) : GlobalData(global_data)
 {
-	this->Attributes = std::make_shared<AttributeManager>();
 	this->Assets = std::make_shared<AssetManager>();
 
 	this->PlayerInstance = std::make_unique<Player>(500, 500, *(this->Assets));
@@ -30,7 +29,7 @@ Game::Game()
 	Vector2 player_pos = { this->PlayerInstance->Rect.x, this->PlayerInstance->Rect.y };
 	this->UpdateArea = {player_pos.x - (GetScreenWidth() / 2.0f), player_pos.y - (GetScreenHeight() / 2.0f), (float) GetScreenWidth(), (float) GetScreenHeight()};
 
-	this->Projectiles.emplace_back(500, 500, (Vector2) {0, 0}, ProjectileType::Circle, this->Attributes, *this->Assets);
+	this->Projectiles.emplace_back(500, 500, (Vector2) {0, 0}, ProjectileType::Circle, *this->GlobalData, *this->Assets);
 }
 
 Game::~Game()
@@ -38,11 +37,9 @@ Game::~Game()
 
 void Game::Draw()
 {
-	if (this->Attributes->Data.count(Attribute::Aussie))
+	if (this->GlobalData->Attributes.count(Attribute::Aussie))
 		this->Camera.rotation = 180.0f;
 
-	BeginDrawing();
-	ClearBackground(BLACK);
 	BeginMode2D(this->Camera);
 	
 	DrawTexture(this->Assets->Ground, 0, 0, WHITE);
@@ -64,7 +61,6 @@ void Game::Draw()
 	this->PlayerInstance->Draw();
 
 	EndMode2D();
-	EndDrawing();
 }
 
 void Game::Update()
@@ -76,18 +72,18 @@ void Game::Update()
 	
 	while (this->Accumulator >= TICK_TIME)
 	{
-		if (this->Ticks - this->LastLMB >= this->Attributes->Data[Attribute::BulletCooldown])
+		if (this->Ticks - this->LastLMB >= this->GlobalData->Attributes[Attribute::BulletCooldown])
 			this->CanLMB = true;
 
-		if (this->Ticks - this->LastRMB >= this->Attributes->Data[Attribute::LazerCooldown])
+		if (this->Ticks - this->LastRMB >= this->GlobalData->Attributes[Attribute::LazerCooldown])
 			this->CanRMB = true;
-
+		/*
 		if ((this->Ticks - this->LastSpawn >= this->SpawnTimeout) || this->Enemies.size() == 0)
 		{
 			Game::SpawnEnemies();
 			this->LastSpawn = this->Ticks;
 		}
-
+		*/
 		this->PlayerInstance->Update();
 
 		Game::LoopOverMap(this->PlayerInstance->Rect);
@@ -106,7 +102,7 @@ void Game::Update()
 				if (projectile.Type != ProjectileType::Circle)
 					Game::LoopOverMap(projectile.Rect);
 				
-				Collisions::ProjectileCollision(projectile, this->Enemies, *this->Attributes, this->Ticks);
+				Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData, this->Ticks);
 			}
 			else
 				projectile.Kill = true;
@@ -119,7 +115,7 @@ void Game::Update()
 			{
 				enemy.Update(this->PlayerInstance->Rect, this->Ticks);
 				Game::LoopOverMap(enemy.Rect);
-				Collisions::LeAttack(*(this->PlayerInstance), enemy, *this->Attributes);
+				Collisions::LeAttack(*(this->PlayerInstance), enemy, *this->GlobalData);
 			}
 		}
 		std::erase_if(this->Enemies, [](Enemy& enemy) { return (enemy.Health <= 0); });
@@ -142,7 +138,7 @@ void Game::HandleInput()
 	{
 		Rectangle player_rect = this->PlayerInstance->Rect;
 
-		Vector2 player_centre = {player_rect.x + player_rect.width / 2, player_rect.y + player_rect.height / 2 };
+		Vector2 player_centre = { player_rect.x + player_rect.width / 2, player_rect.y + player_rect.height / 2 };
 		Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), this->Camera);
 
 		Vector2 centre_direction = Vector2Subtract(mouse_pos, player_centre);
@@ -154,11 +150,10 @@ void Game::HandleInput()
 
 		Texture2D texture = this->Assets->StaticTextures[StaticTextureKey::Bullet];
 
+		this->Projectiles.emplace_back(player_centre.x, player_centre.y, centre_direction, ProjectileType::Bullet, *this->GlobalData, *this->Assets);
 
-		this->Projectiles.emplace_back(player_centre.x, player_centre.y, centre_direction, ProjectileType::Bullet, this->Attributes, *this->Assets);
-
-		float spread_angle = this->Attributes->Data[Attribute::BuckshotSpread];
-		int buckshot = (int) (this->Attributes->Data[Attribute::Buckshot] - 1) / 2;
+		float spread_angle = this->GlobalData->Attributes[Attribute::BuckshotSpread];
+		int buckshot = (int) (this->GlobalData->Attributes[Attribute::Buckshot] - 1) / 2;
 
 		for (int i = 1; i <= buckshot; i++)
 		{
@@ -173,8 +168,8 @@ void Game::HandleInput()
 				centre_direction.x * sin(-spread_angle * i) + centre_direction.y * cos(-spread_angle * i) 
 			};
 
-			this->Projectiles.emplace_back(player_centre.x, player_centre.y, direction_pos, ProjectileType::Bullet, this->Attributes, *this->Assets);
-			this->Projectiles.emplace_back(player_centre.x, player_centre.y, direction_neg, ProjectileType::Bullet, this->Attributes, *this->Assets);
+			this->Projectiles.emplace_back(player_centre.x, player_centre.y, direction_pos, ProjectileType::Bullet, *this->GlobalData, *this->Assets);
+			this->Projectiles.emplace_back(player_centre.x, player_centre.y, direction_neg, ProjectileType::Bullet, *this->GlobalData, *this->Assets);
 		}
 
 		this->CanLMB = false;
@@ -190,7 +185,7 @@ void Game::HandleInput()
 		Vector2 player_centre = { player_rect.x + player_rect.width / 2, player_rect.y + player_rect.height / 2 };
 		
 		for (int i = 0; i < 4; i++)
-			this->Projectiles.emplace_back(player_centre.x, player_centre.y, directions[i], ProjectileType::Lazer, this->Attributes, *this->Assets);
+			this->Projectiles.emplace_back(player_centre.x, player_centre.y, directions[i], ProjectileType::Lazer, *this->GlobalData, *this->Assets);
 
 		this->CanRMB = false;
 		this->LastRMB = this->Ticks;
@@ -201,7 +196,7 @@ void Game::SpawnEnemies()
 {
 	std::vector<Vector2> rand_nums;
 
-	for (int i = 0; i < this->Level * 5; i++)
+	for (int i = 0; i < this->GlobalData->Level * 5; i++)
 		rand_nums.emplace_back(Vector2{ (float) GetRandomValue(32, (int) this->UpdateArea.width / 2), (float) GetRandomValue(32, (int) this->UpdateArea.height / 2) });
 
 	for (auto &location : rand_nums)

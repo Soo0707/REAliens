@@ -1,13 +1,13 @@
 #include "projectiles.hpp"
 #include "raylib.h"
 #include "game.hpp"
-#include "attributes.hpp"
+#include "globalDataWrapper.hpp"
 #include "raymath.h"
 
 #include <cmath>
 
-Projectile::Projectile(float x, float y, Vector2 direction, ProjectileType type, std::shared_ptr<AttributeManager> attributes, AssetManager& assets):
-	Type(type), Attributes(attributes)
+Projectile::Projectile(float x, float y, Vector2 direction, ProjectileType type, GlobalDataWrapper& global_data, AssetManager& assets):
+	Type(type)
 {
 	if (direction.x != 0.0f || direction.y != 0.0f)
 		this->Direction = Vector2Normalize(direction);
@@ -18,23 +18,24 @@ Projectile::Projectile(float x, float y, Vector2 direction, ProjectileType type,
 	{
 		case ProjectileType::Bullet:
 			this->Image = assets.StaticTextures.at(StaticTextureKey::Bullet);
-			this->Speed = attributes->Data.at(Attribute::BulletSpeed);
+			this->Speed = global_data.Attributes.at(Attribute::BulletSpeed);
 			this->Rotation = atan2(this->Direction.y, this->Direction.x) * 180 / 3.142;
 			this->Scale = 1.0f;
 
 			break;
 		case ProjectileType::Lazer:
 			this->Image = assets.StaticTextures.at(StaticTextureKey::Lazer);
-			this->Speed = attributes->Data.at(Attribute::LazerSpeed);
+			this->Speed = global_data.Attributes.at(Attribute::LazerSpeed);
 			this->Rotation = atan2(this->Direction.y, this->Direction.x) * 180 / 3.142;
-			this->Scale = attributes->Data.at(Attribute::LazerScale);
+			this->Scale = global_data.Attributes.at(Attribute::LazerScale);
 
 			break;
 		case ProjectileType::Circle:
 			this->Image = assets.StaticTextures.at(StaticTextureKey::Circle);
-			this->Scale = attributes->Data.at(Attribute::CircleSize);
-			this->Speed = attributes->Data.at(Attribute::CircleAngularSpeed);
-			this->Rotation = attributes->Data.at(Attribute::CircleAngularSpeed) * 180 / 3.142;
+			this->Scale = global_data.Attributes.at(Attribute::CircleSize);
+			this->Speed = global_data.Attributes.at(Attribute::CircleAngularSpeed);
+			this->Rotation = global_data.Attributes.at(Attribute::CircleAngularSpeed) * 180 / 3.142;
+			this->Radius = global_data.Attributes.at(Attribute::CircleRadius);
 
 			break;
 	}
@@ -56,14 +57,13 @@ void Projectile::Update(Rectangle& player_rect)
 		{
 			Vector2 player_centre = { player_rect.x + player_rect.width / 2.0f, player_rect.y + player_rect.height / 2.0f };
 
-			float radius = this->Attributes->Data[Attribute::CircleRadius];
 			this->CurrentAngle += this->Speed * TICK_TIME;
 
 			if (this->CurrentAngle >= 2 * 3.142)
 				this->CurrentAngle = 0;
 
-			this->Rect.x = player_centre.x + radius * cos(this->CurrentAngle) + this->Rect.width / 2;
-			this->Rect.y = player_centre.y + radius * sin(this->CurrentAngle) - this->Rect.height / 2;
+			this->Rect.x = player_centre.x + this->Radius * cos(this->CurrentAngle) + this->Rect.width / 2;
+			this->Rect.y = player_centre.y + this->Radius * sin(this->CurrentAngle) - this->Rect.height / 2;
 			break;
 		}
 		default:

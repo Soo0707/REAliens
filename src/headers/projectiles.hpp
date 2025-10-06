@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "assetManager.hpp"
-#include "attributes.hpp"
+#include "globalDataWrapper.hpp"
 #include "raylib.h"
 
 enum class ProjectileType
@@ -17,7 +17,7 @@ enum class ProjectileType
 class Projectile
 {
 	public:
-		Projectile(float x, float y, Vector2 direction, ProjectileType type, std::shared_ptr<AttributeManager> attributes, AssetManager& assets);
+		Projectile(float x, float y, Vector2 direction, ProjectileType type, GlobalDataWrapper& global_data, AssetManager& assets);
 		~Projectile() = default;
 
 		void Update(Rectangle& player_rect);
@@ -30,7 +30,6 @@ class Projectile
 	
 	private:
 		// used for all types
-		std::shared_ptr<AttributeManager> Attributes;
 
 		Texture2D Image;
 		float Rotation;
@@ -42,4 +41,5 @@ class Projectile
 
 		// used by circle
 		float CurrentAngle;
+		float Radius;
 };

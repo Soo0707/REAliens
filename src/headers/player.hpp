@@ -14,7 +14,7 @@ class Player
 		void Animate();
 		void Draw() const;
 		
-		int Health = 100;
+		float Health = 100;
 
 		Vector2 Direction = { 0.0f, 0.0f };
 		Rectangle Rect;
