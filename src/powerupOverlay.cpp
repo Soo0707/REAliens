@@ -12,12 +12,12 @@ PowerupOverlay::PowerupOverlay(std::shared_ptr<GlobalDataWrapper> global_data) :
 	int screen_width = GetScreenWidth();
 	int screen_height = GetScreenHeight();
 
-	int box_width = screen_width * 4.0 / 6.0;
-	int box_height = screen_height * 1.0 / 8.0;
+	int box_width = (int) screen_width * 4.0 / 6.0;
+	int box_height = (int) screen_height * 1.0 / 8.0;
 	
 	this->Rect = { (float) screen_width * 1.0 / 6.0, (float) screen_height * 4.0 / 5.0, box_width, box_height };
 
-	this->Left = { this->Rect.x + PADDING, this->Rect.y + PADDING };
+	this->Left = { this->Rect.x + PADDING,  this->Rect.y + PADDING };
 	this->Middle = { this->Rect.x + this->Rect.width / 2.0, this->Rect.y + PADDING };
 	this->Right = { this->Rect.x + this->Rect.width - PADDING, this->Rect.y + PADDING };
 
@@ -72,6 +72,8 @@ void PowerupOverlay::HandleInput()
 		PowerupOverlay::ApplyPowerup(this->SelectionList[1].Powerup);
 	else if (IsKeyPressed(KEY_THREE))
 		PowerupOverlay::ApplyPowerup(this->SelectionList[2].Powerup);
+
+	this->GlobalData->ShowPowerupOverlay = false;
 }
 
 void PowerupOverlay::ApplyPowerup(Powerup powerup)
@@ -101,6 +103,13 @@ void PowerupOverlay::ApplyPowerup(Powerup powerup)
 			this->GlobalData->Attributes[Attribute::LazerDamage] += 10;
 			this->GlobalData->Attributes[Attribute::LazerScale] += 0.5;
 			this->GlobalData->Attributes[Attribute::LazerSpeed] += 10;
+
+			break;
+		case Powerup::Circle:
+			this->GlobalData->Attributes[Attribute::CircleDamage] += 10;
+			this->GlobalData->Attributes[Attribute::CircleScale] += 0.2;
+			this->GlobalData->Attributes[Attribute::CircleAngularSpeed] *= 2;
+			this->GlobalData->Attributes[Attribute::CircleRadius] += 4;
 
 			break;
 		case Powerup::Greenbull:

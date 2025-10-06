@@ -2,7 +2,6 @@
 #include <cmath>
 #include <algorithm>
 #include <array>
-#include <iostream>
 #include "raylib.h"
 #include "raymath.h"
 
@@ -14,6 +13,8 @@
 #include "projectiles.hpp"
 #include "collisions.hpp"
 #include "enemy.hpp"
+#include "enemyData.hpp"
+#include "xp.hpp"
 
 Game::Game(std::shared_ptr<GlobalDataWrapper> global_data) : GlobalData(global_data)
 {
@@ -53,8 +54,16 @@ void Game::Draw()
 	for (auto &enemy : this->Enemies)
 	{
 		if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
+		{
 			enemy.Animate();
 			enemy.Draw();
+		}
+	}
+
+	for (auto const &xp : this->Xps)
+	{
+		if (CheckCollisionRecs(this->UpdateArea, xp.Rect))
+			xp.Draw();
 	}
 
 	this->PlayerInstance->Animate();
@@ -77,13 +86,13 @@ void Game::Update()
 
 		if (this->Ticks - this->LastRMB >= this->GlobalData->Attributes[Attribute::LazerCooldown])
 			this->CanRMB = true;
-		/*
+		
 		if ((this->Ticks - this->LastSpawn >= this->SpawnTimeout) || this->Enemies.size() == 0)
 		{
 			Game::SpawnEnemies();
 			this->LastSpawn = this->Ticks;
 		}
-		*/
+		
 		this->PlayerInstance->Update();
 
 		Game::LoopOverMap(this->PlayerInstance->Rect);
@@ -117,8 +126,24 @@ void Game::Update()
 				Game::LoopOverMap(enemy.Rect);
 				Collisions::LeAttack(*(this->PlayerInstance), enemy, *this->GlobalData);
 			}
+
+			if (enemy.Health <= 0)
+			{
+				unsigned int value = EnemyXpValues.at(enemy.Type);
+				this->Xps.emplace_back(enemy.Rect.x, enemy.Rect.y, value, *this->Assets);
+			}
 		}
 		std::erase_if(this->Enemies, [](Enemy& enemy) { return (enemy.Health <= 0); });
+
+		for (auto &xp : this->Xps)
+		{
+			if (CheckCollisionRecs(this->PlayerInstance->Rect, xp.Rect))
+			{
+				this->GlobalData->CollectedXp += xp.Value;
+				xp.Kill = true;
+			}
+		}
+		std::erase_if(this->Xps, [](Xp& xp) { return xp.Kill; });
 
 		this->Accumulator -= TICK_TIME;
 		this->Ticks++;
@@ -231,25 +256,3 @@ void Game::LoopOverMap(Rectangle& m_obj)
 	else if (m_obj.y > map_height)
 		m_obj.y = 0;
 }
-/*
-void Game::HandleEvents()
-{
-	for (auto it = this->Events.begin(); it != this->Events.end();)
-	{
-		switch(it->first)
-		{
-			case EventKey::GreenbullExpire:
-				break;
-			case EventKey::MilkExpire:
-				break;
-			case EventKey::PoisonedExpire:
-				break;
-			case EventKey::DrunkExpire:
-				break;
-			case EventKey::AussieExpire:
-				break;
-		}
-		it++;
-	}
-}
-*/

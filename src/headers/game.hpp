@@ -12,6 +12,7 @@
 
 #include "projectiles.hpp"
 #include "enemy.hpp"
+#include "xp.hpp"
 
 static constexpr float TICK_TIME = (1.0/240.0);
 static constexpr float MAX_TICK_TIME = (1.0/5.0);
@@ -33,7 +34,7 @@ class Game
 		std::vector<Enemy> Enemies;
 
 		std::vector<Projectile> Projectiles;
-		//std::vector<Xp> Xps;
+		std::vector<Xp> Xps;
 
 		std::shared_ptr<AssetManager> Assets;
 		std::unique_ptr<Player> PlayerInstance;

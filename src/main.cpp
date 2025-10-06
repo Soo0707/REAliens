@@ -19,12 +19,17 @@ int main(void)
 	{
 		game.Update();
 		game.HandleInput();
-		powerup_overlay.HandleInput();
+		
+		if (global_data->ShowPowerupOverlay)
+			powerup_overlay.HandleInput();
 
 		BeginDrawing();
 		ClearBackground(BLACK);
 		game.Draw();
-		powerup_overlay.Draw();
+
+		if (global_data->ShowPowerupOverlay)
+			powerup_overlay.Draw();
+		
 		EndDrawing();
 	}
 	CloseWindow();

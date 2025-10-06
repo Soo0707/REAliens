@@ -5,7 +5,7 @@
 #include <memory>
 #include <cstddef>
 
-static constexpr unsigned int FLASH_DURATION = 10;
+static constexpr unsigned int FLASH_DURATION = 30;
 
 enum class EnemyType
 {

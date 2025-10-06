@@ -17,7 +17,7 @@ enum class Attribute
 	LazerSpeed,
 
 	CircleDamage,
-	CircleSize,
+	CircleScale,
 	CircleAngularSpeed,
 	CircleRadius,
 
@@ -63,7 +63,7 @@ class GlobalDataWrapper
 
 			{ Attribute::CircleRadius, 64 },
 			{ Attribute::CircleDamage, 5.0f },
-			{ Attribute::CircleSize, 2.0f },
+			{ Attribute::CircleScale, 2.0f },
 			{ Attribute::CircleAngularSpeed, 3.142 / 2 }
 		};
 

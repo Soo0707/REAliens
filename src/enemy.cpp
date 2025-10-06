@@ -47,14 +47,14 @@ void Enemy::Update(Rectangle& player_rect, size_t& ticks)
 
 void Enemy::Draw()
 {
+	DrawTextureV(this->Image, (Vector2) { this->Rect.x, this->Rect.y }, WHITE);
+
 	if (this->Flash)
 	{
 		BeginBlendMode(BLEND_ADDITIVE);
 		DrawTextureV(this->Image, (Vector2) { this->Rect.x, this->Rect.y }, WHITE);
 		EndBlendMode();
 	}
-	else
-		DrawTextureV(this->Image, (Vector2) { this->Rect.x, this->Rect.y }, WHITE);
 }
 
 void Enemy::Animate()

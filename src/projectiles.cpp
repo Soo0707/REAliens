@@ -32,7 +32,7 @@ Projectile::Projectile(float x, float y, Vector2 direction, ProjectileType type,
 			break;
 		case ProjectileType::Circle:
 			this->Image = assets.StaticTextures.at(StaticTextureKey::Circle);
-			this->Scale = global_data.Attributes.at(Attribute::CircleSize);
+			this->Scale = global_data.Attributes.at(Attribute::CircleScale);
 			this->Speed = global_data.Attributes.at(Attribute::CircleAngularSpeed);
 			this->Rotation = global_data.Attributes.at(Attribute::CircleAngularSpeed) * 180 / 3.142;
 			this->Radius = global_data.Attributes.at(Attribute::CircleRadius);

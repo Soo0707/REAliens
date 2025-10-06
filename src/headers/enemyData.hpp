@@ -16,7 +16,6 @@ struct EnemyData
 	bool can_secondary;
 	size_t last_secondary;
 	unsigned int secondary_cooldown;
-
 };
 
 inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes = 
@@ -112,4 +111,15 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 			0
 		}
 	}
+};
+
+inline static const std::unordered_map<EnemyType, unsigned int> EnemyXpValues = 
+{
+	{ EnemyType::Australian, 1 },
+	{ EnemyType::BigMan, 5 },
+	{ EnemyType::Bomber, 3 },
+	{ EnemyType::Drunkard, 2 },
+	{ EnemyType::Pleb, 1 },
+	{ EnemyType::Poison, 2 },
+	{ EnemyType::Trapper, 2	}
 };

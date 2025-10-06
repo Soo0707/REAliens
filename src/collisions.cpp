@@ -57,4 +57,3 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 		}
 	}
 }
-
