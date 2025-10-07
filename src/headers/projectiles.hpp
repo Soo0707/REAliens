@@ -26,12 +26,6 @@ class Projectile
 		bool Kill = false;
 		ProjectileType Type;
 
-		Rectangle Rect;
-	
-	private:
-		// used for all types
-
-		Texture2D Image;
 		float Rotation;
 		float Scale;
 
@@ -42,4 +36,9 @@ class Projectile
 		// used by circle
 		float CurrentAngle;
 		float Radius;
+
+		Rectangle Rect;
+	
+	private:
+		Texture2D Image;
 };

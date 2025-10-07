@@ -29,6 +29,7 @@ class Game
 	private:
 		void SpawnEnemies();
 		void LoopOverMap(Rectangle& m_obj);
+		void HandleEvents();
 
 		std::shared_mutex EnemiesMutex;
 		std::vector<Enemy> Enemies;
@@ -47,9 +48,12 @@ class Game
 		unsigned int LastRMB = 0;
 		bool CanRMB = true;
 
+		unsigned int Level = 1;
+		unsigned int LevelUpTreshold = 2;
+		unsigned int CollectedXp = 0;
+
 		float Accumulator = 0.0f;
-		size_t Ticks = 0;
-		
+
 		size_t LastSpawn = 0;
 		size_t SpawnTimeout = 1000;
 

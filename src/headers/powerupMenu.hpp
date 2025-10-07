@@ -33,11 +33,11 @@ struct PowerupWrapper
 	std::string DisplayName;
 };
 
-class PowerupOverlay
+class PowerupMenu
 {
 	public:
-		PowerupOverlay(std::shared_ptr<GlobalDataWrapper> global_data);
-		~PowerupOverlay();
+		PowerupMenu(std::shared_ptr<GlobalDataWrapper> global_data);
+		~PowerupMenu();
 		void Draw();
 		void GenerateList();
 		void HandleInput();

@@ -1,4 +1,4 @@
-#include "powerupOverlay.hpp"
+#include "powerupMenu.hpp"
 
 #include <memory>
 #include <set>
@@ -6,25 +6,18 @@
 
 #include "globalDataWrapper.hpp"
 
-PowerupOverlay::PowerupOverlay(std::shared_ptr<GlobalDataWrapper> global_data) :
+PowerupMenu::PowerupMenu(std::shared_ptr<GlobalDataWrapper> global_data) :
 	GlobalData(global_data)
 {
-	int screen_width = GetScreenWidth();
-	int screen_height = GetScreenHeight();
-
-	this->Rect = { 390, 160, 500, 400 };
-
-	PowerupOverlay::GenerateList();
+	PowerupMenu::GenerateList();
 }
 
-PowerupOverlay::~PowerupOverlay()
+PowerupMenu::~PowerupMenu()
 {}
 
-void PowerupOverlay::Draw()
+void PowerupMenu::Draw()
 {
-	DrawRectangleRounded(this->Rect, 0.2, 0, {0, 0, 0, 255});
-
-	float mid = this->Rect.x + this->Rect.width / 2.0f;
+	float mid = 1280 / 2.0f;
 
 	int x1 = mid - MeasureText(this->SelectionList[0].DisplayName.c_str(), 24) / 2.0f;
 	int x2 = mid - MeasureText(this->SelectionList[1].DisplayName.c_str() , 24) / 2.0f;
@@ -35,7 +28,7 @@ void PowerupOverlay::Draw()
 	DrawText(this->SelectionList[2].DisplayName.c_str(), x3, 460, 24, VIOLET);
 }
 
-void PowerupOverlay::GenerateList()
+void PowerupMenu::GenerateList()
 {
 	std::set<Powerup> powerup_set = {};
 	while (true)
@@ -58,17 +51,17 @@ void PowerupOverlay::GenerateList()
 	}
 }
 
-void PowerupOverlay::HandleInput()
+void PowerupMenu::HandleInput()
 {
 	if (IsKeyPressed(KEY_ONE))
-		PowerupOverlay::ApplyPowerup(this->SelectionList[0].Powerup);
+		PowerupMenu::ApplyPowerup(this->SelectionList[0].Powerup);
 	else if (IsKeyPressed(KEY_TWO))
-		PowerupOverlay::ApplyPowerup(this->SelectionList[1].Powerup);
+		PowerupMenu::ApplyPowerup(this->SelectionList[1].Powerup);
 	else if (IsKeyPressed(KEY_THREE))
-		PowerupOverlay::ApplyPowerup(this->SelectionList[2].Powerup);
+		PowerupMenu::ApplyPowerup(this->SelectionList[2].Powerup);
 }
 
-void PowerupOverlay::ApplyPowerup(Powerup powerup)
+void PowerupMenu::ApplyPowerup(Powerup powerup)
 {
 	switch (powerup)
 	{
@@ -101,12 +94,22 @@ void PowerupOverlay::ApplyPowerup(Powerup powerup)
 			this->GlobalData->Attributes[Attribute::CircleDamage] += 10;
 			this->GlobalData->Attributes[Attribute::CircleScale] += 0.2;
 			this->GlobalData->Attributes[Attribute::CircleAngularSpeed] *= 2;
-			this->GlobalData->Attributes[Attribute::CircleRadius] += 4;
+			this->GlobalData->Attributes[Attribute::CircleRadius] += 12;
+
+			this->GlobalData->Events[Event::UpgradeCircle] = 0;
 
 			break;
 		case Powerup::Greenbull:
+			this->GlobalData->Attributes[Attribute::Greenbull] = 0;
+			this->GlobalData->Events[Event::GreenbullExpire] = this->GlobalData->Ticks + 240'000;
 			break;
 		case Powerup::Milk:
+			this->GlobalData->Attributes[Attribute::Milk] = 0;
+			this->GlobalData->Events[Event::GreenbullExpire] = this->GlobalData->Ticks + 240'000;
+			break;
+		case Powerup::Magnetism:
+			this->GlobalData->Attributes[Attribute::Magnetism] = 0;
+			this->GlobalData->Events[Event::MagnetismExpire] = this->GlobalData->Ticks + 240'000;
 			break;
 		case Powerup::LifeSteal:
 			break;
@@ -114,5 +117,6 @@ void PowerupOverlay::ApplyPowerup(Powerup powerup)
 			break;
 	}
 
+	PowerupMenu::GenerateList();
 	this->GlobalData->ActiveState = State::Game;
 }

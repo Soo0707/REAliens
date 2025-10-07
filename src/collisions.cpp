@@ -44,12 +44,15 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 		{
 			case EnemyType::Australian:
 				global_data.Attributes[Attribute::Aussie] = 0.0f;
+				global_data.Events[Event::AussieExpire] = global_data.Ticks + 480;
 				break;
 			case EnemyType::Bomber:
 				//enemy.UniqueState = UniqueStates::BomberExplode;
 				break;
 			case EnemyType::Poison:
-				//effects[EffectKey::Poisoned] = (float) 0.5f * enemy.Damage;
+				global_data.Attributes[Attribute::PoisonDamage] = 2.0f;
+				global_data.Events[Event::PoisonTick] = global_data.Ticks + 240;
+				global_data.Events[Event::PoisonExpire] = global_data.Ticks + 1200;
 				break;
 			case EnemyType::Trapper:
 				//effects[EffectKey::Trapped] = (float) 5;

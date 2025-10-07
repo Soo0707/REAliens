@@ -23,21 +23,27 @@ enum class Attribute
 
 	PlayerSpeed,
 	Drunk,
-	Poisoned,
+	PoisonDamage,
 	Trapped,
 	Aussie,
 
 	Greenbull,
-	Milk
+	Milk,
+	Magnetism
 };
 
-enum class EventKey
+enum class Event
 {
+	UpgradeCircle,
 	GreenbullExpire,
 	MilkExpire,
-	PoisonedExpire,
+
+	PoisonTick,
+	PoisonExpire,
+
 	DrunkExpire,
-	AussieExpire
+	AussieExpire,
+	MagnetismExpire
 };
 
 enum class State
@@ -75,11 +81,9 @@ class GlobalDataWrapper
 			{ Attribute::CircleAngularSpeed, 3.142 / 2 }
 		};
 
-		std::unordered_map<EventKey, size_t> Events;
+		std::unordered_map<Event, size_t> Events;
 
 		State ActiveState = State::PowerupMenu;
 
-		unsigned int Level = 1;
-		unsigned int LevelUpTreshold = 2;
-		unsigned int CollectedXp = 0;
+		size_t Ticks = 0;
 };
