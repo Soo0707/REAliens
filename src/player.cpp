@@ -7,7 +7,7 @@
 #include <cmath>
 
 Player::Player(float pos_x, float pos_y, AssetManager &assets) :
-	Assets(assets), Image(assets.EntityTextures[EntityTextureKey::PlayerSouth][0]), Speed(300)
+	Assets(assets), Image(assets.EntityTextures[EntityTextureKey::PlayerSouth][0])
 {
 	this->Rect = {pos_x, pos_y, (float) this->Image.width, (float) this->Image.height};
 }

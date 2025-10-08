@@ -96,7 +96,7 @@ void PowerupMenu::ApplyPowerup(Powerup powerup)
 			this->GlobalData->Attributes[Attribute::CircleAngularSpeed] *= 2;
 			this->GlobalData->Attributes[Attribute::CircleRadius] += 12;
 
-			this->GlobalData->Events[Event::UpgradeCircle] = 0;
+			this->GlobalData->Events[Event::SpawnAndUpgradeCircles] = 0;
 
 			break;
 		case Powerup::Greenbull:
@@ -114,6 +114,9 @@ void PowerupMenu::ApplyPowerup(Powerup powerup)
 		case Powerup::LifeSteal:
 			break;
 		case Powerup::Regeneration:
+			break;
+		case Powerup::SpeedBoots:
+			this->GlobalData->Events[Event::IncreasePlayerSpeed] = 0;
 			break;
 	}
 

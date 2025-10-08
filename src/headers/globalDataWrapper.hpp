@@ -34,7 +34,7 @@ enum class Attribute
 
 enum class Event
 {
-	UpgradeCircle,
+	SpawnAndUpgradeCircles,
 	GreenbullExpire,
 	MilkExpire,
 
@@ -43,7 +43,9 @@ enum class Event
 
 	DrunkExpire,
 	AussieExpire,
-	MagnetismExpire
+	MagnetismExpire,
+
+	IncreasePlayerSpeed
 };
 
 enum class State
@@ -51,7 +53,8 @@ enum class State
 	Game,
 	PowerupMenu,
 	PauseMenu,
-	StartMenu
+	StartMenu,
+	GameOverMenu
 };
 
 class GlobalDataWrapper
@@ -77,7 +80,7 @@ class GlobalDataWrapper
 
 			{ Attribute::CircleRadius, 64 },
 			{ Attribute::CircleDamage, 5.0f },
-			{ Attribute::CircleScale, 2.0f },
+			{ Attribute::CircleScale, 1.0f },
 			{ Attribute::CircleAngularSpeed, 3.142 / 2 }
 		};
 
@@ -86,4 +89,7 @@ class GlobalDataWrapper
 		State ActiveState = State::PowerupMenu;
 
 		size_t Ticks = 0;
+		
+		size_t Level = 1;
+		size_t LevelUpTreshold = 2;
 };

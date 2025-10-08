@@ -1,7 +1,10 @@
 #include "raylib.h"
-#include "game.hpp"
 #include "globalDataWrapper.hpp"
+
+#include "game.hpp"
 #include "powerupMenu.hpp"
+#include "gameOverMenu.hpp"
+#include "pauseMenu.hpp"
 
 static constexpr int REFERENCE_WIDTH = 1280;
 static constexpr int REFERENCE_HEIGHT = 720;
@@ -18,7 +21,9 @@ int main(void)
 
 	Game game = Game(global_data);
 	PowerupMenu powerup_menu = PowerupMenu(global_data);
-	
+	GameOverMenu game_over = GameOverMenu(global_data);
+	PauseMenu pause = PauseMenu(global_data);
+
 	while (!WindowShouldClose())
 	{
 		switch (global_data->ActiveState)
@@ -42,10 +47,22 @@ int main(void)
 
 				EndDrawing();
 				break;
-				/*
-			case State::PauseMenu:
+			case State::GameOverMenu:
+				game_over.HandleInput();
+
+				BeginDrawing();
+				ClearBackground(BLACK);
+				game_over.Draw();
+				EndDrawing();
 				break;
-				*/
+			case State::PauseMenu:
+				pause.HandleInput();
+
+				BeginDrawing();
+				ClearBackground(BLACK);
+				pause.Draw();
+				EndDrawing();
+				break;
 		}
 	}
 	CloseWindow();

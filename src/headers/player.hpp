@@ -18,7 +18,7 @@ class Player
 
 		Vector2 Direction = { 0.0f, 0.0f };
 		Rectangle Rect;
-		unsigned int Speed = 100;
+		float Speed = 300;
 
 	private:
 		AssetManager& Assets;

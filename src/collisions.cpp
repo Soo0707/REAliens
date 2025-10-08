@@ -3,6 +3,7 @@
 #include "globalDataWrapper.hpp"
 #include "game.hpp"
 #include "raymath.h"
+#include "enemyData.hpp"
 
 void Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, GlobalDataWrapper& global_data, size_t& ticks)
 {
@@ -38,25 +39,37 @@ void Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemi
 
 void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& global_data)
 {
-	if (CheckCollisionRecs(player.Rect, enemy.Rect))
+	if (CheckCollisionRecs(player.Rect, enemy.Rect) && enemy.CanLeAttack)
 	{
+		player.Health -= EnemyAttributes.at(enemy.Type).damage;
+
 		switch(enemy.Type)
 		{
 			case EnemyType::Australian:
-				global_data.Attributes[Attribute::Aussie] = 0.0f;
-				global_data.Events[Event::AussieExpire] = global_data.Ticks + 480;
+				if (global_data.Attributes.count(Attribute::Milk))
+				{
+					global_data.Attributes[Attribute::Aussie] = 0.0f;
+					global_data.Events[Event::AussieExpire] = global_data.Ticks + 240;
+				}
 				break;
 			case EnemyType::Bomber:
 				//enemy.UniqueState = UniqueStates::BomberExplode;
 				break;
 			case EnemyType::Poison:
-				global_data.Attributes[Attribute::PoisonDamage] = 2.0f;
-				global_data.Events[Event::PoisonTick] = global_data.Ticks + 240;
-				global_data.Events[Event::PoisonExpire] = global_data.Ticks + 1200;
+				if (global_data.Attributes.count(Attribute::Milk))
+				{
+					global_data.Attributes[Attribute::PoisonDamage] = 2.0f;
+					global_data.Events[Event::PoisonTick] = global_data.Ticks + 240;
+					global_data.Events[Event::PoisonExpire] = global_data.Ticks + 1200;
+				}
 				break;
 			case EnemyType::Trapper:
-				//effects[EffectKey::Trapped] = (float) 5;
+				if (global_data.Attributes.count(Attribute::Milk))
+					global_data.Attributes[Attribute::Trapped] = 3;
 				break;
 		}
+
+		enemy.CanLeAttack = false;
+		enemy.LastLeAttack = global_data.Ticks;
 	}
 }

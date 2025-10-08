@@ -65,8 +65,8 @@ void Projectile::Update(Rectangle& player_rect)
 			this->Rect.width = this->Image.width * this->Scale;
 			this->Rect.height = this->Image.height * this->Scale;
 
-			this->Rect.x = player_centre.x + this->Radius * cos(this->CurrentAngle) + this->Rect.width / 2;
-			this->Rect.y = player_centre.y + this->Radius * sin(this->CurrentAngle) + this->Rect.height / 2;
+			this->Rect.x = player_centre.x + this->Radius * cos(this->CurrentAngle);
+			this->Rect.y = player_centre.y + this->Radius * sin(this->CurrentAngle); 
 			break;
 		}
 		default:
