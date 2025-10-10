@@ -14,7 +14,6 @@ enum class EntityTextureKey
 	PlayerEast,
 	PlayerWest,
 	Australian,
-	BigMan,
 	Beer,
 	Bomber,
 	BomberExplosion,

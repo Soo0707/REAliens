@@ -25,5 +25,6 @@ void GameOverMenu::HandleInput()
 {
 	if (IsKeyPressed(KEY_SPACE))
 		this->GlobalData->ActiveState = State::Game;
-	//else if (IsKeyPressed(KEY_ESC))
+	else if (IsKeyPressed(KEY_ESCAPE))
+		this->GlobalData->Running = false;
 }

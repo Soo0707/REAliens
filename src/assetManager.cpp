@@ -115,7 +115,6 @@ EntityTextureKey AssetManager::GetEntityTextureKeyFromString(std::string folder_
 		{ "player_east", EntityTextureKey::PlayerEast },
 		{ "player_west", EntityTextureKey::PlayerWest },
 		{ "australian", EntityTextureKey::Australian },
-		{ "big_man", EntityTextureKey::BigMan },
 		{ "beer", EntityTextureKey::Beer },
 		{ "bomber", EntityTextureKey::Bomber },
 		{ "bomber_explosion", EntityTextureKey::BomberExplosion },

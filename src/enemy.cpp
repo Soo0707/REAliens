@@ -17,10 +17,6 @@ Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, Ene
 	this->AnimationSpeed = EnemyAttributes.at(this->Type).animation_speed;
 	this->Health = EnemyAttributes.at(this->Type).health;
 
-	this->CanSecondary = EnemyAttributes.at(this->Type).can_secondary;
-	this->LastSecondary = EnemyAttributes.at(this->Type).last_secondary;
-	this->SecondaryCooldown = EnemyAttributes.at(this->Type).secondary_cooldown;
-
 	this->Image = this->Assets->EntityTextures.at(this->TextureKey)[0];
 	this->Rect = { pos_x, pos_y, (float) this->Image.width, (float) this->Image.height };
 }
@@ -35,11 +31,11 @@ void Enemy::Update(Rectangle& player_rect, size_t& ticks)
 	if (this->Modifier != BehaviourModifier::OverrideDirection)
 		Enemy::SetDirection(player_rect);
 
+	if (this->Modifier == BehaviourModifier::BomberExplode)
+		this->TextureKey = EntityTextureKey::BomberExplosion;
+
 	if (ticks - this->LastLeAttack >= this->LeAttackCooldown)
 		this->CanLeAttack = true;
-
-	if (this->SecondaryCooldown > 0 && (ticks - this->LastSecondary >= this->SecondaryCooldown))
-		this->CanSecondary = true;
 
 	if (ticks - this->FlashTriggered >= FLASH_DURATION)
 		this->Flash = false;
@@ -64,7 +60,12 @@ void Enemy::Animate()
 	else
 		this->ImageIndex = 0;
 
-	this->Image = this->Assets->EntityTextures[this->TextureKey][(int) this->ImageIndex % this->Assets->EntityTextures[this->TextureKey].size()];
+	int i = (int) this->ImageIndex % this->Assets->EntityTextures[this->TextureKey].size();
+	
+	this->Image = this->Assets->EntityTextures[this->TextureKey][i];
+
+	if (this->Modifier == BehaviourModifier::BomberExplode && i >= 7)
+		this->Health = -1;
 }
 
 void Enemy::Move()
@@ -74,9 +75,6 @@ void Enemy::Move()
 	this->Rect.width = this->Image.width;
 	this->Rect.height = this->Image.height;
 }
-
-void Enemy::SecondaryAttack()
-{}
 
 void Enemy::SetDirection(Rectangle& player_rect)
 {

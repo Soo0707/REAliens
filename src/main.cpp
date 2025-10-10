@@ -5,7 +5,7 @@
 #include "powerupMenu.hpp"
 #include "gameOverMenu.hpp"
 #include "pauseMenu.hpp"
-
+#include <iostream>
 static constexpr int REFERENCE_WIDTH = 1280;
 static constexpr int REFERENCE_HEIGHT = 720;
 
@@ -24,7 +24,7 @@ int main(void)
 	GameOverMenu game_over = GameOverMenu(global_data);
 	PauseMenu pause = PauseMenu(global_data);
 
-	while (!WindowShouldClose())
+	while (global_data->Running)
 	{
 		switch (global_data->ActiveState)
 		{

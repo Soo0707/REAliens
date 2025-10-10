@@ -92,10 +92,12 @@ class GlobalDataWrapper
 
 		std::unordered_map<Event, size_t> Events;
 
-		State ActiveState = State::PowerupMenu;
+		State ActiveState = State::Game;
 
 		size_t Ticks = 0;
 		
 		size_t Level = 1;
 		size_t LevelUpTreshold = 2;
+
+		bool Running = true;
 };

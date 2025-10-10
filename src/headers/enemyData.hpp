@@ -12,10 +12,6 @@ struct EnemyData
 	float speed;
 	float animation_speed;
 	float health;
-
-	bool can_secondary;
-	size_t last_secondary;
-	unsigned int secondary_cooldown;
 };
 
 inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes = 
@@ -28,22 +24,6 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 			175,
 			10,
 			75,
-			false,
-			0,
-			0
-		}
-	},
-	{ 
-		EnemyType::BigMan,
-		{
-			EntityTextureKey::BigMan,
-			50,
-			175,
-			10,
-			500,
-			false,
-			0,
-			0
 		}
 	},
 	{ 
@@ -51,12 +31,9 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 		{
 			EntityTextureKey::Bomber,
 			15,
-			350,
+			175,
 			10,
 			100,
-			false,
-			0,
-			0
 		}
 	},
 	{ 
@@ -67,9 +44,6 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 			250,
 			60,
 			50,
-			true,
-			0,
-			5000
 		}
 	},
 	{ 
@@ -80,9 +54,6 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 			150,
 			10,
 			75,
-			false,
-			0,
-			0
 		}
 	},
 	{ 
@@ -90,12 +61,9 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 		{
 			EntityTextureKey::Poison,
 			5,
-			225,
+			125,
 			60,
 			100,
-			false,
-			0,
-			0
 		}
 	},
 	{ 
@@ -103,12 +71,9 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 		{
 			EntityTextureKey::Trapper,
 			10,
-			430,
+			125,
 			50,
 			100,
-			false,
-			0,
-			0
 		}
 	}
 };
@@ -116,7 +81,6 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 inline static const std::unordered_map<EnemyType, unsigned int> EnemyXpValues = 
 {
 	{ EnemyType::Australian, 1 },
-	{ EnemyType::BigMan, 5 },
 	{ EnemyType::Bomber, 3 },
 	{ EnemyType::Drunkard, 2 },
 	{ EnemyType::Pleb, 1 },

@@ -19,6 +19,7 @@ class Player
 		Vector2 Direction = { 0.0f, 0.0f };
 		Rectangle Rect;
 		Rectangle Aura;
+		Vector2 Centre;
 
 		float Speed = 300;
 

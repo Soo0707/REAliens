@@ -27,11 +27,9 @@ Game::Game(std::shared_ptr<GlobalDataWrapper> global_data) : GlobalData(global_d
 	this->Camera.rotation = 0.0f;
     this->Camera.zoom = 1.0f;
 	
-	Vector2 player_pos = { this->PlayerInstance->Rect.x, this->PlayerInstance->Rect.y };
-	
 	this->UpdateArea = {
-		player_pos.x - (GetScreenWidth() / 2.0f),
-		player_pos.y - (GetScreenHeight() / 2.0f),
+		this->PlayerInstance->Centre.x - (GetScreenWidth() / 2.0f),
+		this->PlayerInstance->Centre.y - (GetScreenHeight() / 2.0f),
 		(float) GetScreenWidth(),
 		(float) GetScreenHeight()
 	};
@@ -44,7 +42,30 @@ void Game::Draw()
 {
 	BeginMode2D(this->Camera);
 	
-	DrawTexture(this->Assets->Ground, 0, 0, WHITE);
+	static unsigned int map_width = this->Assets->Ground.width;
+	static unsigned int map_height = this->Assets->Ground.height;
+
+	Rectangle viewport = this->UpdateArea;
+
+	if (viewport.x < 0) {
+		viewport.width += viewport.x;
+		viewport.x = 0;
+	}
+	
+	if (viewport.x + viewport.width > map_width) {
+		viewport.width = map_width - viewport.x;
+	}
+
+	if (viewport.y < 0) {
+		viewport.height += viewport.y;
+		viewport.y = 0;
+	}
+	
+	if (viewport.y + viewport.height > map_height) {
+		viewport.height = map_height - viewport.y;
+	}
+	
+	DrawTextureRec(this->Assets->Ground, viewport, (Vector2) { viewport.x, viewport.y }, WHITE);
 
 	for (auto const &xp : this->Xps)
 	{
@@ -111,13 +132,13 @@ void Game::Update()
 		Game::HandleInput();
 
 		this->PlayerInstance->Update();
-
+		
 		Game::LoopOverMap(this->PlayerInstance->Rect);
 		
-		this->UpdateArea.x = this->PlayerInstance->Rect.x - GetScreenWidth() / 2.0f;
-		this->UpdateArea.y = this->PlayerInstance->Rect.y - GetScreenHeight() / 2.0f;
+		this->UpdateArea.x = this->PlayerInstance->Centre.x - GetScreenWidth() / 2.0f;
+		this->UpdateArea.y =  this->PlayerInstance->Centre.y - GetScreenHeight() / 2.0f;
 		
-		this->Camera.target = { this->PlayerInstance->Rect.x, this->PlayerInstance->Rect.y };
+		this->Camera.target = this->PlayerInstance->Centre;
 
 		if (this->GlobalData->Attributes.count(Attribute::Aussie))
 			this->Camera.rotation = 180.0f;
@@ -274,7 +295,7 @@ void Game::SpawnEnemies()
 		float x = this->PlayerInstance->Rect.x + location.x;
 		float y = this->PlayerInstance->Rect.y + location.y;
 
-		EnemyType type = (EnemyType) GetRandomValue(0, 6);
+		EnemyType type = (EnemyType) GetRandomValue(0, 5);
 
 		this->Enemies.emplace_back(x, y, this->Assets, type, BehaviourModifier::None);
 	}
@@ -282,8 +303,8 @@ void Game::SpawnEnemies()
 
 void Game::LoopOverMap(Rectangle& m_obj)
 {
-	static float map_width = this->Assets->Ground.width;
-	static float map_height = this->Assets->Ground.height;
+	static unsigned int map_width = this->Assets->Ground.width;
+	static unsigned int map_height = this->Assets->Ground.height;
 
 	if (m_obj.x < 0)
 		m_obj.x = map_width - m_obj.width;

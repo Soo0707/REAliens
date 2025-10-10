@@ -10,7 +10,6 @@ static constexpr unsigned int FLASH_DURATION = 30;
 enum class EnemyType
 {
 	Australian,
-	BigMan,
 	Bomber,
 	Drunkard,
 	Pleb,
@@ -52,10 +51,6 @@ class Enemy
 		size_t LastLeAttack = 0;
 		unsigned int LeAttackCooldown = 5000;
 
-		bool CanSecondary = true;
-		size_t LastSecondary = 0;
-		unsigned int SecondaryCooldown;
-
 		EnemyType Type;
 		BehaviourModifier Modifier;
 
@@ -67,6 +62,4 @@ class Enemy
 
 		float ImageIndex = 0.0f;
 		float AnimationSpeed;
-
-		void SecondaryAttack();
 };

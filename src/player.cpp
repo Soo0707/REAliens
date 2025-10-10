@@ -10,6 +10,7 @@ Player::Player(float pos_x, float pos_y, AssetManager &assets) :
 	Assets(assets), Image(assets.EntityTextures[EntityTextureKey::PlayerSouth][0])
 {
 	this->Rect = { pos_x, pos_y, (float) this->Image.width, (float) this->Image.height };
+	this->Centre = { this->Rect.x + this->Rect.width / 2.0f, this->Rect.y + this->Rect.height / 2.0f };
 	this->Aura = { 0, 0, 0, 0 };
 }
 
@@ -56,6 +57,7 @@ void Player::Move()
 	this->Rect.width = this->Image.width;
 	this->Rect.height = this->Image.height;
 
+	this->Centre = { this->Rect.x + this->Rect.width / 2.0f, this->Rect.y + this->Rect.height / 2.0f };
 
 	this->Aura.x = this->Rect.x - this->Aura.width / 2.0f;
 	this->Aura.y = this->Rect.y - this->Aura.height / 2.0f;
