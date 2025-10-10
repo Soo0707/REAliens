@@ -66,6 +66,21 @@ void PowerupMenu::ApplyPowerup(Powerup powerup)
 	switch (powerup)
 	{
 		case Powerup::Aura:
+			if (this->GlobalData->Attributes.count(Attribute::AuraSize))
+			{
+				this->GlobalData->Attributes[Attribute::AuraSize] += 100;
+				this->GlobalData->Attributes[Attribute::AuraDamage] += 2;
+				if (this->GlobalData->Attributes[Attribute::AuraCooldown] - 50 >= 0)
+					this->GlobalData->Attributes[Attribute::AuraCooldown] -= 50;
+			}
+			else
+			{
+				this->GlobalData->Attributes[Attribute::AuraSize] = 100;
+				this->GlobalData->Attributes[Attribute::AuraDamage] = 2;
+				this->GlobalData->Attributes[Attribute::AuraCooldown] = 480;
+			}
+
+			this->GlobalData->Events[Event::AuraTick] = this->GlobalData->Ticks + this->GlobalData->Attributes[Attribute::AuraCooldown];
 			break;
 		case Powerup::Buckshot:
 			this->GlobalData->Attributes[Attribute::Buckshot] += 2;

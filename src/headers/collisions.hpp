@@ -10,6 +10,6 @@
 
 namespace Collisions
 {
-	void ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, GlobalDataWrapper& global_data, size_t& ticks);
+	void ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, GlobalDataWrapper& global_data);
 	void LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& global_data);
 }

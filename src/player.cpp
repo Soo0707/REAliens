@@ -9,7 +9,8 @@
 Player::Player(float pos_x, float pos_y, AssetManager &assets) :
 	Assets(assets), Image(assets.EntityTextures[EntityTextureKey::PlayerSouth][0])
 {
-	this->Rect = {pos_x, pos_y, (float) this->Image.width, (float) this->Image.height};
+	this->Rect = { pos_x, pos_y, (float) this->Image.width, (float) this->Image.height };
+	this->Aura = { 0, 0, 0, 0 };
 }
 
 Player::~Player()
@@ -54,4 +55,8 @@ void Player::Move()
 	this->Rect.y += this->Speed * this->Direction.y * TICK_TIME;
 	this->Rect.width = this->Image.width;
 	this->Rect.height = this->Image.height;
+
+
+	this->Aura.x = this->Rect.x - this->Aura.width / 2.0f;
+	this->Aura.y = this->Rect.y - this->Aura.height / 2.0f;
 }

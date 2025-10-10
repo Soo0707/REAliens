@@ -36,6 +36,7 @@ class Enemy
 		void SetDirection(Rectangle& player_rect);
 
 		void Draw();
+		void FlashSprite(size_t ticks);
 		void Update(Rectangle& player_rect, size_t& ticks);
 		
 		float Health;

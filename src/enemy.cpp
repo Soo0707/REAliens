@@ -88,3 +88,9 @@ void Enemy::SetDirection(Rectangle& player_rect)
 	else
 		this->Direction = Vector2 { 0.0f, 0.0f };
 }
+
+void Enemy::FlashSprite(size_t ticks)
+{
+	this->Flash = true;
+	this->FlashTriggered = ticks;
+}

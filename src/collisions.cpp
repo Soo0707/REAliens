@@ -5,7 +5,7 @@
 #include "raymath.h"
 #include "enemyData.hpp"
 
-void Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, GlobalDataWrapper& global_data, size_t& ticks)
+void Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, GlobalDataWrapper& global_data)
 {
 	float damage;
 	switch (proj.Type)
@@ -28,8 +28,7 @@ void Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemi
 		if (CheckCollisionRecs(proj.Rect, enemy.Rect))
 		{
 			enemy.Health -= damage;
-			enemy.Flash = true;
-			enemy.FlashTriggered = ticks;
+			enemy.FlashSprite(global_data.Ticks);
 			
 			if (proj.Type == ProjectileType::Bullet)
 				proj.Kill = true;

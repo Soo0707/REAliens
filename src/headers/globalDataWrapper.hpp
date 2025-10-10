@@ -29,7 +29,11 @@ enum class Attribute
 
 	Greenbull,
 	Milk,
-	Magnetism
+	Magnetism,
+
+	AuraSize,
+	AuraCooldown,
+	AuraDamage
 };
 
 enum class Event
@@ -45,7 +49,9 @@ enum class Event
 	AussieExpire,
 	MagnetismExpire,
 
-	IncreasePlayerSpeed
+	IncreasePlayerSpeed,
+	
+	AuraTick
 };
 
 enum class State

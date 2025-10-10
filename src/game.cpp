@@ -107,11 +107,6 @@ void Game::Update()
 			this->GlobalData->ActiveState = State::PowerupMenu;
 		}
 
-		if (this->GlobalData->Attributes.count(Attribute::Aussie))
-			this->Camera.rotation = 180.0f;
-		else
-			this->Camera.rotation = 0.0f;
-
 		Game::HandleEvents();
 		Game::HandleInput();
 
@@ -124,13 +119,18 @@ void Game::Update()
 		
 		this->Camera.target = { this->PlayerInstance->Rect.x, this->PlayerInstance->Rect.y };
 
+		if (this->GlobalData->Attributes.count(Attribute::Aussie))
+			this->Camera.rotation = 180.0f;
+		else
+			this->Camera.rotation = 0.0f;
+
 		for (auto &projectile : this->Projectiles)
 		{
 			switch (projectile.Type)
 			{
 				case ProjectileType::Circle:
 					projectile.Update(this->PlayerInstance->Rect);
-					Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData, ticks);
+					Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData);
 					break;
 				default:
 					if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
@@ -139,7 +139,7 @@ void Game::Update()
 
 						Game::LoopOverMap(projectile.Rect);
 						
-						Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData, ticks);
+						Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData);
 					}
 					else
 						projectile.Kill = true;
@@ -255,7 +255,13 @@ void Game::SpawnEnemies()
 	std::vector<Vector2> rand_nums;
 
 	for (int i = 0; i < this->GlobalData->Level * 5; i++)
-		rand_nums.emplace_back(Vector2{ (float) GetRandomValue(32, (int) this->UpdateArea.width / 2), (float) GetRandomValue(32, (int) this->UpdateArea.height / 2) });
+	{
+		rand_nums.emplace_back(
+				(Vector2) {
+				(float) GetRandomValue(32, (int) this->UpdateArea.width / 2), 
+				(float) GetRandomValue(32, (int) this->UpdateArea.height / 2) 
+				});
+	}
 
 	for (auto &location : rand_nums)
 	{
@@ -388,6 +394,22 @@ void Game::HandleEvents()
 					this->GlobalData->Attributes.erase(Attribute::Magnetism);
 					it = this->GlobalData->Events.erase(it);
 					continue;
+				}
+				break;
+			case Event::AuraTick:
+				if (it->second <= ticks)
+				{
+					this->PlayerInstance->Aura.width = this->GlobalData->Attributes.at(Attribute::AuraSize);
+					this->PlayerInstance->Aura.height = this->GlobalData->Attributes.at(Attribute::AuraSize);
+
+					float damage = this->GlobalData->Attributes.at(Attribute::AuraDamage);
+					for (auto& enemy : this->Enemies)
+					{
+						if (CheckCollisionRecs(this->PlayerInstance->Aura, enemy.Rect))
+							enemy.Health -= damage;
+							enemy.FlashSprite(ticks);
+					}
+					this->GlobalData->Events[Event::AuraTick] = ticks + this->GlobalData->Attributes.at(Attribute::AuraCooldown);
 				}
 				break;
 		}
