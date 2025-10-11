@@ -4,8 +4,8 @@
 #include "assetManager.hpp"
 #include "raylib.h"
 #include "raymath.h"
-#include "game.hpp"
 #include "assetManager.hpp"
+#include "constants.hpp"
 
 #include <cstddef>
 

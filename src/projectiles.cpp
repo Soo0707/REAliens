@@ -3,6 +3,7 @@
 #include "game.hpp"
 #include "globalDataWrapper.hpp"
 #include "raymath.h"
+#include "constants.hpp"
 
 #include <cmath>
 
@@ -19,14 +20,14 @@ Projectile::Projectile(float x, float y, Vector2 direction, ProjectileType type,
 		case ProjectileType::Bullet:
 			this->Image = assets.StaticTextures.at(StaticTextureKey::Bullet);
 			this->Speed = global_data.Attributes.at(Attribute::BulletSpeed);
-			this->Rotation = atan2(this->Direction.y, this->Direction.x) * 180 / 3.142;
+			this->Rotation = atan2(this->Direction.y, this->Direction.x) * TO_DEG;
 			this->Scale = 1.0f;
 
 			break;
 		case ProjectileType::Lazer:
 			this->Image = assets.StaticTextures.at(StaticTextureKey::Lazer);
 			this->Speed = global_data.Attributes.at(Attribute::LazerSpeed);
-			this->Rotation = atan2(this->Direction.y, this->Direction.x) * 180 / 3.142;
+			this->Rotation = atan2(this->Direction.y, this->Direction.x) * TO_DEG;
 			this->Scale = global_data.Attributes.at(Attribute::LazerScale);
 
 			break;
@@ -34,7 +35,7 @@ Projectile::Projectile(float x, float y, Vector2 direction, ProjectileType type,
 			this->Image = assets.StaticTextures.at(StaticTextureKey::Circle);
 			this->Scale = global_data.Attributes.at(Attribute::CircleScale);
 			this->Speed = global_data.Attributes.at(Attribute::CircleAngularSpeed);
-			this->Rotation = global_data.Attributes.at(Attribute::CircleAngularSpeed) * 180 / 3.142;
+			this->Rotation = global_data.Attributes.at(Attribute::CircleAngularSpeed) * TO_DEG;
 			this->Radius = global_data.Attributes.at(Attribute::CircleRadius);
 
 			break;

@@ -7,6 +7,7 @@
 
 #include "game.hpp"
 #include "globalDataWrapper.hpp"
+#include "constants.hpp"
 
 #include "player.hpp"
 #include "assetManager.hpp"
@@ -145,48 +146,8 @@ void Game::Update()
 		else
 			this->Camera.rotation = 0.0f;
 
-		for (auto &projectile : this->Projectiles)
-		{
-			switch (projectile.Type)
-			{
-				case ProjectileType::Circle:
-					projectile.Update(this->PlayerInstance->Rect);
-					Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData);
-					break;
-				default:
-					if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
-					{
-						projectile.Update(this->PlayerInstance->Rect);
-
-						Game::LoopOverMap(projectile.Rect);
-						
-						Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData);
-					}
-					else
-						projectile.Kill = true;
-					break;
-			}
-		}
-		std::erase_if(this->Projectiles, [](const Projectile& proj){ return proj.Kill; });
-
-		for (auto &enemy : this->Enemies)
-		{
-			if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
-			{
-				enemy.Update(this->PlayerInstance->Rect, ticks);
-				Game::LoopOverMap(enemy.Rect);
-
-				if (!this->GlobalData->Attributes.count(Attribute::Greenbull))
-					Collisions::LeAttack(*(this->PlayerInstance), enemy, *this->GlobalData);
-			}
-
-			if (enemy.Health <= 0)
-			{
-				unsigned int value = EnemyXpValues.at(enemy.Type);
-				this->Xps.emplace_back(enemy.Rect.x, enemy.Rect.y, value, *this->Assets);
-			}
-		}
-		std::erase_if(this->Enemies, [](Enemy& enemy) { return (enemy.Health <= 0); });
+		Game::UpdateProjectiles();
+		Game::UpdateEnemies();
 
 		for (auto &xp : this->Xps)
 		{
@@ -229,13 +190,11 @@ void Game::HandleInput()
 
 	if (IsMouseButtonDown(0) && this->CanLMB)
 	{
-		Rectangle player_rect = this->PlayerInstance->Rect;
-
-		Vector2 player_centre = { player_rect.x + player_rect.width / 2, player_rect.y + player_rect.height / 2 };
 		Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), this->Camera);
 
-		Vector2 centre_direction = Vector2Subtract(mouse_pos, player_centre);
-		
+		Vector2 centre_direction = Vector2Subtract(mouse_pos, this->PlayerInstance->Centre);
+		Vector2 player_centre = this->PlayerInstance->Centre;
+
 		float spread_angle = this->GlobalData->Attributes[Attribute::BuckshotSpread];
 		int buckshot = (int) (this->GlobalData->Attributes[Attribute::Buckshot] - 1) / 2;
 
@@ -259,12 +218,10 @@ void Game::HandleInput()
 	{
 		static constexpr std::array<Vector2, 4> directions = { Vector2{1.0f, 0.0f}, Vector2{0.0f, 1.0f}, Vector2{-1.0f, 0.0f}, Vector2{0.0f, -1.0f} };
 
-		Rectangle player_rect = this->PlayerInstance->Rect;
-
-		Vector2 player_centre = { player_rect.x + player_rect.width / 2, player_rect.y + player_rect.height / 2 };
+		Vector2 centre = this->PlayerInstance->Centre;
 		
 		for (int i = 0; i < 4; i++)
-			this->Projectiles.emplace_back(player_centre.x, player_centre.y, directions[i], ProjectileType::Lazer, *this->GlobalData, *this->Assets);
+			this->Projectiles.emplace_back(centre.x, centre.y, directions[i], ProjectileType::Lazer, *this->GlobalData, *this->Assets);
 
 		this->CanRMB = false;
 		this->LastRMB = this->GlobalData->Ticks;
@@ -341,7 +298,7 @@ void Game::HandleEvents()
 					{
 						proj.Scale = this->GlobalData->Attributes.at(Attribute::CircleScale);
 						proj.Speed = this->GlobalData->Attributes.at(Attribute::CircleAngularSpeed);
-						proj.Rotation = this->GlobalData->Attributes.at(Attribute::CircleAngularSpeed) * 180 / 3.142;
+						proj.Rotation = this->GlobalData->Attributes.at(Attribute::CircleAngularSpeed) * TO_DEG;
 						proj.Radius = this->GlobalData->Attributes.at(Attribute::CircleRadius);
 					}
 				}
@@ -436,4 +393,54 @@ void Game::HandleEvents()
 		}
 		it++;
 	}
+}
+
+
+void Game::UpdateProjectiles()
+{
+	for (auto &projectile : this->Projectiles)
+	{
+		switch (projectile.Type)
+		{
+			case ProjectileType::Circle:
+				projectile.Update(this->PlayerInstance->Rect);
+				Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData);
+				break;
+			default:
+				if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
+				{
+					projectile.Update(this->PlayerInstance->Rect);
+
+					Game::LoopOverMap(projectile.Rect);
+					
+					Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData);
+				}
+				else
+					projectile.Kill = true;
+				break;
+		}
+	}
+	std::erase_if(this->Projectiles, [](const Projectile& proj){ return proj.Kill; });
+}
+
+void Game::UpdateEnemies()
+{
+	for (auto &enemy : this->Enemies)
+	{
+		if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
+		{
+			enemy.Update(this->PlayerInstance->Rect, this->GlobalData->Ticks);
+			Game::LoopOverMap(enemy.Rect);
+
+			if (!this->GlobalData->Attributes.count(Attribute::Greenbull))
+				Collisions::LeAttack(*(this->PlayerInstance), enemy, *this->GlobalData);
+		}
+
+		if (enemy.Health <= 0)
+		{
+			unsigned int value = EnemyXpValues.at(enemy.Type);
+			this->Xps.emplace_back(enemy.Rect.x, enemy.Rect.y, value, *this->Assets);
+		}
+	}
+	std::erase_if(this->Enemies, [](Enemy& enemy) { return (enemy.Health <= 0); });
 }

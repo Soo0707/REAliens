@@ -1,9 +1,7 @@
 #include "player.hpp"
 #include "assetManager.hpp"
 #include "raylib.h"
-#include "raymath.h"
-#include "game.hpp"
-
+#include "constants.hpp"
 #include <cmath>
 
 Player::Player(float pos_x, float pos_y, AssetManager &assets) :

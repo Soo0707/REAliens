@@ -13,9 +13,6 @@
 #include "enemy.hpp"
 #include "xp.hpp"
 
-static constexpr float TICK_TIME = (1.0/240.0);
-static constexpr float MAX_TICK_TIME = (1.0/5.0);
-
 class Game
 {
 	public:
@@ -29,6 +26,8 @@ class Game
 		void SpawnEnemies();
 		void LoopOverMap(Rectangle& m_obj);
 		void HandleEvents();
+		void UpdateProjectiles();
+		void UpdateEnemies();
 
 		std::vector<Enemy> Enemies;
 
