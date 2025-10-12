@@ -2,6 +2,10 @@
 
 #include <vector>
 #include <memory>
+#include <thread>
+
+#include <barrier>
+#include <atomic>
 
 #include "raylib.h"
 
@@ -26,8 +30,14 @@ class Game
 		void SpawnEnemies();
 		void LoopOverMap(Rectangle& m_obj);
 		void HandleEvents();
-		void UpdateProjectiles();
-		void UpdateEnemies();
+
+		std::atomic<bool> RunThreads = true;
+
+		std::vector<std::thread> Threads;
+
+		std::barrier<void(*)()> StartWorkers;
+		std::barrier<void(*)()> StopWorkers;
+		void UpdateThread1();
 
 		std::vector<Enemy> Enemies;
 

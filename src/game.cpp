@@ -1,7 +1,7 @@
 #include <memory>
 #include <algorithm>
 #include <array>
-
+#include <iostream>
 #include "raylib.h"
 #include "raymath.h"
 
@@ -17,7 +17,10 @@
 #include "enemyData.hpp"
 #include "xp.hpp"
 
-Game::Game(std::shared_ptr<GlobalDataWrapper> global_data) : GlobalData(global_data)
+Game::Game(std::shared_ptr<GlobalDataWrapper> global_data) :
+	GlobalData(global_data),
+	StartWorkers(2, [](){}),
+	StopWorkers(2, [](){})
 {
 	this->Assets = std::make_shared<AssetManager>();
 
@@ -34,10 +37,21 @@ Game::Game(std::shared_ptr<GlobalDataWrapper> global_data) : GlobalData(global_d
 		(float) GetScreenWidth(),
 		(float) GetScreenHeight()
 	};
+
+	this->Threads.emplace_back([this](){Game::UpdateThread1();});
 }
 
 Game::~Game()
-{}
+{
+	this->RunThreads = false;
+	(void) this->StartWorkers.arrive();
+
+	for (auto& thread : this->Threads)
+	{
+		if (thread.joinable())
+			thread.join();
+	}
+}
 
 void Game::Draw()
 {
@@ -134,6 +148,10 @@ void Game::Update()
 
 		this->PlayerInstance->Update();
 		
+		(void) this->StartWorkers.arrive();
+
+		(void) this->StopWorkers.arrive_and_wait();
+
 		Game::LoopOverMap(this->PlayerInstance->Rect);
 		
 		this->UpdateArea.x = this->PlayerInstance->Centre.x - GetScreenWidth() / 2.0f;
@@ -145,9 +163,6 @@ void Game::Update()
 			this->Camera.rotation = 180.0f;
 		else
 			this->Camera.rotation = 0.0f;
-
-		Game::UpdateProjectiles();
-		Game::UpdateEnemies();
 
 		for (auto &xp : this->Xps)
 		{
@@ -395,52 +410,58 @@ void Game::HandleEvents()
 	}
 }
 
-
-void Game::UpdateProjectiles()
+void Game::UpdateThread1()
 {
-	for (auto &projectile : this->Projectiles)
+	while (true)
 	{
-		switch (projectile.Type)
+		(void) this->StartWorkers.arrive_and_wait();
+
+		if (!this->RunThreads)
+			break;
+
+		for (auto &projectile : this->Projectiles)
 		{
-			case ProjectileType::Circle:
-				projectile.Update(this->PlayerInstance->Rect);
-				Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData);
-				break;
-			default:
-				if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
-				{
+			switch (projectile.Type)
+			{
+				case ProjectileType::Circle:
 					projectile.Update(this->PlayerInstance->Rect);
-
-					Game::LoopOverMap(projectile.Rect);
-					
 					Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData);
-				}
-				else
-					projectile.Kill = true;
-				break;
-		}
-	}
-	std::erase_if(this->Projectiles, [](const Projectile& proj){ return proj.Kill; });
-}
+					break;
+				default:
+					if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
+					{
+						projectile.Update(this->PlayerInstance->Rect);
 
-void Game::UpdateEnemies()
-{
-	for (auto &enemy : this->Enemies)
-	{
-		if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
+						Game::LoopOverMap(projectile.Rect);
+						
+						Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData);
+					}
+					else
+						projectile.Kill = true;
+					break;
+			}
+		}
+		std::erase_if(this->Projectiles, [](const Projectile& proj){ return proj.Kill; });
+
+		for (auto &enemy : this->Enemies)
 		{
-			enemy.Update(this->PlayerInstance->Rect, this->GlobalData->Ticks);
-			Game::LoopOverMap(enemy.Rect);
+			if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
+			{
+				enemy.Update(this->PlayerInstance->Rect, this->GlobalData->Ticks);
+				Game::LoopOverMap(enemy.Rect);
 
-			if (!this->GlobalData->Attributes.count(Attribute::Greenbull))
-				Collisions::LeAttack(*(this->PlayerInstance), enemy, *this->GlobalData);
-		}
+				if (!this->GlobalData->Attributes.count(Attribute::Greenbull))
+					Collisions::LeAttack(*(this->PlayerInstance), enemy, *this->GlobalData);
+			}
 
-		if (enemy.Health <= 0)
-		{
-			unsigned int value = EnemyXpValues.at(enemy.Type);
-			this->Xps.emplace_back(enemy.Rect.x, enemy.Rect.y, value, *this->Assets);
+			if (enemy.Health <= 0)
+			{
+				unsigned int value = EnemyXpValues.at(enemy.Type);
+				this->Xps.emplace_back(enemy.Rect.x, enemy.Rect.y, value, *this->Assets);
+			}
 		}
+		std::erase_if(this->Enemies, [](Enemy& enemy) { return (enemy.Health <= 0); });
+
+		(void) this->StopWorkers.arrive_and_wait();
 	}
-	std::erase_if(this->Enemies, [](Enemy& enemy) { return (enemy.Health <= 0); });
 }
