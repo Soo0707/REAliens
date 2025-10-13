@@ -24,6 +24,7 @@ class Projectile
 		void Draw() const;
 
 		bool Kill = false;
+		bool Killable;
 		ProjectileType Type;
 
 		float Rotation;

@@ -6,6 +6,7 @@
 
 #include <barrier>
 #include <atomic>
+#include <mutex>
 
 #include "raylib.h"
 
@@ -24,12 +25,15 @@ class Game
 		~Game();
 		void Draw();
 		void Update();
-		void HandleInput();
 
 	private:
 		void SpawnEnemies();
 		void LoopOverMap(Rectangle& m_obj);
 		void HandleEvents();
+
+		void HandleInput();
+		void HandleLeftClick();
+		void HandleRightClick();
 
 		std::atomic<bool> RunThreads = true;
 
@@ -38,10 +42,16 @@ class Game
 		std::barrier<void(*)()> StartWorkers;
 		std::barrier<void(*)()> StopWorkers;
 		void UpdateThread1();
+		void UpdateThread2();
 
+
+		std::mutex EnemiesMutex;
 		std::vector<Enemy> Enemies;
 
+		std::mutex ProjectilesMutex;
 		std::vector<Projectile> Projectiles;
+		
+		std::mutex XpsMutex;
 		std::vector<Xp> Xps;
 
 		std::shared_ptr<AssetManager> Assets;

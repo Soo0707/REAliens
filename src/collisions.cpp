@@ -1,5 +1,7 @@
 #include "collisions.hpp"
 
+#include <mutex>
+
 #include "globalDataWrapper.hpp"
 #include "game.hpp"
 #include "raymath.h"
@@ -9,19 +11,23 @@
 void Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, GlobalDataWrapper& global_data)
 {
 	float damage;
-	switch (proj.Type)
+
 	{
-		case ProjectileType::Lazer:
-			damage = global_data.Attributes.at(Attribute::LazerDamage);
-			break;
-		case ProjectileType::Bullet:
-			damage = global_data.Attributes.at(Attribute::BulletDamage);
-			break;
-		case ProjectileType::Circle:
-			damage = global_data.Attributes.at(Attribute::CircleDamage);
-			break;
-		default:
-			damage = 0;
+		std::lock_guard attributes_lock(global_data.AttributesMutex);
+		switch (proj.Type)
+		{
+			case ProjectileType::Lazer:
+				damage = global_data.Attributes.at(Attribute::LazerDamage);
+				break;
+			case ProjectileType::Bullet:
+				damage = global_data.Attributes.at(Attribute::BulletDamage);
+				break;
+			case ProjectileType::Circle:
+				damage = global_data.Attributes.at(Attribute::CircleDamage);
+				break;
+			default:
+				damage = 0;
+		}
 	}
 
 	for (auto &enemy : enemies)
@@ -42,6 +48,9 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 	if (CheckCollisionRecs(player.Rect, enemy.Rect) && enemy.CanLeAttack)
 	{
 		player.Health -= EnemyAttributes.at(enemy.Type).damage;
+
+		std::lock_guard<std::mutex> attributes_lock(global_data.AttributesMutex);
+		std::lock_guard<std::mutex> events_lock(global_data.EventsMutex);
 
 		switch(enemy.Type)
 		{

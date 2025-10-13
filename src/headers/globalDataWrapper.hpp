@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <cstddef>
+#include <mutex>
 
 enum class Attribute
 {
@@ -71,6 +72,7 @@ class GlobalDataWrapper
 		GlobalDataWrapper(const GlobalDataWrapper&) = delete;
 		GlobalDataWrapper& operator=(const GlobalDataWrapper&) = delete;
 
+		std::mutex AttributesMutex;
 		std::unordered_map<Attribute, float> Attributes = 
 		{
 			{ Attribute::BulletCooldown, 150 },
@@ -83,6 +85,7 @@ class GlobalDataWrapper
 			{ Attribute::LazerDamage, 25.0f },
 			{ Attribute::LazerScale, 1.0f },
 			{ Attribute::LazerSpeed, 3000.0f },
+			
 
 			{ Attribute::CircleRadius, 64 },
 			{ Attribute::CircleDamage, 5.0f },
@@ -90,6 +93,7 @@ class GlobalDataWrapper
 			{ Attribute::CircleAngularSpeed, 3.142 / 2 }
 		};
 
+		std::mutex EventsMutex;
 		std::unordered_map<Event, size_t> Events;
 
 		State ActiveState = State::Game;
