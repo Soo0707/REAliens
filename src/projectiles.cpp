@@ -21,7 +21,7 @@ Projectile::Projectile(float x, float y, Vector2 direction, ProjectileType type,
 		switch (this->Type)
 		{
 			case ProjectileType::Bullet:
-				this->Image = assets.StaticTextures.at(StaticTextureKey::Bullet);
+				this->Image = assets.Textures.at(TextureKey::Bullet);
 				this->Speed = global_data.Attributes.at(Attribute::BulletSpeed);
 				this->Rotation = atan2(this->Direction.y, this->Direction.x) * TO_DEG;
 				this->Scale = 1.0f;
@@ -29,7 +29,7 @@ Projectile::Projectile(float x, float y, Vector2 direction, ProjectileType type,
 
 				break;
 			case ProjectileType::Lazer:
-				this->Image = assets.StaticTextures.at(StaticTextureKey::Lazer);
+				this->Image = assets.Textures.at(TextureKey::Lazer);
 				this->Speed = global_data.Attributes.at(Attribute::LazerSpeed);
 				this->Rotation = atan2(this->Direction.y, this->Direction.x) * TO_DEG;
 				this->Scale = global_data.Attributes.at(Attribute::LazerScale);
@@ -37,7 +37,7 @@ Projectile::Projectile(float x, float y, Vector2 direction, ProjectileType type,
 
 				break;
 			case ProjectileType::Circle:
-				this->Image = assets.StaticTextures.at(StaticTextureKey::Circle);
+				this->Image = assets.Textures.at(TextureKey::Circle);
 				this->Scale = global_data.Attributes.at(Attribute::CircleScale);
 				this->Speed = global_data.Attributes.at(Attribute::CircleAngularSpeed);
 				this->Rotation = global_data.Attributes.at(Attribute::CircleAngularSpeed) * TO_DEG;

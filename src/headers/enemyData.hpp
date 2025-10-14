@@ -7,8 +7,7 @@
 
 struct EnemyData
 {
-	//EntityTextureKey texture_key;
-	StaticTextureKey texture_key;
+	TextureKey texture_key;
 	float damage;
 	float speed;
 	float health;
@@ -30,7 +29,7 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 	{ 
 		EnemyType::Australian,
 		{
-			StaticTextureKey::Australian,
+			TextureKey::Australian,
 			5,
 			175,
 			75,
@@ -43,7 +42,7 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 	{ 
 		EnemyType::Drunkard,
 		{
-			StaticTextureKey::Drunkard,
+			TextureKey::Drunkard,
 			5,
 			250,
 			50,
@@ -55,7 +54,7 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 	{ 
 		EnemyType::Pleb,
 		{
-			StaticTextureKey::Pleb,
+			TextureKey::Pleb,
 			5,
 			150,
 			75,
@@ -67,7 +66,7 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 	{ 
 		EnemyType::Poison,
 		{
-			StaticTextureKey::Poison,
+			TextureKey::Poison,
 			5,
 			125,
 			100,
@@ -79,7 +78,7 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 	{ 
 		EnemyType::Trapper,
 		{
-			StaticTextureKey::Trapper,
+			TextureKey::Trapper,
 			10,
 			125,
 			100,

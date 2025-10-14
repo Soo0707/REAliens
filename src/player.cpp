@@ -5,7 +5,7 @@
 
 
 Player::Player(float pos_x, float pos_y, AssetManager &assets) :
-	Assets(assets), Image(assets.StaticTextures[StaticTextureKey::PlayerSouth])
+	Assets(assets), Image(assets.Textures[TextureKey::PlayerSouth])
 {
 	this->Rect = { pos_x, pos_y, PLAYER_TEXTURE_TILE_WIDTH, PLAYER_TEXTURE_TILE_HEIGHT };
 	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_WIDTH / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_HEIGHT / 2.0f };
@@ -54,15 +54,15 @@ void Player::Animate(size_t ticks)
 void Player::SetCurrentTextures()
 {
 	if (this->Direction.x > 0)
-		this->CurrentTextures = StaticTextureKey::PlayerEast;
+		this->CurrentTextures = TextureKey::PlayerEast;
 	else if (this->Direction.x < 0)
-		this->CurrentTextures = StaticTextureKey::PlayerWest;
+		this->CurrentTextures = TextureKey::PlayerWest;
 	else if (this->Direction.y > 0)
-		this->CurrentTextures = StaticTextureKey::PlayerSouth;
+		this->CurrentTextures = TextureKey::PlayerSouth;
 	else if (this->Direction.y < 0)
-		this->CurrentTextures = StaticTextureKey::PlayerNorth;
+		this->CurrentTextures = TextureKey::PlayerNorth;
 
-	this->Image = this->Assets.StaticTextures.at(this->CurrentTextures);
+	this->Image = this->Assets.Textures.at(this->CurrentTextures);
 }
 
 void Player::Move()

@@ -21,7 +21,7 @@ Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, Ene
 	this->AnimationFrames = EnemyAttributes.at(this->Type).animation_frames;
 
 	this->Health = EnemyAttributes.at(this->Type).health;
-	this->Image = this->Assets->StaticTextures.at(this->TextureKey);
+	this->Image = this->Assets->Textures.at(this->TextureKey);
 
 	this->Rect = { 
 		pos_x,

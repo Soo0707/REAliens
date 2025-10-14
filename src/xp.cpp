@@ -3,7 +3,7 @@
 #include "raylib.h"
 
 Xp::Xp(float pos_x, float pos_y, unsigned int value, AssetManager &assets) :
-	Image(assets.StaticTextures[StaticTextureKey::Xp]),
+	Image(assets.Textures[TextureKey::Xp]),
 	Value(value),
 	Rect( {pos_x, pos_y, (float) this->Image.width, (float) this->Image.height} )
 {}

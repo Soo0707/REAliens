@@ -9,129 +9,63 @@
 
 AssetManager::AssetManager()
 {
-	AssetManager::LoadStaticTextures();
-	AssetManager::LoadEntityTextures();
+	AssetManager::LoadTextures();
 
 	this->Ground = LoadTexture("assets/map/ground.png");
 }
 
 AssetManager::~AssetManager()
 {
-	AssetManager::UnloadStaticTextures();
-	AssetManager::UnloadEntityTextures();
+	AssetManager::UnloadTextures();
 }
 
-void AssetManager::LoadStaticTextures()
+void AssetManager::LoadTextures()
 {
-	std::filesystem::path path = "assets/static_textures";
+	std::filesystem::path path = "assets/textures";
 
 	if (!std::filesystem::exists(path))
 		exit(1);
 
 	for (auto const &item : std::filesystem::directory_iterator(path))
 	{
-		StaticTextureKey CurrentTexture = GetStaticTextureKeyFromString(std::filesystem::relative(item, path).string());
+		TextureKey CurrentTexture = GetTextureKeyFromString(std::filesystem::relative(item, path).string());
 
-		if (CurrentTexture != StaticTextureKey::None)
+		if (CurrentTexture != TextureKey::None)
 		{
-			this->StaticTextures[CurrentTexture] = LoadTexture(item.path().string().c_str());
+			this->Textures[CurrentTexture] = LoadTexture(item.path().string().c_str());
 		}
 	}
 }
 
-void AssetManager::UnloadStaticTextures()
+void AssetManager::UnloadTextures()
 {
-	for (auto const &pair : this->StaticTextures)
+	for (auto const &pair : this->Textures)
 	{
-		UnloadTexture(this->StaticTextures[pair.first]);
+		UnloadTexture(this->Textures[pair.first]);
 	}
 }
 
 
-StaticTextureKey AssetManager::GetStaticTextureKeyFromString(std::string filename)
+TextureKey AssetManager::GetTextureKeyFromString(std::string filename)
 {
-	static const std::unordered_map<std::string, StaticTextureKey> Lookup =
+	static const std::unordered_map<std::string, TextureKey> Lookup =
 	{
-		{ "circle.png", StaticTextureKey::Circle },
-		{ "lazer.png", StaticTextureKey::Lazer },
-		{ "bullet.png", StaticTextureKey::Bullet },
-		{ "xp.png", StaticTextureKey::Xp },
+		{ "circle.png", TextureKey::Circle },
+		{ "lazer.png", TextureKey::Lazer },
+		{ "bullet.png", TextureKey::Bullet },
+		{ "xp.png", TextureKey::Xp },
 
-		{ "australian.png", StaticTextureKey::Australian },
-		{ "drunkard.png", StaticTextureKey::Drunkard },
-		{ "pleb.png" , StaticTextureKey::Pleb },
-		{ "poison.png", StaticTextureKey::Poison },
-		{ "trapper.png", StaticTextureKey::Trapper },
+		{ "australian.png", TextureKey::Australian },
+		{ "drunkard.png", TextureKey::Drunkard },
+		{ "pleb.png" , TextureKey::Pleb },
+		{ "poison.png", TextureKey::Poison },
+		{ "trapper.png", TextureKey::Trapper },
 
-		{ "player_east.png", StaticTextureKey::PlayerEast },
-		{ "player_west.png", StaticTextureKey::PlayerWest },
-		{ "player_north.png", StaticTextureKey::PlayerNorth },
-		{ "player_south.png", StaticTextureKey::PlayerSouth }
+		{ "player_east.png", TextureKey::PlayerEast },
+		{ "player_west.png", TextureKey::PlayerWest },
+		{ "player_north.png", TextureKey::PlayerNorth },
+		{ "player_south.png", TextureKey::PlayerSouth }
 	};
 
-	return (Lookup.count(filename)) ? Lookup.at(filename) : StaticTextureKey::None;
-}
-
-void AssetManager::LoadEntityTextures()
-{
-	std::filesystem::path base_path = "assets/entity_textures";
-	
-	if (!std::filesystem::exists(base_path))
-		exit(1);
-
-	for (auto const &directory : std::filesystem::directory_iterator(base_path))
-	{
-		EntityTextureKey Entity = GetEntityTextureKeyFromString(
-				std::filesystem::relative(directory, base_path).string()
-		);
-
-		if (Entity != EntityTextureKey::None)
-		{
-			this->EntityTextures[Entity] = std::vector<Texture2D>{};
-
-			std::vector<std::filesystem::path> tmp;
-			
-			for (auto const &item : std::filesystem::directory_iterator(directory))
-			{
-				tmp.push_back(item.path());
-			}
-			
-			std::sort(tmp.begin(), tmp.end());
-			
-			for (auto const &item : tmp)
-			{
-				this->EntityTextures[Entity].push_back(LoadTexture(item.string().c_str()));
-			}
-		}
-	}
-}
-
-void AssetManager::UnloadEntityTextures()
-{
-	for (auto const &pair : this->EntityTextures)
-	{
-		for (auto const &item : this->EntityTextures[pair.first])
-		{
-			UnloadTexture(item);
-		}
-	}
-}
-
-EntityTextureKey AssetManager::GetEntityTextureKeyFromString(std::string folder_name)
-{
-	static const std::unordered_map<std::string, EntityTextureKey> Lookup =
-	{
-		{ "player_north", EntityTextureKey::PlayerNorth },
-		{ "player_south", EntityTextureKey::PlayerSouth },
-		{ "player_east", EntityTextureKey::PlayerEast },
-		{ "player_west", EntityTextureKey::PlayerWest },
-		{ "australian", EntityTextureKey::Australian },
-		{ "beer", EntityTextureKey::Beer },
-		{ "drunkard", EntityTextureKey::Drunkard },
-		{ "pleb", EntityTextureKey::Pleb },
-		{ "poison", EntityTextureKey::Poison},
-		{ "trapper", EntityTextureKey::Trapper}
-	};
-
-	return (Lookup.count(folder_name)) ? Lookup.at(folder_name) : EntityTextureKey::None;
+	return (Lookup.count(filename)) ? Lookup.at(filename) : TextureKey::None;
 }

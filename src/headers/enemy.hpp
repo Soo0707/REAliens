@@ -54,7 +54,7 @@ class Enemy
 
 	private:
 		std::shared_ptr<AssetManager> Assets;
-		StaticTextureKey TextureKey;
+		TextureKey TextureKey;
 
 		Texture2D Image;
 

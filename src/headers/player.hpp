@@ -32,10 +32,9 @@ class Player
 		size_t LastAnimationUpdate = 0;
 		unsigned int AnimationFrames = 2;
 		unsigned int ImageIndex = 0;
-		unsigned int AnimationSpeed = 120;
+		unsigned int AnimationSpeed = 30;
 
-
-		StaticTextureKey CurrentTextures = StaticTextureKey::PlayerSouth;
+		TextureKey CurrentTextures = TextureKey::PlayerSouth;
 
 		void SetCurrentTextures();
 };
