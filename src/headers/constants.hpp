@@ -12,4 +12,5 @@ inline constexpr float MAX_TICK_TIME = (1.0/5.0);
 
 inline constexpr unsigned int TEXTURE_TILE_SIZE = 64;
 
-
+inline constexpr unsigned int PLAYER_TEXTURE_TILE_WIDTH = 35;
+inline constexpr unsigned int PLAYER_TEXTURE_TILE_HEIGHT = 45;

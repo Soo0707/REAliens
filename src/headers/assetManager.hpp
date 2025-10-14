@@ -34,7 +34,12 @@ enum class StaticTextureKey
 	Drunkard,
 	Pleb,
 	Poison,
-	Trapper
+	Trapper,
+
+	PlayerNorth,
+	PlayerSouth,
+	PlayerEast,
+	PlayerWest,
 };
 
 class AssetManager

@@ -55,22 +55,8 @@ void Enemy::Draw()
 			this->Image,
 			(Rectangle) { (float) this->ImageIndex * TEXTURE_TILE_SIZE, 0, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE },
 			(Vector2) { this->Rect.x, this->Rect.y },
-			WHITE
+			(this->Flash) ? YELLOW : WHITE
 			);
-
-	if (this->Flash)
-	{
-		BeginBlendMode(BLEND_ADDITIVE);
-
-		DrawTextureRec(
-				this->Image,
-				(Rectangle) { (float) this->ImageIndex * TEXTURE_TILE_SIZE, 0, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE },
-				(Vector2) { this->Rect.x, this->Rect.y },
-				WHITE
-				);
-
-		EndBlendMode();
-	}
 }
 
 void Enemy::Animate(size_t ticks)

@@ -64,23 +64,23 @@ void Game::Draw()
 
 	Rectangle viewport = this->UpdateArea;
 
-	if (viewport.x < 0) {
+	if (viewport.x < 0)
+	{
 		viewport.width += viewport.x;
 		viewport.x = 0;
 	}
 	
-	if (viewport.x + viewport.width > map_width) {
+	if (viewport.x + viewport.width > map_width)
 		viewport.width = map_width - viewport.x;
-	}
 
-	if (viewport.y < 0) {
+	if (viewport.y < 0)
+	{
 		viewport.height += viewport.y;
 		viewport.y = 0;
 	}
 	
-	if (viewport.y + viewport.height > map_height) {
+	if (viewport.y + viewport.height > map_height)
 		viewport.height = map_height - viewport.y;
-	}
 	
 	DrawTextureRec(this->Assets->Ground, viewport, (Vector2) { viewport.x, viewport.y }, WHITE);
 
@@ -102,7 +102,6 @@ void Game::Draw()
 			projectile.Draw();
 	}
 
-	this->PlayerInstance->Animate();
 	this->PlayerInstance->Draw();
 
 	EndMode2D();
@@ -138,7 +137,7 @@ void Game::Update()
 
 		(void) this->StartWorkers.arrive();
 		
-		this->PlayerInstance->Update();
+		this->PlayerInstance->Update(ticks);
 		
 		Game::LoopOverMap(this->PlayerInstance->Rect);
 		
@@ -400,6 +399,7 @@ void Game::HandleEvents()
 				}
 				break;
 			case Event::AuraTick:
+			{
 				if (it->second <= ticks)
 				{
 					float damage;
@@ -423,9 +423,9 @@ void Game::HandleEvents()
 								enemy.FlashSprite(ticks);
 						}
 					}
-
 				}
 				break;
+			}
 		}
 		it++;
 	}
@@ -467,7 +467,6 @@ void Game::UpdateThread1()
 					{
 						std::lock_guard<std::mutex> xps_lock(this->XpsMutex);
 						this->Xps.emplace_back(enemy.Rect.x, enemy.Rect.y, value, *this->Assets);
-						std::cout << "spawned xp" << std::endl;
 					}
 				}
 			}

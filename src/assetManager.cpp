@@ -61,7 +61,12 @@ StaticTextureKey AssetManager::GetStaticTextureKeyFromString(std::string filenam
 		{ "drunkard.png", StaticTextureKey::Drunkard },
 		{ "pleb.png" , StaticTextureKey::Pleb },
 		{ "poison.png", StaticTextureKey::Poison },
-		{ "trapper.png", StaticTextureKey::Trapper }
+		{ "trapper.png", StaticTextureKey::Trapper },
+
+		{ "player_east.png", StaticTextureKey::PlayerEast },
+		{ "player_west.png", StaticTextureKey::PlayerWest },
+		{ "player_north.png", StaticTextureKey::PlayerNorth },
+		{ "player_south.png", StaticTextureKey::PlayerSouth }
 	};
 
 	return (Lookup.count(filename)) ? Lookup.at(filename) : StaticTextureKey::None;

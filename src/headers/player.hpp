@@ -2,6 +2,7 @@
 
 #include "raylib.h"
 #include "assetManager.hpp"
+#include <cstddef>
 
 class Player
 {
@@ -10,8 +11,8 @@ class Player
 		~Player(); 
 		
 		void Move();
-		void Update();
-		void Animate();
+		void Update(size_t ticks);
+		void Animate(size_t ticks);
 		void Draw() const;
 		
 		float Health = 100;
@@ -28,10 +29,13 @@ class Player
 
 		Texture2D Image;
 
-		float ImageIndex = 0.0f;
-		float AnimationSpeed = 10.0f;
+		size_t LastAnimationUpdate = 0;
+		unsigned int AnimationFrames = 2;
+		unsigned int ImageIndex = 0;
+		unsigned int AnimationSpeed = 120;
 
-		EntityTextureKey CurrentTextures = EntityTextureKey::PlayerSouth;
+
+		StaticTextureKey CurrentTextures = StaticTextureKey::PlayerSouth;
 
 		void SetCurrentTextures();
 };
