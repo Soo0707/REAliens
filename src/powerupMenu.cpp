@@ -108,7 +108,8 @@ void PowerupMenu::ApplyPowerup(Powerup powerup)
 		case Powerup::Circle:
 			this->GlobalData->Attributes[Attribute::CircleDamage] += 10;
 			this->GlobalData->Attributes[Attribute::CircleScale] += 0.2;
-			this->GlobalData->Attributes[Attribute::CircleAngularSpeed] *= 2;
+			if (this->GlobalData->Attributes[Attribute::CircleAngularSpeed] <= 4 * PI)
+				this->GlobalData->Attributes[Attribute::CircleAngularSpeed] *= 2;
 			this->GlobalData->Attributes[Attribute::CircleRadius] += 12;
 
 			this->GlobalData->Events[Event::SpawnAndUpgradeCircles] = 0;

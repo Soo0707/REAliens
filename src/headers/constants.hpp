@@ -10,3 +10,6 @@ inline constexpr float TO_DEG = 180.0f / PI;
 inline constexpr float TICK_TIME = (1.0/240.0);
 inline constexpr float MAX_TICK_TIME = (1.0/5.0);
 
+inline constexpr unsigned int TEXTURE_TILE_SIZE = 64;
+
+

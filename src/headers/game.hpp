@@ -59,6 +59,7 @@ class Game
 
 		std::shared_ptr<GlobalDataWrapper> GlobalData;
 
+
 		unsigned int LastLMB = 0;
 		bool CanLMB = true;
 

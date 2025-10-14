@@ -15,8 +15,6 @@ enum class EntityTextureKey
 	PlayerWest,
 	Australian,
 	Beer,
-	Bomber,
-	BomberExplosion,
 	Drunkard,
 	Pleb,
 	Poison,
@@ -29,7 +27,14 @@ enum class StaticTextureKey
 	Circle,
 	Lazer,
 	Bullet,
-	Xp
+	Xp,
+
+	Australian,
+	Beer,
+	Drunkard,
+	Pleb,
+	Poison,
+	Trapper
 };
 
 class AssetManager

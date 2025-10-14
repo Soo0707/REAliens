@@ -61,9 +61,6 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 					global_data.Events[Event::AussieExpire] = global_data.Ticks + 240;
 				}
 				break;
-			case EnemyType::Bomber:
-				enemy.Modifier = BehaviourModifier::BomberExplode;
-				break;
 			case EnemyType::Poison:
 				if (!global_data.Attributes.count(Attribute::Milk))
 				{

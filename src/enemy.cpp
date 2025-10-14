@@ -8,31 +8,39 @@
 #include "constants.hpp"
 
 #include <cstddef>
+#include <iostream>
 
 Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, EnemyType type, BehaviourModifier modifier) :
 	Assets(assets), Type(type), Modifier(modifier)
 {
 	this->TextureKey = EnemyAttributes.at(this->Type).texture_key;
 	this->Speed = EnemyAttributes.at(this->Type).speed;
-	this->AnimationSpeed = EnemyAttributes.at(this->Type).animation_speed;
-	this->Health = EnemyAttributes.at(this->Type).health;
 
-	this->Image = this->Assets->EntityTextures.at(this->TextureKey)[0];
-	this->Rect = { pos_x, pos_y, (float) this->Image.width, (float) this->Image.height };
+
+	this->AnimationSpeed = EnemyAttributes.at(this->Type).animation_speed;
+	this->AnimationFrames = EnemyAttributes.at(this->Type).animation_frames;
+
+	this->Health = EnemyAttributes.at(this->Type).health;
+	this->Image = this->Assets->StaticTextures.at(this->TextureKey);
+
+	this->Rect = { 
+		pos_x,
+		pos_y,
+		TEXTURE_TILE_SIZE,
+		TEXTURE_TILE_SIZE
+	};
 }
 
 Enemy::~Enemy()
 {}
 
-void Enemy::Update(Rectangle& player_rect, size_t& ticks)
+void Enemy::Update(Rectangle& player_rect, size_t ticks)
 {
+	Enemy::Animate(ticks);
 	Enemy::Move();
 
 	if (this->Modifier != BehaviourModifier::OverrideDirection)
 		Enemy::SetDirection(player_rect);
-
-	if (this->Modifier == BehaviourModifier::BomberExplode)
-		this->TextureKey = EntityTextureKey::BomberExplosion;
 
 	if (ticks - this->LastLeAttack >= this->LeAttackCooldown)
 		this->CanLeAttack = true;
@@ -43,37 +51,51 @@ void Enemy::Update(Rectangle& player_rect, size_t& ticks)
 
 void Enemy::Draw()
 {
-	DrawTextureV(this->Image, (Vector2) { this->Rect.x, this->Rect.y }, WHITE);
+	DrawTextureRec(
+			this->Image,
+			(Rectangle) { (float) this->ImageIndex * TEXTURE_TILE_SIZE, 0, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE },
+			(Vector2) { this->Rect.x, this->Rect.y },
+			WHITE
+			);
 
 	if (this->Flash)
 	{
 		BeginBlendMode(BLEND_ADDITIVE);
-		DrawTextureV(this->Image, (Vector2) { this->Rect.x, this->Rect.y }, WHITE);
+
+		DrawTextureRec(
+				this->Image,
+				(Rectangle) { (float) this->ImageIndex * TEXTURE_TILE_SIZE, 0, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE },
+				(Vector2) { this->Rect.x, this->Rect.y },
+				WHITE
+				);
+
 		EndBlendMode();
 	}
 }
 
-void Enemy::Animate()
+void Enemy::Animate(size_t ticks)
 {
 	if (this->Direction.x != 0.0f || this->Direction.y != 0.0f)
-		this->ImageIndex +=  this->AnimationSpeed * GetFrameTime();
+	{
+		if (ticks - this->LastAnimationUpdate >= this->AnimationSpeed)
+		{
+			this->ImageIndex++;
+			this->LastAnimationUpdate = ticks;
+		}
+	}
 	else
+	{
 		this->ImageIndex = 0;
+		this->LastAnimationUpdate = ticks;
+	}
 
-	int i = (int) this->ImageIndex % this->Assets->EntityTextures[this->TextureKey].size();
-	
-	this->Image = this->Assets->EntityTextures[this->TextureKey][i];
-
-	if (this->Modifier == BehaviourModifier::BomberExplode && i >= 7)
-		this->Health = -1;
+	this->ImageIndex %= this->AnimationFrames;
 }
 
 void Enemy::Move()
 {
 	this->Rect.x += this->Speed * this->Direction.x * TICK_TIME;
 	this->Rect.y += this->Speed * this->Direction.y * TICK_TIME;
-	this->Rect.width = this->Image.width;
-	this->Rect.height = this->Image.height;
 }
 
 void Enemy::SetDirection(Rectangle& player_rect)

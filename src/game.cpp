@@ -1,6 +1,7 @@
 #include <memory>
 #include <algorithm>
 #include <array>
+#include <iostream>
 
 #include "raylib.h"
 #include "raymath.h"
@@ -92,10 +93,7 @@ void Game::Draw()
 	for (auto &enemy : this->Enemies)
 	{
 		if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
-		{
-			enemy.Animate();
 			enemy.Draw();
-		}
 	}
 
 	for (auto const &projectile : this->Projectiles)
@@ -219,7 +217,7 @@ void Game::SpawnEnemies()
 		float x = this->PlayerInstance->Rect.x + location.x;
 		float y = this->PlayerInstance->Rect.y + location.y;
 
-		EnemyType type = (EnemyType) GetRandomValue(0, 5);
+		EnemyType type = (EnemyType) GetRandomValue(0, 4);
 		
 		this->Enemies.emplace_back(x, y, this->Assets, type, BehaviourModifier::None);
 	}
@@ -469,6 +467,7 @@ void Game::UpdateThread1()
 					{
 						std::lock_guard<std::mutex> xps_lock(this->XpsMutex);
 						this->Xps.emplace_back(enemy.Rect.x, enemy.Rect.y, value, *this->Assets);
+						std::cout << "spawned xp" << std::endl;
 					}
 				}
 			}

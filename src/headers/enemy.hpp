@@ -10,7 +10,6 @@ static constexpr unsigned int FLASH_DURATION = 30;
 enum class EnemyType
 {
 	Australian,
-	Bomber,
 	Drunkard,
 	Pleb,
 	Poison,
@@ -20,7 +19,6 @@ enum class EnemyType
 enum class BehaviourModifier
 {
 	None,
-	BomberExplode,
 	OverrideDirection
 };
 
@@ -31,12 +29,12 @@ class Enemy
 		~Enemy(); 
 		
 		void Move();
-		void Animate();
+		void Animate(size_t ticks);
 		void SetDirection(Rectangle& player_rect);
 
 		void Draw();
 		void FlashSprite(size_t ticks);
-		void Update(Rectangle& player_rect, size_t& ticks);
+		void Update(Rectangle& player_rect, size_t ticks);
 		
 		float Health;
 
@@ -56,10 +54,12 @@ class Enemy
 
 	private:
 		std::shared_ptr<AssetManager> Assets;
-		EntityTextureKey TextureKey;
+		StaticTextureKey TextureKey;
 
 		Texture2D Image;
 
-		float ImageIndex = 0.0f;
-		float AnimationSpeed;
+		size_t LastAnimationUpdate = 0;
+		unsigned int ImageIndex = 0;
+		unsigned int AnimationSpeed;
+		unsigned int AnimationFrames;
 };

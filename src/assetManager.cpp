@@ -55,7 +55,13 @@ StaticTextureKey AssetManager::GetStaticTextureKeyFromString(std::string filenam
 		{ "circle.png", StaticTextureKey::Circle },
 		{ "lazer.png", StaticTextureKey::Lazer },
 		{ "bullet.png", StaticTextureKey::Bullet },
-		{ "xp.png", StaticTextureKey::Xp }
+		{ "xp.png", StaticTextureKey::Xp },
+
+		{ "australian.png", StaticTextureKey::Australian },
+		{ "drunkard.png", StaticTextureKey::Drunkard },
+		{ "pleb.png" , StaticTextureKey::Pleb },
+		{ "poison.png", StaticTextureKey::Poison },
+		{ "trapper.png", StaticTextureKey::Trapper }
 	};
 
 	return (Lookup.count(filename)) ? Lookup.at(filename) : StaticTextureKey::None;
@@ -116,8 +122,6 @@ EntityTextureKey AssetManager::GetEntityTextureKeyFromString(std::string folder_
 		{ "player_west", EntityTextureKey::PlayerWest },
 		{ "australian", EntityTextureKey::Australian },
 		{ "beer", EntityTextureKey::Beer },
-		{ "bomber", EntityTextureKey::Bomber },
-		{ "bomber_explosion", EntityTextureKey::BomberExplosion },
 		{ "drunkard", EntityTextureKey::Drunkard },
 		{ "pleb", EntityTextureKey::Pleb },
 		{ "poison", EntityTextureKey::Poison},
