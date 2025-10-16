@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <unordered_set>
 #include <cstddef>
 #include <mutex>
 
@@ -22,15 +23,7 @@ enum class Attribute
 	CircleAngularSpeed,
 	CircleRadius,
 
-	PlayerSpeed,
-	Drunk,
 	PoisonDamage,
-	Trapped,
-	Aussie,
-
-	Greenbull,
-	Milk,
-	Magnetism,
 
 	AuraSize,
 	AuraCooldown,
@@ -39,7 +32,8 @@ enum class Attribute
 
 enum class Event
 {
-	SpawnAndUpgradeCircles,
+	UpgradeCircle,
+	SpawnCircle,
 	GreenbullExpire,
 	MilkExpire,
 
@@ -51,7 +45,8 @@ enum class Event
 	MagnetismExpire,
 
 	IncreasePlayerSpeed,
-	
+
+	IncreaseAura,
 	AuraTick
 };
 
@@ -62,6 +57,23 @@ enum class State
 	PauseMenu,
 	StartMenu,
 	GameOverMenu
+};
+
+enum class Effect
+{
+	Aura,
+	Greenbull,
+	Milk,
+
+	LifeSteal,
+	Regeneration,
+	Magnetism,
+
+	Trapped,
+	Poison,
+	Drunk,
+
+	Aussie
 };
 
 class GlobalDataWrapper
@@ -86,7 +98,6 @@ class GlobalDataWrapper
 			{ Attribute::LazerScale, 1.0f },
 			{ Attribute::LazerSpeed, 3000.0f },
 			
-
 			{ Attribute::CircleRadius, 64 },
 			{ Attribute::CircleDamage, 5.0f },
 			{ Attribute::CircleScale, 1.0f },
@@ -95,6 +106,9 @@ class GlobalDataWrapper
 
 		std::mutex EventsMutex;
 		std::unordered_map<Event, size_t> Events;
+
+		std::mutex EffectsMutex;
+		std::unordered_set<Effect> Effects;
 
 		State ActiveState = State::Game;
 

@@ -57,14 +57,12 @@ void Projectile::Draw() const
 	DrawTextureEx(this->Image, position, this->Rotation, this->Scale, WHITE);
 }
 
-void Projectile::Update(Rectangle& player_rect)
+void Projectile::Update(const Vector2 player_centre)
 {
 	switch (this->Type)
 	{
 		case ProjectileType::Circle:
 		{
-			Vector2 player_centre = { player_rect.x + player_rect.width / 2.0f, player_rect.y + player_rect.height / 2.0f };
-
 			this->CurrentAngle += this->Speed * TICK_TIME;
 
 			if (this->CurrentAngle >= 2 * 3.142)

@@ -75,7 +75,7 @@ void PowerupMenu::ApplyPowerup(Powerup powerup)
 			}
 			else
 			{
-				this->GlobalData->Attributes[Attribute::AuraSize] = 100;
+				this->GlobalData->Attributes[Attribute::AuraSize] = 25;
 				this->GlobalData->Attributes[Attribute::AuraDamage] = 2;
 				this->GlobalData->Attributes[Attribute::AuraCooldown] = 480;
 			}
@@ -112,19 +112,19 @@ void PowerupMenu::ApplyPowerup(Powerup powerup)
 				this->GlobalData->Attributes[Attribute::CircleAngularSpeed] *= 2;
 			this->GlobalData->Attributes[Attribute::CircleRadius] += 12;
 
-			this->GlobalData->Events[Event::SpawnAndUpgradeCircles] = 0;
+			this->GlobalData->Events[Event::UpgradeCircle] = 0;
 
 			break;
 		case Powerup::Greenbull:
-			this->GlobalData->Attributes[Attribute::Greenbull] = 0;
+			this->GlobalData->Effects.insert(Effect::Greenbull);
 			this->GlobalData->Events[Event::GreenbullExpire] = this->GlobalData->Ticks + 240'000;
 			break;
 		case Powerup::Milk:
-			this->GlobalData->Attributes[Attribute::Milk] = 0;
+			this->GlobalData->Effects.insert(Effect::Milk);
 			this->GlobalData->Events[Event::GreenbullExpire] = this->GlobalData->Ticks + 240'000;
 			break;
 		case Powerup::Magnetism:
-			this->GlobalData->Attributes[Attribute::Magnetism] = 0;
+			this->GlobalData->Effects.insert(Effect::Magnetism);
 			this->GlobalData->Events[Event::MagnetismExpire] = this->GlobalData->Ticks + 240'000;
 			break;
 		case Powerup::LifeSteal:

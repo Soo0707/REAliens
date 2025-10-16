@@ -9,7 +9,7 @@
 
 #include "globalDataWrapper.hpp"
 
-constexpr unsigned int PADDING = 32;
+//constexpr unsigned int PADDING = 32;
 
 enum class Powerup
 {

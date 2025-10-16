@@ -31,6 +31,12 @@ class Game
 		void LoopOverMap(Rectangle& m_obj);
 		void HandleEvents();
 
+
+		void EventSpawnCircle();
+		void EventUpgradeCircle();
+		void EventAuraTick(size_t ticks);
+		bool HandleEventExpiry(Event event, Effect effect, size_t expiry, std::unordered_map<Event, size_t>& new_events_map);
+
 		void HandleInput();
 		void HandleLeftClick();
 		void HandleRightClick();
@@ -44,7 +50,6 @@ class Game
 		void UpdateThread1();
 		void UpdateThread2();
 
-
 		std::mutex EnemiesMutex;
 		std::vector<Enemy> Enemies;
 
@@ -55,6 +60,8 @@ class Game
 		std::vector<Xp> Xps;
 
 		std::shared_ptr<AssetManager> Assets;
+
+		std::mutex PlayerMutex;
 		std::unique_ptr<Player> PlayerInstance;
 
 		std::shared_ptr<GlobalDataWrapper> GlobalData;

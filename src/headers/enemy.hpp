@@ -19,7 +19,10 @@ enum class EnemyType
 enum class BehaviourModifier
 {
 	None,
-	OverrideDirection
+	OverrideDirection,
+	NoMovement,
+	Upsize,
+	IncreasedSpeed
 };
 
 class Enemy

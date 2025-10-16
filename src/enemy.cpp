@@ -16,7 +16,6 @@ Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, Ene
 	this->TextureKey = EnemyAttributes.at(this->Type).texture_key;
 	this->Speed = EnemyAttributes.at(this->Type).speed;
 
-
 	this->AnimationSpeed = EnemyAttributes.at(this->Type).animation_speed;
 	this->AnimationFrames = EnemyAttributes.at(this->Type).animation_frames;
 
@@ -37,7 +36,9 @@ Enemy::~Enemy()
 void Enemy::Update(Rectangle& player_rect, size_t ticks)
 {
 	Enemy::Animate(ticks);
-	Enemy::Move();
+
+	if (this->Modifier != BehaviourModifier::NoMovement)
+		Enemy::Move();
 
 	if (this->Modifier != BehaviourModifier::OverrideDirection)
 		Enemy::SetDirection(player_rect);

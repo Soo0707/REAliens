@@ -4,7 +4,7 @@
 
 #include "globalDataWrapper.hpp"
 #include "game.hpp"
-#include "raymath.h"
+
 #include "enemy.hpp"
 #include "enemyData.hpp"
 
@@ -49,33 +49,50 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 	{
 		player.Health -= EnemyAttributes.at(enemy.Type).damage;
 
-		std::lock_guard<std::mutex> attributes_lock(global_data.AttributesMutex);
-		std::lock_guard<std::mutex> events_lock(global_data.EventsMutex);
+		std::lock_guard<std::mutex> effects_lock(global_data.EffectsMutex);
 
 		switch(enemy.Type)
 		{
 			case EnemyType::Australian:
-				if (!global_data.Attributes.count(Attribute::Milk))
+				if (!global_data.Effects.count(Effect::Milk))
 				{
-					global_data.Attributes[Attribute::Aussie] = 0.0f;
+					global_data.Effects.insert(Effect::Aussie);
+
+					std::lock_guard<std::mutex> events_lock(global_data.EventsMutex);
 					global_data.Events[Event::AussieExpire] = global_data.Ticks + 240;
 				}
 				break;
 			case EnemyType::Poison:
-				if (!global_data.Attributes.count(Attribute::Milk))
+				if (!global_data.Effects.count(Effect::Milk))
 				{
+					global_data.Effects.insert(Effect::Poison);
+
+					std::lock_guard<std::mutex> attributes_lock(global_data.AttributesMutex);
 					global_data.Attributes[Attribute::PoisonDamage] = 2.0f;
+
+					std::lock_guard<std::mutex> events_lock(global_data.EventsMutex);
 					global_data.Events[Event::PoisonTick] = global_data.Ticks + 240;
 					global_data.Events[Event::PoisonExpire] = global_data.Ticks + 1200;
 				}
 				break;
 			case EnemyType::Trapper:
-				if (!global_data.Attributes.count(Attribute::Milk))
-					global_data.Attributes[Attribute::Trapped] = 3;
+				if (!global_data.Effects.count(Effect::Milk))
+					global_data.Effects.insert(Effect::Trapped);
 				break;
 		}
 
 		enemy.CanLeAttack = false;
 		enemy.LastLeAttack = global_data.Ticks;
+	}
+}
+
+
+void Collisions::Aura(const float damage, const size_t ticks, Rectangle& aura, std::vector<Enemy>& enemies)
+{
+	for (auto& enemy : enemies)
+	{
+		if (CheckCollisionRecs(aura, enemy.Rect))
+			enemy.Health -= damage;
+			enemy.FlashSprite(ticks);
 	}
 }

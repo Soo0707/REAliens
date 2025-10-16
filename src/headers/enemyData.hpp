@@ -7,12 +7,12 @@
 
 struct EnemyData
 {
-	TextureKey texture_key;
-	float damage;
-	float speed;
-	float health;
+	const TextureKey texture_key;
+	const float damage;
+	const float speed;
+	const float health;
 
-	unsigned int animation_speed;
+	const unsigned int animation_speed;
 	/*
 	animation_frames = number of actual frames -1
 
@@ -21,7 +21,7 @@ struct EnemyData
 	
 	so everything is off by 1
 	*/
-	unsigned int animation_frames;
+	const unsigned int animation_frames;
 };
 
 inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes = 
@@ -34,7 +34,7 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 			175,
 			75,
 
-			120,
+			30,
 			2
 
 		}
@@ -47,7 +47,7 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 			250,
 			50,
 
-			120,
+			15,
 			4
 		}
 	},
@@ -59,7 +59,7 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 			150,
 			75,
 		
-			120,
+			30,
 			2
 		}
 	},
@@ -71,7 +71,7 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 			125,
 			100,
 
-			120,
+			30,
 			3
 		}
 	},
@@ -83,7 +83,7 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 			125,
 			100,
 
-			120,
+			30,
 			3
 		}
 	}

@@ -2,10 +2,12 @@
 
 #include <unordered_map>
 #include <memory>
+#include <vector>
 
 #include "assetManager.hpp"
 #include "globalDataWrapper.hpp"
 #include "raylib.h"
+
 
 enum class ProjectileType
 {
@@ -20,7 +22,7 @@ class Projectile
 		Projectile(float x, float y, Vector2 direction, ProjectileType type, GlobalDataWrapper& global_data, AssetManager& assets);
 		~Projectile() = default;
 
-		void Update(Rectangle& player_rect);
+		void Update(const Vector2 player_centre);
 		void Draw() const;
 
 		bool Kill = false;
