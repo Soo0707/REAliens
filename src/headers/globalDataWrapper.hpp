@@ -1,5 +1,7 @@
 #pragma once
 
+#include "raylib.h"
+
 #include <unordered_map>
 #include <unordered_set>
 #include <cstddef>
@@ -76,6 +78,11 @@ enum class Effect
 	Aussie
 };
 
+enum class Setting
+{
+	ShowPowerupMenuOnLevelUp
+};
+
 class GlobalDataWrapper
 {
 	public:
@@ -91,7 +98,7 @@ class GlobalDataWrapper
 			{ Attribute::BulletDamage, 25.0f },
 			{ Attribute::BulletSpeed, 1000.0f },
 			{ Attribute::Buckshot, 3 },
-			{ Attribute::BuckshotSpread, 3.142 / 8 },
+			{ Attribute::BuckshotSpread, PI / 8 },
 
 			{ Attribute::LazerCooldown, 450 },
 			{ Attribute::LazerDamage, 25.0f },
@@ -105,12 +112,19 @@ class GlobalDataWrapper
 		std::mutex EffectsMutex;
 		std::unordered_set<Effect> Effects;
 
+		std::unordered_map<Setting, int> Settings =
+		{
+			{ Setting::ShowPowerupMenuOnLevelUp, 1 }
+		};
+
 		State ActiveState = State::Game;
 
 		size_t Ticks = 0;
 		
 		size_t Level = 1;
 		size_t LevelUpTreshold = 2;
+
+		unsigned int UnclaimedPowerups = 0;
 
 		bool Running = true;
 };

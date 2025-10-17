@@ -9,10 +9,11 @@
 
 int main(void)
 {
-	int CurrentMonitor = GetCurrentMonitor();
+	int current_monitor = GetCurrentMonitor();
+	unsigned int max_refresh_rate = GetMonitorRefreshRate(current_monitor);
 
-	SetTargetFPS(GetMonitorRefreshRate(CurrentMonitor));
 	InitWindow(REFERENCE_WIDTH, REFERENCE_HEIGHT, "RE::Aliens");
+
 	SetExitKey(KEY_NULL);
 
 	std::shared_ptr<GlobalDataWrapper> global_data = std::make_shared<GlobalDataWrapper>();
@@ -22,8 +23,16 @@ int main(void)
 	GameOverMenu game_over = GameOverMenu(global_data);
 	PauseMenu pause = PauseMenu(global_data);
 
+	State prev_state = global_data->ActiveState;
+
 	while (!WindowShouldClose() && global_data->Running)
 	{
+		if (global_data->ActiveState != prev_state)
+		{
+			(global_data->ActiveState == State::Game) ? ( SetTargetFPS(refresh_rate) ) : ( SetTargetFPS(15) );
+			prev_state = global_data->ActiveState;
+		}
+
 		switch (global_data->ActiveState)
 		{
 			case State::Game:

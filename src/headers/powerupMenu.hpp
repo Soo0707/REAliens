@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
-#include <functional>
 
 #include "raylib.h"
 
@@ -41,9 +40,20 @@ class PowerupMenu
 		void Draw();
 		void HandleInput();
 
+		std::string UnacquiredPowerupCache;
 	private:
 		void GenerateList();
+
 		void ApplyPowerup(Powerup powerup);
+		void ApplyEffect(const Effect effect, const Event event, const unsigned int duration);
+		void ApplyMilk();
+		void ApplyAura();
+
+		void ApplyCircle();
+		void ApplyBuckshot();
+		void ApplyProjectile();
+		void ApplyLazer();
+
 
 		std::shared_ptr<GlobalDataWrapper> GlobalData;
 		std::vector<PowerupWrapper> SelectionList;
@@ -62,14 +72,4 @@ class PowerupMenu
 			{ Powerup::Magnetism, "Magnetism" },
 			{ Powerup::SpeedBoots, "Speed Boots"}
 		};
-
-
-		void ApplyEffect(const Effect effect, const Event event, const unsigned int duration);
-		void ApplyMilk();
-		void ApplyAura();
-
-		void ApplyCircle();
-		void ApplyBuckshot();
-		void ApplyProjectile();
-		void ApplyLazer();
 };

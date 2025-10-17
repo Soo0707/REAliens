@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <set>
+#include <iostream>
 #include "raylib.h"
 
 #include "globalDataWrapper.hpp"
@@ -24,9 +25,17 @@ void PowerupMenu::Draw()
 	int x2 = mid - MeasureText(this->SelectionList[1].DisplayName.c_str() , 24) / 2.0f;
 	int x3 = mid - MeasureText(this->SelectionList[2].DisplayName.c_str() , 24) / 2.0f;
 
-	DrawText(this->SelectionList[0].DisplayName.c_str(), x1, 260, 24, VIOLET);
-	DrawText(this->SelectionList[1].DisplayName.c_str(), x2, 360, 24, VIOLET);
-	DrawText(this->SelectionList[2].DisplayName.c_str(), x3, 460, 24, VIOLET);
+	DrawText("Select A Powerup", 452.5, 80, 42, VIOLET);
+
+	DrawText(this->SelectionList[0].DisplayName.c_str(), x1, 260, 24, GOLD);
+	DrawText(this->SelectionList[1].DisplayName.c_str(), x2, 360, 24, GOLD);
+	DrawText(this->SelectionList[2].DisplayName.c_str(), x3, 460, 24, GOLD);
+
+	DrawText("[TAB] Toggle Powerup Menu, [ESC] Don't Automatically Show", 319.5, 620, 21, LIGHTGRAY);
+
+	DrawText("Unacquired Powerups: ", 50, 670, 21, GRAY);
+	DrawText(std::to_string(this->GlobalData->UnclaimedPowerups).c_str(), 310, 670, 21, WHITE);
+	//std::cout << MeasureText("[TAB] Toggle Powerup Menu, [ESC] Don't Automatically Show", 21) << std::endl;
 }
 
 void PowerupMenu::GenerateList()
@@ -60,6 +69,14 @@ void PowerupMenu::HandleInput()
 		PowerupMenu::ApplyPowerup(this->SelectionList[1].Powerup);
 	else if (IsKeyPressed(KEY_THREE))
 		PowerupMenu::ApplyPowerup(this->SelectionList[2].Powerup);
+
+	if (IsKeyPressed(KEY_ESCAPE))
+	{
+		this->GlobalData->Settings[Setting::ShowPowerupMenuOnLevelUp] = 0;
+		this->GlobalData->ActiveState = State::Game;
+	}
+	else if (IsKeyPressed(KEY_TAB))
+		this->GlobalData->ActiveState = State::Game;
 }
 
 void PowerupMenu::ApplyPowerup(Powerup powerup)
@@ -107,9 +124,18 @@ void PowerupMenu::ApplyPowerup(Powerup powerup)
 			break;
 	}
 
-	PowerupMenu::GenerateList();
-	this->GlobalData->ActiveState = State::Game;
+	this->GlobalData->UnclaimedPowerups--;
+
+	if (this->GlobalData->UnclaimedPowerups == 0)
+		this->GlobalData->ActiveState = State::Game;
+	else
+	{
+		PowerupMenu::GenerateList();
+	}
 }
+
+
+
 
 void PowerupMenu::ApplyEffect(const Effect effect, const Event event, const unsigned int duration)
 {

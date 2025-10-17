@@ -29,16 +29,20 @@ class Game
 	private:
 		void SpawnEnemies();
 		void LoopOverMap(Rectangle& m_obj);
-		void HandleEvents();
+		
 
+		void HandleEvents();
 
 		void EventSpawnCircle();
 		void EventUpgradeCircle();
-		void EventAuraTick(size_t ticks);
+		void EventAuraTick(size_t next_tick);
 		void EventPoisonTick(size_t expiry, std::unordered_map<Event, size_t>& new_events_map);
 		bool HandleEventExpiry(Event event, Effect effect, size_t expiry, std::unordered_map<Event, size_t>& new_events_map);
 
-		void HandleInput();
+
+		void HandleEssentialInput();
+
+		void HandleTickedInput();
 		void HandleLeftClick();
 		void HandleRightClick();
 
@@ -50,6 +54,7 @@ class Game
 		std::barrier<void(*)()> StopWorkers;
 		void UpdateThread1();
 		void UpdateThread2();
+
 
 		std::mutex EnemiesMutex;
 		std::vector<Enemy> Enemies;
@@ -68,10 +73,10 @@ class Game
 		std::shared_ptr<GlobalDataWrapper> GlobalData;
 
 
-		unsigned int LastLMB = 0;
+		size_t LastLMB = 0;
 		bool CanLMB = true;
 
-		unsigned int LastRMB = 0;
+		size_t LastRMB = 0;
 		bool CanRMB = true;
 
 		float Accumulator = 0.0f;

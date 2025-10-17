@@ -1,7 +1,6 @@
 #include <memory>
 #include <algorithm>
 #include <array>
-#include <iostream>
 
 #include "raylib.h"
 #include "raymath.h"
@@ -109,6 +108,8 @@ void Game::Draw()
 
 void Game::Update()
 {
+	Game::HandleEssentialInput();
+
 	this->Accumulator += GetFrameTime();
 
 	if (this->Accumulator >= MAX_TICK_TIME)
@@ -130,9 +131,14 @@ void Game::Update()
 		if (this->CollectedXp >= this->GlobalData->LevelUpTreshold)
 		{
 			this->GlobalData->Level++;
+
+			this->GlobalData->UnclaimedPowerups++;
+
 			this->CollectedXp = 0;
 			this->GlobalData->LevelUpTreshold += 2;
-			this->GlobalData->ActiveState = State::PowerupMenu;
+
+			if (this->GlobalData->Settings.at(Setting::ShowPowerupMenuOnLevelUp))
+				this->GlobalData->ActiveState = State::PowerupMenu;
 		}
 
 		(void) this->StartWorkers.arrive();
@@ -153,11 +159,17 @@ void Game::Update()
 	} 
 }
 
-void Game::HandleInput()
+void Game::HandleEssentialInput()
 {
-	if (IsKeyDown(KEY_ESCAPE))
+	if (IsKeyPressed(KEY_ESCAPE))
 		this->GlobalData->ActiveState = State::PauseMenu;
 
+	if (IsKeyPressed(KEY_TAB) && this->GlobalData->UnclaimedPowerups > 0)
+		this->GlobalData->ActiveState = State::PowerupMenu;
+}
+
+void Game::HandleTickedInput()
+{
 	{
 		std::lock_guard<std::mutex> effects_lock(this->GlobalData->EffectsMutex);
 
@@ -198,6 +210,46 @@ void Game::HandleInput()
 		this->LastRMB = this->GlobalData->Ticks;
 	}
 }
+
+void Game::HandleLeftClick()
+{
+	Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), this->Camera);
+
+	Vector2 centre_direction = Vector2Subtract(mouse_pos, this->PlayerInstance->Centre);
+	Vector2 player_centre = this->PlayerInstance->Centre;
+
+	float spread_angle = this->GlobalData->Attributes[Attribute::BuckshotSpread];
+	int buckshot = (int) (this->GlobalData->Attributes[Attribute::Buckshot] - 1) / 2;
+
+	{
+		std::lock_guard<std::mutex> projectiles_lock(this->ProjectilesMutex);
+		for (int i = -buckshot; i <= buckshot; i++)
+		{
+			if (i == 0)
+			{
+				this->Projectiles.emplace_back(player_centre.x, player_centre.y, centre_direction, ProjectileType::Bullet, *this->GlobalData, *this->Assets);
+				continue;
+			}
+			Vector2 direction = Vector2Rotate(centre_direction, spread_angle * i);
+
+			this->Projectiles.emplace_back(player_centre.x, player_centre.y, direction, ProjectileType::Bullet, *this->GlobalData, *this->Assets);
+		}
+	}
+}
+
+void Game::HandleRightClick()
+{
+	static constexpr std::array<Vector2, 4> directions = { Vector2{1.0f, 0.0f}, Vector2{0.0f, 1.0f}, Vector2{-1.0f, 0.0f}, Vector2{0.0f, -1.0f} };
+
+	Vector2 centre = this->PlayerInstance->Centre;
+	
+	{
+		std::lock_guard<std::mutex> projectiles_lock(this->ProjectilesMutex);
+		for (int i = 0; i < 4; i++)
+			this->Projectiles.emplace_back(centre.x, centre.y, directions[i], ProjectileType::Lazer, *this->GlobalData, *this->Assets);
+	}
+}
+
 
 void Game::SpawnEnemies()
 {
@@ -245,44 +297,6 @@ void Game::LoopOverMap(Rectangle& m_obj)
 		m_obj.y = 0;
 }
 
-void Game::HandleLeftClick()
-{
-	Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), this->Camera);
-
-	Vector2 centre_direction = Vector2Subtract(mouse_pos, this->PlayerInstance->Centre);
-	Vector2 player_centre = this->PlayerInstance->Centre;
-
-	float spread_angle = this->GlobalData->Attributes[Attribute::BuckshotSpread];
-	int buckshot = (int) (this->GlobalData->Attributes[Attribute::Buckshot] - 1) / 2;
-
-	{
-		std::lock_guard<std::mutex> projectiles_lock(this->ProjectilesMutex);
-		for (int i = -buckshot; i <= buckshot; i++)
-		{
-			if (i == 0)
-			{
-				this->Projectiles.emplace_back(player_centre.x, player_centre.y, centre_direction, ProjectileType::Bullet, *this->GlobalData, *this->Assets);
-				continue;
-			}
-			Vector2 direction = Vector2Rotate(centre_direction, spread_angle * i);
-
-			this->Projectiles.emplace_back(player_centre.x, player_centre.y, direction, ProjectileType::Bullet, *this->GlobalData, *this->Assets);
-		}
-	}
-}
-
-void Game::HandleRightClick()
-{
-	static constexpr std::array<Vector2, 4> directions = { Vector2{1.0f, 0.0f}, Vector2{0.0f, 1.0f}, Vector2{-1.0f, 0.0f}, Vector2{0.0f, -1.0f} };
-
-	Vector2 centre = this->PlayerInstance->Centre;
-	
-	{
-		std::lock_guard<std::mutex> projectiles_lock(this->ProjectilesMutex);
-		for (int i = 0; i < 4; i++)
-			this->Projectiles.emplace_back(centre.x, centre.y, directions[i], ProjectileType::Lazer, *this->GlobalData, *this->Assets);
-	}
-}
 
 void Game::UpdateThread1()
 {
@@ -368,7 +382,7 @@ void Game::UpdateThread2()
 		if (!this->RunThreads)
 			break;
 
-		Game::HandleInput();
+		Game::HandleTickedInput();
 
 		Game::HandleEvents();
 
@@ -549,7 +563,7 @@ void Game::EventAuraTick(size_t ticks)
 
 void Game::EventPoisonTick(size_t next_tick, std::unordered_map<Event, size_t>& new_events_map)
 {
-	if (expiry >= this->GlobalData->Ticks)
+	if (next_tick >= this->GlobalData->Ticks)
 		new_events_map[Event::PoisonTick] = next_tick;
 	else
 	{
