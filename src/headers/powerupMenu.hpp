@@ -4,12 +4,12 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
+#include <functional>
 
 #include "raylib.h"
 
 #include "globalDataWrapper.hpp"
 
-//constexpr unsigned int PADDING = 32;
 
 enum class Powerup
 {
@@ -39,13 +39,14 @@ class PowerupMenu
 		PowerupMenu(std::shared_ptr<GlobalDataWrapper> global_data);
 		~PowerupMenu();
 		void Draw();
-		void GenerateList();
 		void HandleInput();
-		void ApplyPowerup(Powerup powerup);
 
 	private:
+		void GenerateList();
+		void ApplyPowerup(Powerup powerup);
+
 		std::shared_ptr<GlobalDataWrapper> GlobalData;
-		std::vector<PowerupWrapper> SelectionList = {};
+		std::vector<PowerupWrapper> SelectionList;
 
 		static const inline std::unordered_map<Powerup, std::string> PowerupNames =
 		{
@@ -62,8 +63,13 @@ class PowerupMenu
 			{ Powerup::SpeedBoots, "Speed Boots"}
 		};
 
-		Rectangle Rect;
-		Vector2 Left;
-		Vector2 Right;
-		Vector2 Middle;
+
+		void ApplyEffect(const Effect effect, const Event event, const unsigned int duration);
+		void ApplyMilk();
+		void ApplyAura();
+
+		void ApplyCircle();
+		void ApplyBuckshot();
+		void ApplyProjectile();
+		void ApplyLazer();
 };

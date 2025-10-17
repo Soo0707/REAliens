@@ -96,12 +96,7 @@ class GlobalDataWrapper
 			{ Attribute::LazerCooldown, 450 },
 			{ Attribute::LazerDamage, 25.0f },
 			{ Attribute::LazerScale, 1.0f },
-			{ Attribute::LazerSpeed, 3000.0f },
-			
-			{ Attribute::CircleRadius, 64 },
-			{ Attribute::CircleDamage, 5.0f },
-			{ Attribute::CircleScale, 1.0f },
-			{ Attribute::CircleAngularSpeed, 3.142 / 2 }
+			{ Attribute::LazerSpeed, 3000.0f }		
 		};
 
 		std::mutex EventsMutex;

@@ -8,7 +8,6 @@
 #include "constants.hpp"
 
 #include <cstddef>
-#include <iostream>
 
 Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, EnemyType type, BehaviourModifier modifier) :
 	Assets(assets), Type(type), Modifier(modifier)

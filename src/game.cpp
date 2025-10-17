@@ -1,6 +1,7 @@
 #include <memory>
 #include <algorithm>
 #include <array>
+#include <iostream>
 
 #include "raylib.h"
 #include "raymath.h"
@@ -172,6 +173,12 @@ void Game::HandleInput()
 			this->PlayerInstance->Direction.x = IsKeyDown(KEY_D) - IsKeyDown(KEY_A);
 			this->PlayerInstance->Direction.y = IsKeyDown(KEY_S) - IsKeyDown(KEY_W);
 		}
+
+		if (this->GlobalData->Effects.count(Effect::Drunk))
+		{
+			this->PlayerInstance->Direction.x *= -1;
+			this->PlayerInstance->Direction.y *= -1;
+		}
 	}
 
 	if (this->PlayerInstance->Direction.x != 0.0f && this->PlayerInstance->Direction.y != 0.0f)
@@ -276,85 +283,6 @@ void Game::HandleRightClick()
 			this->Projectiles.emplace_back(centre.x, centre.y, directions[i], ProjectileType::Lazer, *this->GlobalData, *this->Assets);
 	}
 }
-
-
-void Game::HandleEvents()
-{
-	size_t ticks = this->GlobalData->Ticks;
-
-	std::unordered_map<Event, size_t> new_events_map;
-	std::lock_guard<std::mutex> events_lock(this->GlobalData->EventsMutex);
-
-	for (auto &pair : this->GlobalData->Events)
-	{
-		switch (pair.first)
-		{
-			case Event::UpgradeCircle:
-				Game::EventUpgradeCircle();
-				break;
-			case Event::SpawnCircle:
-				break;
-			case Event::GreenbullExpire:
-				Game::HandleEventExpiry(Event::GreenbullExpire, Effect::Greenbull, pair.second, new_events_map);
-				break;
-
-			case Event::MilkExpire:
-				Game::HandleEventExpiry(Event::MilkExpire, Effect::Milk, pair.second, new_events_map);
-				break;
-
-			case Event::DrunkExpire:
-				Game::HandleEventExpiry(Event::DrunkExpire, Effect::Drunk, pair.second, new_events_map);
-				break;
-
-			case Event::AussieExpire:
-				Game::HandleEventExpiry(Event::AussieExpire, Effect::Aussie, pair.second, new_events_map);
-				break;
-
-			case Event::MagnetismExpire:
-				Game::HandleEventExpiry(Event::MagnetismExpire, Effect::Magnetism, pair.second, new_events_map);
-				break;
-			
-			case Event::PoisonExpire:
-				if (Game::HandleEventExpiry(Event::PoisonExpire, Effect::Poison, pair.second, new_events_map))
-				{
-					std::lock_guard<std::mutex> attributes_lock(this->GlobalData->AttributesMutex);
-					this->GlobalData->Attributes.erase(Attribute::PoisonDamage);
-				}
-				break;
-
-			case Event::PoisonTick:
-				if (pair.second >= ticks)
-					new_events_map[Event::PoisonTick] = pair.second;
-				else
-				{
-					std::lock_guard<std::mutex> attributes_lock(this->GlobalData->AttributesMutex);
-
-					this->PlayerInstance->Health -= this->GlobalData->Attributes.at(Attribute::PoisonDamage);
-					new_events_map[Event::PoisonTick] = pair.second + 240;
-				}
-				break;
-
-			case Event::IncreasePlayerSpeed:
-				this->PlayerInstance->Speed *= 1.2;
-				break;
-			case Event::IncreaseAura:
-				{
-					std::lock_guard<std::mutex> attributes_lock(this->GlobalData->AttributesMutex);
-					this->PlayerInstance->Aura.width = this->GlobalData->Attributes.at(Attribute::AuraSize);
-					this->PlayerInstance->Aura.height = this->GlobalData->Attributes.at(Attribute::AuraSize);
-				}
-				break;
-			case Event::AuraTick:
-				if (pair.second >= ticks)
-					new_events_map[Event::AuraTick] = pair.second;
-				else
-					Game::EventAuraTick(ticks);
-				break;
-		}
-	}
-	this->GlobalData->Events.swap(new_events_map);
-}
-
 
 void Game::UpdateThread1()
 {
@@ -477,6 +405,86 @@ void Game::UpdateThread2()
 	}
 }
 
+
+
+void Game::HandleEvents()
+{
+	size_t ticks = this->GlobalData->Ticks;
+
+	std::unordered_map<Event, size_t> new_events_map;
+	std::lock_guard<std::mutex> events_lock(this->GlobalData->EventsMutex);
+
+	for (auto &pair : this->GlobalData->Events)
+	{
+		switch (pair.first)
+		{
+			case Event::UpgradeCircle:
+				Game::EventUpgradeCircle();
+				break;
+
+			case Event::SpawnCircle:
+				Game::EventSpawnCircle();
+				break;
+
+			case Event::GreenbullExpire:
+				Game::HandleEventExpiry(Event::GreenbullExpire, Effect::Greenbull, pair.second, new_events_map);
+				break;
+
+			case Event::MilkExpire:
+				Game::HandleEventExpiry(Event::MilkExpire, Effect::Milk, pair.second, new_events_map);
+				break;
+
+			case Event::DrunkExpire:
+				Game::HandleEventExpiry(Event::DrunkExpire, Effect::Drunk, pair.second, new_events_map);
+				break;
+
+			case Event::AussieExpire:
+				Game::HandleEventExpiry(Event::AussieExpire, Effect::Aussie, pair.second, new_events_map);
+				break;
+
+			case Event::MagnetismExpire:
+				Game::HandleEventExpiry(Event::MagnetismExpire, Effect::Magnetism, pair.second, new_events_map);
+				break;
+			
+			case Event::PoisonExpire:
+				if (Game::HandleEventExpiry(Event::PoisonExpire, Effect::Poison, pair.second, new_events_map))
+				{
+					std::lock_guard<std::mutex> attributes_lock(this->GlobalData->AttributesMutex);
+					/*
+					 we cannot delete they key immediately as we might not have iterated through poison tick
+					 which needs this. so we just don't copy PoisonExpire into the new map,
+					 then signal using -1 saying so that PoisonTick can handle PoisonDamage's deletion
+					*/
+					this->GlobalData->Attributes[Attribute::PoisonDamage] = -1.0f;
+				}
+				break;
+
+			case Event::PoisonTick:
+				Game::EventPoisonTick(pair.second, new_events_map);
+				break;
+
+			case Event::IncreasePlayerSpeed:
+				this->PlayerInstance->Speed *= 1.2;
+				break;
+			case Event::IncreaseAura:
+				{
+					std::lock_guard<std::mutex> attributes_lock(this->GlobalData->AttributesMutex);
+					this->PlayerInstance->Aura.width = this->GlobalData->Attributes.at(Attribute::AuraSize);
+					this->PlayerInstance->Aura.height = this->GlobalData->Attributes.at(Attribute::AuraSize);
+				}
+				break;
+			case Event::AuraTick:
+				if (pair.second >= ticks)
+					new_events_map[Event::AuraTick] = pair.second;
+				else
+					Game::EventAuraTick(ticks);
+				break;
+		}
+	}
+	this->GlobalData->Events.swap(new_events_map);
+}
+
+
 void Game::EventUpgradeCircle()
 {
 	std::lock_guard<std::mutex> projectiles_lock(this->ProjectilesMutex);
@@ -500,8 +508,8 @@ void Game::EventSpawnCircle()
 	std::lock_guard<std::mutex> projectiles_lock(this->ProjectilesMutex);
 
 	this->Projectiles.emplace_back(
-			this->PlayerInstance->Rect.x,
-			this->PlayerInstance->Rect.y,
+			this->PlayerInstance->Centre.x,
+			this->PlayerInstance->Centre.y,
 			(Vector2) { 0, 0 },
 			ProjectileType::Circle,
 			*this->GlobalData,
@@ -536,5 +544,26 @@ void Game::EventAuraTick(size_t ticks)
 	{
 		std::lock_guard<std::mutex> enemies_lock(this->EnemiesMutex);
 		Collisions::Aura(damage, ticks, this->PlayerInstance->Aura, this->Enemies);
+	}
+}
+
+void Game::EventPoisonTick(size_t next_tick, std::unordered_map<Event, size_t>& new_events_map)
+{
+	if (expiry >= this->GlobalData->Ticks)
+		new_events_map[Event::PoisonTick] = next_tick;
+	else
+	{
+		std::lock_guard<std::mutex> attributes_lock(this->GlobalData->AttributesMutex);
+
+		// damage may be -1 if poison expired, destruction of PoisonDamage and PoisonTick both happen here
+		float damage = this->GlobalData->Attributes.at(Attribute::PoisonDamage);
+
+		if (damage > 0)
+		{
+			this->PlayerInstance->Health -= damage;
+			new_events_map[Event::PoisonTick] = next_tick + SECONDS_TO_TICKS(1);
+		}
+		else
+			this->GlobalData->Attributes.erase(Attribute::PoisonDamage);
 	}
 }

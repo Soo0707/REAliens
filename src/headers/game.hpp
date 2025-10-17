@@ -35,6 +35,7 @@ class Game
 		void EventSpawnCircle();
 		void EventUpgradeCircle();
 		void EventAuraTick(size_t ticks);
+		void EventPoisonTick(size_t expiry, std::unordered_map<Event, size_t>& new_events_map);
 		bool HandleEventExpiry(Event event, Effect effect, size_t expiry, std::unordered_map<Event, size_t>& new_events_map);
 
 		void HandleInput();
