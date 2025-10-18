@@ -29,7 +29,7 @@ int main(void)
 	{
 		if (global_data->ActiveState != prev_state)
 		{
-			(global_data->ActiveState == State::Game) ? ( SetTargetFPS(refresh_rate) ) : ( SetTargetFPS(15) );
+			(global_data->ActiveState == State::Game) ? ( SetTargetFPS(max_refresh_rate) ) : ( SetTargetFPS(15) );
 			prev_state = global_data->ActiveState;
 		}
 

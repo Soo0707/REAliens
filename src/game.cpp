@@ -18,9 +18,7 @@
 #include "xp.hpp"
 
 Game::Game(std::shared_ptr<GlobalDataWrapper> global_data) :
-	GlobalData(global_data),
-	StartWorkers(3, [](){}),
-	StopWorkers(3, [](){})
+	GlobalData(global_data)
 {
 	this->Assets = std::make_shared<AssetManager>();
 
@@ -37,27 +35,13 @@ Game::Game(std::shared_ptr<GlobalDataWrapper> global_data) :
 		(float) GetScreenWidth(),
 		(float) GetScreenHeight()
 	};
-
-	this->Threads.emplace_back([this](){Game::UpdateThread1();});
-	this->Threads.emplace_back([this](){Game::UpdateThread2();});
 }
 
 Game::~Game()
-{
-	this->RunThreads = false;
-	(void) this->StartWorkers.arrive();
-
-	for (auto& thread : this->Threads)
-	{
-		if (thread.joinable())
-			thread.join();
-	}
-}
+{}
 
 void Game::Draw()
 {
-	BeginMode2D(this->Camera);
-	
 	static unsigned int map_width = this->Assets->Ground.width;
 	static unsigned int map_height = this->Assets->Ground.height;
 
@@ -81,6 +65,8 @@ void Game::Draw()
 	if (viewport.y + viewport.height > map_height)
 		viewport.height = map_height - viewport.y;
 	
+	BeginMode2D(this->Camera);
+
 	DrawTextureRec(this->Assets->Ground, viewport, (Vector2) { viewport.x, viewport.y }, WHITE);
 
 	for (auto const &xp : this->Xps)
@@ -118,10 +104,10 @@ void Game::Update()
 	while (this->Accumulator >= TICK_TIME)
 	{
 		size_t ticks = this->GlobalData->Ticks;
-		
+		/*
 		if (this->PlayerInstance->Health <= 0)
 			this->GlobalData->ActiveState = State::GameOverMenu;
-		
+		*/
 		if (ticks - this->LastLMB >= this->GlobalData->Attributes[Attribute::BulletCooldown])
 			this->CanLMB = true;
 
@@ -141,18 +127,82 @@ void Game::Update()
 				this->GlobalData->ActiveState = State::PowerupMenu;
 		}
 
-		(void) this->StartWorkers.arrive();
-		
+		Game::HandleTickedInput();
+		Game::HandleEvents();
+
 		this->PlayerInstance->Update(ticks);
 		
 		Game::LoopOverMap(this->PlayerInstance->Rect);
-		
+	
+
 		this->UpdateArea.x = this->PlayerInstance->Centre.x - GetScreenWidth() / 2.0f;
 		this->UpdateArea.y =  this->PlayerInstance->Centre.y - GetScreenHeight() / 2.0f;
 		
+
 		this->Camera.target = this->PlayerInstance->Centre;
 
-		(void) this->StopWorkers.arrive_and_wait();
+		if (this->GlobalData->Effects.count(Effect::Aussie))
+			this->Camera.rotation = 180.0f;
+		else
+			this->Camera.rotation = 0.0f;
+
+
+		if ((this->GlobalData->Ticks - this->LastSpawn >= this->SpawnTimeout) || this->Enemies.size() == 0)
+		{
+			Game::SpawnEnemies();
+			this->LastSpawn = this->GlobalData->Ticks;
+		}
+
+		bool has_greenbull = this->GlobalData->Effects.count(Effect::Greenbull);
+
+		for (auto &enemy : this->Enemies)
+		{
+			if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
+			{
+				enemy.Update(this->PlayerInstance->Rect, this->GlobalData->Ticks);
+				Game::LoopOverMap(enemy.Rect);
+				
+				if (!has_greenbull)
+					Collisions::LeAttack(*(this->PlayerInstance), enemy, *this->GlobalData);
+			}
+
+			if (enemy.Health <= 0)
+			{
+				unsigned int value = EnemyXpValues.at(enemy.Type);
+				this->Xps.emplace_back(enemy.Rect.x, enemy.Rect.y, value, *this->Assets);
+			}
+		}
+		std::erase_if(this->Enemies, [](const Enemy& enemy) { return (enemy.Health <= 0); });
+
+
+		for (auto &projectile : this->Projectiles)
+		{
+			if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
+			{
+				projectile.Update(this->PlayerInstance->Centre);
+
+				if (projectile.Type != ProjectileType::Circle)
+					Game::LoopOverMap(projectile.Rect);
+				
+				Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData);
+			}
+			else if (projectile.Killable)
+				projectile.Kill = true;
+		}
+		std::erase_if(this->Projectiles, [](const Projectile& proj){ return proj.Kill; });
+
+
+		bool has_magnetism = this->GlobalData->Effects.count(Effect::Magnetism);
+
+		for (auto &xp : this->Xps)
+		{
+			if (CheckCollisionRecs(this->PlayerInstance->Rect, xp.Rect) || has_magnetism)
+			{
+				this->CollectedXp += xp.Value;
+				xp.Kill = true;
+			}
+		}
+		std::erase_if(this->Xps, [](const Xp& xp) { return xp.Kill; });
 
 		this->Accumulator -= TICK_TIME;
 		this->GlobalData->Ticks++;
@@ -170,27 +220,23 @@ void Game::HandleEssentialInput()
 
 void Game::HandleTickedInput()
 {
+	if (this->GlobalData->Effects.count(Effect::Trapped))
 	{
-		std::lock_guard<std::mutex> effects_lock(this->GlobalData->EffectsMutex);
+		if (IsKeyDown(KEY_SPACE))
+			this->GlobalData->Effects.erase(Effect::Trapped);
 
-		if (this->GlobalData->Effects.count(Effect::Trapped))
-		{
-			if (IsKeyDown(KEY_SPACE))
-				this->GlobalData->Effects.erase(Effect::Trapped);
+		this->PlayerInstance->Direction = { 0, 0 };
+	}
+	else
+	{
+		this->PlayerInstance->Direction.x = IsKeyDown(KEY_D) - IsKeyDown(KEY_A);
+		this->PlayerInstance->Direction.y = IsKeyDown(KEY_S) - IsKeyDown(KEY_W);
+	}
 
-			this->PlayerInstance->Direction = { 0, 0 };
-		}
-		else
-		{
-			this->PlayerInstance->Direction.x = IsKeyDown(KEY_D) - IsKeyDown(KEY_A);
-			this->PlayerInstance->Direction.y = IsKeyDown(KEY_S) - IsKeyDown(KEY_W);
-		}
-
-		if (this->GlobalData->Effects.count(Effect::Drunk))
-		{
-			this->PlayerInstance->Direction.x *= -1;
-			this->PlayerInstance->Direction.y *= -1;
-		}
+	if (this->GlobalData->Effects.count(Effect::Drunk))
+	{
+		this->PlayerInstance->Direction.x *= -1;
+		this->PlayerInstance->Direction.y *= -1;
 	}
 
 	if (this->PlayerInstance->Direction.x != 0.0f && this->PlayerInstance->Direction.y != 0.0f)
@@ -221,19 +267,16 @@ void Game::HandleLeftClick()
 	float spread_angle = this->GlobalData->Attributes[Attribute::BuckshotSpread];
 	int buckshot = (int) (this->GlobalData->Attributes[Attribute::Buckshot] - 1) / 2;
 
+	for (int i = -buckshot; i <= buckshot; i++)
 	{
-		std::lock_guard<std::mutex> projectiles_lock(this->ProjectilesMutex);
-		for (int i = -buckshot; i <= buckshot; i++)
+		if (i == 0)
 		{
-			if (i == 0)
-			{
-				this->Projectiles.emplace_back(player_centre.x, player_centre.y, centre_direction, ProjectileType::Bullet, *this->GlobalData, *this->Assets);
-				continue;
-			}
-			Vector2 direction = Vector2Rotate(centre_direction, spread_angle * i);
-
-			this->Projectiles.emplace_back(player_centre.x, player_centre.y, direction, ProjectileType::Bullet, *this->GlobalData, *this->Assets);
+			this->Projectiles.emplace_back(player_centre.x, player_centre.y, centre_direction, ProjectileType::Bullet, *this->GlobalData, *this->Assets);
+			continue;
 		}
+		Vector2 direction = Vector2Rotate(centre_direction, spread_angle * i);
+
+		this->Projectiles.emplace_back(player_centre.x, player_centre.y, direction, ProjectileType::Bullet, *this->GlobalData, *this->Assets);
 	}
 }
 
@@ -243,12 +286,10 @@ void Game::HandleRightClick()
 
 	Vector2 centre = this->PlayerInstance->Centre;
 	
-	{
-		std::lock_guard<std::mutex> projectiles_lock(this->ProjectilesMutex);
-		for (int i = 0; i < 4; i++)
-			this->Projectiles.emplace_back(centre.x, centre.y, directions[i], ProjectileType::Lazer, *this->GlobalData, *this->Assets);
-	}
+	for (int i = 0; i < 4; i++)
+		this->Projectiles.emplace_back(centre.x, centre.y, directions[i], ProjectileType::Lazer, *this->GlobalData, *this->Assets);
 }
+
 
 
 void Game::SpawnEnemies()
@@ -298,135 +339,12 @@ void Game::LoopOverMap(Rectangle& m_obj)
 }
 
 
-void Game::UpdateThread1()
-{
-	while (true)
-	{
-		(void) this->StartWorkers.arrive_and_wait();
-
-		if (!this->RunThreads)
-			break;
-
-		{
-			std::lock_guard<std::mutex> enemies_lock(this->EnemiesMutex);
-
-			if ((this->GlobalData->Ticks - this->LastSpawn >= this->SpawnTimeout) || this->Enemies.size() == 0)
-			{
-				Game::SpawnEnemies();
-				this->LastSpawn = this->GlobalData->Ticks;
-			}
-
-			bool has_greenbull;
-			{
-				std::lock_guard<std::mutex> effects_lock(this->GlobalData->EffectsMutex);
-				has_greenbull = this->GlobalData->Effects.count(Effect::Greenbull);
-			}
-
-			for (auto &enemy : this->Enemies)
-			{
-				if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
-				{
-					enemy.Update(this->PlayerInstance->Rect, this->GlobalData->Ticks);
-					Game::LoopOverMap(enemy.Rect);
-					
-					if (!has_greenbull)
-						Collisions::LeAttack(*(this->PlayerInstance), enemy, *this->GlobalData);
-				}
-
-				if (enemy.Health <= 0)
-				{
-					unsigned int value = EnemyXpValues.at(enemy.Type);
-
-					{
-						std::lock_guard<std::mutex> xps_lock(this->XpsMutex);
-						this->Xps.emplace_back(enemy.Rect.x, enemy.Rect.y, value, *this->Assets);
-					}
-				}
-			}
-			std::erase_if(this->Enemies, [](const Enemy& enemy) { return (enemy.Health <= 0); });
-		}
-
-		{
-			std::lock_guard<std::mutex> projectiles_lock(this->ProjectilesMutex);
-
-			for (auto &projectile : this->Projectiles)
-			{
-				if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
-				{
-					projectile.Update(this->PlayerInstance->Centre);
-
-					if (projectile.Type != ProjectileType::Circle)
-						Game::LoopOverMap(projectile.Rect);
-					
-					{
-						std::lock_guard<std::mutex> enemies_lock(this->EnemiesMutex);
-						Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData);
-					}
-				}
-				else if (projectile.Killable)
-					projectile.Kill = true;
-			}
-			std::erase_if(this->Projectiles, [](const Projectile& proj){ return proj.Kill; });
-		}
-
-		(void) this->StopWorkers.arrive_and_wait();
-	}
-}
-
-void Game::UpdateThread2()
-{
-	while (true)
-	{
-		(void) this->StartWorkers.arrive_and_wait();
-
-		if (!this->RunThreads)
-			break;
-
-		Game::HandleTickedInput();
-
-		Game::HandleEvents();
-
-		bool has_aussie;
-		bool has_magnetism;
-
-		{
-			std::lock_guard<std::mutex> attributes_lock(this->GlobalData->EffectsMutex);
-
-			has_aussie = this->GlobalData->Effects.count(Effect::Aussie);
-			has_magnetism = this->GlobalData->Effects.count(Effect::Magnetism);
-		}
-
-		if (has_aussie)
-			this->Camera.rotation = 180.0f;
-		else
-			this->Camera.rotation = 0.0f;
-
-		{
-			std::lock_guard<std::mutex> xps_lock(this->XpsMutex);
-
-			for (auto &xp : this->Xps)
-			{
-				if (CheckCollisionRecs(this->PlayerInstance->Rect, xp.Rect) || has_magnetism)
-				{
-					this->CollectedXp += xp.Value;
-					xp.Kill = true;
-				}
-			}
-			std::erase_if(this->Xps, [](const Xp& xp) { return xp.Kill; });
-		}
-
-		(void) this->StopWorkers.arrive_and_wait();
-	}
-}
-
-
 
 void Game::HandleEvents()
 {
 	size_t ticks = this->GlobalData->Ticks;
 
 	std::unordered_map<Event, size_t> new_events_map;
-	std::lock_guard<std::mutex> events_lock(this->GlobalData->EventsMutex);
 
 	for (auto &pair : this->GlobalData->Events)
 	{
@@ -463,7 +381,6 @@ void Game::HandleEvents()
 			case Event::PoisonExpire:
 				if (Game::HandleEventExpiry(Event::PoisonExpire, Effect::Poison, pair.second, new_events_map))
 				{
-					std::lock_guard<std::mutex> attributes_lock(this->GlobalData->AttributesMutex);
 					/*
 					 we cannot delete they key immediately as we might not have iterated through poison tick
 					 which needs this. so we just don't copy PoisonExpire into the new map,
@@ -481,33 +398,23 @@ void Game::HandleEvents()
 				this->PlayerInstance->Speed *= 1.2;
 				break;
 			case Event::IncreaseAura:
-				{
-					std::lock_guard<std::mutex> attributes_lock(this->GlobalData->AttributesMutex);
-					this->PlayerInstance->Aura.width = this->GlobalData->Attributes.at(Attribute::AuraSize);
-					this->PlayerInstance->Aura.height = this->GlobalData->Attributes.at(Attribute::AuraSize);
-				}
+				this->PlayerInstance->Aura.width = this->GlobalData->Attributes.at(Attribute::AuraSize);
+				this->PlayerInstance->Aura.height = this->GlobalData->Attributes.at(Attribute::AuraSize);
 				break;
 			case Event::AuraTick:
-				if (pair.second >= ticks)
-					new_events_map[Event::AuraTick] = pair.second;
-				else
-					Game::EventAuraTick(ticks);
+				Game::EventAuraTick(pair.second, new_events_map);
 				break;
 		}
 	}
 	this->GlobalData->Events.swap(new_events_map);
 }
 
-
 void Game::EventUpgradeCircle()
 {
-	std::lock_guard<std::mutex> projectiles_lock(this->ProjectilesMutex);
-
 	for (auto &proj : this->Projectiles)
 	{
 		if (proj.Type == ProjectileType::Circle)
 		{
-			std::lock_guard<std::mutex> attributes_lock(this->GlobalData->AttributesMutex);
 
 			proj.Scale = this->GlobalData->Attributes.at(Attribute::CircleScale);
 			proj.Speed = this->GlobalData->Attributes.at(Attribute::CircleAngularSpeed);
@@ -519,8 +426,6 @@ void Game::EventUpgradeCircle()
 
 void Game::EventSpawnCircle()
 {
-	std::lock_guard<std::mutex> projectiles_lock(this->ProjectilesMutex);
-
 	this->Projectiles.emplace_back(
 			this->PlayerInstance->Centre.x,
 			this->PlayerInstance->Centre.y,
@@ -540,24 +445,25 @@ bool Game::HandleEventExpiry(Event event, Effect effect, size_t expiry, std::uno
 	}
 	else
 	{
-		std::lock_guard<std::mutex> effects_lock(this->GlobalData->EffectsMutex);
 		this->GlobalData->Effects.erase(effect);
 		return true;
 	}
 }
 
-void Game::EventAuraTick(size_t ticks)
+void Game::EventAuraTick(size_t next_tick, std::unordered_map<Event, size_t>& new_events_map)
 {
-	float damage;
+	if (next_tick >= this->GlobalData->Ticks)
+		new_events_map[Event::AuraTick] = next_tick;
+	else
 	{
-		std::lock_guard<std::mutex> attributes_lock(this->GlobalData->AttributesMutex);
-		damage = this->GlobalData->Attributes.at(Attribute::AuraDamage);
-		this->GlobalData->Events[Event::AuraTick] = ticks + this->GlobalData->Attributes.at(Attribute::AuraCooldown);
-	}
+		float damage;
 
-	{
-		std::lock_guard<std::mutex> enemies_lock(this->EnemiesMutex);
-		Collisions::Aura(damage, ticks, this->PlayerInstance->Aura, this->Enemies);
+		damage = this->GlobalData->Attributes.at(Attribute::AuraDamage);
+
+		for (auto &enemy : this->Enemies)
+			Collisions::Aura(damage, this->GlobalData->Ticks, this->PlayerInstance->Aura, enemy);
+
+		new_events_map[Event::AuraTick] = this->GlobalData->Ticks + this->GlobalData->Attributes.at(Attribute::AuraCooldown);
 	}
 }
 
@@ -567,8 +473,6 @@ void Game::EventPoisonTick(size_t next_tick, std::unordered_map<Event, size_t>& 
 		new_events_map[Event::PoisonTick] = next_tick;
 	else
 	{
-		std::lock_guard<std::mutex> attributes_lock(this->GlobalData->AttributesMutex);
-
 		// damage may be -1 if poison expired, destruction of PoisonDamage and PoisonTick both happen here
 		float damage = this->GlobalData->Attributes.at(Attribute::PoisonDamage);
 

@@ -6,7 +6,6 @@
 #include "constants.hpp"
 
 #include <cmath>
-#include <mutex>
 
 Projectile::Projectile(float x, float y, Vector2 direction, ProjectileType type, GlobalDataWrapper& global_data, AssetManager& assets):
 	Type(type)
@@ -16,36 +15,33 @@ Projectile::Projectile(float x, float y, Vector2 direction, ProjectileType type,
 	else
 		this->Direction = direction;
 	
+	switch (this->Type)
 	{
-		std::lock_guard<std::mutex> attributes_lock(global_data.AttributesMutex);
-		switch (this->Type)
-		{
-			case ProjectileType::Bullet:
-				this->Image = assets.Textures.at(TextureKey::Bullet);
-				this->Speed = global_data.Attributes.at(Attribute::BulletSpeed);
-				this->Rotation = atan2(this->Direction.y, this->Direction.x) * TO_DEG;
-				this->Scale = 1.0f;
-				this->Killable = true;
+		case ProjectileType::Bullet:
+			this->Image = assets.Textures.at(TextureKey::Bullet);
+			this->Speed = global_data.Attributes.at(Attribute::BulletSpeed);
+			this->Rotation = atan2(this->Direction.y, this->Direction.x) * TO_DEG;
+			this->Scale = 1.0f;
+			this->Killable = true;
 
-				break;
-			case ProjectileType::Lazer:
-				this->Image = assets.Textures.at(TextureKey::Lazer);
-				this->Speed = global_data.Attributes.at(Attribute::LazerSpeed);
-				this->Rotation = atan2(this->Direction.y, this->Direction.x) * TO_DEG;
-				this->Scale = global_data.Attributes.at(Attribute::LazerScale);
-				this->Killable = true;
+			break;
+		case ProjectileType::Lazer:
+			this->Image = assets.Textures.at(TextureKey::Lazer);
+			this->Speed = global_data.Attributes.at(Attribute::LazerSpeed);
+			this->Rotation = atan2(this->Direction.y, this->Direction.x) * TO_DEG;
+			this->Scale = global_data.Attributes.at(Attribute::LazerScale);
+			this->Killable = true;
 
-				break;
-			case ProjectileType::Circle:
-				this->Image = assets.Textures.at(TextureKey::Circle);
-				this->Scale = global_data.Attributes.at(Attribute::CircleScale);
-				this->Speed = global_data.Attributes.at(Attribute::CircleAngularSpeed);
-				this->Rotation = global_data.Attributes.at(Attribute::CircleAngularSpeed) * TO_DEG;
-				this->Radius = global_data.Attributes.at(Attribute::CircleRadius);
-				this->Killable = false;
+			break;
+		case ProjectileType::Circle:
+			this->Image = assets.Textures.at(TextureKey::Circle);
+			this->Scale = global_data.Attributes.at(Attribute::CircleScale);
+			this->Speed = global_data.Attributes.at(Attribute::CircleAngularSpeed);
+			this->Rotation = global_data.Attributes.at(Attribute::CircleAngularSpeed) * TO_DEG;
+			this->Radius = global_data.Attributes.at(Attribute::CircleRadius);
+			this->Killable = false;
 
-				break;
-		}
+			break;
 	}
 
 	this->Rect = { x, y, (float) this->Image.width * this->Scale, (float) this->Image.height * this->Scale };

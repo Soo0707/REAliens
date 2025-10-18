@@ -2,11 +2,6 @@
 
 #include <vector>
 #include <memory>
-#include <thread>
-
-#include <barrier>
-#include <atomic>
-#include <mutex>
 
 #include "raylib.h"
 
@@ -35,7 +30,7 @@ class Game
 
 		void EventSpawnCircle();
 		void EventUpgradeCircle();
-		void EventAuraTick(size_t next_tick);
+		void EventAuraTick(size_t next_tick, std::unordered_map<Event, size_t>& new_events_map);
 		void EventPoisonTick(size_t expiry, std::unordered_map<Event, size_t>& new_events_map);
 		bool HandleEventExpiry(Event event, Effect effect, size_t expiry, std::unordered_map<Event, size_t>& new_events_map);
 
@@ -46,31 +41,18 @@ class Game
 		void HandleLeftClick();
 		void HandleRightClick();
 
-		std::atomic<bool> RunThreads = true;
-
-		std::vector<std::thread> Threads;
-
-		std::barrier<void(*)()> StartWorkers;
-		std::barrier<void(*)()> StopWorkers;
-		void UpdateThread1();
-		void UpdateThread2();
-
-
-		std::mutex EnemiesMutex;
-		std::vector<Enemy> Enemies;
-
-		std::mutex ProjectilesMutex;
-		std::vector<Projectile> Projectiles;
-		
-		std::mutex XpsMutex;
-		std::vector<Xp> Xps;
 
 		std::shared_ptr<AssetManager> Assets;
-
-		std::mutex PlayerMutex;
-		std::unique_ptr<Player> PlayerInstance;
-
 		std::shared_ptr<GlobalDataWrapper> GlobalData;
+
+
+		std::vector<Enemy> Enemies;
+
+		std::vector<Projectile> Projectiles;
+		
+		std::vector<Xp> Xps;
+
+		std::unique_ptr<Player> PlayerInstance;
 
 
 		size_t LastLMB = 0;

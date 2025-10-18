@@ -19,11 +19,11 @@ PowerupMenu::~PowerupMenu()
 
 void PowerupMenu::Draw()
 {
-	float mid = 1280 / 2.0f;
+	static constexpr float mid = 1280 / 2.0f;
 
 	int x1 = mid - MeasureText(this->SelectionList[0].DisplayName.c_str(), 24) / 2.0f;
-	int x2 = mid - MeasureText(this->SelectionList[1].DisplayName.c_str() , 24) / 2.0f;
-	int x3 = mid - MeasureText(this->SelectionList[2].DisplayName.c_str() , 24) / 2.0f;
+	int x2 = mid - MeasureText(this->SelectionList[1].DisplayName.c_str(), 24) / 2.0f;
+	int x3 = mid - MeasureText(this->SelectionList[2].DisplayName.c_str(), 24) / 2.0f;
 
 	DrawText("Select A Powerup", 452.5, 80, 42, VIOLET);
 
@@ -31,11 +31,11 @@ void PowerupMenu::Draw()
 	DrawText(this->SelectionList[1].DisplayName.c_str(), x2, 360, 24, GOLD);
 	DrawText(this->SelectionList[2].DisplayName.c_str(), x3, 460, 24, GOLD);
 
-	DrawText("[TAB] Toggle Powerup Menu, [ESC] Don't Automatically Show", 319.5, 620, 21, LIGHTGRAY);
+	DrawText("[TAB] Toggle Powerup Menu", 491.5, 580, 21, LIGHTGRAY);
 
 	DrawText("Unacquired Powerups: ", 50, 670, 21, GRAY);
 	DrawText(std::to_string(this->GlobalData->UnclaimedPowerups).c_str(), 310, 670, 21, WHITE);
-	//std::cout << MeasureText("[TAB] Toggle Powerup Menu, [ESC] Don't Automatically Show", 21) << std::endl;
+	//std::cout << MeasureText("[TAB] Toggle Powerup Menu", 21) << std::endl;
 }
 
 void PowerupMenu::GenerateList()
@@ -70,13 +70,11 @@ void PowerupMenu::HandleInput()
 	else if (IsKeyPressed(KEY_THREE))
 		PowerupMenu::ApplyPowerup(this->SelectionList[2].Powerup);
 
-	if (IsKeyPressed(KEY_ESCAPE))
+	if (IsKeyPressed(KEY_TAB))
 	{
 		this->GlobalData->Settings[Setting::ShowPowerupMenuOnLevelUp] = 0;
 		this->GlobalData->ActiveState = State::Game;
 	}
-	else if (IsKeyPressed(KEY_TAB))
-		this->GlobalData->ActiveState = State::Game;
 }
 
 void PowerupMenu::ApplyPowerup(Powerup powerup)
@@ -124,14 +122,11 @@ void PowerupMenu::ApplyPowerup(Powerup powerup)
 			break;
 	}
 
+	PowerupMenu::GenerateList();
 	this->GlobalData->UnclaimedPowerups--;
 
 	if (this->GlobalData->UnclaimedPowerups == 0)
 		this->GlobalData->ActiveState = State::Game;
-	else
-	{
-		PowerupMenu::GenerateList();
-	}
 }
 
 
@@ -183,21 +178,23 @@ void PowerupMenu::ApplyCircle()
 {
 	if (this->GlobalData->Attributes.count(Attribute::CircleRadius)) 
 	{
-		this->GlobalData->Attributes[Attribute::CircleRadius] += 12;
 		this->GlobalData->Attributes[Attribute::CircleDamage] += 10;
 		this->GlobalData->Attributes[Attribute::CircleScale] += 0.2;
 
 		if (this->GlobalData->Attributes[Attribute::CircleAngularSpeed] <= 4 * PI)
 			this->GlobalData->Attributes[Attribute::CircleAngularSpeed] *= 2;
 
+		if (this->GlobalData->Attributes[Attribute::CircleRadius] + 12 < 320)
+			this->GlobalData->Attributes[Attribute::CircleRadius] += 12;
+
 		this->GlobalData->Events[Event::UpgradeCircle] = 0;
 	}
 	else
 	{
-		this->GlobalData->Attributes[Attribute::CircleRadius] = 64;
 		this->GlobalData->Attributes[Attribute::CircleDamage] = 5.0f;
 		this->GlobalData->Attributes[Attribute::CircleScale] = 1.0f;
 		this->GlobalData->Attributes[Attribute::CircleAngularSpeed] = PI / 2;
+		this->GlobalData->Attributes[Attribute::CircleRadius] = 64;
 
 		this->GlobalData->Events[Event::SpawnCircle] = 0;
 	}
@@ -214,7 +211,9 @@ void PowerupMenu::ApplyBuckshot()
 void PowerupMenu::ApplyProjectile()
 {
 	if (this->GlobalData->Attributes[Attribute::BulletCooldown] - 5 >= 0)
-		this->GlobalData->Attributes[Attribute::BulletCooldown] -= 5;
+		this->GlobalData->Attributes[Attribute::BulletCooldown] = 10;
+	else
+		this->GlobalData->Attributes[Attribute::BulletCooldown] = 10;
 
 	this->GlobalData->Attributes[Attribute::BulletDamage] += 5;
 	this->GlobalData->Attributes[Attribute::BulletSpeed] += 5;
@@ -224,6 +223,8 @@ void PowerupMenu::ApplyLazer()
 {
 	if (this->GlobalData->Attributes[Attribute::LazerCooldown] - 10 >= 0)
 		this->GlobalData->Attributes[Attribute::LazerCooldown] -= 10;
+	else
+		this->GlobalData->Attributes[Attribute::LazerCooldown] = 10;
 
 	this->GlobalData->Attributes[Attribute::LazerDamage] += 10;
 	this->GlobalData->Attributes[Attribute::LazerScale] += 0.5;
