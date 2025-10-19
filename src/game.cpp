@@ -1,6 +1,7 @@
 #include <memory>
 #include <algorithm>
 #include <array>
+#include <iostream>
 
 #include "raylib.h"
 #include "raymath.h"
@@ -90,7 +91,55 @@ void Game::Draw()
 	this->PlayerInstance->Draw();
 
 	EndMode2D();
+
+	Game::DrawOverlay();
 }
+
+void Game::DrawOverlay()
+{
+	static constexpr Rectangle xp_background = { 100, 680, 1080, 15 };
+	static constexpr Rectangle health_background = { 1060, 20, 200, 10 };
+
+	static constexpr Rectangle greenbull_square = { 1205, 40, 15, 15 };
+	static constexpr Rectangle milk_square = { 1225, 40, 15, 15 };
+	static constexpr Rectangle drunk_square = { 1245, 40, 15, 15 };
+
+	float health_percentage = this->PlayerInstance->Health / this->PlayerInstance->HealthMax;
+
+	Rectangle health_bar = {
+		1060,
+		20,
+		health_percentage * 200,
+		10
+	};
+
+	bool is_poisoned = this->GlobalData->Effects.count(Effect::Poison);
+
+	float xp_percentage = (float) this->CollectedXp / (float) this->GlobalData->LevelUpTreshold;
+
+	Rectangle xp_bar = {
+		100,
+		680,
+		xp_percentage * 1080,
+		15
+	};
+
+	DrawRectangleRec(health_background, BLACK);
+	DrawRectangleRec(health_bar, (is_poisoned) ? VIOLET : GREEN);
+
+	DrawRectangleRec(xp_background, BLACK);
+	DrawRectangleRec(xp_bar, LIME);
+
+	if (this->GlobalData->Effects.count(Effect::Greenbull))
+		DrawRectangleRec(greenbull_square, GREEN);
+
+	if (this->GlobalData->Effects.count(Effect::Milk))
+		DrawRectangleRec(milk_square, WHITE);
+	
+	if (this->GlobalData->Effects.count(Effect::Drunk))
+		DrawRectangleRec(drunk_square, YELLOW);
+}
+
 
 void Game::Update()
 {
@@ -146,68 +195,85 @@ void Game::Update()
 		else
 			this->Camera.rotation = 0.0f;
 
+		Game::UpdateEnemies();
+		Game::UpdateProjectiles();
+		Game::UpdateXps();
 
-		if ((this->GlobalData->Ticks - this->LastSpawn >= this->SpawnTimeout) || this->Enemies.size() == 0)
-		{
-			Game::SpawnEnemies();
-			this->LastSpawn = this->GlobalData->Ticks;
-		}
-
-		bool has_greenbull = this->GlobalData->Effects.count(Effect::Greenbull);
-
-		for (auto &enemy : this->Enemies)
-		{
-			if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
-			{
-				enemy.Update(this->PlayerInstance->Rect, this->GlobalData->Ticks);
-				Game::LoopOverMap(enemy.Rect);
-				
-				if (!has_greenbull)
-					Collisions::LeAttack(*(this->PlayerInstance), enemy, *this->GlobalData);
-			}
-
-			if (enemy.Health <= 0)
-			{
-				unsigned int value = EnemyXpValues.at(enemy.Type);
-				this->Xps.emplace_back(enemy.Rect.x, enemy.Rect.y, value, *this->Assets);
-			}
-		}
-		std::erase_if(this->Enemies, [](const Enemy& enemy) { return (enemy.Health <= 0); });
-
-
-		for (auto &projectile : this->Projectiles)
-		{
-			if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
-			{
-				projectile.Update(this->PlayerInstance->Centre);
-
-				if (projectile.Type != ProjectileType::Circle)
-					Game::LoopOverMap(projectile.Rect);
-				
-				Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData);
-			}
-			else if (projectile.Killable)
-				projectile.Kill = true;
-		}
-		std::erase_if(this->Projectiles, [](const Projectile& proj){ return proj.Kill; });
-
-
-		bool has_magnetism = this->GlobalData->Effects.count(Effect::Magnetism);
-
-		for (auto &xp : this->Xps)
-		{
-			if (CheckCollisionRecs(this->PlayerInstance->Rect, xp.Rect) || has_magnetism)
-			{
-				this->CollectedXp += xp.Value;
-				xp.Kill = true;
-			}
-		}
-		std::erase_if(this->Xps, [](const Xp& xp) { return xp.Kill; });
 
 		this->Accumulator -= TICK_TIME;
 		this->GlobalData->Ticks++;
 	} 
 }
+
+void Game::UpdateEnemies()
+{
+	if ((this->GlobalData->Ticks - this->LastSpawn >= this->SpawnTimeout) || this->Enemies.size() == 0)
+	{
+		Game::SpawnEnemies();
+		this->LastSpawn = this->GlobalData->Ticks;
+	}
+
+	bool has_greenbull = this->GlobalData->Effects.count(Effect::Greenbull);
+
+	for (auto &enemy : this->Enemies)
+	{
+		if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
+		{
+			enemy.Update(this->PlayerInstance->Rect, this->GlobalData->Ticks);
+			Game::LoopOverMap(enemy.Rect);
+			
+			if (!has_greenbull)
+				Collisions::LeAttack(*(this->PlayerInstance), enemy, *this->GlobalData);
+		}
+
+		if (enemy.Health <= 0)
+		{
+			unsigned int value = EnemyXpValues.at(enemy.Type);
+			this->Xps.emplace_back(enemy.Rect.x, enemy.Rect.y, value, *this->Assets);
+		}
+	}
+	std::erase_if(this->Enemies, [](const Enemy& enemy) { return (enemy.Health <= 0); });
+}
+
+void Game::UpdateProjectiles()
+{
+	unsigned int damage_done = 0;
+	for (auto &projectile : this->Projectiles)
+	{
+		if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
+		{
+			projectile.Update(this->PlayerInstance->Centre);
+
+			if (projectile.Type != ProjectileType::Circle)
+				Game::LoopOverMap(projectile.Rect);
+			
+			damage_done += Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData);
+		}
+		else if (projectile.Killable)
+			projectile.Kill = true;
+	}
+	std::erase_if(this->Projectiles, [](const Projectile& proj){ return proj.Kill; });
+
+	if (this->GlobalData->Effects.count(Effect::LifeSteal))
+		this->PlayerInstance->IncreaseHealth(damage_done * this->GlobalData->Attributes.at(Attribute::LifeStealMultiplier));
+}
+
+void Game::UpdateXps()
+{
+	bool has_magnetism = this->GlobalData->Effects.count(Effect::Magnetism);
+
+	for (auto &xp : this->Xps)
+	{
+		if (CheckCollisionRecs(this->PlayerInstance->Rect, xp.Rect) || has_magnetism)
+		{
+			this->CollectedXp += xp.Value;
+			xp.Kill = true;
+		}
+	}
+	std::erase_if(this->Xps, [](const Xp& xp) { return xp.Kill; });
+}
+
+
 
 void Game::HandleEssentialInput()
 {
@@ -242,14 +308,16 @@ void Game::HandleTickedInput()
 	if (this->PlayerInstance->Direction.x != 0.0f && this->PlayerInstance->Direction.y != 0.0f)
 		this->PlayerInstance->Direction = Vector2Normalize(this->PlayerInstance->Direction);
 
-	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && this->CanLMB)
+	int auto_click = this->GlobalData->Settings.at(Setting::AutoClick);
+
+	if ((IsMouseButtonDown(MOUSE_BUTTON_LEFT) || auto_click) && this->CanLMB)
 	{
 		Game::HandleLeftClick();
 		this->CanLMB = false;
 		this->LastLMB = this->GlobalData->Ticks;
 	}
 	
-	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && this->CanRMB)
+	if ((IsMouseButtonDown(MOUSE_BUTTON_RIGHT) || auto_click) && this->CanRMB)
 	{
 		Game::HandleRightClick();
 		this->CanRMB = false;

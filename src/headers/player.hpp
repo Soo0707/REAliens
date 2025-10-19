@@ -14,8 +14,11 @@ class Player
 		void Update(size_t ticks);
 		void Animate(size_t ticks);
 		void Draw() const;
+
+		void IncreaseHealth(float addition);
 		
 		float Health = 100;
+		float HealthMax = 100;
 
 		Vector2 Direction = { 0.0f, 0.0f };
 		Rectangle Rect;

@@ -6,9 +6,10 @@
 
 #include "constants.hpp"
 
-void Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, GlobalDataWrapper& global_data)
+unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, GlobalDataWrapper& global_data)
 {
 	float damage;
+	unsigned int damage_done;
 
 	switch (proj.Type)
 	{
@@ -34,8 +35,12 @@ void Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemi
 			
 			if (proj.Type == ProjectileType::Bullet)
 				proj.Kill = true;
+
+			if (global_data.Effects.count(Effect::LifeSteal))
+				damage_done += damage;
 		}
 	}
+	return damage_done;
 }
 
 void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& global_data)

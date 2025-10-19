@@ -24,7 +24,8 @@ class Game
 	private:
 		void SpawnEnemies();
 		void LoopOverMap(Rectangle& m_obj);
-		
+
+		void DrawOverlay();
 
 		void HandleEvents();
 
@@ -34,6 +35,9 @@ class Game
 		void EventPoisonTick(size_t expiry, std::unordered_map<Event, size_t>& new_events_map);
 		bool HandleEventExpiry(Event event, Effect effect, size_t expiry, std::unordered_map<Event, size_t>& new_events_map);
 
+		void UpdateEnemies();
+		void UpdateProjectiles();
+		void UpdateXps();
 
 		void HandleEssentialInput();
 

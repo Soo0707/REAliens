@@ -53,7 +53,7 @@ class PowerupMenu
 		void ApplyBuckshot();
 		void ApplyProjectile();
 		void ApplyLazer();
-
+		void ApplyLifeSteal();
 
 		std::shared_ptr<GlobalDataWrapper> GlobalData;
 		std::vector<PowerupWrapper> SelectionList;

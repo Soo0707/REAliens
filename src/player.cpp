@@ -75,3 +75,11 @@ void Player::Move()
 	this->Aura.x = this->Rect.x - this->Aura.width / 2.0f;
 	this->Aura.y = this->Rect.y - this->Aura.height / 2.0f;
 }
+
+void Player::IncreaseHealth(float addition)
+{
+	if (this->Health + addition <= this->HealthMax)
+		this->Health += addition;
+	else
+		this->Health = this->HealthMax;
+}

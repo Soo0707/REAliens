@@ -29,7 +29,9 @@ enum class Attribute
 
 	AuraSize,
 	AuraCooldown,
-	AuraDamage
+	AuraDamage,
+
+	LifeStealMultiplier
 };
 
 enum class Event
@@ -80,7 +82,8 @@ enum class Effect
 
 enum class Setting
 {
-	ShowPowerupMenuOnLevelUp
+	ShowPowerupMenuOnLevelUp,
+	AutoClick
 };
 
 class GlobalDataWrapper
@@ -114,7 +117,8 @@ class GlobalDataWrapper
 
 		std::unordered_map<Setting, int> Settings =
 		{
-			{ Setting::ShowPowerupMenuOnLevelUp, 1 }
+			{ Setting::ShowPowerupMenuOnLevelUp, 1 },
+			{ Setting::AutoClick, 0 }
 		};
 
 		State ActiveState = State::Game;

@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <set>
-#include <iostream>
 #include "raylib.h"
 
 #include "globalDataWrapper.hpp"
@@ -114,6 +113,7 @@ void PowerupMenu::ApplyPowerup(Powerup powerup)
 			break;
 
 		case Powerup::LifeSteal:
+			PowerupMenu::ApplyLifeSteal();
 			break;
 		case Powerup::Regeneration:
 			break;
@@ -229,4 +229,15 @@ void PowerupMenu::ApplyLazer()
 	this->GlobalData->Attributes[Attribute::LazerDamage] += 10;
 	this->GlobalData->Attributes[Attribute::LazerScale] += 0.5;
 	this->GlobalData->Attributes[Attribute::LazerSpeed] += 10;
+}
+
+void PowerupMenu::ApplyLifeSteal()
+{
+	if (this->GlobalData->Effects.count(Effect::LifeSteal))
+	{
+		this->GlobalData->Attributes[Attribute::LifeStealMultiplier] = 0.1;
+		this->GlobalData->Effects.insert(Effect::LifeSteal);
+	}
+	else
+		this->GlobalData->Attributes[Attribute::LifeStealMultiplier] += 0.2;
 }
