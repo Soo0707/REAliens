@@ -1,13 +1,16 @@
+#include "game.hpp"
+
+
 #include <memory>
 #include <algorithm>
 #include <array>
-#include <iostream>
+#include <vector>
 
 #include "raylib.h"
 #include "raymath.h"
 
 #include "globalDataWrapper.hpp"
-#include "game.hpp"
+#include "gameEventHandlers.hpp"
 #include "constants.hpp"
 
 #include "player.hpp"
@@ -17,6 +20,7 @@
 #include "enemy.hpp"
 #include "enemyData.hpp"
 #include "xp.hpp"
+
 
 Game::Game(std::shared_ptr<GlobalDataWrapper> global_data) :
 	GlobalData(global_data)
@@ -81,7 +85,7 @@ void Game::Draw()
 		if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
 			enemy.Draw();
 	}
-
+	
 	for (auto const &projectile : this->Projectiles)
 	{
 		if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
@@ -99,6 +103,9 @@ void Game::DrawOverlay()
 {
 	static constexpr Rectangle xp_background = { 100, 680, 1080, 15 };
 	static constexpr Rectangle health_background = { 1060, 20, 200, 10 };
+
+	static constexpr Rectangle magnetism_half_1 = { 1185, 40, 7.5, 15 };
+	static constexpr Rectangle magnetism_half_2 = { 1192.5, 40, 7.5, 15 };
 
 	static constexpr Rectangle greenbull_square = { 1205, 40, 15, 15 };
 	static constexpr Rectangle milk_square = { 1225, 40, 15, 15 };
@@ -128,7 +135,7 @@ void Game::DrawOverlay()
 	DrawRectangleRec(health_bar, (is_poisoned) ? VIOLET : GREEN);
 
 	DrawRectangleRec(xp_background, BLACK);
-	DrawRectangleRec(xp_bar, LIME);
+	DrawRectangleRec(xp_bar, (Color) { 0, 243, 255, 255 });
 
 	if (this->GlobalData->Effects.count(Effect::Greenbull))
 		DrawRectangleRec(greenbull_square, GREEN);
@@ -138,13 +145,17 @@ void Game::DrawOverlay()
 	
 	if (this->GlobalData->Effects.count(Effect::Drunk))
 		DrawRectangleRec(drunk_square, YELLOW);
+
+	if (this->GlobalData->Effects.count(Effect::Magnetism))
+	{
+		DrawRectangleRec(magnetism_half_1, DARKBLUE);
+		DrawRectangleRec(magnetism_half_2, RED);
+	}
 }
 
 
 void Game::Update()
 {
-	Game::HandleEssentialInput();
-
 	this->Accumulator += GetFrameTime();
 
 	if (this->Accumulator >= MAX_TICK_TIME)
@@ -153,10 +164,10 @@ void Game::Update()
 	while (this->Accumulator >= TICK_TIME)
 	{
 		size_t ticks = this->GlobalData->Ticks;
-		/*
-		if (this->PlayerInstance->Health <= 0)
+		
+		if (this->PlayerInstance->Health <= 0 && !this->GlobalData->Settings.at(Setting::DisableHealthCheck))
 			this->GlobalData->ActiveState = State::GameOverMenu;
-		*/
+		
 		if (ticks - this->LastLMB >= this->GlobalData->Attributes[Attribute::BulletCooldown])
 			this->CanLMB = true;
 
@@ -177,23 +188,22 @@ void Game::Update()
 		}
 
 		Game::HandleTickedInput();
-		Game::HandleEvents();
+		GameEventHandler::HandleEvents(*this);
 
 		this->PlayerInstance->Update(ticks);
-		
 		Game::LoopOverMap(this->PlayerInstance->Rect);
-	
+
 
 		this->UpdateArea.x = this->PlayerInstance->Centre.x - GetScreenWidth() / 2.0f;
 		this->UpdateArea.y =  this->PlayerInstance->Centre.y - GetScreenHeight() / 2.0f;
 		
-
 		this->Camera.target = this->PlayerInstance->Centre;
 
 		if (this->GlobalData->Effects.count(Effect::Aussie))
 			this->Camera.rotation = 180.0f;
 		else
 			this->Camera.rotation = 0.0f;
+
 
 		Game::UpdateEnemies();
 		Game::UpdateProjectiles();
@@ -255,7 +265,7 @@ void Game::UpdateProjectiles()
 	std::erase_if(this->Projectiles, [](const Projectile& proj){ return proj.Kill; });
 
 	if (this->GlobalData->Effects.count(Effect::LifeSteal))
-		this->PlayerInstance->IncreaseHealth(damage_done * this->GlobalData->Attributes.at(Attribute::LifeStealMultiplier));
+		this->PlayerInstance->IncreaseHealth( damage_done * this->GlobalData->Attributes.at(Attribute::LifeStealMultiplier) );
 }
 
 void Game::UpdateXps()
@@ -308,7 +318,7 @@ void Game::HandleTickedInput()
 	if (this->PlayerInstance->Direction.x != 0.0f && this->PlayerInstance->Direction.y != 0.0f)
 		this->PlayerInstance->Direction = Vector2Normalize(this->PlayerInstance->Direction);
 
-	int auto_click = this->GlobalData->Settings.at(Setting::AutoClick);
+	bool auto_click = this->GlobalData->Settings.at(Setting::AutoClick);
 
 	if ((IsMouseButtonDown(MOUSE_BUTTON_LEFT) || auto_click) && this->CanLMB)
 	{
@@ -364,7 +374,7 @@ void Game::SpawnEnemies()
 {
 	std::vector<Vector2> rand_nums;
 
-	for (int i = 0; i < this->GlobalData->Level * 5; i++)
+	for (size_t i = 0; i < this->GlobalData->Level * 5; i++)
 	{
 		rand_nums.emplace_back(
 				(Vector2) {
@@ -404,152 +414,4 @@ void Game::LoopOverMap(Rectangle& m_obj)
 		m_obj.y = map_height - m_obj.height;
 	else if (m_obj.y > map_height)
 		m_obj.y = 0;
-}
-
-
-
-void Game::HandleEvents()
-{
-	size_t ticks = this->GlobalData->Ticks;
-
-	std::unordered_map<Event, size_t> new_events_map;
-
-	for (auto &pair : this->GlobalData->Events)
-	{
-		switch (pair.first)
-		{
-			case Event::UpgradeCircle:
-				Game::EventUpgradeCircle();
-				break;
-
-			case Event::SpawnCircle:
-				Game::EventSpawnCircle();
-				break;
-
-			case Event::GreenbullExpire:
-				Game::HandleEventExpiry(Event::GreenbullExpire, Effect::Greenbull, pair.second, new_events_map);
-				break;
-
-			case Event::MilkExpire:
-				Game::HandleEventExpiry(Event::MilkExpire, Effect::Milk, pair.second, new_events_map);
-				break;
-
-			case Event::DrunkExpire:
-				Game::HandleEventExpiry(Event::DrunkExpire, Effect::Drunk, pair.second, new_events_map);
-				break;
-
-			case Event::AussieExpire:
-				Game::HandleEventExpiry(Event::AussieExpire, Effect::Aussie, pair.second, new_events_map);
-				break;
-
-			case Event::MagnetismExpire:
-				Game::HandleEventExpiry(Event::MagnetismExpire, Effect::Magnetism, pair.second, new_events_map);
-				break;
-			
-			case Event::PoisonExpire:
-				if (Game::HandleEventExpiry(Event::PoisonExpire, Effect::Poison, pair.second, new_events_map))
-				{
-					/*
-					 we cannot delete they key immediately as we might not have iterated through poison tick
-					 which needs this. so we just don't copy PoisonExpire into the new map,
-					 then signal using -1 saying so that PoisonTick can handle PoisonDamage's deletion
-					*/
-					this->GlobalData->Attributes[Attribute::PoisonDamage] = -1.0f;
-				}
-				break;
-
-			case Event::PoisonTick:
-				Game::EventPoisonTick(pair.second, new_events_map);
-				break;
-
-			case Event::IncreasePlayerSpeed:
-				this->PlayerInstance->Speed *= 1.2;
-				break;
-			case Event::IncreaseAura:
-				this->PlayerInstance->Aura.width = this->GlobalData->Attributes.at(Attribute::AuraSize);
-				this->PlayerInstance->Aura.height = this->GlobalData->Attributes.at(Attribute::AuraSize);
-				break;
-			case Event::AuraTick:
-				Game::EventAuraTick(pair.second, new_events_map);
-				break;
-		}
-	}
-	this->GlobalData->Events.swap(new_events_map);
-}
-
-void Game::EventUpgradeCircle()
-{
-	for (auto &proj : this->Projectiles)
-	{
-		if (proj.Type == ProjectileType::Circle)
-		{
-
-			proj.Scale = this->GlobalData->Attributes.at(Attribute::CircleScale);
-			proj.Speed = this->GlobalData->Attributes.at(Attribute::CircleAngularSpeed);
-			proj.Rotation = this->GlobalData->Attributes.at(Attribute::CircleAngularSpeed) * TO_DEG;
-			proj.Radius = this->GlobalData->Attributes.at(Attribute::CircleRadius);
-		}
-	}
-}
-
-void Game::EventSpawnCircle()
-{
-	this->Projectiles.emplace_back(
-			this->PlayerInstance->Centre.x,
-			this->PlayerInstance->Centre.y,
-			(Vector2) { 0, 0 },
-			ProjectileType::Circle,
-			*this->GlobalData,
-			*this->Assets
-			);
-}
-
-bool Game::HandleEventExpiry(Event event, Effect effect, size_t expiry, std::unordered_map<Event, size_t>& new_events_map)
-{
-	if (expiry >= this->GlobalData->Ticks)
-	{
-		new_events_map[event] = expiry;
-		return false;
-	}
-	else
-	{
-		this->GlobalData->Effects.erase(effect);
-		return true;
-	}
-}
-
-void Game::EventAuraTick(size_t next_tick, std::unordered_map<Event, size_t>& new_events_map)
-{
-	if (next_tick >= this->GlobalData->Ticks)
-		new_events_map[Event::AuraTick] = next_tick;
-	else
-	{
-		float damage;
-
-		damage = this->GlobalData->Attributes.at(Attribute::AuraDamage);
-
-		for (auto &enemy : this->Enemies)
-			Collisions::Aura(damage, this->GlobalData->Ticks, this->PlayerInstance->Aura, enemy);
-
-		new_events_map[Event::AuraTick] = this->GlobalData->Ticks + this->GlobalData->Attributes.at(Attribute::AuraCooldown);
-	}
-}
-
-void Game::EventPoisonTick(size_t next_tick, std::unordered_map<Event, size_t>& new_events_map)
-{
-	if (next_tick >= this->GlobalData->Ticks)
-		new_events_map[Event::PoisonTick] = next_tick;
-	else
-	{
-		// damage may be -1 if poison expired, destruction of PoisonDamage and PoisonTick both happen here
-		float damage = this->GlobalData->Attributes.at(Attribute::PoisonDamage);
-
-		if (damage > 0)
-		{
-			this->PlayerInstance->Health -= damage;
-			new_events_map[Event::PoisonTick] = next_tick + SECONDS_TO_TICKS(1);
-		}
-		else
-			this->GlobalData->Attributes.erase(Attribute::PoisonDamage);
-	}
 }

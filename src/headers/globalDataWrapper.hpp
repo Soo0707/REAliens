@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <cstddef>
-#include <mutex>
 
 enum class Attribute
 {
@@ -49,6 +48,7 @@ enum class Event
 	MagnetismExpire,
 
 	IncreasePlayerSpeed,
+	IncreasePlotArmour,
 
 	IncreaseAura,
 	AuraTick
@@ -70,20 +70,21 @@ enum class Effect
 	Milk,
 
 	LifeSteal,
-	Regeneration,
 	Magnetism,
 
 	Trapped,
 	Poison,
 	Drunk,
 
-	Aussie
+	Aussie,
+	Stinky
 };
 
 enum class Setting
 {
 	ShowPowerupMenuOnLevelUp,
-	AutoClick
+	AutoClick,
+	DisableHealthCheck
 };
 
 class GlobalDataWrapper
@@ -94,7 +95,6 @@ class GlobalDataWrapper
 		GlobalDataWrapper(const GlobalDataWrapper&) = delete;
 		GlobalDataWrapper& operator=(const GlobalDataWrapper&) = delete;
 
-		std::mutex AttributesMutex;
 		std::unordered_map<Attribute, float> Attributes = 
 		{
 			{ Attribute::BulletCooldown, 150 },
@@ -109,16 +109,15 @@ class GlobalDataWrapper
 			{ Attribute::LazerSpeed, 3000.0f }		
 		};
 
-		std::mutex EventsMutex;
 		std::unordered_map<Event, size_t> Events;
 
-		std::mutex EffectsMutex;
 		std::unordered_set<Effect> Effects;
 
 		std::unordered_map<Setting, int> Settings =
 		{
 			{ Setting::ShowPowerupMenuOnLevelUp, 1 },
-			{ Setting::AutoClick, 0 }
+			{ Setting::AutoClick, 0 },
+			{ Setting::DisableHealthCheck, 1 }
 		};
 
 		State ActiveState = State::Game;

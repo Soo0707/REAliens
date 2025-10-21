@@ -11,6 +11,7 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  src/xp.cpp\
  src/gameOverMenu.cpp\
  src/pauseMenu.cpp\
+ src/gameEventHandlers.cpp\
  -o /mnt/tmpfs/out.exe\
  -O3\
  -std=c++20\
@@ -22,6 +23,9 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  -lgdi32\
  -lwinmm\
  -static
+#-Wall
+#-Wextra\
+#-Wpedantic
 
 #-mwindows\
 

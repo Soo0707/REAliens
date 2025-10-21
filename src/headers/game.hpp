@@ -18,33 +18,10 @@ class Game
 	public:
 		Game(std::shared_ptr<GlobalDataWrapper> global_data);
 		~Game();
-		void Draw();
-		void Update();
-
-	private:
-		void SpawnEnemies();
-		void LoopOverMap(Rectangle& m_obj);
-
-		void DrawOverlay();
-
-		void HandleEvents();
-
-		void EventSpawnCircle();
-		void EventUpgradeCircle();
-		void EventAuraTick(size_t next_tick, std::unordered_map<Event, size_t>& new_events_map);
-		void EventPoisonTick(size_t expiry, std::unordered_map<Event, size_t>& new_events_map);
-		bool HandleEventExpiry(Event event, Effect effect, size_t expiry, std::unordered_map<Event, size_t>& new_events_map);
-
-		void UpdateEnemies();
-		void UpdateProjectiles();
-		void UpdateXps();
 
 		void HandleEssentialInput();
-
-		void HandleTickedInput();
-		void HandleLeftClick();
-		void HandleRightClick();
-
+		void Draw();
+		void Update();
 
 		std::shared_ptr<AssetManager> Assets;
 		std::shared_ptr<GlobalDataWrapper> GlobalData;
@@ -58,6 +35,20 @@ class Game
 
 		std::unique_ptr<Player> PlayerInstance;
 
+	private:
+		void SpawnEnemies();
+		void LoopOverMap(Rectangle& m_obj);
+
+		void DrawOverlay();
+
+
+		void UpdateEnemies();
+		void UpdateProjectiles();
+		void UpdateXps();
+
+		void HandleTickedInput();
+		void HandleLeftClick();
+		void HandleRightClick();
 
 		size_t LastLMB = 0;
 		bool CanLMB = true;

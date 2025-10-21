@@ -15,12 +15,15 @@ enum class Powerup
 	Aura,
 	Buckshot,
 	Projectile,
+
 	Circle,
 	Lazer,
 	Greenbull,
+
 	Milk,
 	LifeSteal,
-	Regeneration,
+	PlotArmour,
+
 	Magnetism,
 	SpeedBoots,
 	COUNT
@@ -68,7 +71,7 @@ class PowerupMenu
 			{ Powerup::Greenbull, "Greenbull" },
 			{ Powerup::Milk, "Milk" },
 			{ Powerup::LifeSteal, "Life Steal" },
-			{ Powerup::Regeneration, "Regeneration" },
+			{ Powerup::PlotArmour, "Plot Armour" },
 			{ Powerup::Magnetism, "Magnetism" },
 			{ Powerup::SpeedBoots, "Speed Boots"}
 		};

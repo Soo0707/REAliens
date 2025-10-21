@@ -9,7 +9,7 @@
 unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, GlobalDataWrapper& global_data)
 {
 	float damage;
-	unsigned int damage_done;
+	unsigned int damage_done = 0;
 
 	switch (proj.Type)
 	{
@@ -71,7 +71,7 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 					break;
 				case EnemyType::Drunkard:
 					global_data.Effects.insert(Effect::Drunk);
-					global_data.Events[Event::DrunkExpire] = global_data.Ticks + SECONDS_TO_TICKS(5);
+					global_data.Events[Event::DrunkExpire] = global_data.Ticks + SECONDS_TO_TICKS(1);
 					break;
 			}
 		}
@@ -82,9 +82,13 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 }
 
 
-void Collisions::Aura(const float damage, const size_t ticks, Rectangle& aura, Enemy& enemy)
+bool Collisions::Aura(const float damage, const size_t ticks, Rectangle& aura, Enemy& enemy)
 {
 	if (CheckCollisionRecs(aura, enemy.Rect))
+	{
 		enemy.Health -= damage;
 		enemy.FlashSprite(ticks);
+		return true;
+	}
+	return false;
 }

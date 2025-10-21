@@ -115,7 +115,8 @@ void PowerupMenu::ApplyPowerup(Powerup powerup)
 		case Powerup::LifeSteal:
 			PowerupMenu::ApplyLifeSteal();
 			break;
-		case Powerup::Regeneration:
+		case Powerup::PlotArmour:
+			this->GlobalData->Events[Event::IncreasePlotArmour] = 0;
 			break;
 		case Powerup::SpeedBoots:
 			this->GlobalData->Events[Event::IncreasePlayerSpeed] = 0;
@@ -157,16 +158,18 @@ void PowerupMenu::ApplyAura()
 {
 	if (this->GlobalData->Attributes.count(Attribute::AuraSize))
 	{
-		this->GlobalData->Attributes[Attribute::AuraSize] += 100;
-		this->GlobalData->Attributes[Attribute::AuraDamage] += 2;
+		this->GlobalData->Attributes[Attribute::AuraSize] += 50;
+		this->GlobalData->Attributes[Attribute::AuraDamage] += 5;
 
-		if (this->GlobalData->Attributes[Attribute::AuraCooldown] - 50 >= 0)
-			this->GlobalData->Attributes[Attribute::AuraCooldown] -= 50;
+		if (this->GlobalData->Attributes[Attribute::AuraCooldown] - 25 > 0)
+			this->GlobalData->Attributes[Attribute::AuraCooldown] -= 25;
+		else
+			this->GlobalData->Attributes[Attribute::AuraCooldown] = 0;
 	}
 	else
 	{
 		this->GlobalData->Attributes[Attribute::AuraSize] = 25;
-		this->GlobalData->Attributes[Attribute::AuraDamage] = 2;
+		this->GlobalData->Attributes[Attribute::AuraDamage] = 5;
 		this->GlobalData->Attributes[Attribute::AuraCooldown] = SECONDS_TO_TICKS(2);
 	}
 
@@ -210,21 +213,21 @@ void PowerupMenu::ApplyBuckshot()
 
 void PowerupMenu::ApplyProjectile()
 {
-	if (this->GlobalData->Attributes[Attribute::BulletCooldown] - 5 >= 0)
-		this->GlobalData->Attributes[Attribute::BulletCooldown] = 10;
+	if (this->GlobalData->Attributes[Attribute::BulletCooldown] - 5 > 0)
+		this->GlobalData->Attributes[Attribute::BulletCooldown] -= 5;
 	else
-		this->GlobalData->Attributes[Attribute::BulletCooldown] = 10;
+		this->GlobalData->Attributes[Attribute::BulletCooldown] = 0;
 
 	this->GlobalData->Attributes[Attribute::BulletDamage] += 5;
-	this->GlobalData->Attributes[Attribute::BulletSpeed] += 5;
+	this->GlobalData->Attributes[Attribute::BulletSpeed] += 100;
 }
 
 void PowerupMenu::ApplyLazer()
 {
-	if (this->GlobalData->Attributes[Attribute::LazerCooldown] - 10 >= 0)
+	if (this->GlobalData->Attributes[Attribute::LazerCooldown] - 10 > 0)
 		this->GlobalData->Attributes[Attribute::LazerCooldown] -= 10;
 	else
-		this->GlobalData->Attributes[Attribute::LazerCooldown] = 10;
+		this->GlobalData->Attributes[Attribute::LazerCooldown] = 0;
 
 	this->GlobalData->Attributes[Attribute::LazerDamage] += 10;
 	this->GlobalData->Attributes[Attribute::LazerScale] += 0.5;
@@ -234,10 +237,10 @@ void PowerupMenu::ApplyLazer()
 void PowerupMenu::ApplyLifeSteal()
 {
 	if (this->GlobalData->Effects.count(Effect::LifeSteal))
+		this->GlobalData->Attributes[Attribute::LifeStealMultiplier] += 0.2;
+	else
 	{
 		this->GlobalData->Attributes[Attribute::LifeStealMultiplier] = 0.1;
 		this->GlobalData->Effects.insert(Effect::LifeSteal);
 	}
-	else
-		this->GlobalData->Attributes[Attribute::LifeStealMultiplier] += 0.2;
 }

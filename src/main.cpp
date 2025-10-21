@@ -7,12 +7,13 @@
 #include "pauseMenu.hpp"
 #include "constants.hpp"
 
+
 int main(void)
 {
-	int current_monitor = GetCurrentMonitor();
-	unsigned int max_refresh_rate = GetMonitorRefreshRate(current_monitor);
-
 	InitWindow(REFERENCE_WIDTH, REFERENCE_HEIGHT, "RE::Aliens");
+
+	unsigned int max_refresh_rate = 2 * GetMonitorRefreshRate(GetCurrentMonitor());
+	SetTargetFPS(max_refresh_rate);
 
 	SetExitKey(KEY_NULL);
 
@@ -36,6 +37,7 @@ int main(void)
 		switch (global_data->ActiveState)
 		{
 			case State::Game:
+				game.HandleEssentialInput();
 				game.Update();
 
 				BeginDrawing();

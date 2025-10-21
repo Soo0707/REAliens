@@ -27,6 +27,9 @@ Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, Ene
 		TEXTURE_TILE_SIZE,
 		TEXTURE_TILE_SIZE
 	};
+
+	if (type == EnemyType::Trapper)
+		this->Modifier = BehaviourModifier::NoMovement;
 }
 
 Enemy::~Enemy()
