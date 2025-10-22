@@ -9,7 +9,7 @@ class GameOverMenu
 	public:
 		GameOverMenu(std::shared_ptr<GlobalDataWrapper> global_data);
 		~GameOverMenu();
-		void Draw();
+		void Draw(RenderTexture2D& canvas);
 		void HandleInput();
 
 	private:

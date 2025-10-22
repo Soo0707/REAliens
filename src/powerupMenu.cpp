@@ -16,24 +16,28 @@ PowerupMenu::PowerupMenu(std::shared_ptr<GlobalDataWrapper> global_data) :
 PowerupMenu::~PowerupMenu()
 {}
 
-void PowerupMenu::Draw()
+void PowerupMenu::Draw(RenderTexture2D& canvas)
 {
-	static constexpr float mid = 1280 / 2.0f;
+	static constexpr float mid = REFERENCE_WIDTH / 2.0f;
 
 	int x1 = mid - MeasureText(this->SelectionList[0].DisplayName.c_str(), 24) / 2.0f;
 	int x2 = mid - MeasureText(this->SelectionList[1].DisplayName.c_str(), 24) / 2.0f;
 	int x3 = mid - MeasureText(this->SelectionList[2].DisplayName.c_str(), 24) / 2.0f;
 
-	DrawText("Select A Powerup", 452.5, 80, 42, VIOLET);
+	BeginTextureMode(canvas);
+		ClearBackground(BLACK);
+		DrawText("Select A Powerup", 452.5, 80, 42, VIOLET);
 
-	DrawText(this->SelectionList[0].DisplayName.c_str(), x1, 260, 24, GOLD);
-	DrawText(this->SelectionList[1].DisplayName.c_str(), x2, 360, 24, GOLD);
-	DrawText(this->SelectionList[2].DisplayName.c_str(), x3, 460, 24, GOLD);
+		DrawText(this->SelectionList[0].DisplayName.c_str(), x1, 260, 24, GOLD);
+		DrawText(this->SelectionList[1].DisplayName.c_str(), x2, 360, 24, GOLD);
+		DrawText(this->SelectionList[2].DisplayName.c_str(), x3, 460, 24, GOLD);
 
-	DrawText("[TAB] Toggle Powerup Menu", 491.5, 580, 21, LIGHTGRAY);
+		DrawText("[TAB] Toggle Powerup Menu", 491.5, 580, 21, LIGHTGRAY);
 
-	DrawText("Unacquired Powerups: ", 50, 670, 21, GRAY);
-	DrawText(std::to_string(this->GlobalData->UnclaimedPowerups).c_str(), 310, 670, 21, WHITE);
+		DrawText("Unacquired Powerups: ", 50, 670, 21, GRAY);
+		DrawText(std::to_string(this->GlobalData->UnclaimedPowerups).c_str(), 310, 670, 21, WHITE);
+
+	EndTextureMode();
 	//std::cout << MeasureText("[TAB] Toggle Powerup Menu", 21) << std::endl;
 }
 

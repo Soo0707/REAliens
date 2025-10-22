@@ -1,6 +1,5 @@
 #include "game.hpp"
 
-
 #include <memory>
 #include <algorithm>
 #include <array>
@@ -27,25 +26,25 @@ Game::Game(std::shared_ptr<GlobalDataWrapper> global_data) :
 {
 	this->Assets = std::make_shared<AssetManager>();
 
-	this->PlayerInstance = std::make_unique<Player>(500, 500, *(this->Assets));
+	this->PlayerInstance = std::make_unique<Player>(500, 500, *this->Assets);
 
 	this->Camera = { 0 };
-	this->Camera.offset = { GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f };
+	this->Camera.offset = { REFERENCE_WIDTH / 2.0f, REFERENCE_HEIGHT / 2.0f };
 	this->Camera.rotation = 0.0f;
     this->Camera.zoom = 1.0f;
 	
 	this->UpdateArea = {
-		this->PlayerInstance->Centre.x - (GetScreenWidth() / 2.0f),
-		this->PlayerInstance->Centre.y - (GetScreenHeight() / 2.0f),
-		(float) GetScreenWidth(),
-		(float) GetScreenHeight()
+		this->PlayerInstance->Centre.x - (REFERENCE_WIDTH / 2.0f),
+		this->PlayerInstance->Centre.y - (REFERENCE_HEIGHT / 2.0f),
+		(float) REFERENCE_WIDTH,
+		(float) REFERENCE_HEIGHT
 	};
 }
 
 Game::~Game()
 {}
 
-void Game::Draw()
+void Game::Draw(RenderTexture2D& virtual_canvas)
 {
 	static unsigned int map_width = this->Assets->Ground.width;
 	static unsigned int map_height = this->Assets->Ground.height;
@@ -69,34 +68,40 @@ void Game::Draw()
 	
 	if (viewport.y + viewport.height > map_height)
 		viewport.height = map_height - viewport.y;
-	
-	BeginMode2D(this->Camera);
 
-	DrawTextureRec(this->Assets->Ground, viewport, (Vector2) { viewport.x, viewport.y }, WHITE);
+	BeginTextureMode(virtual_canvas);
 
-	for (auto const &xp : this->Xps)
-	{
-		if (CheckCollisionRecs(this->UpdateArea, xp.Rect))
-			xp.Draw();
-	}
-	
-	for (auto &enemy : this->Enemies)
-	{
-		if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
-			enemy.Draw();
-	}
-	
-	for (auto const &projectile : this->Projectiles)
-	{
-		if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
-			projectile.Draw();
-	}
+		ClearBackground(BLACK);
 
-	this->PlayerInstance->Draw();
+		BeginMode2D(this->Camera);
 
-	EndMode2D();
+		DrawTextureRec(this->Assets->Ground, viewport, (Vector2) { viewport.x, viewport.y }, WHITE);
 
-	Game::DrawOverlay();
+		for (auto const &xp : this->Xps)
+		{
+			if (CheckCollisionRecs(this->UpdateArea, xp.Rect))
+				xp.Draw();
+		}
+		
+		for (auto &enemy : this->Enemies)
+		{
+			if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
+				enemy.Draw();
+		}
+		
+		for (auto const &projectile : this->Projectiles)
+		{
+			if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
+				projectile.Draw();
+		}
+
+		this->PlayerInstance->Draw();
+
+		EndMode2D();
+
+		Game::DrawOverlay();
+
+	EndTextureMode();
 }
 
 void Game::DrawOverlay()
@@ -151,6 +156,8 @@ void Game::DrawOverlay()
 		DrawRectangleRec(magnetism_half_1, DARKBLUE);
 		DrawRectangleRec(magnetism_half_2, RED);
 	}
+
+	DrawFPS(20,20);
 }
 
 
@@ -194,8 +201,8 @@ void Game::Update()
 		Game::LoopOverMap(this->PlayerInstance->Rect);
 
 
-		this->UpdateArea.x = this->PlayerInstance->Centre.x - GetScreenWidth() / 2.0f;
-		this->UpdateArea.y =  this->PlayerInstance->Centre.y - GetScreenHeight() / 2.0f;
+		this->UpdateArea.x = this->PlayerInstance->Centre.x - REFERENCE_WIDTH / 2.0f;
+		this->UpdateArea.y =  this->PlayerInstance->Centre.y - REFERENCE_HEIGHT / 2.0f;
 		
 		this->Camera.target = this->PlayerInstance->Centre;
 

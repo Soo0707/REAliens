@@ -40,7 +40,7 @@ class PowerupMenu
 	public:
 		PowerupMenu(std::shared_ptr<GlobalDataWrapper> global_data);
 		~PowerupMenu();
-		void Draw();
+		void Draw(RenderTexture2D& canvas);
 		void HandleInput();
 
 		std::string UnacquiredPowerupCache;

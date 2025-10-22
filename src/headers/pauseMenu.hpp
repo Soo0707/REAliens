@@ -9,7 +9,7 @@ class PauseMenu
 	public:
 		PauseMenu(std::shared_ptr<GlobalDataWrapper> global_data);
 		~PauseMenu();
-		void Draw();
+		void Draw(RenderTexture2D& canvas);
 		void HandleInput();
 
 	private:

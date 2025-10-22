@@ -20,7 +20,7 @@ class Game
 		~Game();
 
 		void HandleEssentialInput();
-		void Draw();
+		void Draw(RenderTexture2D& virtual_canvas);
 		void Update();
 
 		std::shared_ptr<AssetManager> Assets;
