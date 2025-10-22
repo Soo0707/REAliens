@@ -10,16 +10,16 @@
 
 int main(void)
 {
-	SetConfigFlags(FLAG_FULLSCREEN_MODE);
+	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 
-	InitWindow(GetScreenWidth(), GetScreenHeight(), "RE::Aliens");
+	InitWindow(REFERENCE_WIDTH, REFERENCE_HEIGHT, "RE::Aliens");
 
 	RenderTexture2D virtual_canvas = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
 	SetTextureFilter(virtual_canvas.texture, TEXTURE_FILTER_POINT);
 
 	SetWindowMinSize(REFERENCE_WIDTH, REFERENCE_HEIGHT);
 
-	unsigned int max_refresh_rate = 2 * GetMonitorRefreshRate(GetCurrentMonitor());
+	unsigned int max_refresh_rate = 4 * GetMonitorRefreshRate(GetCurrentMonitor());
 	SetTargetFPS(max_refresh_rate);
 
 	SetExitKey(KEY_NULL);
@@ -35,8 +35,6 @@ int main(void)
 
 	while (!WindowShouldClose() && global_data->Running)
 	{
-		Vector2 scale_factors = { GetScreenWidth() / REFERENCE_WIDTH, GetScreenHeight() / REFERENCE_HEIGHT };
-
 		if (global_data->ActiveState != prev_state)
 		{
 			(global_data->ActiveState == State::Game) ? ( SetTargetFPS(max_refresh_rate) ) : ( SetTargetFPS(15) );
@@ -56,12 +54,10 @@ int main(void)
 				break;
 			case State::GameOverMenu:
 				game_over.HandleInput();
-
 				game_over.Draw(virtual_canvas);
 				break;
 			case State::PauseMenu:
 				pause.HandleInput();
-
 				pause.Draw(virtual_canvas);
 				break;
 		}
@@ -76,8 +72,8 @@ int main(void)
 					(Rectangle) {
 						0,
 						0,
-						GetScreenWidth(),
-						GetScreenHeight()
+						static_cast<float>(GetScreenWidth()),
+						static_cast<float>(GetScreenHeight())
 						},
 					(Vector2) { 0, 0 },
 					0.0f,

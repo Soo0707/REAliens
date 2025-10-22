@@ -156,8 +156,6 @@ void Game::DrawOverlay()
 		DrawRectangleRec(magnetism_half_1, DARKBLUE);
 		DrawRectangleRec(magnetism_half_2, RED);
 	}
-
-	DrawFPS(20,20);
 }
 
 
@@ -344,9 +342,14 @@ void Game::HandleTickedInput()
 
 void Game::HandleLeftClick()
 {
-	Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), this->Camera);
+	Vector2 scale_factors = { static_cast<float>(GetScreenWidth()) / REFERENCE_WIDTH, static_cast<float>(GetScreenHeight()) / REFERENCE_HEIGHT };
+
+	Vector2 scaled_mouse_pos = { GetMouseX() / scale_factors.x, GetMouseY() / scale_factors.y };
+
+	Vector2 mouse_pos = GetScreenToWorld2D(scaled_mouse_pos, this->Camera);
 
 	Vector2 centre_direction = Vector2Subtract(mouse_pos, this->PlayerInstance->Centre);
+
 	Vector2 player_centre = this->PlayerInstance->Centre;
 
 	float spread_angle = this->GlobalData->Attributes[Attribute::BuckshotSpread];
