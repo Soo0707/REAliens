@@ -19,10 +19,10 @@ enum class Attribute
 	LazerScale,
 	LazerSpeed,
 
-	CircleDamage,
-	CircleScale,
-	CircleAngularSpeed,
-	CircleRadius,
+	BallDamage,
+	BallScale,
+	BallAngularSpeed,
+	BallRadius,
 
 	PoisonDamage,
 
@@ -35,8 +35,7 @@ enum class Attribute
 
 enum class Event
 {
-	UpgradeCircle,
-	SpawnCircle,
+	SpawnAndUpgradeBall,
 	GreenbullExpire,
 	MilkExpire,
 
@@ -115,7 +114,7 @@ class GlobalDataWrapper
 
 		std::unordered_map<Setting, int> Settings =
 		{
-			{ Setting::ShowPowerupMenuOnLevelUp, 1 },
+			{ Setting::ShowPowerupMenuOnLevelUp, 0 },
 			{ Setting::AutoClick, 0 },
 			{ Setting::DisableHealthCheck, 1 }
 		};
@@ -125,7 +124,7 @@ class GlobalDataWrapper
 		size_t Ticks = 0;
 		
 		size_t Level = 1;
-		size_t LevelUpTreshold = 2;
+		size_t LevelUpTreshold = 5;
 
 		unsigned int UnclaimedPowerups = 0;
 

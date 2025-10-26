@@ -4,6 +4,7 @@
 #include "collisions.hpp"
 #include "game.hpp"
 
+
 void GameEventHandler::HandleEvents(Game& game)
 {
 	std::unordered_map<Event, size_t> new_events_map;
@@ -12,12 +13,8 @@ void GameEventHandler::HandleEvents(Game& game)
 	{
 		switch (pair.first)
 		{
-			case Event::UpgradeCircle:
-				GameEventHandler::UpgradeCircle(game);
-				break;
-
-			case Event::SpawnCircle:
-				GameEventHandler::SpawnCircle(game);
+			case Event::SpawnAndUpgradeBall:
+				GameEventHandler::SpawnAndUpgradeBall(game);
 				break;
 
 			case Event::GreenbullExpire:
@@ -69,30 +66,27 @@ void GameEventHandler::HandleEvents(Game& game)
 	game.GlobalData->Events.swap(new_events_map);
 }
 
-void GameEventHandler::UpgradeCircle(Game& game)
-{
-	for (auto &proj : game.Projectiles)
-	{
-		if (proj.Type == ProjectileType::Circle)
-		{
-			proj.Scale = game.GlobalData->Attributes.at(Attribute::CircleScale);
-			proj.Speed = game.GlobalData->Attributes.at(Attribute::CircleAngularSpeed);
-			proj.Rotation = game.GlobalData->Attributes.at(Attribute::CircleAngularSpeed) * TO_DEG;
-			proj.Radius = game.GlobalData->Attributes.at(Attribute::CircleRadius);
-		}
-	}
-}
-
-void GameEventHandler::SpawnCircle(Game& game)
+void GameEventHandler::SpawnAndUpgradeBall(Game& game)
 {
 	game.Projectiles.emplace_back(
 			game.PlayerInstance->Centre.x,
 			game.PlayerInstance->Centre.y,
 			(Vector2) { 0, 0 },
-			ProjectileType::Circle,
+			ProjectileType::Ball,
 			*game.GlobalData,
 			*game.Assets
 			);
+	
+	for (auto &proj : game.Projectiles)
+	{
+		if (proj.Type == ProjectileType::Ball)
+		{
+			proj.Scale = game.GlobalData->Attributes.at(Attribute::BallScale);
+			proj.Speed = game.GlobalData->Attributes.at(Attribute::BallAngularSpeed);
+			proj.Rotation = game.GlobalData->Attributes.at(Attribute::BallAngularSpeed) * TO_DEG;
+			proj.Radius = game.GlobalData->Attributes.at(Attribute::BallRadius);
+		}
+	}
 }
 
 bool GameEventHandler::HandleEventExpiry(Event event, Effect effect, GlobalDataWrapper& global_data, size_t expiry, std::unordered_map<Event, size_t>& new_events_map)

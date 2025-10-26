@@ -16,46 +16,62 @@ enum class EnemyType
 	Trapper
 };
 
-enum class BehaviourModifier
+enum class BehaviourModifier : size_t
 {
-	None,
-	OverrideDirection,
-	NoMovement,
-	Upsize,
-	IncreasedSpeed
+	None = 0,
+	OverrideDirection = 1 << 0,
+	NoMovement = 1 << 1,
+
+	Big = 1 << 2,
+	IncreasedSpeed = 1 << 4
 };
+
+inline BehaviourModifier operator| (BehaviourModifier l, BehaviourModifier r)
+{
+	return static_cast<BehaviourModifier>(static_cast<size_t>(l) | static_cast<size_t>(r));
+}
+
+inline BehaviourModifier operator& (BehaviourModifier l, BehaviourModifier r)
+{
+	return static_cast<BehaviourModifier>(static_cast<size_t>(l) & static_cast<size_t>(r));
+}
+
+
 
 class Enemy
 {
 	public:
-		Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, EnemyType type, BehaviourModifier modifier);
+		Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, EnemyType type, BehaviourModifier modifier = BehaviourModifier::None);
 		~Enemy(); 
 		
-		void Move();
-		void Animate(size_t ticks);
-		void SetDirection(Rectangle& player_rect);
-
 		void Draw();
 		void FlashSprite(size_t ticks);
 		void Update(Rectangle& player_rect, size_t ticks);
 		
 		float Health;
+		float Speed;
 
 		Vector2 Direction = { 0.0f, 0.0f };
 		Rectangle Rect;
 
-		float Speed;
 		bool Flash = false;
 		size_t FlashTriggered = 0;
 
 		bool CanLeAttack = true;
 		size_t LastLeAttack = 0;
-		unsigned int LeAttackCooldown = 5000;
+		unsigned int LeAttackCooldown;
+
+		float Scale;
 
 		EnemyType Type;
-		BehaviourModifier Modifier;
+		BehaviourModifier Modifiers;
 
 	private:
+		void Move();
+		void Animate(size_t ticks);
+		void SetDirection(Rectangle& player_rect);
+
+
 		std::shared_ptr<AssetManager> Assets;
 		TextureKey TextureKey;
 

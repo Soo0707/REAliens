@@ -1,4 +1,5 @@
 #include "projectiles.hpp"
+
 #include "raylib.h"
 #include "game.hpp"
 #include "globalDataWrapper.hpp"
@@ -22,7 +23,6 @@ Projectile::Projectile(float x, float y, Vector2 direction, ProjectileType type,
 			this->Speed = global_data.Attributes.at(Attribute::BulletSpeed);
 			this->Rotation = atan2(this->Direction.y, this->Direction.x) * TO_DEG;
 			this->Scale = 1.0f;
-			this->Killable = true;
 
 			break;
 		case ProjectileType::Lazer:
@@ -30,16 +30,14 @@ Projectile::Projectile(float x, float y, Vector2 direction, ProjectileType type,
 			this->Speed = global_data.Attributes.at(Attribute::LazerSpeed);
 			this->Rotation = atan2(this->Direction.y, this->Direction.x) * TO_DEG;
 			this->Scale = global_data.Attributes.at(Attribute::LazerScale);
-			this->Killable = true;
 
 			break;
-		case ProjectileType::Circle:
-			this->Image = assets.Textures.at(TextureKey::Circle);
-			this->Scale = global_data.Attributes.at(Attribute::CircleScale);
-			this->Speed = global_data.Attributes.at(Attribute::CircleAngularSpeed);
-			this->Rotation = global_data.Attributes.at(Attribute::CircleAngularSpeed) * TO_DEG;
-			this->Radius = global_data.Attributes.at(Attribute::CircleRadius);
-			this->Killable = false;
+		case ProjectileType::Ball:
+			this->Image = assets.Textures.at(TextureKey::Ball);
+			this->Scale = global_data.Attributes.at(Attribute::BallScale);
+			this->Speed = global_data.Attributes.at(Attribute::BallAngularSpeed);
+			this->Rotation = global_data.Attributes.at(Attribute::BallAngularSpeed) * TO_DEG;
+			this->Radius = global_data.Attributes.at(Attribute::BallRadius);
 
 			break;
 	}
@@ -57,7 +55,7 @@ void Projectile::Update(const Vector2 player_centre)
 {
 	switch (this->Type)
 	{
-		case ProjectileType::Circle:
+		case ProjectileType::Ball:
 		{
 			this->CurrentAngle += this->Speed * TICK_TIME;
 

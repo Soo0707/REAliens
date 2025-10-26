@@ -19,8 +19,8 @@ unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy
 		case ProjectileType::Bullet:
 			damage = global_data.Attributes.at(Attribute::BulletDamage);
 			break;
-		case ProjectileType::Circle:
-			damage = global_data.Attributes.at(Attribute::CircleDamage);
+		case ProjectileType::Ball:
+			damage = global_data.Attributes.at(Attribute::BallDamage);
 			break;
 		default:
 			damage = 0;
@@ -47,7 +47,9 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 {
 	if (CheckCollisionRecs(player.Rect, enemy.Rect) && enemy.CanLeAttack)
 	{
-		player.Health -= EnemyAttributes.at(enemy.Type).damage;
+		const unsigned int scale = static_cast<unsigned int>(enemy.Scale);
+
+		player.Health -= EnemyAttributes.at(enemy.Type).damage * scale;
 
 		if (!global_data.Effects.count(Effect::Milk))
 		{
@@ -55,7 +57,7 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 			{
 				case EnemyType::Australian:
 					global_data.Effects.insert(Effect::Aussie);
-					global_data.Events[Event::AussieExpire] = global_data.Ticks + SECONDS_TO_TICKS(1);
+					global_data.Events[Event::AussieExpire] = global_data.Ticks + SECONDS_TO_TICKS(1) * scale;
 
 					break;
 				case EnemyType::Poison:
@@ -64,14 +66,14 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 					global_data.Attributes[Attribute::PoisonDamage] = 2.0f;
 
 					global_data.Events[Event::PoisonTick] = global_data.Ticks + SECONDS_TO_TICKS(1);
-					global_data.Events[Event::PoisonExpire] = global_data.Ticks + SECONDS_TO_TICKS(5);
+					global_data.Events[Event::PoisonExpire] = global_data.Ticks + SECONDS_TO_TICKS(5) * scale;
 					break;
 				case EnemyType::Trapper:
 					global_data.Effects.insert(Effect::Trapped);
 					break;
 				case EnemyType::Drunkard:
 					global_data.Effects.insert(Effect::Drunk);
-					global_data.Events[Event::DrunkExpire] = global_data.Ticks + SECONDS_TO_TICKS(1);
+					global_data.Events[Event::DrunkExpire] = global_data.Ticks + SECONDS_TO_TICKS(1) * scale;
 					break;
 			}
 		}

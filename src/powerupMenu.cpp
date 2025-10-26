@@ -100,8 +100,8 @@ void PowerupMenu::ApplyPowerup(Powerup powerup)
 			PowerupMenu::ApplyLazer();
 			break;
 
-		case Powerup::Circle:
-			PowerupMenu::ApplyCircle();
+		case Powerup::Ball:
+			PowerupMenu::ApplyBall();
 			break;
 
 		case Powerup::Greenbull:
@@ -165,46 +165,44 @@ void PowerupMenu::ApplyAura()
 		this->GlobalData->Attributes[Attribute::AuraSize] += 50;
 		this->GlobalData->Attributes[Attribute::AuraDamage] += 5;
 
-		if (this->GlobalData->Attributes[Attribute::AuraCooldown] - 25 > 0)
+		if (this->GlobalData->Attributes[Attribute::AuraCooldown] - 25 > TICK_RATE)
 			this->GlobalData->Attributes[Attribute::AuraCooldown] -= 25;
 		else
-			this->GlobalData->Attributes[Attribute::AuraCooldown] = 0;
+			this->GlobalData->Attributes[Attribute::AuraCooldown] = TICK_RATE;
 	}
 	else
 	{
-		this->GlobalData->Attributes[Attribute::AuraSize] = 25;
+		this->GlobalData->Attributes[Attribute::AuraSize] = 100;
 		this->GlobalData->Attributes[Attribute::AuraDamage] = 5;
 		this->GlobalData->Attributes[Attribute::AuraCooldown] = SECONDS_TO_TICKS(2);
 	}
 
 	this->GlobalData->Events[Event::IncreaseAura] = 0;
-	this->GlobalData->Events[Event::AuraTick] = this->GlobalData->Ticks + this->GlobalData->Attributes[Attribute::AuraCooldown];
+	this->GlobalData->Events[Event::AuraTick] = this->GlobalData->Ticks + this->GlobalData->Attributes.at(Attribute::AuraCooldown);
 }
 
-void PowerupMenu::ApplyCircle()
+void PowerupMenu::ApplyBall()
 {
-	if (this->GlobalData->Attributes.count(Attribute::CircleRadius)) 
+	if (this->GlobalData->Attributes.count(Attribute::BallRadius)) 
 	{
-		this->GlobalData->Attributes[Attribute::CircleDamage] += 10;
-		this->GlobalData->Attributes[Attribute::CircleScale] += 0.2;
+		this->GlobalData->Attributes[Attribute::BallDamage] += 10;
+		this->GlobalData->Attributes[Attribute::BallScale] += 0.2;
 
-		if (this->GlobalData->Attributes[Attribute::CircleAngularSpeed] <= 4 * PI)
-			this->GlobalData->Attributes[Attribute::CircleAngularSpeed] *= 2;
+		if (this->GlobalData->Attributes[Attribute::BallAngularSpeed] <= 4 * PI)
+			this->GlobalData->Attributes[Attribute::BallAngularSpeed] *= 2;
 
-		if (this->GlobalData->Attributes[Attribute::CircleRadius] + 12 < 320)
-			this->GlobalData->Attributes[Attribute::CircleRadius] += 12;
-
-		this->GlobalData->Events[Event::UpgradeCircle] = 0;
+		if (this->GlobalData->Attributes[Attribute::BallRadius] + 12 < 320)
+			this->GlobalData->Attributes[Attribute::BallRadius] += 12;
 	}
 	else
 	{
-		this->GlobalData->Attributes[Attribute::CircleDamage] = 5.0f;
-		this->GlobalData->Attributes[Attribute::CircleScale] = 1.0f;
-		this->GlobalData->Attributes[Attribute::CircleAngularSpeed] = PI / 2;
-		this->GlobalData->Attributes[Attribute::CircleRadius] = 64;
-
-		this->GlobalData->Events[Event::SpawnCircle] = 0;
+		this->GlobalData->Attributes[Attribute::BallDamage] = 5.0f;
+		this->GlobalData->Attributes[Attribute::BallScale] = 1.0f;
+		this->GlobalData->Attributes[Attribute::BallAngularSpeed] = PI / 2;
+		this->GlobalData->Attributes[Attribute::BallRadius] = 64;
 	}
+
+	this->GlobalData->Events[Event::SpawnAndUpgradeBall] = 0;
 }
 
 void PowerupMenu::ApplyBuckshot()
@@ -217,10 +215,10 @@ void PowerupMenu::ApplyBuckshot()
 
 void PowerupMenu::ApplyProjectile()
 {
-	if (this->GlobalData->Attributes[Attribute::BulletCooldown] - 5 > 0)
-		this->GlobalData->Attributes[Attribute::BulletCooldown] -= 5;
+	if (this->GlobalData->Attributes[Attribute::BulletCooldown] - 25 > 80)
+		this->GlobalData->Attributes[Attribute::BulletCooldown] -= 80;
 	else
-		this->GlobalData->Attributes[Attribute::BulletCooldown] = 0;
+		this->GlobalData->Attributes[Attribute::BulletCooldown] = 80;
 
 	this->GlobalData->Attributes[Attribute::BulletDamage] += 5;
 	this->GlobalData->Attributes[Attribute::BulletSpeed] += 100;
@@ -228,10 +226,10 @@ void PowerupMenu::ApplyProjectile()
 
 void PowerupMenu::ApplyLazer()
 {
-	if (this->GlobalData->Attributes[Attribute::LazerCooldown] - 10 > 0)
-		this->GlobalData->Attributes[Attribute::LazerCooldown] -= 10;
+	if (this->GlobalData->Attributes[Attribute::LazerCooldown] - 50 > 60)
+		this->GlobalData->Attributes[Attribute::LazerCooldown] -= 50;
 	else
-		this->GlobalData->Attributes[Attribute::LazerCooldown] = 0;
+		this->GlobalData->Attributes[Attribute::LazerCooldown] = 60;
 
 	this->GlobalData->Attributes[Attribute::LazerDamage] += 10;
 	this->GlobalData->Attributes[Attribute::LazerScale] += 0.5;

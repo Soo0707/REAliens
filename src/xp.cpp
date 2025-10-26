@@ -5,7 +5,12 @@
 Xp::Xp(float pos_x, float pos_y, unsigned int value, AssetManager &assets) :
 	Image(assets.Textures[TextureKey::Xp]),
 	Value(value),
-	Rect( {pos_x, pos_y, (float) this->Image.width, (float) this->Image.height} )
+	Rect( {
+			pos_x,
+			pos_y,
+			static_cast<float>(assets.Textures[TextureKey::Xp].width),
+			static_cast<float>(assets.Textures[TextureKey::Xp].height)
+			} )
 {}
 
 void Xp::Draw() const

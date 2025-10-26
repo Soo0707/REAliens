@@ -41,6 +41,7 @@ class Game
 
 		void DrawOverlay();
 
+		void LevelUp();
 
 		void UpdateEnemies();
 		void UpdateProjectiles();
@@ -60,8 +61,7 @@ class Game
 		size_t CollectedXp = 0;
 
 		size_t LastSpawn = 0;
-		size_t SpawnTimeout = 1000;
-
+		size_t SpawnTimeout;
 		Camera2D Camera;
 		Rectangle UpdateArea;
 };

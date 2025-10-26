@@ -17,12 +17,14 @@
 #include "projectiles.hpp"
 #include "collisions.hpp"
 #include "enemy.hpp"
+
 #include "enemyData.hpp"
 #include "xp.hpp"
 
 
 Game::Game(std::shared_ptr<GlobalDataWrapper> global_data) :
-	GlobalData(global_data)
+	GlobalData(global_data),
+	SpawnTimeout(SECONDS_TO_TICKS(30))
 {
 	this->Assets = std::make_shared<AssetManager>();
 
@@ -36,8 +38,8 @@ Game::Game(std::shared_ptr<GlobalDataWrapper> global_data) :
 	this->UpdateArea = {
 		this->PlayerInstance->Centre.x - (REFERENCE_WIDTH / 2.0f),
 		this->PlayerInstance->Centre.y - (REFERENCE_HEIGHT / 2.0f),
-		(float) REFERENCE_WIDTH,
-		(float) REFERENCE_HEIGHT
+		static_cast<float>(REFERENCE_WIDTH),
+		static_cast<float>(REFERENCE_HEIGHT)
 	};
 }
 
@@ -69,14 +71,14 @@ void Game::Draw(RenderTexture2D& virtual_canvas)
 	if (viewport.y + viewport.height > map_height)
 		viewport.height = map_height - viewport.y;
 
-	BeginTextureMode(virtual_canvas);
 
+	BeginTextureMode(virtual_canvas);
 		ClearBackground(BLACK);
 
 		BeginMode2D(this->Camera);
 
 		DrawTextureRec(this->Assets->Ground, viewport, (Vector2) { viewport.x, viewport.y }, WHITE);
-
+		
 		for (auto const &xp : this->Xps)
 		{
 			if (CheckCollisionRecs(this->UpdateArea, xp.Rect))
@@ -92,30 +94,20 @@ void Game::Draw(RenderTexture2D& virtual_canvas)
 		for (auto const &projectile : this->Projectiles)
 		{
 			if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
+			{
 				projectile.Draw();
+			}
 		}
 
 		this->PlayerInstance->Draw();
 
 		EndMode2D();
-
 		Game::DrawOverlay();
-
 	EndTextureMode();
 }
 
 void Game::DrawOverlay()
 {
-	static constexpr Rectangle xp_background = { 100, 680, 1080, 15 };
-	static constexpr Rectangle health_background = { 1060, 20, 200, 10 };
-
-	static constexpr Rectangle magnetism_half_1 = { 1185, 40, 7.5, 15 };
-	static constexpr Rectangle magnetism_half_2 = { 1192.5, 40, 7.5, 15 };
-
-	static constexpr Rectangle greenbull_square = { 1205, 40, 15, 15 };
-	static constexpr Rectangle milk_square = { 1225, 40, 15, 15 };
-	static constexpr Rectangle drunk_square = { 1245, 40, 15, 15 };
-
 	float health_percentage = this->PlayerInstance->Health / this->PlayerInstance->HealthMax;
 
 	Rectangle health_bar = {
@@ -136,25 +128,25 @@ void Game::DrawOverlay()
 		15
 	};
 
-	DrawRectangleRec(health_background, BLACK);
+	DrawRectangleRec(HEALTH_BACKGROUND, BLACK);
 	DrawRectangleRec(health_bar, (is_poisoned) ? VIOLET : GREEN);
 
-	DrawRectangleRec(xp_background, BLACK);
-	DrawRectangleRec(xp_bar, (Color) { 0, 243, 255, 255 });
+	DrawRectangleRec(XP_BACKGROUND, BLACK);
+	DrawRectangleRec(xp_bar, CYAN);
 
 	if (this->GlobalData->Effects.count(Effect::Greenbull))
-		DrawRectangleRec(greenbull_square, GREEN);
+		DrawRectangleRec(GREENBULL_SQUARE, GREEN);
 
 	if (this->GlobalData->Effects.count(Effect::Milk))
-		DrawRectangleRec(milk_square, WHITE);
+		DrawRectangleRec(MILK_SQUARE, WHITE);
 	
 	if (this->GlobalData->Effects.count(Effect::Drunk))
-		DrawRectangleRec(drunk_square, YELLOW);
+		DrawRectangleRec(DRUNK_SQUARE, YELLOW);
 
 	if (this->GlobalData->Effects.count(Effect::Magnetism))
 	{
-		DrawRectangleRec(magnetism_half_1, DARKBLUE);
-		DrawRectangleRec(magnetism_half_2, RED);
+		DrawRectangleRec(MAGNETISM_HALF_1, DARKBLUE);
+		DrawRectangleRec(MAGNETISM_HALF_2, RED);
 	}
 }
 
@@ -180,17 +172,7 @@ void Game::Update()
 			this->CanRMB = true;
 	
 		if (this->CollectedXp >= this->GlobalData->LevelUpTreshold)
-		{
-			this->GlobalData->Level++;
-
-			this->GlobalData->UnclaimedPowerups++;
-
-			this->CollectedXp = 0;
-			this->GlobalData->LevelUpTreshold += 2;
-
-			if (this->GlobalData->Settings.at(Setting::ShowPowerupMenuOnLevelUp))
-				this->GlobalData->ActiveState = State::PowerupMenu;
-		}
+			Game::LevelUp();
 
 		Game::HandleTickedInput();
 		GameEventHandler::HandleEvents(*this);
@@ -220,6 +202,7 @@ void Game::Update()
 	} 
 }
 
+
 void Game::UpdateEnemies()
 {
 	if ((this->GlobalData->Ticks - this->LastSpawn >= this->SpawnTimeout) || this->Enemies.size() == 0)
@@ -238,15 +221,16 @@ void Game::UpdateEnemies()
 			Game::LoopOverMap(enemy.Rect);
 			
 			if (!has_greenbull)
-				Collisions::LeAttack(*(this->PlayerInstance), enemy, *this->GlobalData);
+				Collisions::LeAttack(*this->PlayerInstance, enemy, *this->GlobalData);
 		}
 
 		if (enemy.Health <= 0)
 		{
 			unsigned int value = EnemyXpValues.at(enemy.Type);
-			this->Xps.emplace_back(enemy.Rect.x, enemy.Rect.y, value, *this->Assets);
+			this->Xps.emplace_back(enemy.Rect.x, enemy.Rect.y, value * static_cast<int>(enemy.Scale), *this->Assets);
 		}
 	}
+
 	std::erase_if(this->Enemies, [](const Enemy& enemy) { return (enemy.Health <= 0); });
 }
 
@@ -259,14 +243,14 @@ void Game::UpdateProjectiles()
 		{
 			projectile.Update(this->PlayerInstance->Centre);
 
-			if (projectile.Type != ProjectileType::Circle)
-				Game::LoopOverMap(projectile.Rect);
+			Game::LoopOverMap(projectile.Rect);
 			
 			damage_done += Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData);
 		}
-		else if (projectile.Killable)
+		else
 			projectile.Kill = true;
 	}
+
 	std::erase_if(this->Projectiles, [](const Projectile& proj){ return proj.Kill; });
 
 	if (this->GlobalData->Effects.count(Effect::LifeSteal))
@@ -285,6 +269,7 @@ void Game::UpdateXps()
 			xp.Kill = true;
 		}
 	}
+
 	std::erase_if(this->Xps, [](const Xp& xp) { return xp.Kill; });
 }
 
@@ -343,13 +328,10 @@ void Game::HandleTickedInput()
 void Game::HandleLeftClick()
 {
 	Vector2 scale_factors = { static_cast<float>(GetScreenWidth()) / REFERENCE_WIDTH, static_cast<float>(GetScreenHeight()) / REFERENCE_HEIGHT };
-
 	Vector2 scaled_mouse_pos = { GetMouseX() / scale_factors.x, GetMouseY() / scale_factors.y };
-
 	Vector2 mouse_pos = GetScreenToWorld2D(scaled_mouse_pos, this->Camera);
 
 	Vector2 centre_direction = Vector2Subtract(mouse_pos, this->PlayerInstance->Centre);
-
 	Vector2 player_centre = this->PlayerInstance->Centre;
 
 	float spread_angle = this->GlobalData->Attributes[Attribute::BuckshotSpread];
@@ -382,31 +364,39 @@ void Game::HandleRightClick()
 
 void Game::SpawnEnemies()
 {
+	static unsigned int map_width = this->Assets->Ground.width;
+	static unsigned int map_height = this->Assets->Ground.height;
+
 	std::vector<Vector2> rand_nums;
 
-	for (size_t i = 0; i < this->GlobalData->Level * 5; i++)
+	for (size_t i = 0; i < this->GlobalData->Level * 15; i++)
 	{
 		rand_nums.emplace_back(
 				(Vector2) {
-				(float) GetRandomValue(32, (int) this->UpdateArea.width / 2), 
-				(float) GetRandomValue(32, (int) this->UpdateArea.height / 2) 
+				static_cast<float>( GetRandomValue(0, map_height) ),
+				static_cast<float>( GetRandomValue(0, map_width) )
 				});
 	}
 
 	for (auto &location : rand_nums)
 	{
-		if (GetRandomValue(1, 50) % 2)
-			location.x *= -1;
-
-		if (GetRandomValue(1, 50) % 2)
-			location.y *= -1;
-
-		float x = this->PlayerInstance->Rect.x + location.x;
-		float y = this->PlayerInstance->Rect.y + location.y;
-
 		EnemyType type = (EnemyType) GetRandomValue(0, 4);
+		BehaviourModifier modifier = BehaviourModifier::None;
 		
-		this->Enemies.emplace_back(x, y, this->Assets, type, BehaviourModifier::None);
+		unsigned int random1 = GetRandomValue(0, 100);
+		unsigned int random2 = GetRandomValue(0, 100);
+		unsigned int random3 = GetRandomValue(0, 100);
+
+		if (random1 > 30)
+			modifier = modifier | BehaviourModifier::IncreasedSpeed;
+
+		if (random2 > 50)
+			modifier = modifier | BehaviourModifier::OverrideDirection;
+
+		if (random3 > 95 && this->GlobalData->Level > 10)
+			modifier = modifier | BehaviourModifier::Big;
+
+		this->Enemies.emplace_back(location.x, location.y, this->Assets, type, modifier);
 	}
 }
 
@@ -424,4 +414,17 @@ void Game::LoopOverMap(Rectangle& m_obj)
 		m_obj.y = map_height - m_obj.height;
 	else if (m_obj.y > map_height)
 		m_obj.y = 0;
+}
+
+void Game::LevelUp()
+{
+	this->GlobalData->Level++;
+
+	this->GlobalData->UnclaimedPowerups++;
+
+	this->CollectedXp = 0;
+	this->GlobalData->LevelUpTreshold += 5;
+	
+	if (this->GlobalData->Settings.at(Setting::ShowPowerupMenuOnLevelUp))
+		this->GlobalData->ActiveState = State::PowerupMenu;
 }

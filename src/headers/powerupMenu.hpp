@@ -16,7 +16,7 @@ enum class Powerup
 	Buckshot,
 	Projectile,
 
-	Circle,
+	Ball,
 	Lazer,
 	Greenbull,
 
@@ -52,7 +52,7 @@ class PowerupMenu
 		void ApplyMilk();
 		void ApplyAura();
 
-		void ApplyCircle();
+		void ApplyBall();
 		void ApplyBuckshot();
 		void ApplyProjectile();
 		void ApplyLazer();
@@ -67,7 +67,7 @@ class PowerupMenu
 			{ Powerup::Buckshot, "Buckshot" },
 			{ Powerup::Projectile, "Projectile" },
 			{ Powerup::Lazer, "Lazer" },
-			{ Powerup::Circle, "Circle" },
+			{ Powerup::Ball, "Ball" },
 			{ Powerup::Greenbull, "Greenbull" },
 			{ Powerup::Milk, "Milk" },
 			{ Powerup::LifeSteal, "Life Steal" },

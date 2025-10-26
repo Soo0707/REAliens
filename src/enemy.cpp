@@ -10,7 +10,11 @@
 #include <cstddef>
 
 Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, EnemyType type, BehaviourModifier modifier) :
-	Assets(assets), Type(type), Modifier(modifier)
+	Assets(assets),
+	Type(type),
+	Modifiers(modifier),
+	LeAttackCooldown(SECONDS_TO_TICKS(3)),
+	Rect({ pos_x, pos_y, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE })
 {
 	this->TextureKey = EnemyAttributes.at(this->Type).texture_key;
 	this->Speed = EnemyAttributes.at(this->Type).speed;
@@ -21,15 +25,50 @@ Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, Ene
 	this->Health = EnemyAttributes.at(this->Type).health;
 	this->Image = this->Assets->Textures.at(this->TextureKey);
 
-	this->Rect = { 
-		pos_x,
-		pos_y,
-		TEXTURE_TILE_SIZE,
-		TEXTURE_TILE_SIZE
-	};
 
 	if (type == EnemyType::Trapper)
-		this->Modifier = BehaviourModifier::NoMovement;
+		this->Modifiers = this->Modifiers | BehaviourModifier::NoMovement;
+
+
+	if ((modifier & BehaviourModifier::OverrideDirection) == BehaviourModifier::OverrideDirection)
+	{
+		Vector2 random_direction = { 1, 1 };
+
+		if (GetRandomValue(0, 50) % 2)
+			random_direction.x *= -1;
+		else
+			random_direction.x = 0;
+
+		if (GetRandomValue(0, 50) % 2)
+			random_direction.y *= -1;
+		else if (random_direction.x != 0)
+			random_direction.y = 0;
+
+		this->Direction = Vector2Normalize(random_direction);
+	}
+
+	if ((this->Modifiers & BehaviourModifier::Big) == BehaviourModifier::Big)
+	{
+		float scale = static_cast<float>(GetRandomValue(2, 5));
+
+		this->Rect.width *= scale;
+		this->Rect.height *= scale;
+		this->Speed *= (1 / scale);
+		this->Health *= scale;
+		this->AnimationSpeed *= scale;
+
+		this->Scale = scale;
+	}
+	else
+		this->Scale = 1.0f;
+
+	if ((this->Modifiers & BehaviourModifier::IncreasedSpeed) == BehaviourModifier::IncreasedSpeed)
+	{
+		float scale = static_cast<float>(GetRandomValue(150, 200)) / 100.0f;
+
+		this->Speed *= scale;
+		this->AnimationSpeed *= scale;
+	}
 }
 
 Enemy::~Enemy()
@@ -39,11 +78,12 @@ void Enemy::Update(Rectangle& player_rect, size_t ticks)
 {
 	Enemy::Animate(ticks);
 
-	if (this->Modifier != BehaviourModifier::NoMovement)
+	if ((this->Modifiers & BehaviourModifier::NoMovement) == BehaviourModifier::None)
 		Enemy::Move();
 
-	if (this->Modifier != BehaviourModifier::OverrideDirection)
+	if ((this->Modifiers & BehaviourModifier::OverrideDirection) == BehaviourModifier::None)
 		Enemy::SetDirection(player_rect);
+
 
 	if (ticks - this->LastLeAttack >= this->LeAttackCooldown)
 		this->CanLeAttack = true;
@@ -54,10 +94,12 @@ void Enemy::Update(Rectangle& player_rect, size_t ticks)
 
 void Enemy::Draw()
 {
-	DrawTextureRec(
+	DrawTexturePro(
 			this->Image,
 			(Rectangle) { (float) this->ImageIndex * TEXTURE_TILE_SIZE, 0, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE },
-			(Vector2) { this->Rect.x, this->Rect.y },
+			this->Rect,
+			(Vector2) { 0.0f, 0.0f },
+			0.0f,
 			(this->Flash) ? YELLOW : WHITE
 			);
 }

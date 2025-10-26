@@ -13,7 +13,7 @@ enum class ProjectileType
 {
 	Bullet,
 	Lazer,
-	Circle
+	Ball
 };
 
 class Projectile
@@ -26,7 +26,6 @@ class Projectile
 		void Draw() const;
 
 		bool Kill = false;
-		bool Killable;
 		ProjectileType Type;
 
 		float Rotation;

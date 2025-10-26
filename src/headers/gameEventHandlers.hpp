@@ -9,8 +9,7 @@ namespace GameEventHandler
 {
 	void HandleEvents(Game& game);
 
-	void UpgradeCircle(Game& game);
-	void SpawnCircle(Game& game);
+	void SpawnAndUpgradeBall(Game& game);
 	bool HandleEventExpiry(Event event, Effect effect, GlobalDataWrapper& global_data, size_t expiry, std::unordered_map<Event, size_t>& new_events_map);
 
 	void AuraTick(Game& game, size_t next_tick, std::unordered_map<Event, size_t>& new_events_map);
