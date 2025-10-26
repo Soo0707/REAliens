@@ -9,7 +9,8 @@
 #include <cmath>
 
 Projectile::Projectile(float x, float y, Vector2 direction, ProjectileType type, GlobalDataWrapper& global_data, AssetManager& assets):
-	Type(type)
+	Type(type),
+	Layer(global_data.CurrentLayer)
 {
 	if (direction.x != 0.0f || direction.y != 0.0f)
 		this->Direction = Vector2Normalize(direction);
@@ -42,7 +43,7 @@ Projectile::Projectile(float x, float y, Vector2 direction, ProjectileType type,
 			break;
 	}
 
-	this->Rect = { x, y, (float) this->Image.width * this->Scale, (float) this->Image.height * this->Scale };
+	this->Rect = { x, y, this->Image.width * this->Scale, this->Image.height * this->Scale };
 }
 
 void Projectile::Draw() const
@@ -59,7 +60,7 @@ void Projectile::Update(const Vector2 player_centre)
 		{
 			this->CurrentAngle += this->Speed * TICK_TIME;
 
-			if (this->CurrentAngle >= 2 * 3.142)
+			if (this->CurrentAngle >= 2 * PI)
 				this->CurrentAngle = 0;
 
 			this->Rect.width = this->Image.width * this->Scale;

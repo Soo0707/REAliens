@@ -14,7 +14,6 @@ enum class TextureKey
 	Xp,
 
 	Australian,
-	Beer,
 	Drunkard,
 	Pleb,
 	Poison,
@@ -26,6 +25,18 @@ enum class TextureKey
 	PlayerWest,
 };
 
+enum class SoundKey
+{
+	None,
+	PlayerDamage,
+	LevelUp,
+	Bullets,
+	Lazer,
+	Xp,
+	Pause,
+	Unpause
+};
+
 class AssetManager
 {
 	public:
@@ -33,6 +44,7 @@ class AssetManager
 		~AssetManager();
 
 		std::unordered_map<TextureKey, Texture2D> Textures;
+		std::unordered_map<SoundKey, Sound> Sounds;
 
 		Texture2D Ground;
 	private:

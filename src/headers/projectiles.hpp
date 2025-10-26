@@ -40,7 +40,8 @@ class Projectile
 		float Radius;
 
 		Rectangle Rect;
-	
+
+		int Layer;
 	private:
 		Texture2D Image;
 };

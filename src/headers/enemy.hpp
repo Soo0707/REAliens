@@ -2,7 +2,6 @@
 
 #include "raylib.h"
 #include "assetManager.hpp"
-#include <memory>
 #include <cstddef>
 
 static constexpr unsigned int FLASH_DURATION = 60;
@@ -41,10 +40,10 @@ inline BehaviourModifier operator& (BehaviourModifier l, BehaviourModifier r)
 class Enemy
 {
 	public:
-		Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, EnemyType type, BehaviourModifier modifier = BehaviourModifier::None);
+		Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyType type, BehaviourModifier modifier = BehaviourModifier::None);
 		~Enemy(); 
 		
-		void Draw();
+		void Draw() const;
 		void FlashSprite(size_t ticks);
 		void Update(Rectangle& player_rect, size_t ticks);
 		
@@ -62,6 +61,7 @@ class Enemy
 		unsigned int LeAttackCooldown;
 
 		float Scale;
+		int Layer;
 
 		EnemyType Type;
 		BehaviourModifier Modifiers;
@@ -70,10 +70,6 @@ class Enemy
 		void Move();
 		void Animate(size_t ticks);
 		void SetDirection(Rectangle& player_rect);
-
-
-		std::shared_ptr<AssetManager> Assets;
-		TextureKey TextureKey;
 
 		Texture2D Image;
 

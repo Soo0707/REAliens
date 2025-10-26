@@ -9,21 +9,20 @@
 
 #include <cstddef>
 
-Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, EnemyType type, BehaviourModifier modifier) :
-	Assets(assets),
+Enemy::Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyType type, BehaviourModifier modifier) :
 	Type(type),
 	Modifiers(modifier),
 	LeAttackCooldown(SECONDS_TO_TICKS(3)),
-	Rect({ pos_x, pos_y, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE })
+	Rect({ pos_x, pos_y, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE }),
+	Layer(layer)
 {
-	this->TextureKey = EnemyAttributes.at(this->Type).texture_key;
 	this->Speed = EnemyAttributes.at(this->Type).speed;
 
 	this->AnimationSpeed = EnemyAttributes.at(this->Type).animation_speed;
 	this->AnimationFrames = EnemyAttributes.at(this->Type).animation_frames;
 
 	this->Health = EnemyAttributes.at(this->Type).health;
-	this->Image = this->Assets->Textures.at(this->TextureKey);
+	this->Image = assets.Textures.at(EnemyAttributes.at(this->Type).texture_key);
 
 
 	if (type == EnemyType::Trapper)
@@ -67,7 +66,7 @@ Enemy::Enemy(float pos_x, float pos_y, std::shared_ptr<AssetManager> assets, Ene
 		float scale = static_cast<float>(GetRandomValue(150, 200)) / 100.0f;
 
 		this->Speed *= scale;
-		this->AnimationSpeed *= scale;
+		this->AnimationSpeed *= (1 / scale);
 	}
 }
 
@@ -92,7 +91,7 @@ void Enemy::Update(Rectangle& player_rect, size_t ticks)
 		this->Flash = false;
 }
 
-void Enemy::Draw()
+void Enemy::Draw() const
 {
 	DrawTexturePro(
 			this->Image,

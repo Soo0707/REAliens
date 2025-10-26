@@ -28,10 +28,9 @@ class Game
 
 
 		std::vector<Enemy> Enemies;
-
 		std::vector<Projectile> Projectiles;
-		
 		std::vector<Xp> Xps;
+
 
 		std::unique_ptr<Player> PlayerInstance;
 
@@ -57,11 +56,18 @@ class Game
 		size_t LastRMB = 0;
 		bool CanRMB = true;
 
+		size_t LastLayerDown = 0;
+		bool CanLayerDown = true;
+
+		size_t LastLayerUp = 0;
+		bool CanLayerUp = true;
+
 		float Accumulator = 0.0f;
 		size_t CollectedXp = 0;
 
 		size_t LastSpawn = 0;
 		size_t SpawnTimeout;
+
 		Camera2D Camera;
 		Rectangle UpdateArea;
 };

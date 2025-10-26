@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <array>
 #include <vector>
+#include <string>
 
 #include "raylib.h"
 #include "raymath.h"
@@ -85,18 +86,16 @@ void Game::Draw(RenderTexture2D& virtual_canvas)
 				xp.Draw();
 		}
 		
-		for (auto &enemy : this->Enemies)
+		for (auto const &enemy : this->Enemies)
 		{
-			if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
+			if (enemy.Layer <= this->GlobalData->CurrentLayer && CheckCollisionRecs(this->UpdateArea, enemy.Rect))
 				enemy.Draw();
 		}
 		
 		for (auto const &projectile : this->Projectiles)
 		{
 			if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
-			{
 				projectile.Draw();
-			}
 		}
 
 		this->PlayerInstance->Draw();
@@ -128,6 +127,7 @@ void Game::DrawOverlay()
 		15
 	};
 
+
 	DrawRectangleRec(HEALTH_BACKGROUND, BLACK);
 	DrawRectangleRec(health_bar, (is_poisoned) ? VIOLET : GREEN);
 
@@ -148,6 +148,12 @@ void Game::DrawOverlay()
 		DrawRectangleRec(MAGNETISM_HALF_1, DARKBLUE);
 		DrawRectangleRec(MAGNETISM_HALF_2, RED);
 	}
+
+	if (this->GlobalData->Effects.count(Effect::Trapped))
+		DrawText("[Space] to untrap.", 533, 620, 24, WHITE);
+
+	DrawText(this->GlobalData->CachedStrings.at(CachedString::LayerText).c_str(), 20, 20, 24, LIGHTGRAY);
+	DrawText(this->GlobalData->CachedStrings.at(CachedString::LevelText).c_str(), 20, 50, 24, LIGHTGRAY);
 }
 
 
@@ -170,7 +176,14 @@ void Game::Update()
 
 		if (ticks - this->LastRMB >= this->GlobalData->Attributes[Attribute::LazerCooldown])
 			this->CanRMB = true;
+
+		if (ticks - this->LastLayerUp >= TICK_RATE)
+			this->CanLayerUp = true;
+
+		if (ticks - this->LastLayerDown >= TICK_RATE)
+			this->CanLayerDown = true;
 	
+
 		if (this->CollectedXp >= this->GlobalData->LevelUpTreshold)
 			Game::LevelUp();
 
@@ -215,7 +228,7 @@ void Game::UpdateEnemies()
 
 	for (auto &enemy : this->Enemies)
 	{
-		if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
+		if (enemy.Layer == this->GlobalData->CurrentLayer && CheckCollisionRecs(this->UpdateArea, enemy.Rect))
 		{
 			enemy.Update(this->PlayerInstance->Rect, this->GlobalData->Ticks);
 			Game::LoopOverMap(enemy.Rect);
@@ -239,7 +252,7 @@ void Game::UpdateProjectiles()
 	unsigned int damage_done = 0;
 	for (auto &projectile : this->Projectiles)
 	{
-		if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
+		if (projectile.Layer == this->GlobalData->CurrentLayer && CheckCollisionRecs(this->UpdateArea, projectile.Rect))
 		{
 			projectile.Update(this->PlayerInstance->Centre);
 
@@ -286,6 +299,24 @@ void Game::HandleEssentialInput()
 
 void Game::HandleTickedInput()
 {
+	if (IsKeyDown(KEY_Q) && CanLayerDown && this->GlobalData->CurrentLayer - 1 >= 0)
+	{
+		this->GlobalData->CurrentLayer--;
+		this->GlobalData->CachedStrings[CachedString::LayerText] = "Current Layer: " + std::to_string(this->GlobalData->CurrentLayer);
+
+		this->LastLayerDown = this->GlobalData->Ticks;
+		this->CanLayerDown = false;
+	}
+
+	if (IsKeyDown(KEY_E) && CanLayerUp)
+	{
+		this->GlobalData->CurrentLayer++;
+		this->GlobalData->CachedStrings[CachedString::LayerText] = "Current Layer: " + std::to_string(this->GlobalData->CurrentLayer);
+
+		this->LastLayerUp = this->GlobalData->Ticks;
+		this->CanLayerUp = false;
+	}
+
 	if (this->GlobalData->Effects.count(Effect::Trapped))
 	{
 		if (IsKeyDown(KEY_SPACE))
@@ -335,7 +366,7 @@ void Game::HandleLeftClick()
 	Vector2 player_centre = this->PlayerInstance->Centre;
 
 	float spread_angle = this->GlobalData->Attributes[Attribute::BuckshotSpread];
-	int buckshot = (int) (this->GlobalData->Attributes[Attribute::Buckshot] - 1) / 2;
+	int buckshot = static_cast<int>((this->GlobalData->Attributes.at(Attribute::Buckshot) - 1) / 2);
 
 	for (int i = -buckshot; i <= buckshot; i++)
 	{
@@ -364,17 +395,14 @@ void Game::HandleRightClick()
 
 void Game::SpawnEnemies()
 {
-	static unsigned int map_width = this->Assets->Ground.width;
-	static unsigned int map_height = this->Assets->Ground.height;
-
 	std::vector<Vector2> rand_nums;
 
 	for (size_t i = 0; i < this->GlobalData->Level * 15; i++)
 	{
 		rand_nums.emplace_back(
 				(Vector2) {
-				static_cast<float>( GetRandomValue(0, map_height) ),
-				static_cast<float>( GetRandomValue(0, map_width) )
+				static_cast<float>( GetRandomValue(0, this->Assets->Ground.width) ),
+				static_cast<float>( GetRandomValue(0, this->Assets->Ground.height) )
 				});
 	}
 
@@ -396,31 +424,30 @@ void Game::SpawnEnemies()
 		if (random3 > 95 && this->GlobalData->Level > 10)
 			modifier = modifier | BehaviourModifier::Big;
 
-		this->Enemies.emplace_back(location.x, location.y, this->Assets, type, modifier);
+		this->Enemies.emplace_back(location.x, location.y, this->GlobalData->CurrentLayer, *this->Assets, type, modifier);
 	}
 }
 
 void Game::LoopOverMap(Rectangle& m_obj)
 {
-	static unsigned int map_width = this->Assets->Ground.width;
-	static unsigned int map_height = this->Assets->Ground.height;
-
 	if (m_obj.x < 0)
-		m_obj.x = map_width - m_obj.width;
-	else if (m_obj.x > map_width)
+		m_obj.x = this->Assets->Ground.width - m_obj.width;
+	else if (m_obj.x > this->Assets->Ground.width)
 		m_obj.x = 0;
 
 	if (m_obj.y < 0)
-		m_obj.y = map_height - m_obj.height;
-	else if (m_obj.y > map_height)
+		m_obj.y = this->Assets->Ground.height - m_obj.height;
+	else if (m_obj.y > this->Assets->Ground.height)
 		m_obj.y = 0;
 }
 
 void Game::LevelUp()
 {
 	this->GlobalData->Level++;
-
 	this->GlobalData->UnclaimedPowerups++;
+
+	this->GlobalData->CachedStrings[CachedString::LevelText] = "Level: " + std::to_string(this->GlobalData->Level);
+	this->GlobalData->CachedStrings[CachedString::UnclaimedPowerups] = "Unclaimed Powerups: " + std::to_string(this->GlobalData->UnclaimedPowerups);
 
 	this->CollectedXp = 0;
 	this->GlobalData->LevelUpTreshold += 5;

@@ -26,6 +26,7 @@ void PowerupMenu::Draw(RenderTexture2D& canvas)
 
 	BeginTextureMode(canvas);
 		ClearBackground(BLACK);
+
 		DrawText("Select A Powerup", 452.5, 80, 42, VIOLET);
 
 		DrawText(this->SelectionList[0].DisplayName.c_str(), x1, 260, 24, GOLD);
@@ -34,11 +35,8 @@ void PowerupMenu::Draw(RenderTexture2D& canvas)
 
 		DrawText("[TAB] Toggle Powerup Menu", 491.5, 580, 21, LIGHTGRAY);
 
-		DrawText("Unacquired Powerups: ", 50, 670, 21, GRAY);
-		DrawText(std::to_string(this->GlobalData->UnclaimedPowerups).c_str(), 310, 670, 21, WHITE);
-
+		DrawText(this->GlobalData->CachedStrings.at(CachedString::UnclaimedPowerups).c_str(), 50, 670, 21, LIGHTGRAY);
 	EndTextureMode();
-	//std::cout << MeasureText("[TAB] Toggle Powerup Menu", 21) << std::endl;
 }
 
 void PowerupMenu::GenerateList()
@@ -128,7 +126,9 @@ void PowerupMenu::ApplyPowerup(Powerup powerup)
 	}
 
 	PowerupMenu::GenerateList();
+
 	this->GlobalData->UnclaimedPowerups--;
+	this->GlobalData->CachedStrings[CachedString::UnclaimedPowerups] = "Unclaimed Powerups: " + std::to_string(this->GlobalData->UnclaimedPowerups);
 
 	if (this->GlobalData->UnclaimedPowerups == 0)
 		this->GlobalData->ActiveState = State::Game;
@@ -209,8 +209,10 @@ void PowerupMenu::ApplyBuckshot()
 {
 	this->GlobalData->Attributes[Attribute::Buckshot] += 2;
 
-	if (this->GlobalData->Attributes[Attribute::BuckshotSpread] >= 0.002f)
-		this->GlobalData->Attributes[Attribute::BuckshotSpread] -= 0.002f;
+	if (this->GlobalData->Attributes[Attribute::BuckshotSpread] - 0.02f > 0.02f)
+		this->GlobalData->Attributes[Attribute::BuckshotSpread] -= 0.02f;
+	else
+		this->GlobalData->Attributes[Attribute::BuckshotSpread] = 0.02f;
 }
 
 void PowerupMenu::ApplyProjectile()

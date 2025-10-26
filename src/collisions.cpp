@@ -28,7 +28,7 @@ unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy
 
 	for (auto &enemy : enemies)
 	{
-		if (CheckCollisionRecs(proj.Rect, enemy.Rect))
+		if (enemy.Layer == global_data.CurrentLayer && CheckCollisionRecs(proj.Rect, enemy.Rect))
 		{
 			enemy.Health -= damage;
 			enemy.FlashSprite(global_data.Ticks);

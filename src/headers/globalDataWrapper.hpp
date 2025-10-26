@@ -4,6 +4,7 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include <string>
 #include <cstddef>
 
 enum class Attribute
@@ -86,6 +87,13 @@ enum class Setting
 	DisableHealthCheck
 };
 
+enum class CachedString
+{
+	LayerText,
+	LevelText,
+	UnclaimedPowerups
+};
+
 class GlobalDataWrapper
 {
 	public:
@@ -119,12 +127,21 @@ class GlobalDataWrapper
 			{ Setting::DisableHealthCheck, 1 }
 		};
 
+		std::unordered_map<CachedString, std::string> CachedStrings =
+		{
+			{ CachedString::LayerText, "Current Layer: 0" },
+			{ CachedString::LevelText, "Level: 1" },
+			{ CachedString::UnclaimedPowerups, "" }
+		};
+
 		State ActiveState = State::Game;
 
 		size_t Ticks = 0;
 		
 		size_t Level = 1;
 		size_t LevelUpTreshold = 5;
+
+		int CurrentLayer = 0;
 
 		unsigned int UnclaimedPowerups = 0;
 
