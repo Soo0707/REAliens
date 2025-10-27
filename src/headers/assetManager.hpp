@@ -48,7 +48,7 @@ class AssetManager
 
 		Texture2D Ground;
 	private:
-		void LoadTextures();
-		void UnloadTextures();
-		TextureKey GetTextureKeyFromString(std::string filename);
+		void LoadTextures() noexcept;
+		void UnloadTextures() noexcept;
+		TextureKey GetTextureKeyFromString(std::string filename) const noexcept;
 };

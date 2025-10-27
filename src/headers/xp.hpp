@@ -6,10 +6,10 @@
 class Xp
 {
 	public:
-		Xp(float pos_x, float pos_y, unsigned int value, AssetManager &assets);
+		Xp(float pos_x, float pos_y, unsigned int value, AssetManager &assets) noexcept;
 		~Xp() = default;
 
-		void Draw() const;
+		void Draw() const noexcept;
 
 		Rectangle Rect;
 		bool Kill = false;

@@ -19,9 +19,9 @@ class Game
 		Game(std::shared_ptr<GlobalDataWrapper> global_data);
 		~Game();
 
-		void HandleEssentialInput();
-		void Draw(RenderTexture2D& virtual_canvas);
-		void Update();
+		void HandleEssentialInput() noexcept;
+		void Draw(RenderTexture2D& virtual_canvas) const noexcept;
+		void Update() noexcept;
 
 		std::shared_ptr<AssetManager> Assets;
 		std::shared_ptr<GlobalDataWrapper> GlobalData;
@@ -31,24 +31,23 @@ class Game
 		std::vector<Projectile> Projectiles;
 		std::vector<Xp> Xps;
 
-
 		std::unique_ptr<Player> PlayerInstance;
 
 	private:
-		void SpawnEnemies();
-		void LoopOverMap(Rectangle& m_obj);
+		void SpawnEnemies() noexcept;
+		void LoopOverMap(Rectangle& m_obj) noexcept;
 
-		void DrawOverlay();
+		void DrawOverlay() const noexcept;
 
-		void LevelUp();
+		void LevelUp() noexcept;
 
-		void UpdateEnemies();
-		void UpdateProjectiles();
-		void UpdateXps();
+		void UpdateEnemies() noexcept;
+		void UpdateProjectiles() noexcept;
+		void UpdateXps() noexcept;
 
-		void HandleTickedInput();
-		void HandleLeftClick();
-		void HandleRightClick();
+		void HandleTickedInput() noexcept;
+		void HandleLeftClick() noexcept;
+		void HandleRightClick() noexcept;
 
 		size_t LastLMB = 0;
 		bool CanLMB = true;

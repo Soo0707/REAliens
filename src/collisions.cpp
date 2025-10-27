@@ -6,7 +6,7 @@
 
 #include "constants.hpp"
 
-unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, GlobalDataWrapper& global_data)
+unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, GlobalDataWrapper& global_data) noexcept
 {
 	float damage;
 	unsigned int damage_done = 0;
@@ -43,7 +43,7 @@ unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy
 	return damage_done;
 }
 
-void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& global_data)
+void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& global_data) noexcept
 {
 	if (CheckCollisionRecs(player.Rect, enemy.Rect) && enemy.CanLeAttack)
 	{
@@ -84,7 +84,7 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 }
 
 
-bool Collisions::Aura(const float damage, const size_t ticks, Rectangle& aura, Enemy& enemy)
+bool Collisions::Aura(const float damage, const size_t ticks, Rectangle& aura, Enemy& enemy) noexcept
 {
 	if (CheckCollisionRecs(aura, enemy.Rect))
 	{

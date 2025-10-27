@@ -4,12 +4,11 @@
 #include "assetManager.hpp"
 #include "raylib.h"
 #include "raymath.h"
-#include "assetManager.hpp"
 #include "constants.hpp"
 
 #include <cstddef>
 
-Enemy::Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyType type, BehaviourModifier modifier) :
+Enemy::Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyType type, BehaviourModifier modifier) noexcept :
 	Type(type),
 	Modifiers(modifier),
 	LeAttackCooldown(SECONDS_TO_TICKS(3)),
@@ -73,7 +72,7 @@ Enemy::Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyTyp
 Enemy::~Enemy()
 {}
 
-void Enemy::Update(Rectangle& player_rect, size_t ticks)
+void Enemy::Update(Rectangle& player_rect, size_t ticks) noexcept
 {
 	Enemy::Animate(ticks);
 
@@ -91,7 +90,7 @@ void Enemy::Update(Rectangle& player_rect, size_t ticks)
 		this->Flash = false;
 }
 
-void Enemy::Draw() const
+void Enemy::Draw() const noexcept
 {
 	DrawTexturePro(
 			this->Image,
@@ -103,7 +102,7 @@ void Enemy::Draw() const
 			);
 }
 
-void Enemy::Animate(size_t ticks)
+void Enemy::Animate(size_t ticks) noexcept
 {
 	if (this->Direction.x != 0.0f || this->Direction.y != 0.0f)
 	{
@@ -122,13 +121,13 @@ void Enemy::Animate(size_t ticks)
 	this->ImageIndex %= this->AnimationFrames;
 }
 
-void Enemy::Move()
+void Enemy::Move() noexcept
 {
 	this->Rect.x += this->Speed * this->Direction.x * TICK_TIME;
 	this->Rect.y += this->Speed * this->Direction.y * TICK_TIME;
 }
 
-void Enemy::SetDirection(Rectangle& player_rect)
+void Enemy::SetDirection(Rectangle& player_rect) noexcept
 {
 	this->Direction.x = player_rect.x - this->Rect.x;
 	this->Direction.y = player_rect.y - this->Rect.y;
@@ -139,7 +138,7 @@ void Enemy::SetDirection(Rectangle& player_rect)
 		this->Direction = Vector2 { 0.0f, 0.0f };
 }
 
-void Enemy::FlashSprite(size_t ticks)
+void Enemy::FlashSprite(size_t ticks) noexcept
 {
 	this->Flash = true;
 	this->FlashTriggered = ticks;

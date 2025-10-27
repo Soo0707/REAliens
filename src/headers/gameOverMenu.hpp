@@ -9,8 +9,8 @@ class GameOverMenu
 	public:
 		GameOverMenu(std::shared_ptr<GlobalDataWrapper> global_data);
 		~GameOverMenu();
-		void Draw(RenderTexture2D& canvas);
-		void HandleInput();
+		void Draw(RenderTexture2D& canvas) const noexcept;
+		void HandleInput() noexcept;
 
 	private:
 		std::shared_ptr<GlobalDataWrapper> GlobalData;

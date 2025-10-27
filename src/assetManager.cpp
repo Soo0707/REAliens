@@ -3,7 +3,6 @@
 #include <unordered_map>
 #include <filesystem>
 #include <string>
-#include <algorithm>
 
 #include "raylib.h"
 
@@ -19,7 +18,7 @@ AssetManager::~AssetManager()
 	AssetManager::UnloadTextures();
 }
 
-void AssetManager::LoadTextures()
+void AssetManager::LoadTextures() noexcept
 {
 	std::filesystem::path path = "assets/textures";
 
@@ -37,7 +36,7 @@ void AssetManager::LoadTextures()
 	}
 }
 
-void AssetManager::UnloadTextures()
+void AssetManager::UnloadTextures() noexcept
 {
 	for (auto const &pair : this->Textures)
 	{
@@ -46,7 +45,7 @@ void AssetManager::UnloadTextures()
 }
 
 
-TextureKey AssetManager::GetTextureKeyFromString(std::string filename)
+TextureKey AssetManager::GetTextureKeyFromString(std::string filename) const noexcept
 {
 	static const std::unordered_map<std::string, TextureKey> Lookup =
 	{

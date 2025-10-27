@@ -16,14 +16,14 @@ Player::Player(float pos_x, float pos_y, AssetManager &assets) :
 Player::~Player()
 {}
 
-void Player::Update(size_t ticks)
+void Player::Update(size_t ticks) noexcept
 {
 	Player::SetCurrentTextures();
 	Player::Animate(ticks);
 	Player::Move();
 }
 
-void Player::Draw() const
+void Player::Draw() const noexcept
 {
 	DrawTextureRec(
 			this->Image,
@@ -33,7 +33,7 @@ void Player::Draw() const
 			);
 }
 
-void Player::Animate(size_t ticks)
+void Player::Animate(size_t ticks) noexcept
 {
 	if (this->Direction.x != 0.0f || this->Direction.y != 0.0f)
 	{
@@ -52,7 +52,7 @@ void Player::Animate(size_t ticks)
 	this->ImageIndex %= this->AnimationFrames;
 }
 
-void Player::SetCurrentTextures()
+void Player::SetCurrentTextures() noexcept
 {
 	if (this->Direction.x > 0)
 		this->CurrentTextures = TextureKey::PlayerEast;
@@ -66,7 +66,7 @@ void Player::SetCurrentTextures()
 	this->Image = this->Assets.Textures.at(this->CurrentTextures);
 }
 
-void Player::Move()
+void Player::Move() noexcept
 {
 	this->Rect.x += this->Speed * this->Direction.x * TICK_TIME;
 	this->Rect.y += this->Speed * this->Direction.y * TICK_TIME;
@@ -77,7 +77,7 @@ void Player::Move()
 	this->Aura.y = this->Centre.y - this->Aura.height / 2.0f;
 }
 
-void Player::IncreaseHealth(float addition)
+void Player::IncreaseHealth(float addition) noexcept
 {
 	if (this->Health + addition <= this->HealthMax)
 		this->Health += addition;

@@ -10,7 +10,7 @@ PauseMenu::PauseMenu(std::shared_ptr<GlobalDataWrapper> global_data) :
 PauseMenu::~PauseMenu()
 {}
 
-void PauseMenu::Draw(RenderTexture2D& canvas)
+void PauseMenu::Draw(RenderTexture2D& canvas) const noexcept
 {
 	static constexpr Rectangle left_rect = { 597.5, 310, 35, 100 };
 	static constexpr Rectangle right_rect = { 647.5, 310, 35, 100 };
@@ -27,7 +27,7 @@ void PauseMenu::Draw(RenderTexture2D& canvas)
 	EndTextureMode();
 }
 
-void PauseMenu::HandleInput()
+void PauseMenu::HandleInput() noexcept
 {
 	if (IsKeyPressed(KEY_SPACE))
 		this->GlobalData->ActiveState = State::Game;

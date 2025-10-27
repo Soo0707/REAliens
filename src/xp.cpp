@@ -2,7 +2,7 @@
 #include "assetManager.hpp"
 #include "raylib.h"
 
-Xp::Xp(float pos_x, float pos_y, unsigned int value, AssetManager &assets) :
+Xp::Xp(float pos_x, float pos_y, unsigned int value, AssetManager &assets) noexcept :
 	Image(assets.Textures[TextureKey::Xp]),
 	Value(value),
 	Rect( {
@@ -13,7 +13,7 @@ Xp::Xp(float pos_x, float pos_y, unsigned int value, AssetManager &assets) :
 			} )
 {}
 
-void Xp::Draw() const
+void Xp::Draw() const noexcept
 {
 	DrawTexture(this->Image, (int) this->Rect.x, (int) this->Rect.y, WHITE);
 }

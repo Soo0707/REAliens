@@ -25,12 +25,12 @@ enum class BehaviourModifier : size_t
 	IncreasedSpeed = 1 << 4
 };
 
-inline BehaviourModifier operator| (BehaviourModifier l, BehaviourModifier r)
+inline BehaviourModifier operator| (BehaviourModifier l, BehaviourModifier r) noexcept
 {
 	return static_cast<BehaviourModifier>(static_cast<size_t>(l) | static_cast<size_t>(r));
 }
 
-inline BehaviourModifier operator& (BehaviourModifier l, BehaviourModifier r)
+inline BehaviourModifier operator& (BehaviourModifier l, BehaviourModifier r) noexcept
 {
 	return static_cast<BehaviourModifier>(static_cast<size_t>(l) & static_cast<size_t>(r));
 }
@@ -40,12 +40,12 @@ inline BehaviourModifier operator& (BehaviourModifier l, BehaviourModifier r)
 class Enemy
 {
 	public:
-		Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyType type, BehaviourModifier modifier = BehaviourModifier::None);
+		Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyType type, BehaviourModifier modifier = BehaviourModifier::None) noexcept;
 		~Enemy(); 
 		
-		void Draw() const;
-		void FlashSprite(size_t ticks);
-		void Update(Rectangle& player_rect, size_t ticks);
+		void Draw() const noexcept;
+		void FlashSprite(size_t ticks) noexcept;
+		void Update(Rectangle& player_rect, size_t ticks) noexcept;
 		
 		float Health;
 		float Speed;
@@ -67,9 +67,9 @@ class Enemy
 		BehaviourModifier Modifiers;
 
 	private:
-		void Move();
-		void Animate(size_t ticks);
-		void SetDirection(Rectangle& player_rect);
+		void Move() noexcept;
+		void Animate(size_t ticks) noexcept;
+		void SetDirection(Rectangle& player_rect) noexcept;
 
 		Texture2D Image;
 

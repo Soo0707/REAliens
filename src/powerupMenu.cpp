@@ -2,8 +2,8 @@
 
 #include <memory>
 #include <set>
-#include "raylib.h"
 
+#include "raylib.h"
 #include "globalDataWrapper.hpp"
 #include "constants.hpp"
 
@@ -16,7 +16,7 @@ PowerupMenu::PowerupMenu(std::shared_ptr<GlobalDataWrapper> global_data) :
 PowerupMenu::~PowerupMenu()
 {}
 
-void PowerupMenu::Draw(RenderTexture2D& canvas)
+void PowerupMenu::Draw(RenderTexture2D& canvas) const noexcept
 {
 	static constexpr float mid = REFERENCE_WIDTH / 2.0f;
 
@@ -39,7 +39,7 @@ void PowerupMenu::Draw(RenderTexture2D& canvas)
 	EndTextureMode();
 }
 
-void PowerupMenu::GenerateList()
+void PowerupMenu::GenerateList() noexcept
 {
 	std::set<Powerup> powerup_set = {};
 	while (true)
@@ -58,11 +58,11 @@ void PowerupMenu::GenerateList()
 	for (auto const &powerup : powerup_set)
 	{
 		int i = this->SelectionList.size();
-		this->SelectionList.emplace_back( powerup, std::to_string(i + 1) + ". " + this->PowerupNames.at(powerup) );
+		this->SelectionList.emplace_back( powerup, std::to_string(i + 1) + ". " + this->PowerupNames[static_cast<size_t>(powerup)] );
 	}
 }
 
-void PowerupMenu::HandleInput()
+void PowerupMenu::HandleInput() noexcept
 {
 	if (IsKeyPressed(KEY_ONE))
 		PowerupMenu::ApplyPowerup(this->SelectionList[0].Powerup);
@@ -78,52 +78,11 @@ void PowerupMenu::HandleInput()
 	}
 }
 
-void PowerupMenu::ApplyPowerup(Powerup powerup)
+void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
 {
-	switch (powerup)
-	{
-		case Powerup::Aura:
-			PowerupMenu::ApplyAura();
-			break;
+	auto handler_function = this->ApplyHandles[static_cast<size_t>(powerup)];
 
-		case Powerup::Buckshot:
-			PowerupMenu::ApplyBuckshot();
-			break;
-
-		case Powerup::Projectile:
-			PowerupMenu::ApplyProjectile();
-			break;
-
-		case Powerup::Lazer:
-			PowerupMenu::ApplyLazer();
-			break;
-
-		case Powerup::Ball:
-			PowerupMenu::ApplyBall();
-			break;
-
-		case Powerup::Greenbull:
-			PowerupMenu::ApplyEffect(Effect::Greenbull, Event::GreenbullExpire, SECONDS_TO_TICKS(1000));
-			break;
-
-		case Powerup::Milk:
-			PowerupMenu::ApplyMilk();
-			break;
-
-		case Powerup::Magnetism:
-			PowerupMenu::ApplyEffect(Effect::Magnetism, Event::MagnetismExpire, SECONDS_TO_TICKS(1000));
-			break;
-
-		case Powerup::LifeSteal:
-			PowerupMenu::ApplyLifeSteal();
-			break;
-		case Powerup::PlotArmour:
-			this->GlobalData->Events[Event::IncreasePlotArmour] = 0;
-			break;
-		case Powerup::SpeedBoots:
-			this->GlobalData->Events[Event::IncreasePlayerSpeed] = 0;
-			break;
-	}
+	(this->*handler_function)(); // ->* binds 'this' to the copy of the method
 
 	PowerupMenu::GenerateList();
 
@@ -137,13 +96,13 @@ void PowerupMenu::ApplyPowerup(Powerup powerup)
 
 
 
-void PowerupMenu::ApplyEffect(const Effect effect, const Event event, const unsigned int duration)
+void PowerupMenu::ApplyEffect(const Effect effect, const Event event, const unsigned int duration) noexcept
 {
 	this->GlobalData->Effects.insert(effect);
 	this->GlobalData->Events[event] = this->GlobalData->Ticks + duration;
 }
 
-void PowerupMenu::ApplyMilk()
+void PowerupMenu::ApplyMilk() noexcept
 {
 	PowerupMenu::ApplyEffect(Effect::Milk, Event::MilkExpire, SECONDS_TO_TICKS(1000));
 
@@ -158,7 +117,17 @@ void PowerupMenu::ApplyMilk()
 	this->GlobalData->Events.erase(Event::PoisonExpire);
 }
 
-void PowerupMenu::ApplyAura()
+void PowerupMenu::ApplyGreenbull() noexcept
+{
+	PowerupMenu::ApplyEffect(Effect::Greenbull, Event::GreenbullExpire, SECONDS_TO_TICKS(1000));
+}
+
+void PowerupMenu::ApplyMagnetism() noexcept
+{
+	PowerupMenu::ApplyEffect(Effect::Magnetism, Event::MagnetismExpire, SECONDS_TO_TICKS(1000));
+}
+
+void PowerupMenu::ApplyAura() noexcept
 {
 	if (this->GlobalData->Attributes.count(Attribute::AuraSize))
 	{
@@ -181,7 +150,7 @@ void PowerupMenu::ApplyAura()
 	this->GlobalData->Events[Event::AuraTick] = this->GlobalData->Ticks + this->GlobalData->Attributes.at(Attribute::AuraCooldown);
 }
 
-void PowerupMenu::ApplyBall()
+void PowerupMenu::ApplyBall() noexcept
 {
 	if (this->GlobalData->Attributes.count(Attribute::BallRadius)) 
 	{
@@ -205,7 +174,7 @@ void PowerupMenu::ApplyBall()
 	this->GlobalData->Events[Event::SpawnAndUpgradeBall] = 0;
 }
 
-void PowerupMenu::ApplyBuckshot()
+void PowerupMenu::ApplyBuckshot() noexcept
 {
 	this->GlobalData->Attributes[Attribute::Buckshot] += 2;
 
@@ -215,7 +184,7 @@ void PowerupMenu::ApplyBuckshot()
 		this->GlobalData->Attributes[Attribute::BuckshotSpread] = 0.02f;
 }
 
-void PowerupMenu::ApplyProjectile()
+void PowerupMenu::ApplyProjectile() noexcept
 {
 	if (this->GlobalData->Attributes[Attribute::BulletCooldown] - 25 > 80)
 		this->GlobalData->Attributes[Attribute::BulletCooldown] -= 80;
@@ -226,7 +195,7 @@ void PowerupMenu::ApplyProjectile()
 	this->GlobalData->Attributes[Attribute::BulletSpeed] += 100;
 }
 
-void PowerupMenu::ApplyLazer()
+void PowerupMenu::ApplyLazer() noexcept
 {
 	if (this->GlobalData->Attributes[Attribute::LazerCooldown] - 50 > 60)
 		this->GlobalData->Attributes[Attribute::LazerCooldown] -= 50;
@@ -238,7 +207,7 @@ void PowerupMenu::ApplyLazer()
 	this->GlobalData->Attributes[Attribute::LazerSpeed] += 10;
 }
 
-void PowerupMenu::ApplyLifeSteal()
+void PowerupMenu::ApplyLifeSteal() noexcept
 {
 	if (this->GlobalData->Effects.count(Effect::LifeSteal))
 		this->GlobalData->Attributes[Attribute::LifeStealMultiplier] += 0.2;
@@ -247,4 +216,14 @@ void PowerupMenu::ApplyLifeSteal()
 		this->GlobalData->Attributes[Attribute::LifeStealMultiplier] = 0.1;
 		this->GlobalData->Effects.insert(Effect::LifeSteal);
 	}
+}
+
+void PowerupMenu::ApplyPlotArmour() noexcept
+{
+	this->GlobalData->Events[Event::IncreasePlotArmour] = 0;
+}
+
+void PowerupMenu::ApplySpeedBoots() noexcept
+{
+	this->GlobalData->Events[Event::IncreasePlayerSpeed] = 0;
 }

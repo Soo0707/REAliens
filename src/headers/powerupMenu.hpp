@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <unordered_map>
+#include <array>
 #include <string>
 #include <vector>
 
@@ -40,39 +40,66 @@ class PowerupMenu
 	public:
 		PowerupMenu(std::shared_ptr<GlobalDataWrapper> global_data);
 		~PowerupMenu();
-		void Draw(RenderTexture2D& canvas);
-		void HandleInput();
+		void Draw(RenderTexture2D& canvas) const noexcept;
+		void HandleInput() noexcept;
 
-		std::string UnacquiredPowerupCache;
 	private:
-		void GenerateList();
+		void GenerateList() noexcept;
 
-		void ApplyPowerup(Powerup powerup);
-		void ApplyEffect(const Effect effect, const Event event, const unsigned int duration);
-		void ApplyMilk();
-		void ApplyAura();
+		void ApplyPowerup(Powerup powerup) noexcept;
+		void ApplyEffect(const Effect effect, const Event event, const unsigned int duration) noexcept;
 
-		void ApplyBall();
-		void ApplyBuckshot();
-		void ApplyProjectile();
-		void ApplyLazer();
-		void ApplyLifeSteal();
+		void ApplyMilk() noexcept;
+		void ApplyAura() noexcept;
+		void ApplyBall() noexcept;
+
+		void ApplyBuckshot() noexcept;
+		void ApplyProjectile() noexcept;
+		void ApplyLazer() noexcept;
+
+		void ApplyLifeSteal() noexcept;
+		void ApplyGreenbull() noexcept;
+		void ApplyMagnetism() noexcept;
+
+		void ApplyPlotArmour() noexcept;
+		void ApplySpeedBoots() noexcept;
 
 		std::shared_ptr<GlobalDataWrapper> GlobalData;
 		std::vector<PowerupWrapper> SelectionList;
 
-		static const inline std::unordered_map<Powerup, std::string> PowerupNames =
+		static inline constexpr std::array<std::string, static_cast<size_t>(Powerup::COUNT)> PowerupNames =
 		{
-			{ Powerup::Aura, "Aura" },
-			{ Powerup::Buckshot, "Buckshot" },
-			{ Powerup::Projectile, "Projectile" },
-			{ Powerup::Lazer, "Lazer" },
-			{ Powerup::Ball, "Ball" },
-			{ Powerup::Greenbull, "Greenbull" },
-			{ Powerup::Milk, "Milk" },
-			{ Powerup::LifeSteal, "Life Steal" },
-			{ Powerup::PlotArmour, "Plot Armour" },
-			{ Powerup::Magnetism, "Magnetism" },
-			{ Powerup::SpeedBoots, "Speed Boots"}
+			"Aura",
+			"Buckshot",
+			"Projectile",
+
+			"Ball",
+			"Lazer",
+			"Greenbull",
+
+			"Milk",
+			"Life Steal",
+			"Plot Armour",
+
+			"Magnetism",
+			"Speed Boots"
+		};
+
+		static inline constexpr std::array<void(PowerupMenu::*)(), static_cast<size_t>(Powerup::COUNT)> ApplyHandles = 
+		{
+			&PowerupMenu::ApplyAura,
+			&PowerupMenu::ApplyBuckshot,
+			&PowerupMenu::ApplyProjectile,
+
+			&PowerupMenu::ApplyBall,
+			&PowerupMenu::ApplyLazer,
+			&PowerupMenu::ApplyGreenbull,
+
+			&PowerupMenu::ApplyMilk,
+			&PowerupMenu::ApplyLifeSteal,
+			&PowerupMenu::ApplyPlotArmour,
+
+			&PowerupMenu::ApplyMagnetism,
+			&PowerupMenu::ApplySpeedBoots
 		};
 };

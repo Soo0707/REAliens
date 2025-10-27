@@ -10,7 +10,7 @@ GameOverMenu::GameOverMenu(std::shared_ptr<GlobalDataWrapper> global_data) :
 GameOverMenu::~GameOverMenu()
 {}
 
-void GameOverMenu::Draw(RenderTexture2D& canvas)
+void GameOverMenu::Draw(RenderTexture2D& canvas) const noexcept
 {
 	float mid = 1280 / 2.0f;
 
@@ -26,7 +26,7 @@ void GameOverMenu::Draw(RenderTexture2D& canvas)
 	EndTextureMode();
 }
 
-void GameOverMenu::HandleInput()
+void GameOverMenu::HandleInput() noexcept
 {
 	if (IsKeyPressed(KEY_SPACE))
 		this->GlobalData->ActiveState = State::Game;

@@ -10,12 +10,12 @@ class Player
 		Player(float pos_x, float pos_y, AssetManager &assets);
 		~Player(); 
 		
-		void Move();
-		void Update(size_t ticks);
-		void Animate(size_t ticks);
-		void Draw() const;
+		void Move() noexcept;
+		void Update(size_t ticks) noexcept;
+		void Animate(size_t ticks) noexcept;
+		void Draw() const noexcept;
 
-		void IncreaseHealth(float addition);
+		void IncreaseHealth(float addition) noexcept;
 		
 		float Health = 100;
 		float HealthMax = 100;
@@ -39,5 +39,5 @@ class Player
 
 		TextureKey CurrentTextures = TextureKey::PlayerSouth;
 
-		void SetCurrentTextures();
+		void SetCurrentTextures() noexcept;
 };

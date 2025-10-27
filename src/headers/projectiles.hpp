@@ -19,11 +19,11 @@ enum class ProjectileType
 class Projectile
 {
 	public:
-		Projectile(float x, float y, Vector2 direction, ProjectileType type, GlobalDataWrapper& global_data, AssetManager& assets);
+		Projectile(float x, float y, Vector2 direction, ProjectileType type, GlobalDataWrapper& global_data, AssetManager& assets) noexcept;
 		~Projectile() = default;
 
-		void Update(const Vector2 player_centre);
-		void Draw() const;
+		void Update(const Vector2 player_centre) noexcept;
+		void Draw() const noexcept;
 
 		bool Kill = false;
 		ProjectileType Type;

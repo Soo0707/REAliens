@@ -8,9 +8,9 @@
 
 #include <cmath>
 
-Projectile::Projectile(float x, float y, Vector2 direction, ProjectileType type, GlobalDataWrapper& global_data, AssetManager& assets):
+Projectile::Projectile(float x, float y, Vector2 direction, ProjectileType type, GlobalDataWrapper& global_data, AssetManager& assets) noexcept :
 	Type(type),
-	Layer(global_data.CurrentLayer)
+	Layer(global_data.CurrentLayer) 
 {
 	if (direction.x != 0.0f || direction.y != 0.0f)
 		this->Direction = Vector2Normalize(direction);
@@ -46,13 +46,13 @@ Projectile::Projectile(float x, float y, Vector2 direction, ProjectileType type,
 	this->Rect = { x, y, this->Image.width * this->Scale, this->Image.height * this->Scale };
 }
 
-void Projectile::Draw() const
+void Projectile::Draw() const noexcept
 {
 	Vector2 position = (Vector2) { this->Rect.x, this->Rect.y };
 	DrawTextureEx(this->Image, position, this->Rotation, this->Scale, WHITE);
 }
 
-void Projectile::Update(const Vector2 player_centre)
+void Projectile::Update(const Vector2 player_centre) noexcept
 {
 	switch (this->Type)
 	{

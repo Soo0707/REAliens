@@ -10,7 +10,7 @@
 #include "raymath.h"
 
 #include "globalDataWrapper.hpp"
-#include "gameEventHandlers.hpp"
+#include "gameEventSystem.hpp"
 #include "constants.hpp"
 
 #include "player.hpp"
@@ -47,7 +47,7 @@ Game::Game(std::shared_ptr<GlobalDataWrapper> global_data) :
 Game::~Game()
 {}
 
-void Game::Draw(RenderTexture2D& virtual_canvas)
+void Game::Draw(RenderTexture2D& virtual_canvas) const noexcept
 {
 	static unsigned int map_width = this->Assets->Ground.width;
 	static unsigned int map_height = this->Assets->Ground.height;
@@ -105,7 +105,7 @@ void Game::Draw(RenderTexture2D& virtual_canvas)
 	EndTextureMode();
 }
 
-void Game::DrawOverlay()
+void Game::DrawOverlay() const noexcept
 {
 	float health_percentage = this->PlayerInstance->Health / this->PlayerInstance->HealthMax;
 
@@ -157,7 +157,7 @@ void Game::DrawOverlay()
 }
 
 
-void Game::Update()
+void Game::Update() noexcept
 {
 	this->Accumulator += GetFrameTime();
 
@@ -171,10 +171,10 @@ void Game::Update()
 		if (this->PlayerInstance->Health <= 0 && !this->GlobalData->Settings.at(Setting::DisableHealthCheck))
 			this->GlobalData->ActiveState = State::GameOverMenu;
 		
-		if (ticks - this->LastLMB >= this->GlobalData->Attributes[Attribute::BulletCooldown])
+		if (ticks - this->LastLMB >= this->GlobalData->Attributes.at(Attribute::BulletCooldown))
 			this->CanLMB = true;
 
-		if (ticks - this->LastRMB >= this->GlobalData->Attributes[Attribute::LazerCooldown])
+		if (ticks - this->LastRMB >= this->GlobalData->Attributes.at(Attribute::LazerCooldown))
 			this->CanRMB = true;
 
 		if (ticks - this->LastLayerUp >= TICK_RATE)
@@ -188,7 +188,8 @@ void Game::Update()
 			Game::LevelUp();
 
 		Game::HandleTickedInput();
-		GameEventHandler::HandleEvents(*this);
+
+		GameEventSystem::HandleEvents(*this);
 
 		this->PlayerInstance->Update(ticks);
 		Game::LoopOverMap(this->PlayerInstance->Rect);
@@ -216,7 +217,7 @@ void Game::Update()
 }
 
 
-void Game::UpdateEnemies()
+void Game::UpdateEnemies() noexcept
 {
 	if ((this->GlobalData->Ticks - this->LastSpawn >= this->SpawnTimeout) || this->Enemies.size() == 0)
 	{
@@ -247,7 +248,7 @@ void Game::UpdateEnemies()
 	std::erase_if(this->Enemies, [](const Enemy& enemy) { return (enemy.Health <= 0); });
 }
 
-void Game::UpdateProjectiles()
+void Game::UpdateProjectiles() noexcept
 {
 	unsigned int damage_done = 0;
 	for (auto &projectile : this->Projectiles)
@@ -270,7 +271,7 @@ void Game::UpdateProjectiles()
 		this->PlayerInstance->IncreaseHealth( damage_done * this->GlobalData->Attributes.at(Attribute::LifeStealMultiplier) );
 }
 
-void Game::UpdateXps()
+void Game::UpdateXps() noexcept
 {
 	bool has_magnetism = this->GlobalData->Effects.count(Effect::Magnetism);
 
@@ -288,7 +289,7 @@ void Game::UpdateXps()
 
 
 
-void Game::HandleEssentialInput()
+void Game::HandleEssentialInput() noexcept
 {
 	if (IsKeyPressed(KEY_ESCAPE))
 		this->GlobalData->ActiveState = State::PauseMenu;
@@ -297,7 +298,7 @@ void Game::HandleEssentialInput()
 		this->GlobalData->ActiveState = State::PowerupMenu;
 }
 
-void Game::HandleTickedInput()
+void Game::HandleTickedInput() noexcept
 {
 	if (IsKeyDown(KEY_Q) && CanLayerDown && this->GlobalData->CurrentLayer - 1 >= 0)
 	{
@@ -356,7 +357,7 @@ void Game::HandleTickedInput()
 	}
 }
 
-void Game::HandleLeftClick()
+void Game::HandleLeftClick() noexcept
 {
 	Vector2 scale_factors = { static_cast<float>(GetScreenWidth()) / REFERENCE_WIDTH, static_cast<float>(GetScreenHeight()) / REFERENCE_HEIGHT };
 	Vector2 scaled_mouse_pos = { GetMouseX() / scale_factors.x, GetMouseY() / scale_factors.y };
@@ -381,7 +382,7 @@ void Game::HandleLeftClick()
 	}
 }
 
-void Game::HandleRightClick()
+void Game::HandleRightClick() noexcept
 {
 	static constexpr std::array<Vector2, 4> directions = { Vector2{1.0f, 0.0f}, Vector2{0.0f, 1.0f}, Vector2{-1.0f, 0.0f}, Vector2{0.0f, -1.0f} };
 
@@ -393,7 +394,7 @@ void Game::HandleRightClick()
 
 
 
-void Game::SpawnEnemies()
+void Game::SpawnEnemies() noexcept
 {
 	std::vector<Vector2> rand_nums;
 
@@ -428,7 +429,7 @@ void Game::SpawnEnemies()
 	}
 }
 
-void Game::LoopOverMap(Rectangle& m_obj)
+void Game::LoopOverMap(Rectangle& m_obj) noexcept
 {
 	if (m_obj.x < 0)
 		m_obj.x = this->Assets->Ground.width - m_obj.width;
@@ -441,7 +442,7 @@ void Game::LoopOverMap(Rectangle& m_obj)
 		m_obj.y = 0;
 }
 
-void Game::LevelUp()
+void Game::LevelUp() noexcept
 {
 	this->GlobalData->Level++;
 	this->GlobalData->UnclaimedPowerups++;

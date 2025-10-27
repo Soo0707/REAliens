@@ -34,6 +34,7 @@ enum class Attribute
 	LifeStealMultiplier
 };
 
+// The ordering here matters as GameEventSystem uses a fixed array as a function jump table
 enum class Event
 {
 	SpawnAndUpgradeBall,
@@ -51,7 +52,8 @@ enum class Event
 	IncreasePlotArmour,
 
 	IncreaseAura,
-	AuraTick
+	AuraTick,
+	COUNT
 };
 
 enum class State
