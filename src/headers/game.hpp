@@ -34,11 +34,14 @@ class Game
 
 		std::unique_ptr<Player> PlayerInstance;
 
+		Camera2D Camera;
+		Rectangle UpdateArea;
+		
+		size_t CollectedXp = 0;
+
 	private:
 		void SpawnEnemies() noexcept;
 		void LoopOverMap(Rectangle& m_obj) noexcept;
-
-		void DrawOverlay() const noexcept;
 
 		void LevelUp() noexcept;
 
@@ -64,11 +67,7 @@ class Game
 		bool CanLayerUp = true;
 
 		float Accumulator = 0.0f;
-		size_t CollectedXp = 0;
 
 		size_t LastSpawn = 0;
 		size_t SpawnTimeout;
-
-		Camera2D Camera;
-		Rectangle UpdateArea;
 };

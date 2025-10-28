@@ -11,6 +11,8 @@
 
 #include "globalDataWrapper.hpp"
 #include "gameEventSystem.hpp"
+#include "gameDrawSystem.hpp"
+
 #include "constants.hpp"
 
 #include "player.hpp"
@@ -51,119 +53,14 @@ Game::~Game()
 
 void Game::Draw(RenderTexture2D& virtual_canvas) const noexcept
 {
-	static unsigned int map_width = this->Assets->Ground.width;
-	static unsigned int map_height = this->Assets->Ground.height;
-
-	Rectangle viewport = this->UpdateArea;
-
-	if (viewport.x < 0)
-	{
-		viewport.width += viewport.x;
-		viewport.x = 0;
-	}
-	
-	if (viewport.x + viewport.width > map_width)
-		viewport.width = map_width - viewport.x;
-
-	if (viewport.y < 0)
-	{
-		viewport.height += viewport.y;
-		viewport.y = 0;
-	}
-	
-	if (viewport.y + viewport.height > map_height)
-		viewport.height = map_height - viewport.y;
-
-
 	BeginTextureMode(virtual_canvas);
 		ClearBackground(BLACK);
 
-		BeginMode2D(this->Camera);
+		GameDrawSystem::DrawGame(*this);
 
-		DrawTextureRec(this->Assets->Ground, viewport, (Vector2) { viewport.x, viewport.y }, WHITE);
-		
-		for (auto const &xp : this->Xps)
-		{
-			if (CheckCollisionRecs(this->UpdateArea, xp.Rect))
-				xp.Draw();
-		}
-		
-		for (auto const &enemy : this->Enemies)
-		{
-			if (enemy.Layer <= this->GlobalData->CurrentLayer && CheckCollisionRecs(this->UpdateArea, enemy.Rect))
-				enemy.Draw();
-		}
-		
-		for (auto const &projectile : this->Projectiles)
-		{
-			if (projectile.Layer <= this->GlobalData->CurrentLayer && CheckCollisionRecs(this->UpdateArea, projectile.Rect))
-				projectile.Draw();
-		}
-
-		for (auto const &text : this->GameTexts)
-		{
-			if (CheckCollisionRecs(this->UpdateArea, text.Rect))
-				text.Draw();
-		}
-
-		this->PlayerInstance->Draw();
-
-		EndMode2D();
-		Game::DrawOverlay();
+		GameDrawSystem::DrawOverlay(*this);
 	EndTextureMode();
 }
-
-void Game::DrawOverlay() const noexcept
-{
-	float health_percentage = this->PlayerInstance->Health / this->PlayerInstance->HealthMax;
-
-	Rectangle health_bar = {
-		1060,
-		20,
-		health_percentage * 200,
-		10
-	};
-
-	bool is_poisoned = this->GlobalData->Effects.count(Effect::Poison);
-
-	float xp_percentage = (float) this->CollectedXp / (float) this->GlobalData->LevelUpTreshold;
-
-	Rectangle xp_bar = {
-		100,
-		680,
-		xp_percentage * 1080,
-		15
-	};
-
-
-	DrawRectangleRec(HEALTH_BACKGROUND, BLACK);
-	DrawRectangleRec(health_bar, (is_poisoned) ? VIOLET : GREEN);
-
-	DrawRectangleRec(XP_BACKGROUND, BLACK);
-	DrawRectangleRec(xp_bar, CYAN);
-
-	if (this->GlobalData->Effects.count(Effect::Greenbull))
-		DrawRectangleRec(GREENBULL_SQUARE, GREEN);
-
-	if (this->GlobalData->Effects.count(Effect::Milk))
-		DrawRectangleRec(MILK_SQUARE, WHITE);
-	
-	if (this->GlobalData->Effects.count(Effect::Drunk))
-		DrawRectangleRec(DRUNK_SQUARE, YELLOW);
-
-	if (this->GlobalData->Effects.count(Effect::Magnetism))
-	{
-		DrawRectangleRec(MAGNETISM_HALF_1, DARKBLUE);
-		DrawRectangleRec(MAGNETISM_HALF_2, RED);
-	}
-
-	if (this->GlobalData->Effects.count(Effect::Trapped))
-		DrawText("[Space] to untrap.", 533, 620, 24, WHITE);
-
-	DrawText(this->GlobalData->CachedStrings.at(CachedString::LayerText).c_str(), 20, 20, 24, LIGHTGRAY);
-	DrawText(this->GlobalData->CachedStrings.at(CachedString::LevelText).c_str(), 20, 50, 24, LIGHTGRAY);
-}
-
 
 void Game::Update() noexcept
 {

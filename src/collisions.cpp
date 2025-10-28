@@ -74,7 +74,7 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 					break;
 				case EnemyType::Drunkard:
 					global_data.Effects.insert(Effect::Drunk);
-					global_data.Events[Event::DrunkExpire] = global_data.Ticks + SECONDS_TO_TICKS(1) * scale;
+					global_data.Events[Event::DrunkExpire] = global_data.Ticks + SECONDS_TO_TICKS(5) * scale;
 					break;
 			}
 		}
