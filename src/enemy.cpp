@@ -21,12 +21,12 @@ Enemy::Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyTyp
 	this->AnimationFrames = EnemyAttributes.at(this->Type).animation_frames;
 
 	this->Health = EnemyAttributes.at(this->Type).health;
+
 	this->Image = assets.Textures.at(EnemyAttributes.at(this->Type).texture_key);
 
 
 	if (type == EnemyType::Trapper)
 		this->Modifiers = this->Modifiers | BehaviourModifier::NoMovement;
-
 
 	if ((modifier & BehaviourModifier::OverrideDirection) == BehaviourModifier::OverrideDirection)
 	{

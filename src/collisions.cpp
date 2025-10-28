@@ -1,9 +1,10 @@
 #include "collisions.hpp"
 
 #include "globalDataWrapper.hpp"
+
 #include "enemy.hpp"
 #include "enemyData.hpp"
-
+#include "game.hpp"
 #include "constants.hpp"
 
 unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, GlobalDataWrapper& global_data) noexcept
@@ -36,10 +37,10 @@ unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy
 			if (proj.Type == ProjectileType::Bullet)
 				proj.Kill = true;
 
-			if (global_data.Effects.count(Effect::LifeSteal))
-				damage_done += damage;
+			damage_done += damage;
 		}
 	}
+
 	return damage_done;
 }
 
@@ -83,14 +84,23 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 	}
 }
 
-
-bool Collisions::Aura(const float damage, const size_t ticks, Rectangle& aura, Enemy& enemy) noexcept
+void Collisions::Aura(Game& game) noexcept
 {
-	if (CheckCollisionRecs(aura, enemy.Rect))
+	float aura_damage = game.GlobalData->Attributes.at(Attribute::AuraDamage);
+	unsigned int total_hit = 0;
+
+	for (auto &enemy : game.Enemies)
 	{
-		enemy.Health -= damage;
-		enemy.FlashSprite(ticks);
-		return true;
+		if (CheckCollisionRecs(game.PlayerInstance->Aura, enemy.Rect))
+		{
+			enemy.Health -= aura_damage;
+			enemy.FlashSprite(game.GlobalData->Ticks);
+
+			game.GameTexts.emplace_back(enemy.Rect.x, enemy.Rect.y, std::to_string(static_cast<int>(aura_damage)), game.GlobalData->Ticks);
+			total_hit++;
+		}
 	}
-	return false;
+
+	if (game.GlobalData->Effects.count(Effect::LifeSteal))
+		game.PlayerInstance->IncreaseHealth(total_hit * aura_damage * game.GlobalData->Attributes.at(Attribute::LifeStealMultiplier));
 }

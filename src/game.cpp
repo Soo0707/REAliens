@@ -17,6 +17,8 @@
 #include "assetManager.hpp"
 #include "projectiles.hpp"
 #include "collisions.hpp"
+#include "gameText.hpp"
+
 #include "enemy.hpp"
 
 #include "enemyData.hpp"
@@ -94,8 +96,14 @@ void Game::Draw(RenderTexture2D& virtual_canvas) const noexcept
 		
 		for (auto const &projectile : this->Projectiles)
 		{
-			if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
+			if (projectile.Layer <= this->GlobalData->CurrentLayer && CheckCollisionRecs(this->UpdateArea, projectile.Rect))
 				projectile.Draw();
+		}
+
+		for (auto const &text : this->GameTexts)
+		{
+			if (CheckCollisionRecs(this->UpdateArea, text.Rect))
+				text.Draw();
 		}
 
 		this->PlayerInstance->Draw();
@@ -209,6 +217,7 @@ void Game::Update() noexcept
 		Game::UpdateEnemies();
 		Game::UpdateProjectiles();
 		Game::UpdateXps();
+		Game::UpdateGameTexts();
 
 
 		this->Accumulator -= TICK_TIME;
@@ -251,6 +260,7 @@ void Game::UpdateEnemies() noexcept
 void Game::UpdateProjectiles() noexcept
 {
 	unsigned int damage_done = 0;
+
 	for (auto &projectile : this->Projectiles)
 	{
 		if (projectile.Layer == this->GlobalData->CurrentLayer && CheckCollisionRecs(this->UpdateArea, projectile.Rect))
@@ -258,10 +268,15 @@ void Game::UpdateProjectiles() noexcept
 			projectile.Update(this->PlayerInstance->Centre);
 
 			Game::LoopOverMap(projectile.Rect);
-			
-			damage_done += Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData);
+
+			unsigned int damage = Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData); 
+
+			if (damage > 0)
+				this->GameTexts.emplace_back(projectile.Rect.x, projectile.Rect.y, std::to_string(damage), this->GlobalData->Ticks);
+
+			damage_done += damage;
 		}
-		else
+		else // TODO: switching layers just kill
 			projectile.Kill = true;
 	}
 
@@ -287,13 +302,24 @@ void Game::UpdateXps() noexcept
 	std::erase_if(this->Xps, [](const Xp& xp) { return xp.Kill; });
 }
 
+void Game::UpdateGameTexts() noexcept
+{
+	for (auto &text : this->GameTexts)
+	{
+		if (CheckCollisionRecs(this->UpdateArea, text.Rect))
+			text.Update();
+	}
+
+	std::erase_if(this->GameTexts, [ticks = this->GlobalData->Ticks](const GameText& text) { return (ticks >= text.Expiry); });
+}
+
 
 
 void Game::HandleEssentialInput() noexcept
 {
 	if (IsKeyPressed(KEY_ESCAPE))
 		this->GlobalData->ActiveState = State::PauseMenu;
-
+	
 	if (IsKeyPressed(KEY_TAB) && this->GlobalData->UnclaimedPowerups > 0)
 		this->GlobalData->ActiveState = State::PowerupMenu;
 }

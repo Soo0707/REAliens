@@ -60,14 +60,17 @@ void Projectile::Update(const Vector2 player_centre) noexcept
 		{
 			this->CurrentAngle += this->Speed * TICK_TIME;
 
-			if (this->CurrentAngle >= 2 * PI)
-				this->CurrentAngle = 0;
+			this->CurrentAngle = std::fmod(this->CurrentAngle, 2 * PI);
+
+			if (this->CurrentAngle < 0.0f)
+				this->CurrentAngle += 2 * PI;
 
 			this->Rect.width = this->Image.width * this->Scale;
 			this->Rect.height = this->Image.height * this->Scale;
 
 			this->Rect.x = player_centre.x + this->Radius * cos(this->CurrentAngle);
-			this->Rect.y = player_centre.y + this->Radius * sin(this->CurrentAngle); 
+			this->Rect.y = player_centre.y + this->Radius * sin(this->CurrentAngle);
+
 			break;
 		}
 		default:

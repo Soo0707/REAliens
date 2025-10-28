@@ -48,6 +48,7 @@ class Enemy
 		void Update(Rectangle& player_rect, size_t ticks) noexcept;
 		
 		float Health;
+
 		float Speed;
 
 		Vector2 Direction = { 0.0f, 0.0f };

@@ -66,18 +66,7 @@ void GameEventSystem::AuraTick(Game& game, size_t expiry, std::unordered_map<Eve
 		new_events_map[Event::AuraTick] = expiry;
 	else
 	{
-		float damage;
-		unsigned int enemies_hit = 0;
-
-		damage = game.GlobalData->Attributes.at(Attribute::AuraDamage);
-
-		for (auto &enemy : game.Enemies)
-		{
-			enemies_hit += Collisions::Aura(damage, game.GlobalData->Ticks, game.PlayerInstance->Aura, enemy);
-		}
-
-		if (game.GlobalData->Effects.count(Effect::LifeSteal))
-			game.PlayerInstance->IncreaseHealth( enemies_hit * damage * game.GlobalData->Attributes.at(Attribute::LifeStealMultiplier) );
+		Collisions::Aura(game);
 
 		new_events_map[Event::AuraTick] = expiry + game.GlobalData->Attributes.at(Attribute::AuraCooldown);
 	}

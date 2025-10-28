@@ -12,6 +12,7 @@
 #include "projectiles.hpp"
 #include "enemy.hpp"
 #include "xp.hpp"
+#include "gameText.hpp"
 
 class Game
 {
@@ -26,10 +27,10 @@ class Game
 		std::shared_ptr<AssetManager> Assets;
 		std::shared_ptr<GlobalDataWrapper> GlobalData;
 
-
 		std::vector<Enemy> Enemies;
 		std::vector<Projectile> Projectiles;
 		std::vector<Xp> Xps;
+		std::vector<GameText> GameTexts;
 
 		std::unique_ptr<Player> PlayerInstance;
 
@@ -44,6 +45,7 @@ class Game
 		void UpdateEnemies() noexcept;
 		void UpdateProjectiles() noexcept;
 		void UpdateXps() noexcept;
+		void UpdateGameTexts() noexcept;
 
 		void HandleTickedInput() noexcept;
 		void HandleLeftClick() noexcept;
