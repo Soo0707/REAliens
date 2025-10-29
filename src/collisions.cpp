@@ -91,7 +91,7 @@ void Collisions::Aura(Game& game) noexcept
 
 	for (auto &enemy : game.Enemies)
 	{
-		if (CheckCollisionRecs(game.PlayerInstance->Aura, enemy.Rect))
+		if (enemy.Layer == game.GlobalData->CurrentLayer && CheckCollisionRecs(game.PlayerInstance->Aura, enemy.Rect))
 		{
 			enemy.Health -= aura_damage;
 			enemy.FlashSprite(game.GlobalData->Ticks);

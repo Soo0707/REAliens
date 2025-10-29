@@ -2,16 +2,18 @@
 
 #include <memory>
 #include <algorithm>
-#include <array>
 #include <vector>
 #include <string>
 
 #include "raylib.h"
-#include "raymath.h"
 
 #include "globalDataWrapper.hpp"
+
 #include "gameEventSystem.hpp"
+#include "gameInputSystem.hpp"
 #include "gameDrawSystem.hpp"
+#include "gameHelpers.hpp"
+#include "gameText.hpp"
 
 #include "constants.hpp"
 
@@ -19,7 +21,6 @@
 #include "assetManager.hpp"
 #include "projectiles.hpp"
 #include "collisions.hpp"
-#include "gameText.hpp"
 
 #include "enemy.hpp"
 
@@ -28,8 +29,7 @@
 
 
 Game::Game(std::shared_ptr<GlobalDataWrapper> global_data) :
-	GlobalData(global_data),
-	SpawnTimeout(SECONDS_TO_TICKS(30))
+	GlobalData(global_data)
 {
 	this->Assets = std::make_shared<AssetManager>();
 
@@ -88,16 +88,15 @@ void Game::Update() noexcept
 		if (ticks - this->LastLayerDown >= TICK_RATE)
 			this->CanLayerDown = true;
 	
-
 		if (this->CollectedXp >= this->GlobalData->LevelUpTreshold)
-			Game::LevelUp();
+			GameHelper::LevelUp(*this);
 
-		Game::HandleTickedInput();
+		GameInputSystem::HandleTickedInput(*this);
 
 		GameEventSystem::HandleEvents(*this);
 
 		this->PlayerInstance->Update(ticks);
-		Game::LoopOverMap(this->PlayerInstance->Rect);
+		GameHelper::LoopOverMap(*this->Assets, this->PlayerInstance->Rect);
 
 
 		this->UpdateArea.x = this->PlayerInstance->Centre.x - REFERENCE_WIDTH / 2.0f;
@@ -125,9 +124,9 @@ void Game::Update() noexcept
 
 void Game::UpdateEnemies() noexcept
 {
-	if ((this->GlobalData->Ticks - this->LastSpawn >= this->SpawnTimeout) || this->Enemies.size() == 0)
+	if ((this->GlobalData->Ticks - this->LastSpawn >= SECONDS_TO_TICKS(30)) || this->Enemies.size() == 0)
 	{
-		Game::SpawnEnemies();
+		GameHelper::SpawnEnemies(*this);
 		this->LastSpawn = this->GlobalData->Ticks;
 	}
 
@@ -138,7 +137,7 @@ void Game::UpdateEnemies() noexcept
 		if (enemy.Layer == this->GlobalData->CurrentLayer && CheckCollisionRecs(this->UpdateArea, enemy.Rect))
 		{
 			enemy.Update(this->PlayerInstance->Rect, this->GlobalData->Ticks);
-			Game::LoopOverMap(enemy.Rect);
+			GameHelper::LoopOverMap(*this->Assets, enemy.Rect);
 			
 			if (!has_greenbull)
 				Collisions::LeAttack(*this->PlayerInstance, enemy, *this->GlobalData);
@@ -164,7 +163,7 @@ void Game::UpdateProjectiles() noexcept
 		{
 			projectile.Update(this->PlayerInstance->Centre);
 
-			Game::LoopOverMap(projectile.Rect);
+			GameHelper::LoopOverMap(*this->Assets, projectile.Rect);
 
 			unsigned int damage = Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData); 
 
@@ -211,171 +210,11 @@ void Game::UpdateGameTexts() noexcept
 }
 
 
-
 void Game::HandleEssentialInput() noexcept
 {
 	if (IsKeyPressed(KEY_ESCAPE))
 		this->GlobalData->ActiveState = State::PauseMenu;
 	
 	if (IsKeyPressed(KEY_TAB) && this->GlobalData->UnclaimedPowerups > 0)
-		this->GlobalData->ActiveState = State::PowerupMenu;
-}
-
-void Game::HandleTickedInput() noexcept
-{
-	if (IsKeyDown(KEY_Q) && CanLayerDown && this->GlobalData->CurrentLayer - 1 >= 0)
-	{
-		this->GlobalData->CurrentLayer--;
-		this->GlobalData->CachedStrings[CachedString::LayerText] = "Current Layer: " + std::to_string(this->GlobalData->CurrentLayer);
-
-		this->LastLayerDown = this->GlobalData->Ticks;
-		this->CanLayerDown = false;
-	}
-
-	if (IsKeyDown(KEY_E) && CanLayerUp)
-	{
-		this->GlobalData->CurrentLayer++;
-		this->GlobalData->CachedStrings[CachedString::LayerText] = "Current Layer: " + std::to_string(this->GlobalData->CurrentLayer);
-
-		this->LastLayerUp = this->GlobalData->Ticks;
-		this->CanLayerUp = false;
-	}
-
-	if (this->GlobalData->Effects.count(Effect::Trapped))
-	{
-		if (IsKeyDown(KEY_SPACE))
-			this->GlobalData->Effects.erase(Effect::Trapped);
-
-		this->PlayerInstance->Direction = { 0, 0 };
-	}
-	else
-	{
-		this->PlayerInstance->Direction.x = IsKeyDown(KEY_D) - IsKeyDown(KEY_A);
-		this->PlayerInstance->Direction.y = IsKeyDown(KEY_S) - IsKeyDown(KEY_W);
-	}
-
-	if (this->GlobalData->Effects.count(Effect::Drunk))
-	{
-		this->PlayerInstance->Direction.x *= -1;
-		this->PlayerInstance->Direction.y *= -1;
-	}
-
-	if (this->PlayerInstance->Direction.x != 0.0f && this->PlayerInstance->Direction.y != 0.0f)
-		this->PlayerInstance->Direction = Vector2Normalize(this->PlayerInstance->Direction);
-
-	bool auto_click = this->GlobalData->Settings.at(Setting::AutoClick);
-
-	if ((IsMouseButtonDown(MOUSE_BUTTON_LEFT) || auto_click) && this->CanLMB)
-	{
-		Game::HandleLeftClick();
-		this->CanLMB = false;
-		this->LastLMB = this->GlobalData->Ticks;
-	}
-	
-	if ((IsMouseButtonDown(MOUSE_BUTTON_RIGHT) || auto_click) && this->CanRMB)
-	{
-		Game::HandleRightClick();
-		this->CanRMB = false;
-		this->LastRMB = this->GlobalData->Ticks;
-	}
-}
-
-void Game::HandleLeftClick() noexcept
-{
-	Vector2 scale_factors = { static_cast<float>(GetScreenWidth()) / REFERENCE_WIDTH, static_cast<float>(GetScreenHeight()) / REFERENCE_HEIGHT };
-	Vector2 scaled_mouse_pos = { GetMouseX() / scale_factors.x, GetMouseY() / scale_factors.y };
-	Vector2 mouse_pos = GetScreenToWorld2D(scaled_mouse_pos, this->Camera);
-
-	Vector2 centre_direction = Vector2Subtract(mouse_pos, this->PlayerInstance->Centre);
-	Vector2 player_centre = this->PlayerInstance->Centre;
-
-	float spread_angle = this->GlobalData->Attributes[Attribute::BuckshotSpread];
-	int buckshot = static_cast<int>((this->GlobalData->Attributes.at(Attribute::Buckshot) - 1) / 2);
-
-	for (int i = -buckshot; i <= buckshot; i++)
-	{
-		if (i == 0)
-		{
-			this->Projectiles.emplace_back(player_centre.x, player_centre.y, centre_direction, ProjectileType::Bullet, *this->GlobalData, *this->Assets);
-			continue;
-		}
-		Vector2 direction = Vector2Rotate(centre_direction, spread_angle * i);
-
-		this->Projectiles.emplace_back(player_centre.x, player_centre.y, direction, ProjectileType::Bullet, *this->GlobalData, *this->Assets);
-	}
-}
-
-void Game::HandleRightClick() noexcept
-{
-	static constexpr std::array<Vector2, 4> directions = { Vector2{1.0f, 0.0f}, Vector2{0.0f, 1.0f}, Vector2{-1.0f, 0.0f}, Vector2{0.0f, -1.0f} };
-
-	Vector2 centre = this->PlayerInstance->Centre;
-	
-	for (int i = 0; i < 4; i++)
-		this->Projectiles.emplace_back(centre.x, centre.y, directions[i], ProjectileType::Lazer, *this->GlobalData, *this->Assets);
-}
-
-
-
-void Game::SpawnEnemies() noexcept
-{
-	std::vector<Vector2> rand_nums;
-
-	for (size_t i = 0; i < this->GlobalData->Level * 15; i++)
-	{
-		rand_nums.emplace_back(
-				(Vector2) {
-				static_cast<float>( GetRandomValue(0, this->Assets->Ground.width) ),
-				static_cast<float>( GetRandomValue(0, this->Assets->Ground.height) )
-				});
-	}
-
-	for (auto &location : rand_nums)
-	{
-		EnemyType type = (EnemyType) GetRandomValue(0, 4);
-		BehaviourModifier modifier = BehaviourModifier::None;
-		
-		unsigned int random1 = GetRandomValue(0, 100);
-		unsigned int random2 = GetRandomValue(0, 100);
-		unsigned int random3 = GetRandomValue(0, 100);
-
-		if (random1 > 30)
-			modifier = modifier | BehaviourModifier::IncreasedSpeed;
-
-		if (random2 > 50)
-			modifier = modifier | BehaviourModifier::OverrideDirection;
-
-		if (random3 > 95 && this->GlobalData->Level > 10)
-			modifier = modifier | BehaviourModifier::Big;
-
-		this->Enemies.emplace_back(location.x, location.y, this->GlobalData->CurrentLayer, *this->Assets, type, modifier);
-	}
-}
-
-void Game::LoopOverMap(Rectangle& m_obj) noexcept
-{
-	if (m_obj.x < 0)
-		m_obj.x = this->Assets->Ground.width - m_obj.width;
-	else if (m_obj.x > this->Assets->Ground.width)
-		m_obj.x = 0;
-
-	if (m_obj.y < 0)
-		m_obj.y = this->Assets->Ground.height - m_obj.height;
-	else if (m_obj.y > this->Assets->Ground.height)
-		m_obj.y = 0;
-}
-
-void Game::LevelUp() noexcept
-{
-	this->GlobalData->Level++;
-	this->GlobalData->UnclaimedPowerups++;
-
-	this->GlobalData->CachedStrings[CachedString::LevelText] = "Level: " + std::to_string(this->GlobalData->Level);
-	this->GlobalData->CachedStrings[CachedString::UnclaimedPowerups] = "Unclaimed Powerups: " + std::to_string(this->GlobalData->UnclaimedPowerups);
-
-	this->CollectedXp = 0;
-	this->GlobalData->LevelUpTreshold += 5;
-	
-	if (this->GlobalData->Settings.at(Setting::ShowPowerupMenuOnLevelUp))
 		this->GlobalData->ActiveState = State::PowerupMenu;
 }

@@ -79,7 +79,10 @@ enum class Effect
 	Drunk,
 
 	Aussie,
-	Stinky
+	Stinky,
+	Blind,
+
+	Microscope
 };
 
 enum class Setting

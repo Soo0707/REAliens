@@ -12,6 +12,10 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  src/gameOverMenu.cpp\
  src/pauseMenu.cpp\
  src/gameEventSystem.cpp\
+ src/gameText.cpp\
+ src/gameDrawSystem.cpp\
+ src/gameHelpers.cpp\
+ src/gameInputSystem.cpp\
  -o /mnt/tmpfs/out.exe\
  -O3\
  -std=c++20\
@@ -22,7 +26,8 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  -lopengl32\
  -lgdi32\
  -lwinmm\
- -static
+ -static\
+ -Wl,--strip-all
 #-Wall
 #-fno-exceptions
 #-Wextra\

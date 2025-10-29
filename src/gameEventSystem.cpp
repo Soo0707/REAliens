@@ -67,7 +67,6 @@ void GameEventSystem::AuraTick(Game& game, size_t expiry, std::unordered_map<Eve
 	else
 	{
 		Collisions::Aura(game);
-
 		new_events_map[Event::AuraTick] = expiry + game.GlobalData->Attributes.at(Attribute::AuraCooldown);
 	}
 }

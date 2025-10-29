@@ -38,22 +38,7 @@ class Game
 		Rectangle UpdateArea;
 		
 		size_t CollectedXp = 0;
-
-	private:
-		void SpawnEnemies() noexcept;
-		void LoopOverMap(Rectangle& m_obj) noexcept;
-
-		void LevelUp() noexcept;
-
-		void UpdateEnemies() noexcept;
-		void UpdateProjectiles() noexcept;
-		void UpdateXps() noexcept;
-		void UpdateGameTexts() noexcept;
-
-		void HandleTickedInput() noexcept;
-		void HandleLeftClick() noexcept;
-		void HandleRightClick() noexcept;
-
+		
 		size_t LastLMB = 0;
 		bool CanLMB = true;
 
@@ -66,8 +51,14 @@ class Game
 		size_t LastLayerUp = 0;
 		bool CanLayerUp = true;
 
+
+	private:
+		void UpdateEnemies() noexcept;
+		void UpdateProjectiles() noexcept;
+		void UpdateXps() noexcept;
+		void UpdateGameTexts() noexcept;
+
 		float Accumulator = 0.0f;
 
 		size_t LastSpawn = 0;
-		size_t SpawnTimeout;
 };
