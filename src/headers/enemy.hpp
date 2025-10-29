@@ -22,7 +22,8 @@ enum class BehaviourModifier : size_t
 	NoMovement = 1 << 1,
 
 	Big = 1 << 2,
-	IncreasedSpeed = 1 << 4
+	IncreasedSpeed = 1 << 4,
+	Invisible = 1 << 5
 };
 
 inline BehaviourModifier operator| (BehaviourModifier l, BehaviourModifier r) noexcept
@@ -41,7 +42,7 @@ class Enemy
 {
 	public:
 		Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyType type, BehaviourModifier modifier = BehaviourModifier::None) noexcept;
-		~Enemy(); 
+		~Enemy() = default; 
 		
 		void Draw() const noexcept;
 		void FlashSprite(size_t ticks) noexcept;

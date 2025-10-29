@@ -6,6 +6,7 @@
 #include "constants.hpp"
 
 #include <array>
+#include <string>
 
 void GameInputSystem::HandleTickedInput(Game& game) noexcept
 {

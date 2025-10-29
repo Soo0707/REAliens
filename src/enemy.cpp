@@ -69,9 +69,6 @@ Enemy::Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyTyp
 	}
 }
 
-Enemy::~Enemy()
-{}
-
 void Enemy::Update(Rectangle& player_rect, size_t ticks) noexcept
 {
 	Enemy::Animate(ticks);

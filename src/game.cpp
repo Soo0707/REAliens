@@ -59,6 +59,7 @@ void Game::Draw(RenderTexture2D& virtual_canvas) const noexcept
 		GameDrawSystem::DrawGame(*this);
 
 		GameDrawSystem::DrawOverlay(*this);
+
 	EndTextureMode();
 }
 
