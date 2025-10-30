@@ -25,7 +25,7 @@ void MainMenu::Draw(RenderTexture2D& canvas) const noexcept
 void MainMenu::HandleInput() noexcept
 {
 	if (IsKeyPressed(KEY_SPACE))
-		this->GlobalData->ActiveState = State::Game;
+		this->GlobalData->ActiveState = State::GameReset;
 
 	if (IsKeyPressed(KEY_ESCAPE))
 		this->GlobalData->Running = false;

@@ -49,6 +49,10 @@ int main(void)
 
 		switch (global_data->ActiveState)
 		{
+			case State::GameReset:
+				game.Reset();
+				global_data->ActiveState = State::Game;
+				break;
 			case State::MainMenu:
 				main_menu.HandleInput();
 				main_menu.Draw(virtual_canvas);

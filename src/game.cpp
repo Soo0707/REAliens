@@ -223,3 +223,30 @@ void Game::HandleEssentialInput() noexcept
 	if (IsKeyPressed(KEY_TAB) && this->GlobalData->UnclaimedPowerups > 0)
 		this->GlobalData->ActiveState = State::PowerupMenu;
 }
+
+void Game::Reset() noexcept
+{
+	this->Enemies.clear();
+	this->Projectiles.clear();
+	this->Xps.clear();
+	this->GameTexts.clear();
+
+	this->PlayerInstance = std::make_unique<Player>(500, 500, *this->Assets);
+	this->CollectedXp = 0;
+	
+	this->LastLMB = 0;
+	this->CanLMB = true;
+
+	this->LastRMB = 0;
+	this->CanRMB = true;
+
+	this->LastLayerDown = 0;
+	this->CanLayerDown = true;
+
+	this->LastLayerUp = 0;
+	this->CanLayerUp = true;
+
+	this->LastSpawn = 0;
+
+	this->GlobalData->Reset();
+}

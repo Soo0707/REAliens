@@ -59,6 +59,7 @@ enum class Event
 enum class State
 {
 	Game,
+	GameReset,
 	PowerupMenu,
 	PauseMenu,
 	MainMenu,
@@ -119,7 +120,7 @@ class GlobalDataWrapper
 			{ Attribute::LazerCooldown, 450 },
 			{ Attribute::LazerDamage, 25.0f },
 			{ Attribute::LazerScale, 1.0f },
-			{ Attribute::LazerSpeed, 3000.0f }		
+			{ Attribute::LazerSpeed, 3000.0f }	
 		};
 
 		std::unordered_map<Event, size_t> Events;
@@ -152,4 +153,40 @@ class GlobalDataWrapper
 		unsigned int UnclaimedPowerups = 0;
 
 		bool Running = true;
+
+		void Reset()
+		{
+			this->Attributes = 
+			{
+				{ Attribute::BulletCooldown, 150 },
+				{ Attribute::BulletDamage, 25.0f },
+				{ Attribute::BulletSpeed, 1000.0f },
+				{ Attribute::Buckshot, 3 },
+				{ Attribute::BuckshotSpread, PI / 8 },
+
+				{ Attribute::LazerCooldown, 450 },
+				{ Attribute::LazerDamage, 25.0f },
+				{ Attribute::LazerScale, 1.0f },
+				{ Attribute::LazerSpeed, 3000.0f }	
+			};
+
+			this->CachedStrings =
+			{
+				{ CachedString::LayerText, "Current Layer: 0" },
+				{ CachedString::LevelText, "Level: 1" },
+				{ CachedString::UnclaimedPowerups, "" }
+			};
+			
+			this->Events.clear();
+			this->Effects.clear();
+
+			this->Ticks = 0;
+			
+			this->Level = 1;
+			this->LevelUpTreshold = 5;
+
+			this->CurrentLayer = 0;
+
+			this->UnclaimedPowerups = 0;
+		}
 };

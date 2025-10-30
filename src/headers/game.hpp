@@ -24,6 +24,8 @@ class Game
 		void Draw(RenderTexture2D& canvas) const noexcept;
 		void Update() noexcept;
 
+		void Reset() noexcept;
+
 		std::shared_ptr<AssetManager> Assets;
 		std::shared_ptr<GlobalDataWrapper> GlobalData;
 
@@ -58,6 +60,5 @@ class Game
 		void UpdateGameTexts() noexcept;
 
 		float Accumulator = 0.0f;
-
 		size_t LastSpawn = 0;
 };
