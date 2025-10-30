@@ -16,6 +16,7 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  src/gameDrawSystem.cpp\
  src/gameHelpers.cpp\
  src/gameInputSystem.cpp\
+ src/mainMenu.cpp\
  -o /mnt/tmpfs/out.exe\
  -O3\
  -std=c++20\

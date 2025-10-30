@@ -80,7 +80,7 @@ inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes =
 		{
 			TextureKey::Trapper,
 			10,
-			125,
+			0,
 			100,
 
 			30,

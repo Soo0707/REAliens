@@ -3,11 +3,9 @@
 #include "raylib.h"
 #include "globalDataWrapper.hpp"
 
-GameOverMenu::GameOverMenu(std::shared_ptr<GlobalDataWrapper> global_data) :
-	GlobalData(global_data)
-{}
-
-GameOverMenu::~GameOverMenu()
+GameOverMenu::GameOverMenu(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets) :
+	GlobalData(global_data),
+	Assets(assets)
 {}
 
 void GameOverMenu::Draw(RenderTexture2D& canvas) const noexcept

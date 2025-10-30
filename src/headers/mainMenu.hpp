@@ -2,17 +2,18 @@
 
 #include <memory>
 
+#include "raylib.h"
 #include "globalDataWrapper.hpp"
 #include "assetManager.hpp"
 
-class GameOverMenu
+class MainMenu
 {
 	public:
-		GameOverMenu(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets);
-		~GameOverMenu() = default;
+		MainMenu(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets);
+		~MainMenu() = default;
 
-		void Draw(RenderTexture2D& canvas) const noexcept;
 		void HandleInput() noexcept;
+		void Draw(RenderTexture2D& canvas) const noexcept;
 
 	private:
 		std::shared_ptr<GlobalDataWrapper> GlobalData;

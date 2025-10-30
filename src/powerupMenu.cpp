@@ -5,16 +5,16 @@
 
 #include "raylib.h"
 #include "globalDataWrapper.hpp"
+#include "assetManager.hpp"
+
 #include "constants.hpp"
 
-PowerupMenu::PowerupMenu(std::shared_ptr<GlobalDataWrapper> global_data) :
-	GlobalData(global_data)
+PowerupMenu::PowerupMenu(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets) :
+	GlobalData(global_data),
+	Assets(assets)
 {
 	PowerupMenu::GenerateList();
 }
-
-PowerupMenu::~PowerupMenu()
-{}
 
 void PowerupMenu::Draw(RenderTexture2D& canvas) const noexcept
 {
@@ -91,6 +91,8 @@ void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
 
 	if (this->GlobalData->UnclaimedPowerups == 0)
 		this->GlobalData->ActiveState = State::Game;
+
+	PlaySound(this->Assets->Sounds.at(SoundKey::Select));
 }
 
 
@@ -187,7 +189,7 @@ void PowerupMenu::ApplyBuckshot() noexcept
 void PowerupMenu::ApplyProjectile() noexcept
 {
 	if (this->GlobalData->Attributes[Attribute::BulletCooldown] - 25 > 80)
-		this->GlobalData->Attributes[Attribute::BulletCooldown] -= 80;
+		this->GlobalData->Attributes[Attribute::BulletCooldown] -= 25;
 	else
 		this->GlobalData->Attributes[Attribute::BulletCooldown] = 80;
 

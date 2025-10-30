@@ -8,7 +8,7 @@ class Player
 {
 	public:
 		Player(float pos_x, float pos_y, AssetManager &assets);
-		~Player(); 
+		~Player() = default; 
 		
 		void Move() noexcept;
 		void Update(size_t ticks) noexcept;

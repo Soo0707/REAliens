@@ -28,11 +28,10 @@
 #include "xp.hpp"
 
 
-Game::Game(std::shared_ptr<GlobalDataWrapper> global_data) :
-	GlobalData(global_data)
+Game::Game(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets) :
+	GlobalData(global_data),
+	Assets(assets)
 {
-	this->Assets = std::make_shared<AssetManager>();
-
 	this->PlayerInstance = std::make_unique<Player>(500, 500, *this->Assets);
 
 	this->Camera = { 0 };
@@ -48,18 +47,14 @@ Game::Game(std::shared_ptr<GlobalDataWrapper> global_data) :
 	};
 }
 
-Game::~Game()
-{}
-
-void Game::Draw(RenderTexture2D& virtual_canvas) const noexcept
+void Game::Draw(RenderTexture2D& canvas) const noexcept
 {
-	BeginTextureMode(virtual_canvas);
+	BeginTextureMode(canvas);
 		ClearBackground(BLACK);
 
 		GameDrawSystem::DrawGame(*this);
 
 		GameDrawSystem::DrawOverlay(*this);
-
 	EndTextureMode();
 }
 
@@ -132,6 +127,7 @@ void Game::UpdateEnemies() noexcept
 	}
 
 	bool has_greenbull = this->GlobalData->Effects.count(Effect::Greenbull);
+	bool player_hit = false;
 
 	for (auto &enemy : this->Enemies)
 	{
@@ -141,7 +137,7 @@ void Game::UpdateEnemies() noexcept
 			GameHelper::LoopOverMap(*this->Assets, enemy.Rect);
 			
 			if (!has_greenbull)
-				Collisions::LeAttack(*this->PlayerInstance, enemy, *this->GlobalData);
+				player_hit = Collisions::LeAttack(*this->PlayerInstance, enemy, *this->GlobalData);
 		}
 
 		if (enemy.Health <= 0)
@@ -152,6 +148,9 @@ void Game::UpdateEnemies() noexcept
 	}
 
 	std::erase_if(this->Enemies, [](const Enemy& enemy) { return (enemy.Health <= 0); });
+
+	if (player_hit)
+		PlaySound(this->Assets->Sounds.at(SoundKey::PlayerDamage));
 }
 
 void Game::UpdateProjectiles() noexcept
@@ -193,6 +192,8 @@ void Game::UpdateXps() noexcept
 		{
 			this->CollectedXp += xp.Value;
 			xp.Kill = true;
+
+			PlaySound(this->Assets->Sounds.at(SoundKey::Xp));
 		}
 	}
 
@@ -214,7 +215,10 @@ void Game::UpdateGameTexts() noexcept
 void Game::HandleEssentialInput() noexcept
 {
 	if (IsKeyPressed(KEY_ESCAPE))
+	{
 		this->GlobalData->ActiveState = State::PauseMenu;
+		PlaySound(this->Assets->Sounds.at(SoundKey::Pause));
+	}
 	
 	if (IsKeyPressed(KEY_TAB) && this->GlobalData->UnclaimedPowerups > 0)
 		this->GlobalData->ActiveState = State::PowerupMenu;

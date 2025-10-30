@@ -1,18 +1,22 @@
 #include "raylib.h"
+
 #include "globalDataWrapper.hpp"
+#include "assetManager.hpp"
 
 #include "game.hpp"
 #include "powerupMenu.hpp"
 #include "gameOverMenu.hpp"
 #include "pauseMenu.hpp"
-#include "constants.hpp"
+#include "mainMenu.hpp"
 
+#include "constants.hpp"
 
 int main(void)
 {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 
 	InitWindow(REFERENCE_WIDTH, REFERENCE_HEIGHT, "RE::Aliens");
+	InitAudioDevice();
 
 	RenderTexture2D virtual_canvas = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
 	SetTextureFilter(virtual_canvas.texture, TEXTURE_FILTER_POINT);
@@ -24,12 +28,14 @@ int main(void)
 
 	SetExitKey(KEY_NULL);
 
+	std::shared_ptr<AssetManager> assets = std::make_shared<AssetManager>();
 	std::shared_ptr<GlobalDataWrapper> global_data = std::make_shared<GlobalDataWrapper>();
 
-	Game game = Game(global_data);
-	PowerupMenu powerup_menu = PowerupMenu(global_data);
-	GameOverMenu game_over = GameOverMenu(global_data);
-	PauseMenu pause = PauseMenu(global_data);
+	Game game = Game(global_data, assets);
+	PowerupMenu powerup_menu = PowerupMenu(global_data, assets);
+	GameOverMenu game_over = GameOverMenu(global_data, assets);
+	PauseMenu pause = PauseMenu(global_data, assets);
+	MainMenu main_menu = MainMenu(global_data, assets);
 
 	State prev_state = global_data->ActiveState;
 
@@ -43,6 +49,10 @@ int main(void)
 
 		switch (global_data->ActiveState)
 		{
+			case State::MainMenu:
+				main_menu.HandleInput();
+				main_menu.Draw(virtual_canvas);
+				break;
 			case State::Game:
 				game.HandleEssentialInput();
 				game.Update();
@@ -84,6 +94,9 @@ int main(void)
 	}
 
 	UnloadRenderTexture(virtual_canvas);
+
+	CloseAudioDevice();
+
 	CloseWindow();
 
 	return 0;

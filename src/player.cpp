@@ -13,9 +13,6 @@ Player::Player(float pos_x, float pos_y, AssetManager &assets) :
 	this->Aura = { 0, 0, 0, 0 };
 }
 
-Player::~Player()
-{}
-
 void Player::Update(size_t ticks) noexcept
 {
 	Player::SetCurrentTextures();

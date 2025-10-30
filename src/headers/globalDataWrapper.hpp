@@ -61,7 +61,7 @@ enum class State
 	Game,
 	PowerupMenu,
 	PauseMenu,
-	StartMenu,
+	MainMenu,
 	GameOverMenu
 };
 
@@ -103,6 +103,7 @@ class GlobalDataWrapper
 {
 	public:
 		GlobalDataWrapper() = default;
+		~GlobalDataWrapper() = default;
 
 		GlobalDataWrapper(const GlobalDataWrapper&) = delete;
 		GlobalDataWrapper& operator=(const GlobalDataWrapper&) = delete;
@@ -139,7 +140,7 @@ class GlobalDataWrapper
 			{ CachedString::UnclaimedPowerups, "" }
 		};
 
-		State ActiveState = State::Game;
+		State ActiveState = State::MainMenu;
 
 		size_t Ticks = 0;
 		

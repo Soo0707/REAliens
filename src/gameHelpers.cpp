@@ -30,6 +30,8 @@ void GameHelper::LevelUp(Game& game) noexcept
 	
 	if (game.GlobalData->Settings.at(Setting::ShowPowerupMenuOnLevelUp))
 		game.GlobalData->ActiveState = State::PowerupMenu;
+
+	PlaySound(game.Assets->Sounds.at(SoundKey::LevelUp));
 }
 
 

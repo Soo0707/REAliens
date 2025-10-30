@@ -8,7 +8,7 @@
 #include "raylib.h"
 
 #include "globalDataWrapper.hpp"
-
+#include "assetManager.hpp"
 
 enum class Powerup
 {
@@ -38,8 +38,9 @@ struct PowerupWrapper
 class PowerupMenu
 {
 	public:
-		PowerupMenu(std::shared_ptr<GlobalDataWrapper> global_data);
-		~PowerupMenu();
+		PowerupMenu(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets);
+		~PowerupMenu() = default;
+
 		void Draw(RenderTexture2D& canvas) const noexcept;
 		void HandleInput() noexcept;
 
@@ -65,6 +66,8 @@ class PowerupMenu
 		void ApplySpeedBoots() noexcept;
 
 		std::shared_ptr<GlobalDataWrapper> GlobalData;
+		std::shared_ptr<AssetManager> Assets;
+
 		std::vector<PowerupWrapper> SelectionList;
 
 		static inline constexpr std::array<std::string, static_cast<size_t>(Powerup::COUNT)> PowerupNames =

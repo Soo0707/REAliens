@@ -90,6 +90,8 @@ void GameInputSystem::HandleLeftClick(Game& game) noexcept
 
 		game.Projectiles.emplace_back(player_centre.x, player_centre.y, direction, ProjectileType::Bullet, *game.GlobalData, *game.Assets);
 	}
+
+	PlaySound(game.Assets->Sounds.at(SoundKey::Bullets));
 }
 
 void GameInputSystem::HandleRightClick(Game& game) noexcept
@@ -100,4 +102,6 @@ void GameInputSystem::HandleRightClick(Game& game) noexcept
 	
 	for (int i = 0; i < 4; i++)
 		game.Projectiles.emplace_back(centre.x, centre.y, directions[i], ProjectileType::Lazer, *game.GlobalData, *game.Assets);
+
+	PlaySound(game.Assets->Sounds.at(SoundKey::Lazer));
 }

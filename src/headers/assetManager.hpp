@@ -30,11 +30,16 @@ enum class SoundKey
 	None,
 	PlayerDamage,
 	LevelUp,
+
 	Bullets,
 	Lazer,
 	Xp,
+
 	Pause,
-	Unpause
+	Unpause,
+	Select,
+
+	Poison
 };
 
 class AssetManager
@@ -51,4 +56,8 @@ class AssetManager
 		void LoadTextures() noexcept;
 		void UnloadTextures() noexcept;
 		TextureKey GetTextureKeyFromString(std::string filename) const noexcept;
+
+		void LoadSounds() noexcept;
+		void UnloadSounds() noexcept;
+		SoundKey GetSoundKeyFromString(std::string filename) const noexcept;
 };

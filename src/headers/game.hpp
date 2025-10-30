@@ -17,11 +17,11 @@
 class Game
 {
 	public:
-		Game(std::shared_ptr<GlobalDataWrapper> global_data);
-		~Game();
+		Game(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets);
+		~Game() = default;
 
 		void HandleEssentialInput() noexcept;
-		void Draw(RenderTexture2D& virtual_canvas) const noexcept;
+		void Draw(RenderTexture2D& canvas) const noexcept;
 		void Update() noexcept;
 
 		std::shared_ptr<AssetManager> Assets;
@@ -50,7 +50,6 @@ class Game
 
 		size_t LastLayerUp = 0;
 		bool CanLayerUp = true;
-
 
 	private:
 		void UpdateEnemies() noexcept;

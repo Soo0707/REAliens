@@ -2,12 +2,11 @@
 
 #include "raylib.h"
 #include "globalDataWrapper.hpp"
+#include "assetManager.hpp"
 
-PauseMenu::PauseMenu(std::shared_ptr<GlobalDataWrapper> global_data) :
-	GlobalData(global_data)
-{}
-
-PauseMenu::~PauseMenu()
+PauseMenu::PauseMenu(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets) :
+	GlobalData(global_data),
+	Assets(assets)
 {}
 
 void PauseMenu::Draw(RenderTexture2D& canvas) const noexcept
@@ -30,5 +29,11 @@ void PauseMenu::Draw(RenderTexture2D& canvas) const noexcept
 void PauseMenu::HandleInput() noexcept
 {
 	if (IsKeyPressed(KEY_SPACE))
+	{
 		this->GlobalData->ActiveState = State::Game;
+		PlaySound(this->Assets->Sounds.at(SoundKey::Unpause));
+	}
+
+	if (IsKeyPressed(KEY_ESCAPE))
+		this->GlobalData->ActiveState = State::MainMenu;
 }

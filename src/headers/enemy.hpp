@@ -19,11 +19,11 @@ enum class BehaviourModifier : size_t
 {
 	None = 0,
 	OverrideDirection = 1 << 0,
-	NoMovement = 1 << 1,
+	//NoMovement = 1 << 1,
 
-	Big = 1 << 2,
-	IncreasedSpeed = 1 << 4,
-	Invisible = 1 << 5
+	Big = 1 << 1,
+	IncreasedSpeed = 1 << 2,
+	Invisible = 1 << 3
 };
 
 inline BehaviourModifier operator| (BehaviourModifier l, BehaviourModifier r) noexcept

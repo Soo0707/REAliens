@@ -44,7 +44,7 @@ unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy
 	return damage_done;
 }
 
-void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& global_data) noexcept
+bool Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& global_data) noexcept
 {
 	if (CheckCollisionRecs(player.Rect, enemy.Rect) && enemy.CanLeAttack)
 	{
@@ -81,7 +81,10 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 
 		enemy.CanLeAttack = false;
 		enemy.LastLeAttack = global_data.Ticks;
+
+		return true;
 	}
+	return false;
 }
 
 void Collisions::Aura(Game& game) noexcept
