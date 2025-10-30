@@ -131,7 +131,7 @@ class GlobalDataWrapper
 		{
 			{ Setting::ShowPowerupMenuOnLevelUp, 0 },
 			{ Setting::AutoClick, 0 },
-			{ Setting::DisableHealthCheck, 1 }
+			{ Setting::DisableHealthCheck, 0 }
 		};
 
 		std::unordered_map<CachedString, std::string> CachedStrings =
@@ -154,7 +154,7 @@ class GlobalDataWrapper
 
 		bool Running = true;
 
-		void Reset()
+		void Reset() noexcept
 		{
 			this->Attributes = 
 			{

@@ -47,6 +47,12 @@ int main(void)
 			prev_state = global_data->ActiveState;
 		}
 
+		if (IsKeyPressed(KEY_F11))
+		{
+			ToggleBorderlessWindowed();
+			EnableCursor();
+		}
+
 		switch (global_data->ActiveState)
 		{
 			case State::GameReset:
@@ -83,12 +89,7 @@ int main(void)
 			DrawTexturePro(
 					virtual_canvas.texture,
 					(Rectangle) { 0, 0, REFERENCE_WIDTH, -static_cast<float>(REFERENCE_HEIGHT) },
-					(Rectangle) {
-						0,
-						0,
-						static_cast<float>(GetScreenWidth()),
-						static_cast<float>(GetScreenHeight())
-						},
+					(Rectangle) { 0, 0, static_cast<float>(GetScreenWidth()), static_cast<float>(GetScreenHeight()) },
 					(Vector2) { 0, 0 },
 					0.0f,
 					WHITE

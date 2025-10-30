@@ -2,6 +2,7 @@
 
 #include "raylib.h"
 #include "globalDataWrapper.hpp"
+#include "assetManager.hpp"
 
 GameOverMenu::GameOverMenu(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets) :
 	GlobalData(global_data),
@@ -27,7 +28,7 @@ void GameOverMenu::Draw(RenderTexture2D& canvas) const noexcept
 void GameOverMenu::HandleInput() noexcept
 {
 	if (IsKeyPressed(KEY_SPACE))
-		this->GlobalData->ActiveState = State::Game;
+		this->GlobalData->ActiveState = State::GameReset;
 	else if (IsKeyPressed(KEY_ESCAPE))
 		this->GlobalData->Running = false;
 }

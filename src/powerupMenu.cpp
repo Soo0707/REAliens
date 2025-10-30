@@ -180,10 +180,10 @@ void PowerupMenu::ApplyBuckshot() noexcept
 {
 	this->GlobalData->Attributes[Attribute::Buckshot] += 2;
 
-	if (this->GlobalData->Attributes[Attribute::BuckshotSpread] - 0.02f > 0.02f)
+	if (this->GlobalData->Attributes[Attribute::BuckshotSpread] - 0.02f > 5 * TO_RAD)
 		this->GlobalData->Attributes[Attribute::BuckshotSpread] -= 0.02f;
 	else
-		this->GlobalData->Attributes[Attribute::BuckshotSpread] = 0.02f;
+		this->GlobalData->Attributes[Attribute::BuckshotSpread] = 5 * TO_RAD;
 }
 
 void PowerupMenu::ApplyProjectile() noexcept

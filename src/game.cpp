@@ -185,6 +185,7 @@ void Game::UpdateProjectiles() noexcept
 void Game::UpdateXps() noexcept
 {
 	bool has_magnetism = this->GlobalData->Effects.count(Effect::Magnetism);
+	bool play_sound = false;
 
 	for (auto &xp : this->Xps)
 	{
@@ -192,12 +193,14 @@ void Game::UpdateXps() noexcept
 		{
 			this->CollectedXp += xp.Value;
 			xp.Kill = true;
-
-			PlaySound(this->Assets->Sounds.at(SoundKey::Xp));
+			play_sound = true;
 		}
 	}
 
 	std::erase_if(this->Xps, [](const Xp& xp) { return xp.Kill; });
+
+	if (play_sound)
+		PlaySound(this->Assets->Sounds.at(SoundKey::Xp));
 }
 
 void Game::UpdateGameTexts() noexcept
