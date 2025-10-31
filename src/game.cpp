@@ -77,25 +77,25 @@ void Game::Draw(RenderTexture2D& canvas) const noexcept
 	BeginTextureMode(canvas);
 		ClearBackground(BLACK);
 
+		DrawTextureRec(
+		this->GameLayer.texture, 
+		(Rectangle) { 0, 0, REFERENCE_WIDTH, -static_cast<float>(REFERENCE_HEIGHT) },
+		(Vector2) { 0, 0 }, 
+		WHITE
+		);
+
+		BeginBlendMode(BLEND_MULTIPLIED);
 			DrawTextureRec(
-			this->GameLayer.texture, 
-			(Rectangle){ 0, 0, REFERENCE_WIDTH, -static_cast<float>(REFERENCE_HEIGHT) },
-			(Vector2){ 0, 0 }, 
+			this->LightingLayer.texture, 
+			(Rectangle) { 0, 0, REFERENCE_WIDTH, -static_cast<float>(REFERENCE_HEIGHT) },
+			(Vector2) { 0, 0 }, 
 			WHITE
 			);
+		EndBlendMode();
 
-			BeginBlendMode(BLEND_MULTIPLIED);
-				DrawTextureRec(
-				this->LightingLayer.texture, 
-				(Rectangle){ 0, 0, REFERENCE_WIDTH, -static_cast<float>(REFERENCE_HEIGHT) },
-				(Vector2){ 0, 0 }, 
-				WHITE
-				);
-			EndBlendMode();
-
-			BeginMode2D(this->Camera);
-				GameDrawSystem::DrawScreenLayer(*this);
-			EndMode2D();
+		BeginMode2D(this->Camera);
+			GameDrawSystem::DrawScreenLayer(*this);
+		EndMode2D();
 
 		GameDrawSystem::DrawOverlay(*this);
 	EndTextureMode();

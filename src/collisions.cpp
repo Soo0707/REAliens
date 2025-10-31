@@ -1,5 +1,7 @@
 #include "collisions.hpp"
 
+#include <vector>
+
 #include "globalDataWrapper.hpp"
 
 #include "enemy.hpp"
