@@ -30,6 +30,11 @@ void Player::Draw() const noexcept
 			);
 }
 
+void Player::DrawLightmap() const noexcept
+{
+	DrawCircleGradient(this->Centre.x, this->Centre.y, 128, WHITE, LIGHTGRAY);
+}
+
 void Player::Animate(size_t ticks) noexcept
 {
 	if (this->Direction.x != 0.0f || this->Direction.y != 0.0f)

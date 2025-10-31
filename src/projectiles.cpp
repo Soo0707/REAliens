@@ -52,6 +52,15 @@ void Projectile::Draw() const noexcept
 	DrawTextureEx(this->Image, position, this->Rotation, this->Scale, WHITE);
 }
 
+void Projectile::DrawLightmap() const noexcept
+{
+	/*
+	 * AABB is axis aligned, but since this is rotated, there is no way to sync the hitbox and the texture
+	 * as such, the centre is useless and we're better off using the x and y coordinates
+	*/
+	DrawCircleGradient(this->Rect.x, this->Rect.y, std::max(this->Rect.width, this->Rect.height) * 2.0f, WHITE, LIGHTGRAY);
+}
+
 void Projectile::Update(const Vector2 player_centre) noexcept
 {
 	switch (this->Type)

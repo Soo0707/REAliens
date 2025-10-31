@@ -10,6 +10,7 @@ class Xp
 		~Xp() = default;
 
 		void Draw() const noexcept;
+		void DrawLightmap() const noexcept;
 
 		Rectangle Rect;
 		bool Kill = false;
@@ -17,4 +18,5 @@ class Xp
 
 	private:
 		Texture2D Image;
+		Vector2 Centre;
 };

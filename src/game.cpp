@@ -34,11 +34,14 @@ Game::Game(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<Asset
 {
 	this->PlayerInstance = std::make_unique<Player>(500, 500, *this->Assets);
 
+	this->LightingLayer = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
+	this->GameLayer = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
+
 	this->Camera = { 0 };
 	this->Camera.offset = { REFERENCE_WIDTH / 2.0f, REFERENCE_HEIGHT / 2.0f };
 	this->Camera.rotation = 0.0f;
     this->Camera.zoom = 1.0f;
-	
+
 	this->UpdateArea = {
 		this->PlayerInstance->Centre.x - (REFERENCE_WIDTH / 2.0f),
 		this->PlayerInstance->Centre.y - (REFERENCE_HEIGHT / 2.0f),
@@ -47,12 +50,52 @@ Game::Game(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<Asset
 	};
 }
 
+Game::~Game()
+{
+	UnloadRenderTexture(this->GameLayer);
+	UnloadRenderTexture(this->LightingLayer);
+}
+
 void Game::Draw(RenderTexture2D& canvas) const noexcept
 {
+	BeginTextureMode(this->GameLayer);
+		ClearBackground(BLACK);
+
+		BeginMode2D(this->Camera);
+			GameDrawSystem::DrawGame(*this);
+		EndMode2D();
+	EndTextureMode();
+
+	BeginTextureMode(this->LightingLayer);
+		ClearBackground(LIGHTGRAY);
+		
+		BeginMode2D(this->Camera);
+			GameDrawSystem::DrawLighting(*this);
+		EndMode2D();
+	EndTextureMode();
+
 	BeginTextureMode(canvas);
 		ClearBackground(BLACK);
 
-		GameDrawSystem::DrawGame(*this);
+			DrawTextureRec(
+			this->GameLayer.texture, 
+			(Rectangle){ 0, 0, REFERENCE_WIDTH, -static_cast<float>(REFERENCE_HEIGHT) },
+			(Vector2){ 0, 0 }, 
+			WHITE
+			);
+
+			BeginBlendMode(BLEND_MULTIPLIED);
+				DrawTextureRec(
+				this->LightingLayer.texture, 
+				(Rectangle){ 0, 0, REFERENCE_WIDTH, -static_cast<float>(REFERENCE_HEIGHT) },
+				(Vector2){ 0, 0 }, 
+				WHITE
+				);
+			EndBlendMode();
+
+			BeginMode2D(this->Camera);
+				GameDrawSystem::DrawScreenLayer(*this);
+			EndMode2D();
 
 		GameDrawSystem::DrawOverlay(*this);
 	EndTextureMode();

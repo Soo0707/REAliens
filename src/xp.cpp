@@ -10,10 +10,20 @@ Xp::Xp(float pos_x, float pos_y, unsigned int value, AssetManager &assets) noexc
 			pos_y,
 			static_cast<float>(assets.Textures[TextureKey::Xp].width),
 			static_cast<float>(assets.Textures[TextureKey::Xp].height)
+			} ),
+	Centre( {
+			this->Rect.x + this->Rect.width / 2.0f,
+			this->Rect.y + this->Rect.height / 2.0f
 			} )
+
 {}
 
 void Xp::Draw() const noexcept
 {
 	DrawTexture(this->Image, (int) this->Rect.x, (int) this->Rect.y, WHITE);
+}
+
+void Xp::DrawLightmap() const noexcept
+{
+	DrawCircleGradient(this->Centre.x, this->Centre.y, 16, GREEN, LIGHTGRAY);
 }

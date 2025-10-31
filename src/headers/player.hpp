@@ -13,7 +13,9 @@ class Player
 		void Move() noexcept;
 		void Update(size_t ticks) noexcept;
 		void Animate(size_t ticks) noexcept;
+
 		void Draw() const noexcept;
+		void DrawLightmap() const noexcept;
 
 		void IncreaseHealth(float addition) noexcept;
 		

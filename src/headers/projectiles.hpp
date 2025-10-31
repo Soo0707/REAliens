@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+
 #include "assetManager.hpp"
 #include "globalDataWrapper.hpp"
 #include "raylib.h"
@@ -24,6 +25,7 @@ class Projectile
 
 		void Update(const Vector2 player_centre) noexcept;
 		void Draw() const noexcept;
+		void DrawLightmap() const noexcept;
 
 		bool Kill = false;
 		ProjectileType Type;

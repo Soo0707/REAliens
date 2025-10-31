@@ -23,7 +23,7 @@ int main(void)
 
 	SetWindowMinSize(REFERENCE_WIDTH, REFERENCE_HEIGHT);
 
-	unsigned int max_refresh_rate = 4 * GetMonitorRefreshRate(GetCurrentMonitor());
+	unsigned int max_refresh_rate = 3 * GetMonitorRefreshRate(GetCurrentMonitor());
 	SetTargetFPS(max_refresh_rate);
 
 	SetExitKey(KEY_NULL);
@@ -43,7 +43,7 @@ int main(void)
 	{
 		if (global_data->ActiveState != prev_state)
 		{
-			(global_data->ActiveState == State::Game) ? ( SetTargetFPS(max_refresh_rate) ) : ( SetTargetFPS(15) );
+			(global_data->ActiveState == State::Game) ? SetTargetFPS(max_refresh_rate) : SetTargetFPS(15);
 			prev_state = global_data->ActiveState;
 		}
 

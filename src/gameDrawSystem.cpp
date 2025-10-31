@@ -25,8 +25,6 @@ void GameDrawSystem::DrawGame(const Game& game) noexcept
 	if (viewport.y + viewport.height > game.Assets->Ground.height)
 		viewport.height = game.Assets->Ground.height - viewport.y;
 
-	BeginMode2D(game.Camera);
-
 	DrawTextureRec(game.Assets->Ground, viewport, (Vector2) { viewport.x, viewport.y }, WHITE);
 	
 	for (auto const &xp : game.Xps)
@@ -47,15 +45,34 @@ void GameDrawSystem::DrawGame(const Game& game) noexcept
 			projectile.Draw();
 	}
 
+
+	game.PlayerInstance->Draw();
+}
+
+void GameDrawSystem::DrawLighting(const Game& game) noexcept
+{
+	for (auto const &xp : game.Xps)
+	{
+		if (CheckCollisionRecs(game.UpdateArea, xp.Rect))
+			xp.DrawLightmap();
+	}
+
+	for (auto const &projectile : game.Projectiles)
+	{
+		if (CheckCollisionRecs(game.UpdateArea, projectile.Rect))
+			projectile.DrawLightmap();
+	}
+	
+	game.PlayerInstance->DrawLightmap();
+}
+
+void GameDrawSystem::DrawScreenLayer(const Game& game) noexcept
+{
 	for (auto const &text : game.GameTexts)
 	{
 		if (CheckCollisionRecs(game.UpdateArea, text.Rect))
 			text.Draw();
 	}
-
-	game.PlayerInstance->Draw();
-
-	EndMode2D();
 }
 
 void GameDrawSystem::DrawOverlay(const Game& game) noexcept
@@ -106,6 +123,7 @@ void GameDrawSystem::DrawOverlay(const Game& game) noexcept
 	DrawText(game.GlobalData->CachedStrings.at(CachedString::LevelText).c_str(), 20, 50, 24, LIGHTGRAY);
 }
 
+
 void GameDrawSystem::DrawGreenbull(const Game& game) noexcept
 {
 	size_t expiry = game.GlobalData->Events.at(Event::GreenbullExpire) - game.GlobalData->Ticks;
@@ -152,3 +170,4 @@ void GameDrawSystem::DrawMagnetism(const Game& game) noexcept
 		DrawRectangleRec(MAGNETISM_HALF_2, RED);
 	}
 }
+

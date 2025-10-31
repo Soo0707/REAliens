@@ -18,7 +18,7 @@ class Game
 {
 	public:
 		Game(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets);
-		~Game() = default;
+		~Game();
 
 		void HandleEssentialInput() noexcept;
 		void Draw(RenderTexture2D& canvas) const noexcept;
@@ -38,6 +38,9 @@ class Game
 
 		Camera2D Camera;
 		Rectangle UpdateArea;
+
+		RenderTexture2D LightingLayer;
+		RenderTexture2D GameLayer;
 		
 		size_t CollectedXp = 0;
 		
