@@ -9,8 +9,7 @@
 #include <cmath>
 
 Projectile::Projectile(float x, float y, const Vector2& direction, ProjectileType type, const GlobalDataWrapper& global_data, const AssetManager& assets) noexcept :
-	Type(type),
-	Layer(global_data.CurrentLayer) 
+	Type(type)
 {
 	if (direction.x != 0.0f || direction.y != 0.0f)
 		this->Direction = Vector2Normalize(direction);

@@ -10,13 +10,17 @@ Player::Player(float pos_x, float pos_y, AssetManager &assets) :
 {
 	this->Rect = { pos_x, pos_y, PLAYER_TEXTURE_TILE_WIDTH, PLAYER_TEXTURE_TILE_HEIGHT };
 	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_WIDTH / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_HEIGHT / 2.0f };
-	this->Aura = { 0, 0, 0, 0 };
+	this->Aura = { 0 };
 }
 
 void Player::Update(size_t ticks) noexcept
 {
 	Player::SetCurrentTextures();
 	Player::Animate(ticks);
+
+	if (ticks >= this->SlideExpire)
+		this->Sliding = false;
+
 	Player::Move();
 }
 
@@ -70,8 +74,13 @@ void Player::SetCurrentTextures() noexcept
 
 void Player::Move() noexcept
 {
-	this->Rect.x += this->Speed * this->Direction.x * TICK_TIME;
-	this->Rect.y += this->Speed * this->Direction.y * TICK_TIME;
+	float speed = this->Speed;
+
+	if (this->Sliding)
+		speed *= 4.0f;
+
+	this->Rect.x += speed * this->Direction.x * TICK_TIME;
+	this->Rect.y += speed * this->Direction.y * TICK_TIME;
 
 	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_WIDTH / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_HEIGHT / 2.0f };
 

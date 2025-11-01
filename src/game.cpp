@@ -68,7 +68,7 @@ void Game::Draw(RenderTexture2D& canvas) const noexcept
 
 	BeginTextureMode(this->LightingLayer);
 		ClearBackground(LIGHTGRAY);
-		
+
 		BeginMode2D(this->Camera);
 			GameDrawSystem::DrawLighting(*this);
 		EndMode2D();
@@ -126,6 +126,9 @@ void Game::Update() noexcept
 
 		if (ticks - this->LastLayerDown >= TICK_RATE)
 			this->CanLayerDown = true;
+
+		if (ticks - this->LastSlide >= TICK_RATE)
+			this->CanSlide = true;
 	
 		if (this->CollectedXp >= this->GlobalData->LevelUpTreshold)
 			GameHelper::LevelUp(*this);
@@ -174,6 +177,8 @@ void Game::UpdateEnemies() noexcept
 
 	for (auto &enemy : this->Enemies)
 	{
+		unsigned int slide_damage = 0;
+
 		if (enemy.Layer == this->GlobalData->CurrentLayer && CheckCollisionRecs(this->UpdateArea, enemy.Rect))
 		{
 			enemy.Update(this->PlayerInstance->Rect, this->GlobalData->Ticks);
@@ -181,7 +186,13 @@ void Game::UpdateEnemies() noexcept
 			
 			if (!has_greenbull)
 				player_hit = Collisions::LeAttack(*this->PlayerInstance, enemy, *this->GlobalData);
+			
+			if (this->PlayerInstance->Sliding)
+				slide_damage = Collisions::SlideAttack(*this->PlayerInstance, enemy);
 		}
+
+		if (slide_damage > 0)
+			this->GameTexts.emplace_back(enemy.Rect.x, enemy.Rect.y, std::to_string(slide_damage), this->GlobalData->Ticks);
 
 		if (enemy.Health <= 0)
 		{
@@ -202,7 +213,7 @@ void Game::UpdateProjectiles() noexcept
 
 	for (auto &projectile : this->Projectiles)
 	{
-		if (projectile.Layer == this->GlobalData->CurrentLayer && CheckCollisionRecs(this->UpdateArea, projectile.Rect))
+		if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
 		{
 			projectile.Update(this->PlayerInstance->Centre);
 
@@ -215,7 +226,7 @@ void Game::UpdateProjectiles() noexcept
 
 			damage_done += damage;
 		}
-		else // TODO: switching layers just kill
+		else
 			projectile.Kill = true;
 	}
 

@@ -41,8 +41,6 @@ class Projectile
 		float Radius;
 
 		Rectangle Rect;
-
-		int Layer;
 	private:
 		void BulletConstructor(float x, float y, const Vector2& direction, const GlobalDataWrapper& global_data, const AssetManager& assets) noexcept;
 		void LazerConstructor(float x, float y, const Vector2& direction, const GlobalDataWrapper& global_data, const AssetManager& assets) noexcept;
@@ -56,7 +54,7 @@ class Projectile
 		void LazerDrawLightmap() const noexcept;
 		void BallDrawLightmap() const noexcept;
 
-		using ConstructorHook = void(Projectile::*)(float, float, const Vector2&, const GlobalDataWrapper&, const AssetManager&);
+		using ConstructorHook = void(Projectile::*)(float, float, const Vector2&, const GlobalDataWrapper&, const AssetManager&) noexcept;
 		static inline constexpr std::array<ConstructorHook, static_cast<size_t>(ProjectileType::COUNT)> ConstructorHooks =
 		{
 			&BulletConstructor,

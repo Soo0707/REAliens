@@ -28,6 +28,8 @@ class Player
 		Vector2 Centre;
 
 		float Speed = 300;
+		bool Sliding = false;
+		size_t SlideExpire = 0;
 
 	private:
 		AssetManager& Assets;

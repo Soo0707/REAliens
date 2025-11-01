@@ -50,6 +50,16 @@ void GameInputSystem::HandleTickedInput(Game& game) noexcept
 	if (game.PlayerInstance->Direction.x != 0.0f && game.PlayerInstance->Direction.y != 0.0f)
 		game.PlayerInstance->Direction = Vector2Normalize(game.PlayerInstance->Direction);
 
+
+	if (IsKeyDown(KEY_LEFT_SHIFT) && game.CanSlide)
+	{
+		game.PlayerInstance->Sliding = true;
+		game.PlayerInstance->SlideExpire = game.GlobalData->Ticks + TICK_RATE / 2;
+
+		game.CanSlide = false;
+		game.LastSlide = game.GlobalData->Ticks;
+	}
+
 	bool auto_click = game.GlobalData->Settings.at(Setting::AutoClick);
 
 	if ((IsMouseButtonDown(MOUSE_BUTTON_LEFT) || auto_click) && game.CanLMB)

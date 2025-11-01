@@ -6,13 +6,14 @@
 
 static constexpr unsigned int FLASH_DURATION = 60;
 
-enum class EnemyType
+enum class EnemyType : size_t
 {
 	Australian,
 	Drunkard,
 	Pleb,
 	Poison,
-	Trapper
+	Trapper,
+	COUNT
 };
 
 enum class BehaviourModifier : size_t

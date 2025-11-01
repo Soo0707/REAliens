@@ -50,36 +50,12 @@ bool Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 {
 	if (CheckCollisionRecs(player.Rect, enemy.Rect) && enemy.CanLeAttack)
 	{
-		const unsigned int scale = static_cast<unsigned int>(enemy.Scale);
+		unsigned int scale = static_cast<unsigned int>(enemy.Scale);
 
 		player.Health -= EnemyAttributes.at(enemy.Type).damage * scale;
 
 		if (!global_data.Effects.count(Effect::Milk))
-		{
-			switch(enemy.Type)
-			{
-				case EnemyType::Australian:
-					global_data.Effects.insert(Effect::Aussie);
-					global_data.Events[Event::AussieExpire] = global_data.Ticks + SECONDS_TO_TICKS(1) * scale;
-
-					break;
-				case EnemyType::Poison:
-					global_data.Effects.insert(Effect::Poison);
-
-					global_data.Attributes[Attribute::PoisonDamage] = 2.0f;
-
-					global_data.Events[Event::PoisonTick] = global_data.Ticks + SECONDS_TO_TICKS(1);
-					global_data.Events[Event::PoisonExpire] = global_data.Ticks + SECONDS_TO_TICKS(5) * scale;
-					break;
-				case EnemyType::Trapper:
-					global_data.Effects.insert(Effect::Trapped);
-					break;
-				case EnemyType::Drunkard:
-					global_data.Effects.insert(Effect::Drunk);
-					global_data.Events[Event::DrunkExpire] = global_data.Ticks + SECONDS_TO_TICKS(5) * scale;
-					break;
-			}
-		}
+			Collisions::LeAttackHooks[static_cast<size_t>(enemy.Type)](global_data, scale);
 
 		enemy.CanLeAttack = false;
 		enemy.LastLeAttack = global_data.Ticks;
@@ -87,6 +63,19 @@ bool Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 		return true;
 	}
 	return false;
+}
+
+unsigned int Collisions::SlideAttack(Player& player, Enemy& enemy) noexcept
+{
+	float damage_done = 0;
+
+	if (CheckCollisionRecs(player.Rect, enemy.Rect))
+	{
+		damage_done = enemy.Health;
+		enemy.Health = 0;
+	}
+
+	return static_cast<unsigned int>(damage_done);
 }
 
 void Collisions::Aura(Game& game) noexcept
@@ -109,3 +98,34 @@ void Collisions::Aura(Game& game) noexcept
 	if (game.GlobalData->Effects.count(Effect::LifeSteal))
 		game.PlayerInstance->IncreaseHealth(total_hit * aura_damage * game.GlobalData->Attributes.at(Attribute::LifeStealMultiplier));
 }
+
+
+void Collisions::ApplyAustralian(GlobalDataWrapper& global_data, unsigned int scale) noexcept
+{
+	global_data.Effects.insert(Effect::Aussie);
+	global_data.Events[Event::AussieExpire] = global_data.Ticks + SECONDS_TO_TICKS(1) * scale;
+}
+
+void Collisions::ApplyPoison(GlobalDataWrapper& global_data, unsigned int scale) noexcept
+{
+	global_data.Effects.insert(Effect::Poison);
+
+	global_data.Attributes[Attribute::PoisonDamage] = 2.0f;
+
+	global_data.Events[Event::PoisonTick] = global_data.Ticks + SECONDS_TO_TICKS(1);
+	global_data.Events[Event::PoisonExpire] = global_data.Ticks + SECONDS_TO_TICKS(5) * scale;
+}
+
+void Collisions::ApplyTrapped(GlobalDataWrapper& global_data, unsigned int scale) noexcept
+{
+	global_data.Effects.insert(Effect::Trapped);
+}
+
+void Collisions::ApplyDrunk(GlobalDataWrapper& global_data, unsigned int scale) noexcept
+{
+	global_data.Effects.insert(Effect::Drunk);
+	global_data.Events[Event::DrunkExpire] = global_data.Ticks + SECONDS_TO_TICKS(5) * scale;
+}
+
+void Collisions::ApplyNone(GlobalDataWrapper& global_data, unsigned int scale) noexcept
+{}

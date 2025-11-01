@@ -56,6 +56,9 @@ class Game
 		size_t LastLayerUp = 0;
 		bool CanLayerUp = true;
 
+		size_t LastSlide = 0;
+		bool CanSlide = true;
+
 	private:
 		void UpdateEnemies() noexcept;
 		void UpdateProjectiles() noexcept;

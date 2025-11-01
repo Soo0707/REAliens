@@ -41,7 +41,7 @@ void GameDrawSystem::DrawGame(const Game& game) noexcept
 	
 	for (auto const &projectile : game.Projectiles)
 	{
-		if (projectile.Layer <= game.GlobalData->CurrentLayer && CheckCollisionRecs(game.UpdateArea, projectile.Rect))
+		if (CheckCollisionRecs(game.UpdateArea, projectile.Rect))
 			projectile.Draw();
 	}
 
