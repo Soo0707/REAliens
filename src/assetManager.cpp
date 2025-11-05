@@ -61,11 +61,13 @@ TextureKey AssetManager::GetTextureKeyFromString(std::string filename) const noe
 		{ "pleb.png" , TextureKey::Pleb },
 		{ "poison.png", TextureKey::Poison },
 		{ "trapper.png", TextureKey::Trapper },
-
+/*
 		{ "player_east.png", TextureKey::PlayerEast },
 		{ "player_west.png", TextureKey::PlayerWest },
 		{ "player_north.png", TextureKey::PlayerNorth },
 		{ "player_south.png", TextureKey::PlayerSouth }
+		*/
+		{ "player.png", TextureKey::Player }
 	};
 
 	return (lookup.count(filename)) ? lookup.at(filename) : TextureKey::None;

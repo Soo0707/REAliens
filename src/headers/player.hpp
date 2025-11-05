@@ -4,6 +4,14 @@
 #include "assetManager.hpp"
 #include <cstddef>
 
+enum class Bearing : size_t
+{
+	North = 0,
+	South = 45,
+	East = 90,
+	West = 135
+};
+
 class Player
 {
 	public:
@@ -36,12 +44,12 @@ class Player
 
 		Texture2D Image;
 
+		Bearing Bearing = Bearing::South;
+
 		size_t LastAnimationUpdate = 0;
 		unsigned int AnimationFrames = 2;
 		unsigned int ImageIndex = 0;
 		unsigned int AnimationSpeed = 30;
 
-		TextureKey CurrentTextures = TextureKey::PlayerSouth;
-
-		void SetCurrentTextures() noexcept;
+		void SetBearing() noexcept;
 };

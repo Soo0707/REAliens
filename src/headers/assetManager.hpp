@@ -19,10 +19,14 @@ enum class TextureKey
 	Poison,
 	Trapper,
 
+	/*
 	PlayerNorth,
 	PlayerSouth,
 	PlayerEast,
 	PlayerWest,
+	*/
+
+	Player
 };
 
 enum class SoundKey
