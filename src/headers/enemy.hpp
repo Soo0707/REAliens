@@ -11,6 +11,7 @@ enum class EnemyType : size_t
 	Australian,
 	Drunkard,
 	Pleb,
+
 	Poison,
 	Trapper,
 	COUNT
@@ -20,11 +21,11 @@ enum class BehaviourModifier : size_t
 {
 	None = 0,
 	OverrideDirection = 1 << 0,
-	//NoMovement = 1 << 1,
-
 	Big = 1 << 1,
+
 	IncreasedSpeed = 1 << 2,
-	Invisible = 1 << 3
+	Invisible = 1 << 3,
+	IgnoreLayers = 1 << 4
 };
 
 inline BehaviourModifier operator| (BehaviourModifier l, BehaviourModifier r) noexcept
@@ -38,20 +39,21 @@ inline BehaviourModifier operator& (BehaviourModifier l, BehaviourModifier r) no
 }
 
 
-
 class Enemy
 {
 	public:
-		Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyType type, BehaviourModifier modifier = BehaviourModifier::None) noexcept;
+		Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyType type, BehaviourModifier modifier) noexcept;
 		~Enemy() = default; 
 		
 		void Draw() const noexcept;
 		void FlashSprite(size_t ticks) noexcept;
-		void Update(Rectangle& player_rect, size_t ticks) noexcept;
+		void Update(Vector2& player_centre, size_t ticks) noexcept;
 		
 		float Health;
-
 		float Speed;
+
+		float Scale;
+		int Layer;
 
 		Vector2 Direction = { 0.0f, 0.0f };
 		Rectangle Rect;
@@ -63,16 +65,13 @@ class Enemy
 		size_t LastLeAttack = 0;
 		unsigned int LeAttackCooldown;
 
-		float Scale;
-		int Layer;
-
 		EnemyType Type;
 		BehaviourModifier Modifiers;
 
 	private:
 		void Move() noexcept;
 		void Animate(size_t ticks) noexcept;
-		void SetDirection(Rectangle& player_rect) noexcept;
+		void SetDirection(Vector2& player_centre) noexcept;
 
 		Texture2D Image;
 

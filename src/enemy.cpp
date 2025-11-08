@@ -27,19 +27,33 @@ Enemy::Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyTyp
 
 	if ((modifier & BehaviourModifier::OverrideDirection) == BehaviourModifier::OverrideDirection)
 	{
-		Vector2 random_direction = { 1, 1 };
+		Vector2 random_direction;
 
-		if (GetRandomValue(0, 50) % 2)
-			random_direction.x *= -1;
-		else
-			random_direction.x = 0;
+		switch (GetRandomValue(0, 4))
+		{
+			case 0:
+				{
+					random_direction = {1, 0};
+				}
+				break;
+			case 1:
+				{
+					random_direction = {0, 1};
+				}
+				break;
+			case 2:
+				{
+					random_direction = {-1, 0};
+				}
+				break;
+			case 3:
+				{
+					random_direction = {0, -1};
+				}
+				break;
+		}
 
-		if (GetRandomValue(0, 50) % 2)
-			random_direction.y *= -1;
-		else if (random_direction.x != 0)
-			random_direction.y = 0;
-
-		this->Direction = Vector2Normalize(random_direction);
+		this->Direction = random_direction;
 	}
 
 	if ((this->Modifiers & BehaviourModifier::Big) == BehaviourModifier::Big)
@@ -59,22 +73,21 @@ Enemy::Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyTyp
 
 	if ((this->Modifiers & BehaviourModifier::IncreasedSpeed) == BehaviourModifier::IncreasedSpeed)
 	{
-		float scale = static_cast<float>(GetRandomValue(150, 200)) / 100.0f;
+		float scale = static_cast<float>(GetRandomValue(200, 300)) / 100.0f;
 
 		this->Speed *= scale;
 		this->AnimationSpeed *= (1 / scale);
 	}
 }
 
-void Enemy::Update(Rectangle& player_rect, size_t ticks) noexcept
+void Enemy::Update(Vector2& player_centre, size_t ticks) noexcept
 {
 	Enemy::Animate(ticks);
 
 	Enemy::Move();
 
 	if ((this->Modifiers & BehaviourModifier::OverrideDirection) == BehaviourModifier::None)
-		Enemy::SetDirection(player_rect);
-
+		Enemy::SetDirection(player_centre);
 
 	if (ticks - this->LastLeAttack >= this->LeAttackCooldown)
 		this->CanLeAttack = true;
@@ -120,10 +133,10 @@ void Enemy::Move() noexcept
 	this->Rect.y += this->Speed * this->Direction.y * TICK_TIME;
 }
 
-void Enemy::SetDirection(Rectangle& player_rect) noexcept
+void Enemy::SetDirection(Vector2& player_centre) noexcept
 {
-	this->Direction.x = player_rect.x - this->Rect.x;
-	this->Direction.y = player_rect.y - this->Rect.y;
+	this->Direction.x = player_centre.x - this->Rect.x;
+	this->Direction.y = player_centre.y - this->Rect.y;
 
 	if ((this->Direction.x != 0.0f || this->Direction.y != 0.0f))
 		this->Direction = Vector2Normalize(this->Direction);

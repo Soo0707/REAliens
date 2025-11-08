@@ -66,7 +66,7 @@ void GameEventSystem::AuraTick(Game& game, size_t expiry, std::unordered_map<Eve
 		new_events_map[Event::AuraTick] = expiry;
 	else
 	{
-		Collisions::Aura(game);
+		game.GlobalData->TotalDamage += Collisions::Aura(game);
 		new_events_map[Event::AuraTick] = expiry + game.GlobalData->Attributes.at(Attribute::AuraCooldown);
 	}
 }
@@ -84,8 +84,6 @@ void GameEventSystem::PoisonTick(Game& game, size_t expiry, std::unordered_map<E
 		{
 			game.PlayerInstance->Health -= damage;
 			new_events_map[Event::PoisonTick] = expiry + SECONDS_TO_TICKS(1);
-
-			PlaySound(game.Assets->Sounds.at(SoundKey::PlayerDamage));
 		}
 		else
 			game.GlobalData->Attributes.erase(Attribute::PoisonDamage);

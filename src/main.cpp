@@ -16,7 +16,6 @@ int main(void)
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 
 	InitWindow(REFERENCE_WIDTH, REFERENCE_HEIGHT, "RE::Aliens");
-	InitAudioDevice();
 
 	RenderTexture2D virtual_canvas = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
 	SetTextureFilter(virtual_canvas.texture, TEXTURE_FILTER_POINT);
@@ -83,9 +82,7 @@ int main(void)
 		}
 
 		BeginDrawing();
-
 			ClearBackground(BLACK);
-
 			DrawTexturePro(
 					virtual_canvas.texture,
 					(Rectangle) { 0, 0, REFERENCE_WIDTH, -static_cast<float>(REFERENCE_HEIGHT) },
@@ -94,13 +91,10 @@ int main(void)
 					0.0f,
 					WHITE
 					);
-
 		EndDrawing();
 	}
 
 	UnloadRenderTexture(virtual_canvas);
-
-	CloseAudioDevice();
 
 	CloseWindow();
 

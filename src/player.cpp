@@ -5,11 +5,10 @@
 
 
 Player::Player(float pos_x, float pos_y, AssetManager &assets) :
-	Assets(assets),
 	Image(assets.Textures.at(TextureKey::Player))
 {
-	this->Rect = { pos_x, pos_y, PLAYER_TEXTURE_TILE_WIDTH, PLAYER_TEXTURE_TILE_HEIGHT };
-	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_WIDTH / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_HEIGHT / 2.0f };
+	this->Rect = { pos_x, pos_y, PLAYER_TEXTURE_TILE_SIZE, PLAYER_TEXTURE_TILE_SIZE };
+	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_SIZE / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_SIZE / 2.0f };
 	this->Aura = { 0 };
 }
 
@@ -29,10 +28,10 @@ void Player::Draw() const noexcept
 	DrawTextureRec(
 			this->Image,
 			(Rectangle) { 
-				static_cast<float>(this->ImageIndex * PLAYER_TEXTURE_TILE_WIDTH),
+				static_cast<float>(this->ImageIndex * PLAYER_TEXTURE_TILE_SIZE),
 				static_cast<float>(this->Bearing),
-				PLAYER_TEXTURE_TILE_WIDTH,
-				PLAYER_TEXTURE_TILE_HEIGHT
+				PLAYER_TEXTURE_TILE_SIZE,
+				PLAYER_TEXTURE_TILE_SIZE
 			},
 			(Vector2) { this->Rect.x, this->Rect.y },
 			WHITE
@@ -85,9 +84,7 @@ void Player::Move() noexcept
 	this->Rect.x += speed * this->Direction.x * TICK_TIME;
 	this->Rect.y += speed * this->Direction.y * TICK_TIME;
 
-	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_WIDTH / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_HEIGHT / 2.0f };
-
-	this->Aura.x = this->Centre.x - this->Aura.width / 2.0f;
+	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_SIZE / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_SIZE / 2.0f };
 	this->Aura.y = this->Centre.y - this->Aura.height / 2.0f;
 }
 
@@ -97,4 +94,17 @@ void Player::IncreaseHealth(float addition) noexcept
 		this->Health += addition;
 	else
 		this->Health = this->HealthMax;
+}
+
+void Player::Reset() noexcept
+{
+	this->Rect.x = 500;
+	this->Rect.y = 500;
+
+	this->Health = 100;
+	this->HealthMax = 100;
+
+	this->Speed = 300;
+	this->Sliding = false;
+	this->SlideExpire = 0;
 }

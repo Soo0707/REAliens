@@ -17,7 +17,7 @@ void MainMenu::Draw(RenderTexture2D& canvas) const noexcept
 		ClearBackground(BLACK);
 
 		DrawText("RE::ALIENS", 292, 100, 128, VIOLET);
-		DrawText("No Music Included", 428, 250, 48, GOLD);
+		DrawText("No Sound Included", 428, 250, 48, GOLD);
 		DrawText("[Space] Begin, [Esc] Quit", 446, 620, 32, LIGHTGRAY);
 	EndTextureMode();
 }

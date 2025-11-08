@@ -2,14 +2,16 @@
 
 #include "raylib.h"
 #include "assetManager.hpp"
+#include "constants.hpp"
+
 #include <cstddef>
 
 enum class Bearing : size_t
 {
-	North = 0,
-	South = 45,
-	East = 90,
-	West = 135
+	North = 0 * PLAYER_TEXTURE_TILE_SIZE,
+	South = 1 * PLAYER_TEXTURE_TILE_SIZE,
+	East = 2 * PLAYER_TEXTURE_TILE_SIZE,
+	West = 3 * PLAYER_TEXTURE_TILE_SIZE 
 };
 
 class Player
@@ -26,6 +28,7 @@ class Player
 		void DrawLightmap() const noexcept;
 
 		void IncreaseHealth(float addition) noexcept;
+		void Reset() noexcept;
 		
 		float Health = 100;
 		float HealthMax = 100;
@@ -33,15 +36,15 @@ class Player
 		Vector2 Direction = { 0.0f, 0.0f };
 		Rectangle Rect;
 		Rectangle Aura;
+
 		Vector2 Centre;
+		const float Radius = 10;
 
 		float Speed = 300;
 		bool Sliding = false;
 		size_t SlideExpire = 0;
 
 	private:
-		AssetManager& Assets;
-
 		Texture2D Image;
 
 		Bearing Bearing = Bearing::South;

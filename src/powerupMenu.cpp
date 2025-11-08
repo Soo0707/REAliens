@@ -72,10 +72,7 @@ void PowerupMenu::HandleInput() noexcept
 		PowerupMenu::ApplyPowerup(this->SelectionList[2].Powerup);
 
 	if (IsKeyPressed(KEY_TAB))
-	{
-		this->GlobalData->Settings[Setting::ShowPowerupMenuOnLevelUp] = 0;
 		this->GlobalData->ActiveState = State::Game;
-	}
 }
 
 void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
@@ -86,13 +83,14 @@ void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
 
 	PowerupMenu::GenerateList();
 
-	this->GlobalData->UnclaimedPowerups--;
-	this->GlobalData->CachedStrings[CachedString::UnclaimedPowerups] = "Unclaimed Powerups: " + std::to_string(this->GlobalData->UnclaimedPowerups);
+	if (!this->GlobalData->Settings.at(Setting::UnlimitedPowerups))
+	{
+		this->GlobalData->UnclaimedPowerups--;
+		this->GlobalData->CachedStrings[CachedString::UnclaimedPowerups] = "Unclaimed Powerups: " + std::to_string(this->GlobalData->UnclaimedPowerups);
+	}
 
-	if (this->GlobalData->UnclaimedPowerups == 0)
+	if (this->GlobalData->UnclaimedPowerups == 0 && !this->GlobalData->Settings.at(Setting::UnlimitedPowerups))
 		this->GlobalData->ActiveState = State::Game;
-
-	PlaySound(this->Assets->Sounds.at(SoundKey::Select));
 }
 
 
@@ -106,7 +104,7 @@ void PowerupMenu::ApplyEffect(const Effect effect, const Event event, const unsi
 
 void PowerupMenu::ApplyMilk() noexcept
 {
-	PowerupMenu::ApplyEffect(Effect::Milk, Event::MilkExpire, SECONDS_TO_TICKS(1000));
+	PowerupMenu::ApplyEffect(Effect::Milk, Event::MilkExpire, SECONDS_TO_TICKS(180));
 
 	this->GlobalData->Effects.erase(Effect::Aussie);
 	this->GlobalData->Effects.erase(Effect::Drunk);
@@ -121,12 +119,12 @@ void PowerupMenu::ApplyMilk() noexcept
 
 void PowerupMenu::ApplyGreenbull() noexcept
 {
-	PowerupMenu::ApplyEffect(Effect::Greenbull, Event::GreenbullExpire, SECONDS_TO_TICKS(1000));
+	PowerupMenu::ApplyEffect(Effect::Greenbull, Event::GreenbullExpire, SECONDS_TO_TICKS(120));
 }
 
 void PowerupMenu::ApplyMagnetism() noexcept
 {
-	PowerupMenu::ApplyEffect(Effect::Magnetism, Event::MagnetismExpire, SECONDS_TO_TICKS(1000));
+	PowerupMenu::ApplyEffect(Effect::Magnetism, Event::MagnetismExpire, SECONDS_TO_TICKS(240));
 }
 
 void PowerupMenu::ApplyAura() noexcept

@@ -90,14 +90,19 @@ enum class Setting
 {
 	ShowPowerupMenuOnLevelUp,
 	AutoClick,
-	DisableHealthCheck
+	DisableHealthCheck,
+	UnlimitedPowerups
 };
 
 enum class CachedString
 {
 	LayerText,
 	LevelText,
-	UnclaimedPowerups
+	UnclaimedPowerups,
+
+	Duration,
+	TotalDamage,
+	DamagePerSecond
 };
 
 class GlobalDataWrapper
@@ -131,19 +136,23 @@ class GlobalDataWrapper
 		{
 			{ Setting::ShowPowerupMenuOnLevelUp, 0 },
 			{ Setting::AutoClick, 0 },
-			{ Setting::DisableHealthCheck, 0 }
+			{ Setting::DisableHealthCheck, 0 },
+			{ Setting::UnlimitedPowerups, 0 }
 		};
 
 		std::unordered_map<CachedString, std::string> CachedStrings =
 		{
 			{ CachedString::LayerText, "Current Layer: 0" },
 			{ CachedString::LevelText, "Level: 1" },
+			{ CachedString::Duration, "Duration: 0s" },
+
 			{ CachedString::UnclaimedPowerups, "" }
 		};
 
 		State ActiveState = State::MainMenu;
 
 		size_t Ticks = 0;
+		size_t TotalDamage = 0;
 		
 		size_t Level = 1;
 		size_t LevelUpTreshold = 5;
@@ -174,6 +183,8 @@ class GlobalDataWrapper
 			{
 				{ CachedString::LayerText, "Current Layer: 0" },
 				{ CachedString::LevelText, "Level: 1" },
+				{ CachedString::Duration, "Duration: 0s" },
+
 				{ CachedString::UnclaimedPowerups, "" }
 			};
 			
@@ -181,6 +192,7 @@ class GlobalDataWrapper
 			this->Effects.clear();
 
 			this->Ticks = 0;
+			this->TotalDamage = 0;
 			
 			this->Level = 1;
 			this->LevelUpTreshold = 5;

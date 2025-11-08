@@ -119,8 +119,9 @@ void GameDrawSystem::DrawOverlay(const Game& game) noexcept
 	if (game.GlobalData->Effects.count(Effect::Trapped))
 		DrawText("[Space] to untrap.", 533, 620, 24, WHITE);
 
-	DrawText(game.GlobalData->CachedStrings.at(CachedString::LayerText).c_str(), 20, 20, 24, LIGHTGRAY);
-	DrawText(game.GlobalData->CachedStrings.at(CachedString::LevelText).c_str(), 20, 50, 24, LIGHTGRAY);
+	DrawText(game.GlobalData->CachedStrings.at(CachedString::Duration).c_str(), 20, 20, 24, LIGHTGRAY);
+	DrawText(game.GlobalData->CachedStrings.at(CachedString::LayerText).c_str(), 20, 50, 24, LIGHTGRAY);
+	DrawText(game.GlobalData->CachedStrings.at(CachedString::LevelText).c_str(), 20, 80, 24, LIGHTGRAY);
 }
 
 

@@ -110,26 +110,20 @@ void Game::Update() noexcept
 	
 	while (this->Accumulator >= TICK_TIME)
 	{
-		size_t ticks = this->GlobalData->Ticks;
-		
 		if (this->PlayerInstance->Health <= 0 && !this->GlobalData->Settings.at(Setting::DisableHealthCheck))
+		{
+			size_t ticks = this->GlobalData->Ticks;
+			size_t damage_per_second = this->GlobalData->TotalDamage / TICKS_TO_SECONDS(ticks);
+
+			this->GlobalData->CachedStrings[CachedString::Duration] = "Duration: " + std::to_string(TICKS_TO_SECONDS(ticks)) + "s";
+			this->GlobalData->CachedStrings[CachedString::TotalDamage] = "Damage Dealt: " + std::to_string(this->GlobalData->TotalDamage);
+			this->GlobalData->CachedStrings[CachedString::DamagePerSecond] = "Damage / Second: " + std::to_string(damage_per_second);
+
 			this->GlobalData->ActiveState = State::GameOverMenu;
-		
-		if (ticks - this->LastLMB >= this->GlobalData->Attributes.at(Attribute::BulletCooldown))
-			this->CanLMB = true;
+		}
 
-		if (ticks - this->LastRMB >= this->GlobalData->Attributes.at(Attribute::LazerCooldown))
-			this->CanRMB = true;
+		Game::UpdateTimeouts();
 
-		if (ticks - this->LastLayerUp >= TICK_RATE)
-			this->CanLayerUp = true;
-
-		if (ticks - this->LastLayerDown >= TICK_RATE)
-			this->CanLayerDown = true;
-
-		if (ticks - this->LastSlide >= TICK_RATE)
-			this->CanSlide = true;
-	
 		if (this->CollectedXp >= this->GlobalData->LevelUpTreshold)
 			GameHelper::LevelUp(*this);
 
@@ -137,7 +131,7 @@ void Game::Update() noexcept
 
 		GameEventSystem::HandleEvents(*this);
 
-		this->PlayerInstance->Update(ticks);
+		this->PlayerInstance->Update(this->GlobalData->Ticks);
 		GameHelper::LoopOverMap(*this->Assets, this->PlayerInstance->Rect);
 
 
@@ -155,8 +149,8 @@ void Game::Update() noexcept
 		Game::UpdateEnemies();
 		Game::UpdateProjectiles();
 		Game::UpdateXps();
-		Game::UpdateGameTexts();
 
+		Game::UpdateGameTexts();
 
 		this->Accumulator -= TICK_TIME;
 		this->GlobalData->Ticks++;
@@ -173,7 +167,6 @@ void Game::UpdateEnemies() noexcept
 	}
 
 	bool has_greenbull = this->GlobalData->Effects.count(Effect::Greenbull);
-	bool player_hit = false;
 
 	for (auto &enemy : this->Enemies)
 	{
@@ -181,18 +174,21 @@ void Game::UpdateEnemies() noexcept
 
 		if (enemy.Layer == this->GlobalData->CurrentLayer && CheckCollisionRecs(this->UpdateArea, enemy.Rect))
 		{
-			enemy.Update(this->PlayerInstance->Rect, this->GlobalData->Ticks);
+			enemy.Update(this->PlayerInstance->Centre, this->GlobalData->Ticks);
 			GameHelper::LoopOverMap(*this->Assets, enemy.Rect);
 			
 			if (!has_greenbull)
-				player_hit = Collisions::LeAttack(*this->PlayerInstance, enemy, *this->GlobalData);
+				Collisions::LeAttack(*this->PlayerInstance, enemy, *this->GlobalData);
 			
 			if (this->PlayerInstance->Sliding)
 				slide_damage = Collisions::SlideAttack(*this->PlayerInstance, enemy);
 		}
 
 		if (slide_damage > 0)
+		{
 			this->GameTexts.emplace_back(enemy.Rect.x, enemy.Rect.y, std::to_string(slide_damage), this->GlobalData->Ticks);
+			this->GlobalData->TotalDamage += slide_damage;
+		}
 
 		if (enemy.Health <= 0)
 		{
@@ -202,14 +198,11 @@ void Game::UpdateEnemies() noexcept
 	}
 
 	std::erase_if(this->Enemies, [](const Enemy& enemy) { return (enemy.Health <= 0); });
-
-	if (player_hit)
-		PlaySound(this->Assets->Sounds.at(SoundKey::PlayerDamage));
 }
 
 void Game::UpdateProjectiles() noexcept
 {
-	unsigned int damage_done = 0;
+	unsigned int total_damage_done = 0;
 
 	for (auto &projectile : this->Projectiles)
 	{
@@ -224,7 +217,7 @@ void Game::UpdateProjectiles() noexcept
 			if (damage > 0)
 				this->GameTexts.emplace_back(projectile.Rect.x, projectile.Rect.y, std::to_string(damage), this->GlobalData->Ticks);
 
-			damage_done += damage;
+			total_damage_done += damage;
 		}
 		else
 			projectile.Kill = true;
@@ -233,13 +226,14 @@ void Game::UpdateProjectiles() noexcept
 	std::erase_if(this->Projectiles, [](const Projectile& proj){ return proj.Kill; });
 
 	if (this->GlobalData->Effects.count(Effect::LifeSteal))
-		this->PlayerInstance->IncreaseHealth( damage_done * this->GlobalData->Attributes.at(Attribute::LifeStealMultiplier) );
+		this->PlayerInstance->IncreaseHealth( total_damage_done * this->GlobalData->Attributes.at(Attribute::LifeStealMultiplier) );
+
+	this->GlobalData->TotalDamage += total_damage_done;
 }
 
 void Game::UpdateXps() noexcept
 {
 	bool has_magnetism = this->GlobalData->Effects.count(Effect::Magnetism);
-	bool play_sound = false;
 
 	for (auto &xp : this->Xps)
 	{
@@ -247,14 +241,10 @@ void Game::UpdateXps() noexcept
 		{
 			this->CollectedXp += xp.Value;
 			xp.Kill = true;
-			play_sound = true;
 		}
 	}
 
 	std::erase_if(this->Xps, [](const Xp& xp) { return xp.Kill; });
-
-	if (play_sound)
-		PlaySound(this->Assets->Sounds.at(SoundKey::Xp));
 }
 
 void Game::UpdateGameTexts() noexcept
@@ -268,16 +258,36 @@ void Game::UpdateGameTexts() noexcept
 	std::erase_if(this->GameTexts, [ticks = this->GlobalData->Ticks](const GameText& text) { return (ticks >= text.Expiry); });
 }
 
+void Game::UpdateTimeouts() noexcept
+{
+	size_t ticks = this->GlobalData->Ticks;
+	
+	if (ticks - this->LastLMB >= this->GlobalData->Attributes.at(Attribute::BulletCooldown))
+		this->CanLMB = true;
+
+	if (ticks - this->LastRMB >= this->GlobalData->Attributes.at(Attribute::LazerCooldown))
+		this->CanRMB = true;
+
+	if (ticks - this->LastLayerUp >= TICK_RATE)
+		this->CanLayerUp = true;
+
+	if (ticks - this->LastLayerDown >= TICK_RATE)
+		this->CanLayerDown = true;
+
+	if (ticks - this->LastSlide >= TICK_RATE)
+		this->CanSlide = true;
+
+	if (ticks % TICK_RATE == 0)
+		this->GlobalData->CachedStrings[CachedString::Duration] = "Duration: " + std::to_string(TICKS_TO_SECONDS(ticks)) + "s";
+}
+
 
 void Game::HandleEssentialInput() noexcept
 {
 	if (IsKeyPressed(KEY_ESCAPE))
-	{
 		this->GlobalData->ActiveState = State::PauseMenu;
-		PlaySound(this->Assets->Sounds.at(SoundKey::Pause));
-	}
 	
-	if (IsKeyPressed(KEY_TAB) && this->GlobalData->UnclaimedPowerups > 0)
+	if (IsKeyPressed(KEY_TAB) && (this->GlobalData->UnclaimedPowerups > 0 || this->GlobalData->Settings.at(Setting::UnlimitedPowerups)))
 		this->GlobalData->ActiveState = State::PowerupMenu;
 }
 
@@ -288,7 +298,6 @@ void Game::Reset() noexcept
 	this->Xps.clear();
 	this->GameTexts.clear();
 
-	this->PlayerInstance = std::make_unique<Player>(500, 500, *this->Assets);
 	this->CollectedXp = 0;
 	
 	this->LastLMB = 0;
@@ -303,7 +312,11 @@ void Game::Reset() noexcept
 	this->LastLayerUp = 0;
 	this->CanLayerUp = true;
 
+	this->LastSlide = 0;
+	this->CanSlide = true;
+
 	this->LastSpawn = 0;
 
+	this->PlayerInstance->Reset();
 	this->GlobalData->Reset();
 }

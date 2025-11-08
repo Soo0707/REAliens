@@ -64,6 +64,7 @@ class Game
 		void UpdateProjectiles() noexcept;
 		void UpdateXps() noexcept;
 		void UpdateGameTexts() noexcept;
+		void UpdateTimeouts() noexcept;
 
 		float Accumulator = 0.0f;
 		size_t LastSpawn = 0;

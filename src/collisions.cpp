@@ -46,9 +46,9 @@ unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy
 	return damage_done;
 }
 
-bool Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& global_data) noexcept
+void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& global_data) noexcept
 {
-	if (CheckCollisionRecs(player.Rect, enemy.Rect) && enemy.CanLeAttack)
+	if (enemy.CanLeAttack && CheckCollisionCircleRec(player.Centre, player.Radius, enemy.Rect))
 	{
 		unsigned int scale = static_cast<unsigned int>(enemy.Scale);
 
@@ -59,17 +59,14 @@ bool Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 
 		enemy.CanLeAttack = false;
 		enemy.LastLeAttack = global_data.Ticks;
-
-		return true;
 	}
-	return false;
 }
 
 unsigned int Collisions::SlideAttack(Player& player, Enemy& enemy) noexcept
 {
 	float damage_done = 0;
 
-	if (CheckCollisionRecs(player.Rect, enemy.Rect))
+	if (CheckCollisionCircleRec(player.Centre, player.Radius, enemy.Rect))
 	{
 		damage_done = enemy.Health;
 		enemy.Health = 0;
@@ -78,7 +75,7 @@ unsigned int Collisions::SlideAttack(Player& player, Enemy& enemy) noexcept
 	return static_cast<unsigned int>(damage_done);
 }
 
-void Collisions::Aura(Game& game) noexcept
+unsigned int Collisions::Aura(Game& game) noexcept
 {
 	float aura_damage = game.GlobalData->Attributes.at(Attribute::AuraDamage);
 	unsigned int total_hit = 0;
@@ -97,6 +94,8 @@ void Collisions::Aura(Game& game) noexcept
 
 	if (game.GlobalData->Effects.count(Effect::LifeSteal))
 		game.PlayerInstance->IncreaseHealth(total_hit * aura_damage * game.GlobalData->Attributes.at(Attribute::LifeStealMultiplier));
+
+	return static_cast<unsigned int>(total_hit * aura_damage);
 }
 
 

@@ -14,13 +14,22 @@ void GameOverMenu::Draw(RenderTexture2D& canvas) const noexcept
 	float mid = 1280 / 2.0f;
 
 	int x1 = mid - MeasureText("GAME OVER", 48) / 2.0f;
-	int x2 = mid - MeasureText("[Space] Restart, [Esc] Quit", 24) / 2.0f;
+	int x2 = mid - MeasureText(this->GlobalData->CachedStrings.at(CachedString::Duration).c_str(), 24) / 2.0f;
+	int x3 = mid - MeasureText(this->GlobalData->CachedStrings.at(CachedString::TotalDamage).c_str(), 24) / 2.0f;
+
+	int x4 = mid - MeasureText(this->GlobalData->CachedStrings.at(CachedString::DamagePerSecond).c_str(), 24) / 2.0f;
+	int x5 = mid - MeasureText("[Space] Restart, [Esc] Quit", 21) / 2.0f;
 	
 	BeginTextureMode(canvas);
 		ClearBackground(BLACK);
 
-		DrawText("GAME OVER", x1, 260, 48, VIOLET);
-		DrawText("[Space] Restart, [Esc] Quit", x2, 360, 24, VIOLET);
+		DrawText("GAME OVER", x1, 80, 48, VIOLET);
+
+		DrawText(this->GlobalData->CachedStrings.at(CachedString::Duration).c_str(), x2, 260, 24, GOLD);
+		DrawText(this->GlobalData->CachedStrings.at(CachedString::TotalDamage).c_str(), x3, 360, 24, GOLD);
+		DrawText(this->GlobalData->CachedStrings.at(CachedString::DamagePerSecond).c_str(), x4, 460, 24, GOLD);
+
+		DrawText("[Space] Restart, [Esc] Quit", x5, 620, 21, LIGHTGRAY);
 
 	EndTextureMode();
 }

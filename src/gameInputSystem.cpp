@@ -54,7 +54,7 @@ void GameInputSystem::HandleTickedInput(Game& game) noexcept
 	if (IsKeyDown(KEY_LEFT_SHIFT) && game.CanSlide)
 	{
 		game.PlayerInstance->Sliding = true;
-		game.PlayerInstance->SlideExpire = game.GlobalData->Ticks + TICK_RATE / 2;
+		game.PlayerInstance->SlideExpire = game.GlobalData->Ticks + TICK_RATE / 4;
 
 		game.CanSlide = false;
 		game.LastSlide = game.GlobalData->Ticks;
@@ -100,8 +100,6 @@ void GameInputSystem::HandleLeftClick(Game& game) noexcept
 
 		game.Projectiles.emplace_back(player_centre.x, player_centre.y, direction, ProjectileType::Bullet, *game.GlobalData, *game.Assets);
 	}
-
-	PlaySound(game.Assets->Sounds.at(SoundKey::Bullets));
 }
 
 void GameInputSystem::HandleRightClick(Game& game) noexcept
@@ -112,6 +110,4 @@ void GameInputSystem::HandleRightClick(Game& game) noexcept
 	
 	for (int i = 0; i < 4; i++)
 		game.Projectiles.emplace_back(centre.x, centre.y, directions[i], ProjectileType::Lazer, *game.GlobalData, *game.Assets);
-
-	PlaySound(game.Assets->Sounds.at(SoundKey::Lazer));
 }
