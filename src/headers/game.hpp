@@ -7,6 +7,7 @@
 
 #include "player.hpp"
 #include "assetManager.hpp"
+#include "settingsManager.hpp"
 #include "globalDataWrapper.hpp"
 
 #include "projectiles.hpp"
@@ -17,7 +18,7 @@
 class Game
 {
 	public:
-		Game(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets);
+		Game(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets, std::shared_ptr<SettingsManager> settings);
 		~Game();
 
 		void HandleEssentialInput() noexcept;
@@ -27,6 +28,7 @@ class Game
 		void Reset() noexcept;
 
 		std::shared_ptr<AssetManager> Assets;
+		std::shared_ptr<SettingsManager> Settings;
 		std::shared_ptr<GlobalDataWrapper> GlobalData;
 
 		std::vector<Enemy> Enemies;
@@ -43,6 +45,7 @@ class Game
 		RenderTexture2D GameLayer;
 		
 		size_t CollectedXp = 0;
+		size_t LevelUpTreshold = 5;
 		
 		size_t LastLMB = 0;
 		bool CanLMB = true;

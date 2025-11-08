@@ -2,6 +2,7 @@
 
 #include "globalDataWrapper.hpp"
 #include "assetManager.hpp"
+#include "settingsManager.hpp"
 
 #include "game.hpp"
 #include "powerupMenu.hpp"
@@ -28,10 +29,11 @@ int main(void)
 	SetExitKey(KEY_NULL);
 
 	std::shared_ptr<AssetManager> assets = std::make_shared<AssetManager>();
+	std::shared_ptr<SettingsManager> settings = std::make_shared<SettingsManager>();
 	std::shared_ptr<GlobalDataWrapper> global_data = std::make_shared<GlobalDataWrapper>();
 
-	Game game = Game(global_data, assets);
-	PowerupMenu powerup_menu = PowerupMenu(global_data, assets);
+	Game game = Game(global_data, assets, settings);
+	PowerupMenu powerup_menu = PowerupMenu(global_data, assets, settings);
 	GameOverMenu game_over = GameOverMenu(global_data, assets);
 	PauseMenu pause = PauseMenu(global_data, assets);
 	MainMenu main_menu = MainMenu(global_data, assets);

@@ -4,6 +4,7 @@
 #include <cstddef>
 
 #include "raylib.h"
+#include "settingsManager.hpp"
 #include "assetManager.hpp"
 #include "game.hpp"
 
@@ -22,7 +23,7 @@ void GameHelper::LoopOverMap(AssetManager& assets, Rectangle& m_obj) noexcept
 
 void GameHelper::LevelUp(Game& game) noexcept
 {
-	if (!game.GlobalData->Settings.at(Setting::UnlimitedPowerups))
+	if (!game.Settings->Data.at(SettingKey::UnlimitedPowerups))
 	{
 		game.GlobalData->UnclaimedPowerups++;
 		game.GlobalData->CachedStrings[CachedString::UnclaimedPowerups] = "Unclaimed Powerups: " + std::to_string(game.GlobalData->UnclaimedPowerups);
@@ -32,9 +33,9 @@ void GameHelper::LevelUp(Game& game) noexcept
 	game.GlobalData->CachedStrings[CachedString::LevelText] = "Level: " + std::to_string(game.GlobalData->Level);
 
 	game.CollectedXp = 0;
-	game.GlobalData->LevelUpTreshold += 5;
+	game.LevelUpTreshold += 5;
 	
-	if (game.GlobalData->Settings.at(Setting::ShowPowerupMenuOnLevelUp))
+	if (game.Settings->Data.at(SettingKey::PowerupMenuInterrupt))
 		game.GlobalData->ActiveState = State::PowerupMenu;
 }
 

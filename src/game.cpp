@@ -18,6 +18,7 @@
 #include "constants.hpp"
 
 #include "player.hpp"
+#include "settingsManager.hpp"
 #include "assetManager.hpp"
 #include "projectiles.hpp"
 #include "collisions.hpp"
@@ -28,8 +29,9 @@
 #include "xp.hpp"
 
 
-Game::Game(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets) :
+Game::Game(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets, std::shared_ptr<SettingsManager> settings) :
 	GlobalData(global_data),
+	Settings(settings),
 	Assets(assets)
 {
 	this->PlayerInstance = std::make_unique<Player>(500, 500, *this->Assets);
@@ -110,7 +112,7 @@ void Game::Update() noexcept
 	
 	while (this->Accumulator >= TICK_TIME)
 	{
-		if (this->PlayerInstance->Health <= 0 && !this->GlobalData->Settings.at(Setting::DisableHealthCheck))
+		if (this->PlayerInstance->Health <= 0 && !this->Settings->Data.at(SettingKey::DisableHealthCheck))
 		{
 			size_t ticks = this->GlobalData->Ticks;
 			size_t damage_per_second = this->GlobalData->TotalDamage / TICKS_TO_SECONDS(ticks);
@@ -124,7 +126,7 @@ void Game::Update() noexcept
 
 		Game::UpdateTimeouts();
 
-		if (this->CollectedXp >= this->GlobalData->LevelUpTreshold)
+		if (this->CollectedXp >= this->LevelUpTreshold)
 			GameHelper::LevelUp(*this);
 
 		GameInputSystem::HandleTickedInput(*this);
@@ -287,7 +289,7 @@ void Game::HandleEssentialInput() noexcept
 	if (IsKeyPressed(KEY_ESCAPE))
 		this->GlobalData->ActiveState = State::PauseMenu;
 	
-	if (IsKeyPressed(KEY_TAB) && (this->GlobalData->UnclaimedPowerups > 0 || this->GlobalData->Settings.at(Setting::UnlimitedPowerups)))
+	if (IsKeyPressed(KEY_TAB) && (this->GlobalData->UnclaimedPowerups > 0 || this->Settings->Data.at(SettingKey::UnlimitedPowerups)))
 		this->GlobalData->ActiveState = State::PowerupMenu;
 }
 
@@ -299,7 +301,8 @@ void Game::Reset() noexcept
 	this->GameTexts.clear();
 
 	this->CollectedXp = 0;
-	
+	this->LevelUpTreshold = 5;
+
 	this->LastLMB = 0;
 	this->CanLMB = true;
 

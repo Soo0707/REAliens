@@ -5,12 +5,14 @@
 
 #include "raylib.h"
 #include "globalDataWrapper.hpp"
+#include "settingsManager.hpp"
 #include "assetManager.hpp"
 
 #include "constants.hpp"
 
-PowerupMenu::PowerupMenu(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets) :
+PowerupMenu::PowerupMenu(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets, std::shared_ptr<SettingsManager> settings) :
 	GlobalData(global_data),
+	Settings(settings),
 	Assets(assets)
 {
 	PowerupMenu::GenerateList();
@@ -83,13 +85,13 @@ void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
 
 	PowerupMenu::GenerateList();
 
-	if (!this->GlobalData->Settings.at(Setting::UnlimitedPowerups))
+	if (!this->Settings->Data.at(SettingKey::UnlimitedPowerups))
 	{
 		this->GlobalData->UnclaimedPowerups--;
 		this->GlobalData->CachedStrings[CachedString::UnclaimedPowerups] = "Unclaimed Powerups: " + std::to_string(this->GlobalData->UnclaimedPowerups);
 	}
 
-	if (this->GlobalData->UnclaimedPowerups == 0 && !this->GlobalData->Settings.at(Setting::UnlimitedPowerups))
+	if (this->GlobalData->UnclaimedPowerups == 0 && !this->Settings->Data.at(SettingKey::UnlimitedPowerups))
 		this->GlobalData->ActiveState = State::Game;
 }
 

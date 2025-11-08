@@ -1,0 +1,28 @@
+##############################################################################################################
+#
+# The parser for this config file was whipped up very quickly and i don't vibe code so it might be very picky.
+#
+#   - Inline comments are not supported.
+#   - Any whitespace must be commented out.
+#   - There should be no space between the key and the delimiter(=).
+#       > valid: KEY=VALUE
+#       > invalid: any form of KEY = VALUE where there is empty space
+#   - Invalid keys are ignored
+#   - If this file or any of its' keys are missing, hardcoded value(s) from the executable is loaded
+#   - Hotreloading is not supported
+#
+##############################################################################################################
+#
+#
+#
+# Automatically trigger powerup menu when leveling up
+POWERUP_MENU_STEALS_FOCUS=0
+#
+# Auto click for touchpad users in boring lectures
+AUTO_CLICK=1
+#
+# Allows player health to go below 0%
+DISABLE_HEALTH_CHECK=0
+#
+# Allows the player to freely toggle the powerup menu
+UNLIMITED_POWERUPS=0

@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "game.hpp"
+#include "settingsManager.hpp"
 #include "constants.hpp"
 
 #include <array>
@@ -60,7 +61,7 @@ void GameInputSystem::HandleTickedInput(Game& game) noexcept
 		game.LastSlide = game.GlobalData->Ticks;
 	}
 
-	bool auto_click = game.GlobalData->Settings.at(Setting::AutoClick);
+	bool auto_click = game.Settings->Data.at(SettingKey::AutoClick);
 
 	if ((IsMouseButtonDown(MOUSE_BUTTON_LEFT) || auto_click) && game.CanLMB)
 	{

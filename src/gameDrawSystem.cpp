@@ -88,7 +88,7 @@ void GameDrawSystem::DrawOverlay(const Game& game) noexcept
 
 	bool is_poisoned = game.GlobalData->Effects.count(Effect::Poison);
 
-	float xp_percentage = (float) game.CollectedXp / (float) game.GlobalData->LevelUpTreshold;
+	float xp_percentage = (float) game.CollectedXp / (float) game.LevelUpTreshold;
 
 	Rectangle xp_bar = {
 		100,
