@@ -8,7 +8,6 @@
 enum class TextureKey
 {
 	None,
-	Ball,
 	Lazer,
 	Bullet,
 	Xp,

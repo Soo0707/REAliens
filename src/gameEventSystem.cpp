@@ -36,30 +36,6 @@ bool GameEventSystem::HandleEventExpiry(Event event, Effect effect, GlobalDataWr
 }
 
 
-void GameEventSystem::SpawnAndUpgradeBall(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
-{
-	game.Projectiles.emplace_back(
-			game.PlayerInstance->Centre.x,
-			game.PlayerInstance->Centre.y,
-			(Vector2) { 0, 0 },
-			ProjectileType::Ball,
-			*game.GlobalData,
-			*game.Assets
-			);
-	
-	for (auto &proj : game.Projectiles)
-	{
-		if (proj.Type == ProjectileType::Ball)
-		{
-			proj.Scale = game.GlobalData->Attributes.at(Attribute::BallScale);
-			proj.Speed = game.GlobalData->Attributes.at(Attribute::BallAngularSpeed);
-			proj.Rotation = game.GlobalData->Attributes.at(Attribute::BallAngularSpeed) * TO_DEG;
-			proj.Radius = game.GlobalData->Attributes.at(Attribute::BallRadius);
-		}
-	}
-}
-
-
 void GameEventSystem::AuraTick(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
 	if (expiry >= game.GlobalData->Ticks)

@@ -11,7 +11,6 @@ namespace GameEventSystem
 
 	bool HandleEventExpiry(Event event, Effect effect, GlobalDataWrapper& global_data, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
 
-	void SpawnAndUpgradeBall(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
 	void AuraTick(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
 	void PoisonTick(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
 
@@ -30,7 +29,6 @@ namespace GameEventSystem
 	// The ordering here matters as it mimics the order of the definition of Event
 	static inline constexpr std::array<void(*)(Game&, size_t, std::unordered_map<Event, size_t>&), static_cast<size_t>(Event::COUNT)> EventHandlers =
 	{
-		&SpawnAndUpgradeBall,
 		&GreenbullExpire,
 		&MilkExpire,
 

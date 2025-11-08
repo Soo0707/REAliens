@@ -22,9 +22,6 @@ unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy
 		case ProjectileType::Bullet:
 			damage = global_data.Attributes.at(Attribute::BulletDamage);
 			break;
-		case ProjectileType::Ball:
-			damage = global_data.Attributes.at(Attribute::BallDamage);
-			break;
 		default:
 			damage = 0;
 	}

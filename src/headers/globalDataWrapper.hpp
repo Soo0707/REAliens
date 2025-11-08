@@ -20,11 +20,6 @@ enum class Attribute
 	LazerScale,
 	LazerSpeed,
 
-	BallDamage,
-	BallScale,
-	BallAngularSpeed,
-	BallRadius,
-
 	PoisonDamage,
 
 	AuraSize,
@@ -37,7 +32,6 @@ enum class Attribute
 // The ordering here matters as GameEventSystem uses a fixed array as a function jump table
 enum class Event
 {
-	SpawnAndUpgradeBall,
 	GreenbullExpire,
 	MilkExpire,
 

@@ -150,30 +150,6 @@ void PowerupMenu::ApplyAura() noexcept
 	this->GlobalData->Events[Event::AuraTick] = this->GlobalData->Ticks + this->GlobalData->Attributes.at(Attribute::AuraCooldown);
 }
 
-void PowerupMenu::ApplyBall() noexcept
-{
-	if (this->GlobalData->Attributes.count(Attribute::BallRadius)) 
-	{
-		this->GlobalData->Attributes[Attribute::BallDamage] += 10;
-		this->GlobalData->Attributes[Attribute::BallScale] += 0.2;
-
-		if (this->GlobalData->Attributes[Attribute::BallAngularSpeed] <= 4 * PI)
-			this->GlobalData->Attributes[Attribute::BallAngularSpeed] *= 2;
-
-		if (this->GlobalData->Attributes[Attribute::BallRadius] + 12 < 320)
-			this->GlobalData->Attributes[Attribute::BallRadius] += 12;
-	}
-	else
-	{
-		this->GlobalData->Attributes[Attribute::BallDamage] = 5.0f;
-		this->GlobalData->Attributes[Attribute::BallScale] = 1.0f;
-		this->GlobalData->Attributes[Attribute::BallAngularSpeed] = PI / 2;
-		this->GlobalData->Attributes[Attribute::BallRadius] = 64;
-	}
-
-	this->GlobalData->Events[Event::SpawnAndUpgradeBall] = 0;
-}
-
 void PowerupMenu::ApplyBuckshot() noexcept
 {
 	this->GlobalData->Attributes[Attribute::Buckshot] += 2;

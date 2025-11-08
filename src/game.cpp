@@ -208,7 +208,7 @@ void Game::UpdateProjectiles() noexcept
 	{
 		if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
 		{
-			projectile.Update(this->PlayerInstance->Centre);
+			projectile.Update();
 
 			GameHelper::LoopOverMap(*this->Assets, projectile.Rect);
 

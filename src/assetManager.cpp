@@ -49,18 +49,16 @@ TextureKey AssetManager::GetTextureKeyFromString(std::string filename) const noe
 {
 	static const std::unordered_map<std::string, TextureKey> lookup =
 	{
-		{ "ball.png", TextureKey::Ball },
 		{ "lazer.png", TextureKey::Lazer },
 		{ "bullet.png", TextureKey::Bullet },
-
 		{ "xp.png", TextureKey::Xp },
+
 		{ "australian.png", TextureKey::Australian },
 		{ "drunkard.png", TextureKey::Drunkard },
-
 		{ "pleb.png" , TextureKey::Pleb },
+
 		{ "poison.png", TextureKey::Poison },
 		{ "trapper.png", TextureKey::Trapper },
-
 		{ "player.png", TextureKey::Player }
 	};
 

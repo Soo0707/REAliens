@@ -16,15 +16,14 @@ enum class Powerup
 	Buckshot,
 	Projectile,
 
-	Ball,
 	Lazer,
 	Greenbull,
-
 	Milk,
+
 	LifeSteal,
 	PlotArmour,
-
 	Magnetism,
+
 	SpeedBoots,
 	COUNT
 };
@@ -52,7 +51,6 @@ class PowerupMenu
 
 		void ApplyMilk() noexcept;
 		void ApplyAura() noexcept;
-		void ApplyBall() noexcept;
 
 		void ApplyBuckshot() noexcept;
 		void ApplyProjectile() noexcept;
@@ -76,7 +74,6 @@ class PowerupMenu
 			"Buckshot",
 			"Projectile",
 
-			"Ball",
 			"Lazer",
 			"Greenbull",
 
@@ -94,7 +91,6 @@ class PowerupMenu
 			&PowerupMenu::ApplyBuckshot,
 			&PowerupMenu::ApplyProjectile,
 
-			&PowerupMenu::ApplyBall,
 			&PowerupMenu::ApplyLazer,
 			&PowerupMenu::ApplyGreenbull,
 
