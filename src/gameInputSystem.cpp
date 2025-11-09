@@ -87,7 +87,7 @@ void GameInputSystem::HandleLeftClick(Game& game) noexcept
 	Vector2 centre_direction = Vector2Subtract(mouse_pos, game.PlayerInstance->Centre);
 	Vector2 player_centre = game.PlayerInstance->Centre;
 
-	float spread_angle = game.GlobalData->Attributes[Attribute::BuckshotSpread];
+	float spread_angle = game.GlobalData->Attributes.at(Attribute::BuckshotSpread);
 	int buckshot = static_cast<int>((game.GlobalData->Attributes.at(Attribute::Buckshot) - 1) / 2);
 
 	for (int i = -buckshot; i <= buckshot; i++)

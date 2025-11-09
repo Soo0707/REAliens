@@ -53,16 +53,8 @@ void GameEventSystem::PoisonTick(Game& game, size_t expiry, std::unordered_map<E
 		new_events_map[Event::PoisonTick] = expiry;
 	else
 	{
-		// damage may be -1 if poison expired, destruction of PoisonDamage and PoisonTick both happen here
-		float damage = game.GlobalData->Attributes.at(Attribute::PoisonDamage);
-
-		if (damage > 0)
-		{
-			game.PlayerInstance->Health -= damage;
-			new_events_map[Event::PoisonTick] = expiry + SECONDS_TO_TICKS(1);
-		}
-		else
-			game.GlobalData->Attributes.erase(Attribute::PoisonDamage);
+		game.PlayerInstance->Health -= 2;
+		new_events_map[Event::PoisonTick] = expiry + SECONDS_TO_TICKS(1);
 	}
 }
 
@@ -74,15 +66,8 @@ void GameEventSystem::IncreasePlotArmour(Game& game, size_t expiry, std::unorder
 
 void GameEventSystem::PoisonExpire(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
-	/*
-	 we cannot delete they key immediately as we might not have iterated through poison tick
-	 which needs this. so we just don't copy PoisonExpire into the new map,
-	 then signal using -1 so that PoisonTick can handle PoisonDamage's deletion
-	*/
 	if (GameEventSystem::HandleEventExpiry(Event::PoisonExpire, Effect::Poison, *game.GlobalData, expiry, new_events_map))
-	{
-		game.GlobalData->Attributes[Attribute::PoisonDamage] = -1.0f;
-	}
+		game.GlobalData->Events.erase(Event::PoisonTick);
 }
 
 void GameEventSystem::IncreaseAura(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept

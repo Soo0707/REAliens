@@ -31,7 +31,7 @@ SettingsManager::SettingsManager()
 		size_t delimiter_location = line.find("=");
 
 		if (delimiter_location == std::string::npos)
-			exit(1);
+			continue;
 
 		str_key = line.substr(0, delimiter_location);
 		str_value = line.substr(delimiter_location + 1, line.length());
@@ -50,7 +50,7 @@ SettingsManager::SettingsManager()
 		SettingKey key = SettingsManager::GetSettingKeyFromString(str_key);
 
 		if (key != SettingKey::None)
-			this->Data[key] = value;
+			this->Data[key] = static_cast<unsigned int>(value);
 	}
 }
 
@@ -62,7 +62,9 @@ SettingKey SettingsManager::GetSettingKeyFromString(const std::string& key) cons
 		{ "AUTO_CLICK", SettingKey::AutoClick },
 		{ "DISABLE_HEALTH_CHECK", SettingKey::DisableHealthCheck },
 
-		{ "UNLIMITED_POWERUPS", SettingKey::UnlimitedPowerups }
+		{ "UNLIMITED_POWERUPS", SettingKey::UnlimitedPowerups },
+		{ "TARGET_FRAMERATE", SettingKey::TargetFramerate }
+		{ "SEED", SettingKey::Seed },
 	};
 
 	return lookup.count(key) ? lookup.at(key) : SettingKey::None;

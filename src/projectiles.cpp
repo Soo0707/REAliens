@@ -50,6 +50,7 @@ void Projectile::BulletConstructor(float x, float y, const Vector2& direction, c
 	this->Speed = global_data.Attributes.at(Attribute::BulletSpeed);
 	this->Rotation = atan2(this->Direction.y, this->Direction.x) * TO_DEG;
 	this->Scale = 1.0f;
+
 }
 
 void Projectile::LazerConstructor(float x, float y, const Vector2& direction, const GlobalDataWrapper& global_data, const AssetManager& assets) noexcept

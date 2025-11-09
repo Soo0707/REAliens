@@ -37,3 +37,9 @@ void GlobalDataWrapper::Reset() noexcept
 
 	this->UnclaimedPowerups = 0;
 }
+/*
+void GlobalDataWrapper::ApplyMicroscope() noexcept
+{
+
+}
+*/

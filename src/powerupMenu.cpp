@@ -114,7 +114,6 @@ void PowerupMenu::ApplyMilk() noexcept
 
 	this->GlobalData->Effects.erase(Effect::Poison);
 
-	this->GlobalData->Attributes.erase(Attribute::PoisonDamage);
 	this->GlobalData->Events.erase(Event::PoisonTick);
 	this->GlobalData->Events.erase(Event::PoisonExpire);
 }
@@ -133,7 +132,11 @@ void PowerupMenu::ApplyAura() noexcept
 {
 	if (this->GlobalData->Attributes.count(Attribute::AuraSize))
 	{
-		this->GlobalData->Attributes[Attribute::AuraSize] += 50;
+		if (this->GlobalData->Attributes[Attribute::AuraSize] + 50 < REFERENCE_HEIGHT)
+			this->GlobalData->Attributes[Attribute::AuraSize] += 50;
+		else
+			this->GlobalData->Attributes[Attribute::AuraSize] = REFERENCE_HEIGHT;
+
 		this->GlobalData->Attributes[Attribute::AuraDamage] += 5;
 
 		if (this->GlobalData->Attributes[Attribute::AuraCooldown] - 25 > TICK_RATE)

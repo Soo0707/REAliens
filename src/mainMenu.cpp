@@ -1,7 +1,7 @@
 #include "mainMenu.hpp"
 
 #include <memory>
-
+#include <iostream>
 #include "raylib.h"
 #include "globalDataWrapper.hpp"
 #include "assetManager.hpp"
@@ -17,7 +17,7 @@ void MainMenu::Draw(RenderTexture2D& canvas) const noexcept
 		ClearBackground(BLACK);
 
 		DrawText("RE::ALIENS", 292, 100, 128, VIOLET);
-		DrawText("No Sound Included", 428, 250, 48, GOLD);
+		DrawText("No Sounds Included", 407, 250, 48, GOLD);
 		DrawText("[Space] Begin, [Esc] Quit", 446, 620, 32, LIGHTGRAY);
 	EndTextureMode();
 }

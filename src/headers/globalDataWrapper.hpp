@@ -12,6 +12,7 @@ enum class Attribute
 	BulletCooldown,
 	BulletDamage,
 	BulletSpeed,
+
 	Buckshot,
 	BuckshotSpread,
 
@@ -19,8 +20,6 @@ enum class Attribute
 	LazerDamage,
 	LazerScale,
 	LazerSpeed,
-
-	PoisonDamage,
 
 	AuraSize,
 	AuraCooldown,
@@ -104,6 +103,7 @@ struct GlobalDataWrapper
 		{ Attribute::BulletCooldown, 150 },
 		{ Attribute::BulletDamage, 25.0f },
 		{ Attribute::BulletSpeed, 1000.0f },
+
 		{ Attribute::Buckshot, 3 },
 		{ Attribute::BuckshotSpread, PI / 8 },
 
@@ -116,7 +116,6 @@ struct GlobalDataWrapper
 	std::unordered_map<Event, size_t> Events;
 
 	std::unordered_set<Effect> Effects;
-
 
 	std::unordered_map<CachedString, std::string> CachedStrings =
 	{

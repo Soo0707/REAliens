@@ -44,6 +44,8 @@ void GameHelper::SpawnEnemies(Game& game) noexcept
 {
 	size_t spawn_count = game.GlobalData->Level * 15;
 
+	game.Enemies.reserve(game.Enemies.size() + spawn_count);
+
 	static std::vector<Vector2> locations;
 	locations.reserve(spawn_count);
 
@@ -160,7 +162,7 @@ void GameHelper::RandomModifiers(size_t spawn_count, size_t level, std::vector<B
 		if (random >= 50 && random < 55)
 			modifier = modifier | BehaviourModifier::OverrideDirection;
 		
-		if (random <= 5 && level > 10)
+		if (random <= 10 && level > 10)
 			modifier = modifier | BehaviourModifier::Big;
 
 		modifiers.emplace_back(modifier);

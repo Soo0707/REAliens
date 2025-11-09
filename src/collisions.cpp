@@ -106,8 +106,6 @@ void Collisions::ApplyPoison(GlobalDataWrapper& global_data, unsigned int scale)
 {
 	global_data.Effects.insert(Effect::Poison);
 
-	global_data.Attributes[Attribute::PoisonDamage] = 2.0f;
-
 	global_data.Events[Event::PoisonTick] = global_data.Ticks + SECONDS_TO_TICKS(1);
 	global_data.Events[Event::PoisonExpire] = global_data.Ticks + SECONDS_TO_TICKS(5) * scale;
 }

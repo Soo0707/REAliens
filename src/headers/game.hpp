@@ -63,11 +63,16 @@ class Game
 		bool CanSlide = true;
 
 	private:
+		void UpdateTimeouts() noexcept;
+
+		void UpdatePlayer() noexcept;
+		void UpdateCamera() noexcept;
+
 		void UpdateEnemies() noexcept;
 		void UpdateProjectiles() noexcept;
 		void UpdateXps() noexcept;
+
 		void UpdateGameTexts() noexcept;
-		void UpdateTimeouts() noexcept;
 
 		float Accumulator = 0.0f;
 		size_t LastSpawn = 0;

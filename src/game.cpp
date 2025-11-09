@@ -112,18 +112,6 @@ void Game::Update() noexcept
 	
 	while (this->Accumulator >= TICK_TIME)
 	{
-		if (this->PlayerInstance->Health <= 0 && !this->Settings->Data.at(SettingKey::DisableHealthCheck))
-		{
-			size_t ticks = this->GlobalData->Ticks;
-			size_t damage_per_second = this->GlobalData->TotalDamage / TICKS_TO_SECONDS(ticks);
-
-			this->GlobalData->CachedStrings[CachedString::Duration] = "Duration: " + std::to_string(TICKS_TO_SECONDS(ticks)) + "s";
-			this->GlobalData->CachedStrings[CachedString::TotalDamage] = "Damage Dealt: " + std::to_string(this->GlobalData->TotalDamage);
-			this->GlobalData->CachedStrings[CachedString::DamagePerSecond] = "Damage / Second: " + std::to_string(damage_per_second);
-
-			this->GlobalData->ActiveState = State::GameOverMenu;
-		}
-
 		Game::UpdateTimeouts();
 
 		if (this->CollectedXp >= this->LevelUpTreshold)
@@ -133,20 +121,8 @@ void Game::Update() noexcept
 
 		GameEventSystem::HandleEvents(*this);
 
-		this->PlayerInstance->Update(this->GlobalData->Ticks);
-		GameHelper::LoopOverMap(*this->Assets, this->PlayerInstance->Rect);
-
-
-		this->UpdateArea.x = this->PlayerInstance->Centre.x - REFERENCE_WIDTH / 2.0f;
-		this->UpdateArea.y =  this->PlayerInstance->Centre.y - REFERENCE_HEIGHT / 2.0f;
-		
-		this->Camera.target = this->PlayerInstance->Centre;
-
-		if (this->GlobalData->Effects.count(Effect::Aussie))
-			this->Camera.rotation = 180.0f;
-		else
-			this->Camera.rotation = 0.0f;
-
+		Game::UpdatePlayer();
+		Game::UpdateCamera();
 
 		Game::UpdateEnemies();
 		Game::UpdateProjectiles();
@@ -258,6 +234,41 @@ void Game::UpdateGameTexts() noexcept
 	}
 
 	std::erase_if(this->GameTexts, [ticks = this->GlobalData->Ticks](const GameText& text) { return (ticks >= text.Expiry); });
+}
+
+void Game::UpdatePlayer() noexcept
+{
+	if (this->PlayerInstance->Health <= 0 && !this->Settings->Data.at(SettingKey::DisableHealthCheck))
+	{
+		size_t ticks = this->GlobalData->Ticks;
+		size_t damage_per_second = this->GlobalData->TotalDamage / TICKS_TO_SECONDS(ticks);
+
+		this->GlobalData->CachedStrings[CachedString::TotalDamage] = "Damage Dealt: " + std::to_string(this->GlobalData->TotalDamage);
+		this->GlobalData->CachedStrings[CachedString::DamagePerSecond] = "Damage / Second: " + std::to_string(damage_per_second);
+
+		this->GlobalData->ActiveState = State::GameOverMenu;
+	}
+
+	this->PlayerInstance->Update(this->GlobalData->Ticks);
+	GameHelper::LoopOverMap(*this->Assets, this->PlayerInstance->Rect);
+}
+
+void Game::UpdateCamera() noexcept
+{
+	this->UpdateArea.x = this->PlayerInstance->Centre.x - REFERENCE_WIDTH / 2.0f;
+	this->UpdateArea.y =  this->PlayerInstance->Centre.y - REFERENCE_HEIGHT / 2.0f;
+	
+	this->Camera.target = this->PlayerInstance->Centre;
+
+	if (this->GlobalData->Effects.count(Effect::Aussie))
+		this->Camera.rotation = 180.0f;
+	else
+		this->Camera.rotation = 0.0f;
+
+	if (this->GlobalData->Effects.count(Effect::Microscope))
+		this->Camera.zoom = 2.0f;
+	else
+		this->Camera.zoom = 1.0f;
 }
 
 void Game::UpdateTimeouts() noexcept
