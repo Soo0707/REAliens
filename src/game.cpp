@@ -260,6 +260,18 @@ void Game::UpdateCamera() noexcept
 	
 	this->Camera.target = this->PlayerInstance->Centre;
 
+	this->Camera.offset = { REFERENCE_WIDTH / 2.0f, REFERENCE_HEIGHT / 2.0f };
+
+	if (this->GlobalData->Ticks % TICK_RATE && this->GlobalData->Effects.count(Effect::Earthquake))
+	{
+		float shake_offset = this->GlobalData->Ticks % 12;
+
+		(this->GlobalData->Ticks % 2) ? shake_offset : shake_offset * -1;
+
+		this->Camera.offset.x += shake_offset;
+		this->Camera.offset.y -= shake_offset;
+	}
+
 	if (this->GlobalData->Effects.count(Effect::Aussie))
 		this->Camera.rotation = 180.0f;
 	else

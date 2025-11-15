@@ -37,6 +37,10 @@ void GameHelper::LevelUp(Game& game) noexcept
 	
 	if (game.Settings->Data.at(SettingKey::PowerupMenuInterrupt))
 		game.GlobalData->ActiveState = State::PowerupMenu;
+
+	if (game.GlobalData->Level % 5 == 0)
+		game.GlobalData->Effects.insert(Effect::Microscope);
+		
 }
 
 
@@ -162,7 +166,7 @@ void GameHelper::RandomModifiers(size_t spawn_count, size_t level, std::vector<B
 		if (random >= 50 && random < 55)
 			modifier = modifier | BehaviourModifier::OverrideDirection;
 		
-		if (random <= 10 && level > 10)
+		if (random <= 20 && level > 10)
 			modifier = modifier | BehaviourModifier::Big;
 
 		modifiers.emplace_back(modifier);

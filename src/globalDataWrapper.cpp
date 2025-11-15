@@ -39,7 +39,5 @@ void GlobalDataWrapper::Reset() noexcept
 }
 /*
 void GlobalDataWrapper::ApplyMicroscope() noexcept
-{
-
-}
+{}
 */

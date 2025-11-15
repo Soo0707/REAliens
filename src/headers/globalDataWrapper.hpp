@@ -76,7 +76,8 @@ enum class Effect
 	Stinky,
 	Blind,
 
-	Microscope
+	Microscope,
+	Earthquake
 };
 
 enum class CachedString
