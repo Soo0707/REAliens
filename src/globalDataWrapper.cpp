@@ -30,6 +30,7 @@ void GlobalDataWrapper::Reset() noexcept
 
 	this->Ticks = 0;
 	this->TotalDamage = 0;
+	this->TotalDistance = 0;
 	
 	this->Level = 1;
 
@@ -37,7 +38,3 @@ void GlobalDataWrapper::Reset() noexcept
 
 	this->UnclaimedPowerups = 0;
 }
-/*
-void GlobalDataWrapper::ApplyMicroscope() noexcept
-{}
-*/

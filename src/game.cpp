@@ -145,6 +145,7 @@ void Game::UpdateEnemies() noexcept
 	}
 
 	bool has_greenbull = this->GlobalData->Effects.count(Effect::Greenbull);
+	bool is_sliding = this->PlayerInstance->Sliding;
 
 	for (auto &enemy : this->Enemies)
 	{
@@ -158,7 +159,7 @@ void Game::UpdateEnemies() noexcept
 			if (!has_greenbull)
 				Collisions::LeAttack(*this->PlayerInstance, enemy, *this->GlobalData);
 			
-			if (this->PlayerInstance->Sliding)
+			if (is_sliding)
 				slide_damage = Collisions::SlideAttack(*this->PlayerInstance, enemy);
 		}
 
@@ -170,7 +171,7 @@ void Game::UpdateEnemies() noexcept
 
 		if (enemy.Health <= 0)
 		{
-			unsigned int value = EnemyXpValues.at(enemy.Type);
+			unsigned int value = EnemyXpValues[static_cast<size_t>(enemy.Type)];
 			this->Xps.emplace_back(enemy.Rect.x, enemy.Rect.y, value * static_cast<int>(enemy.Scale), *this->Assets);
 		}
 	}
@@ -246,10 +247,18 @@ void Game::UpdatePlayer() noexcept
 		this->GlobalData->CachedStrings[CachedString::TotalDamage] = "Damage Dealt: " + std::to_string(this->GlobalData->TotalDamage);
 		this->GlobalData->CachedStrings[CachedString::DamagePerSecond] = "Damage / Second: " + std::to_string(damage_per_second);
 
+		size_t time_per_level = TICKS_TO_SECONDS(ticks) / this->GlobalData->Level;
+		this->GlobalData->CachedStrings[CachedString::TimePerLevel] =  "Time / Level: " + std::to_string(time_per_level) + "s";
+
+		this->GlobalData->CachedStrings[CachedString::TotalDistance] = "Total Distance: " + std::to_string(this->GlobalData->TotalDistance) + "px";
+
+		size_t average_speed = this->GlobalData->TotalDistance / TICKS_TO_SECONDS(ticks);
+		this->GlobalData->CachedStrings[CachedString::AverageSpeed] = "Average Speed: " + std::to_string(average_speed) + "px/s";
+
 		this->GlobalData->ActiveState = State::GameOverMenu;
 	}
 
-	this->PlayerInstance->Update(this->GlobalData->Ticks);
+	this->PlayerInstance->Update(this->GlobalData->Ticks, &this->GlobalData->TotalDistance);
 	GameHelper::LoopOverMap(*this->Assets, this->PlayerInstance->Rect);
 }
 
@@ -259,12 +268,11 @@ void Game::UpdateCamera() noexcept
 	this->UpdateArea.y =  this->PlayerInstance->Centre.y - REFERENCE_HEIGHT / 2.0f;
 	
 	this->Camera.target = this->PlayerInstance->Centre;
-
 	this->Camera.offset = { REFERENCE_WIDTH / 2.0f, REFERENCE_HEIGHT / 2.0f };
 
 	if (this->GlobalData->Ticks % TICK_RATE && this->GlobalData->Effects.count(Effect::Earthquake))
 	{
-		float shake_offset = this->GlobalData->Ticks % 12;
+		unsigned int shake_offset = this->GlobalData->Ticks % 12;
 
 		(this->GlobalData->Ticks % 2) ? shake_offset : shake_offset * -1;
 

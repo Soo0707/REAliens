@@ -7,6 +7,7 @@
 #include "constants.hpp"
 
 #include <cstddef>
+#include <array>
 
 Enemy::Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyType type, BehaviourModifier modifier) noexcept :
 	Type(type),
@@ -15,45 +16,22 @@ Enemy::Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyTyp
 	Rect({ pos_x, pos_y, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE }),
 	Layer(layer)
 {
-	this->Speed = EnemyAttributes.at(this->Type).speed;
+	size_t type_index = static_cast<size_t>(type);
 
-	this->AnimationSpeed = EnemyAttributes.at(this->Type).animation_speed;
-	this->AnimationFrames = EnemyAttributes.at(this->Type).animation_frames;
+	this->Speed = EnemyAttributes[type_index].speed;
 
-	this->Health = EnemyAttributes.at(this->Type).health;
+	this->AnimationSpeed = EnemyAttributes[type_index].animation_speed;
+	this->AnimationFrames = EnemyAttributes[type_index].animation_frames;
 
-	this->Image = assets.Textures.at(EnemyAttributes.at(this->Type).texture_key);
+	this->Health = EnemyAttributes[type_index].health;
 
+	this->Image = assets.Textures.at(EnemyAttributes[type_index].texture_key);
 
 	if ((modifier & BehaviourModifier::OverrideDirection) == BehaviourModifier::OverrideDirection)
 	{
-		Vector2 random_direction;
+		static constexpr std::array<Vector2, 4> directions = { Vector2 {1, 0}, Vector2 {0, 1}, Vector2 {-1, 0}, Vector2 {0, -1} };
 
-		switch (GetRandomValue(0, 4))
-		{
-			case 0:
-				{
-					random_direction = {1, 0};
-				}
-				break;
-			case 1:
-				{
-					random_direction = {0, 1};
-				}
-				break;
-			case 2:
-				{
-					random_direction = {-1, 0};
-				}
-				break;
-			case 3:
-				{
-					random_direction = {0, -1};
-				}
-				break;
-		}
-
-		this->Direction = random_direction;
+		this->Direction = directions[GetRandomValue(0, 3)];
 	}
 
 	if ((this->Modifiers & BehaviourModifier::Big) == BehaviourModifier::Big)

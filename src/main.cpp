@@ -18,12 +18,13 @@ int main(void)
 
 	InitWindow(REFERENCE_WIDTH, REFERENCE_HEIGHT, "RE::Aliens");
 
+	Image window_icon = LoadImage("assets/icon.png");
+	SetWindowIcon(window_icon);
+
 	RenderTexture2D virtual_canvas = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
 	SetTextureFilter(virtual_canvas.texture, TEXTURE_FILTER_POINT);
 
 	SetWindowMinSize(REFERENCE_WIDTH, REFERENCE_HEIGHT);
-
-	unsigned int target_refresh_rate;
 
 	SetExitKey(KEY_NULL);
 
@@ -33,6 +34,8 @@ int main(void)
 
 	if (settings->Data.at(SettingKey::Seed) != 0)
 		SetRandomSeed(settings->Data.at(SettingKey::Seed));
+
+	unsigned int target_refresh_rate;
 
 	if (settings->Data.at(SettingKey::TargetFramerate) != 0)
 		target_refresh_rate = settings->Data.at(SettingKey::TargetFramerate);
@@ -104,6 +107,8 @@ int main(void)
 					);
 		EndDrawing();
 	}
+
+	UnloadImage(window_icon);
 
 	UnloadRenderTexture(virtual_canvas);
 	CloseWindow();

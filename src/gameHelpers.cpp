@@ -39,8 +39,22 @@ void GameHelper::LevelUp(Game& game) noexcept
 		game.GlobalData->ActiveState = State::PowerupMenu;
 
 	if (game.GlobalData->Level % 5 == 0)
-		game.GlobalData->Effects.insert(Effect::Microscope);
-		
+	{
+		switch (GetRandomValue(0, 1))
+		{
+			case 0:
+				game.GlobalData->Effects.insert(Effect::Microscope);
+				break;
+			case 1:
+				game.GlobalData->Effects.insert(Effect::Earthquake);
+				break;
+		}
+	}
+	else
+	{
+		game.GlobalData->Effects.erase(Effect::Microscope);
+		game.GlobalData->Effects.erase(Effect::Earthquake);
+	}
 }
 
 
@@ -53,16 +67,10 @@ void GameHelper::SpawnEnemies(Game& game) noexcept
 	static std::vector<Vector2> locations;
 	locations.reserve(spawn_count);
 
-	switch (GetRandomValue(0, 1))
-	{
-		case 0:
-			GameHelper::RandomLocation(spawn_count, game, locations);
-			break;
-		case 1:
-			GameHelper::ScreenLocation(spawn_count, game, locations);
-			break;
-	}
-
+	if (game.GlobalData->Level < 100)
+		GameHelper::RandomLocation(spawn_count, game, locations);
+	else
+		GameHelper::ScreenLocation(spawn_count, game, locations);
 
 	static std::vector<EnemyType> types;
 	types.reserve(spawn_count);
@@ -120,12 +128,11 @@ void GameHelper::ScreenLocation(size_t spawn_count, Game& game, std::vector<Vect
 	{
 		locations.emplace_back(
 				(Vector2) {
-				static_cast<float>( GetRandomValue(game.UpdateArea.x, game.UpdateArea.x + game.UpdateArea.width) ),
-				static_cast<float>( GetRandomValue(game.UpdateArea.y, game.UpdateArea.y + game.UpdateArea.height) )
+				static_cast<float>( GetRandomValue(game.UpdateArea.x, game.UpdateArea.x + game.updateArea.width) ),
+				static_cast<float>( GetRandomValue(game.UpdateArea.y, game.UpdateArea.y + game.updateArea.height) )
 				});
 	}
 }
-
 
 void GameHelper::NoModifiers(size_t spawn_count, std::vector<BehaviourModifier>& modifiers) noexcept
 {

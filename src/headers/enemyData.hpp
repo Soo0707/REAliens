@@ -1,6 +1,6 @@
 #pragma once
 
-#include <unordered_map>
+#include <array>
 
 #include "assetManager.hpp"
 #include "enemy.hpp"
@@ -24,76 +24,60 @@ struct EnemyData
 	const unsigned int animation_frames;
 };
 
-inline static const std::unordered_map<EnemyType, EnemyData> EnemyAttributes = 
+inline static constexpr std::array<EnemyData, static_cast<size_t>(EnemyType::COUNT)> EnemyAttributes = 
 {
-	{ 
-		EnemyType::Australian,
-		{
-			TextureKey::Australian,
-			5,
-			175,
-			75,
+	EnemyData {
+		TextureKey::Australian,
+		5,
+		175,
+		75,
 
-			30,
-			2
-
-		}
+		30,
+		2
 	},
-	{ 
-		EnemyType::Drunkard,
-		{
-			TextureKey::Drunkard,
-			5,
-			250,
-			50,
+	EnemyData {
+		TextureKey::Drunkard,
+		5,
+		250,
+		50,
 
-			15,
-			4
-		}
+		15,
+		4
 	},
-	{ 
-		EnemyType::Pleb,
-		{
-			TextureKey::Pleb,
-			5,
-			150,
-			75,
-		
-			30,
-			2
-		}
+	EnemyData {
+		TextureKey::Pleb,
+		5,
+		150,
+		75,
+	
+		30,
+		2
 	},
-	{ 
-		EnemyType::Poison,
-		{
-			TextureKey::Poison,
-			5,
-			125,
-			100,
+	EnemyData {
+		TextureKey::Poison,
+		5,
+		125,
+		100,
 
-			30,
-			3
-		}
+		30,
+		3
 	},
-	{ 
-		EnemyType::Trapper,
-		{
-			TextureKey::Trapper,
-			10,
-			0,
-			100,
+	EnemyData {
+		TextureKey::Trapper,
+		10,
+		0,
+		100,
 
-			30,
-			3
-		}
+		30,
+		3
 	}
 };
 
-inline static const std::unordered_map<EnemyType, unsigned int> EnemyXpValues = 
+inline static constexpr std::array<unsigned int, static_cast<size_t>(EnemyType::COUNT)> EnemyXpValues = 
 {
-	{ EnemyType::Australian, 1 },
-	{ EnemyType::Drunkard, 2 },
-	{ EnemyType::Pleb, 1 },
-	{ EnemyType::Poison, 2 },
-	{ EnemyType::Trapper, 2	}
+	1,
+	2,
+	1,
+	2,
+	2
 };

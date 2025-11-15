@@ -88,7 +88,11 @@ enum class CachedString
 
 	Duration,
 	TotalDamage,
-	DamagePerSecond
+	DamagePerSecond,
+
+	TimePerLevel,
+	TotalDistance,
+	AverageSpeed
 };
 
 struct GlobalDataWrapper
@@ -131,6 +135,7 @@ struct GlobalDataWrapper
 
 	size_t Ticks = 0;
 	size_t TotalDamage = 0;
+	size_t TotalDistance = 0;
 	
 	size_t Level = 1;
 

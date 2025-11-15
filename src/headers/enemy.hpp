@@ -2,6 +2,7 @@
 
 #include "raylib.h"
 #include "assetManager.hpp"
+
 #include <cstddef>
 
 static constexpr unsigned int FLASH_DURATION = 60;
@@ -23,9 +24,7 @@ enum class BehaviourModifier : size_t
 	OverrideDirection = 1 << 0,
 	Big = 1 << 1,
 
-	IncreasedSpeed = 1 << 2,
-	Invisible = 1 << 3,
-	IgnoreLayers = 1 << 4
+	IncreasedSpeed = 1 << 2
 };
 
 inline BehaviourModifier operator| (BehaviourModifier l, BehaviourModifier r) noexcept

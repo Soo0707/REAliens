@@ -20,8 +20,8 @@ class Player
 		Player(float pos_x, float pos_y, AssetManager &assets);
 		~Player() = default; 
 		
-		void Move() noexcept;
-		void Update(size_t ticks) noexcept;
+		void Move(size_t* total_distance_moved) noexcept;
+		void Update(size_t ticks, size_t* total_distance_moved) noexcept;
 		void Animate(size_t ticks) noexcept;
 
 		void Draw() const noexcept;

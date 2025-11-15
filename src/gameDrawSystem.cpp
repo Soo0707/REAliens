@@ -45,7 +45,6 @@ void GameDrawSystem::DrawGame(const Game& game) noexcept
 			projectile.Draw();
 	}
 
-
 	game.PlayerInstance->Draw();
 }
 
@@ -171,4 +170,3 @@ void GameDrawSystem::DrawMagnetism(const Game& game) noexcept
 		DrawRectangleRec(MAGNETISM_HALF_2, RED);
 	}
 }
-

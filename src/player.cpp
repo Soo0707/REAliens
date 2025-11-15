@@ -12,7 +12,7 @@ Player::Player(float pos_x, float pos_y, AssetManager &assets) :
 	this->Aura = { 0 };
 }
 
-void Player::Update(size_t ticks) noexcept
+void Player::Update(size_t ticks, size_t* total_distance_moved) noexcept
 {
 	Player::SetBearing();
 	Player::Animate(ticks);
@@ -20,7 +20,7 @@ void Player::Update(size_t ticks) noexcept
 	if (ticks >= this->SlideExpire)
 		this->Sliding = false;
 
-	Player::Move();
+	Player::Move(total_distance_moved);
 }
 
 void Player::Draw() const noexcept
@@ -74,7 +74,7 @@ void Player::SetBearing() noexcept
 		this->Bearing = Bearing::North;
 }
 
-void Player::Move() noexcept
+void Player::Move(size_t* total_distance_moved) noexcept
 {
 	float speed = this->Speed;
 
@@ -83,6 +83,8 @@ void Player::Move() noexcept
 
 	this->Rect.x += speed * this->Direction.x * TICK_TIME;
 	this->Rect.y += speed * this->Direction.y * TICK_TIME;
+
+	*total_distance_moved += speed * TICK_TIME;
 
 	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_SIZE / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_SIZE / 2.0f };
 	this->Aura.y = this->Centre.y - this->Aura.height / 2.0f;

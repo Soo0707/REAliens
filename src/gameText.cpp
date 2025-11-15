@@ -8,7 +8,7 @@
 GameText::GameText(float x, float y, std::string&& text, size_t ticks) noexcept :
 	Rect({ x, y, 24, 24 }),
 	Text(std::move(text)),
-	Expiry(ticks + TICK_RATE)
+	Expiry(ticks + TICK_RATE / 2)
 {}
 
 void GameText::Draw() const noexcept

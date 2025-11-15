@@ -49,7 +49,7 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 	{
 		unsigned int scale = static_cast<unsigned int>(enemy.Scale);
 
-		player.Health -= EnemyAttributes.at(enemy.Type).damage * scale;
+		player.Health -= EnemyAttributes[static_cast<size_t>(enemy.Type)].damage * scale;
 
 		if (!global_data.Effects.count(Effect::Milk))
 			Collisions::LeAttackHooks[static_cast<size_t>(enemy.Type)](global_data, scale);
