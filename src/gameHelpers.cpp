@@ -67,10 +67,10 @@ void GameHelper::SpawnEnemies(Game& game) noexcept
 	static std::vector<Vector2> locations;
 	locations.reserve(spawn_count);
 
-	if (game.GlobalData->Level < 100)
-		GameHelper::RandomLocation(spawn_count, game, locations);
-	else
+	if (game.GlobalData->Level > 100 && !(game.GlobalData->Level % 5))
 		GameHelper::ScreenLocation(spawn_count, game, locations);
+	else
+		GameHelper::RandomLocation(spawn_count, game, locations);
 
 	static std::vector<EnemyType> types;
 	types.reserve(spawn_count);
@@ -128,8 +128,8 @@ void GameHelper::ScreenLocation(size_t spawn_count, Game& game, std::vector<Vect
 	{
 		locations.emplace_back(
 				(Vector2) {
-				static_cast<float>( GetRandomValue(game.UpdateArea.x, game.UpdateArea.x + game.updateArea.width) ),
-				static_cast<float>( GetRandomValue(game.UpdateArea.y, game.UpdateArea.y + game.updateArea.height) )
+				static_cast<float>( GetRandomValue(game.UpdateArea.x, game.UpdateArea.x + game.UpdateArea.width) ),
+				static_cast<float>( GetRandomValue(game.UpdateArea.y, game.UpdateArea.y + game.UpdateArea.height) )
 				});
 	}
 }

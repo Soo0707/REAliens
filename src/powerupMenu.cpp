@@ -26,14 +26,23 @@ void PowerupMenu::Draw(RenderTexture2D& canvas) const noexcept
 	int x2 = mid - MeasureText(this->SelectionList[1].DisplayName.c_str(), 24) / 2.0f;
 	int x3 = mid - MeasureText(this->SelectionList[2].DisplayName.c_str(), 24) / 2.0f;
 
+	int x4 = mid - MeasureText(this->SelectionList[0].Description, 24) / 2.0f;
+	int x5 = mid - MeasureText(this->SelectionList[1].Description, 24) / 2.0f;
+	int x6 = mid - MeasureText(this->SelectionList[2].Description, 24) / 2.0f;
+
 	BeginTextureMode(canvas);
 		ClearBackground(BLACK);
 
 		DrawText("Select A Powerup", 452.5, 80, 42, VIOLET);
 
 		DrawText(this->SelectionList[0].DisplayName.c_str(), x1, 260, 24, GOLD);
+		DrawText(this->SelectionList[0].Description, x4, 294, 24, GRAY);
+
 		DrawText(this->SelectionList[1].DisplayName.c_str(), x2, 360, 24, GOLD);
+		DrawText(this->SelectionList[1].Description, x5, 394, 24, GRAY);
+
 		DrawText(this->SelectionList[2].DisplayName.c_str(), x3, 460, 24, GOLD);
+		DrawText(this->SelectionList[2].Description, x6, 494, 24, GRAY);
 
 		DrawText("[TAB] Toggle Powerup Menu", 491.5, 580, 21, LIGHTGRAY);
 
@@ -60,7 +69,12 @@ void PowerupMenu::GenerateList() noexcept
 	for (auto const &powerup : powerup_set)
 	{
 		int i = this->SelectionList.size();
-		this->SelectionList.emplace_back( powerup, std::to_string(i + 1) + ". " + this->PowerupNames[static_cast<size_t>(powerup)] );
+
+		this->SelectionList.emplace_back(
+				powerup,
+				"[" + std::to_string(i + 1) + "] " + this->PowerupNames[static_cast<size_t>(powerup)],
+				this->PowerupDescriptions[static_cast<size_t>(powerup)]
+				);
 	}
 }
 

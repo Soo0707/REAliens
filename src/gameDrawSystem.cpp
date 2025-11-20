@@ -50,6 +50,8 @@ void GameDrawSystem::DrawGame(const Game& game) noexcept
 
 void GameDrawSystem::DrawLighting(const Game& game) noexcept
 {
+	game.PlayerInstance->DrawLightmap();
+
 	for (auto const &xp : game.Xps)
 	{
 		if (CheckCollisionRecs(game.UpdateArea, xp.Rect))
@@ -61,8 +63,6 @@ void GameDrawSystem::DrawLighting(const Game& game) noexcept
 		if (CheckCollisionRecs(game.UpdateArea, projectile.Rect))
 			projectile.DrawLightmap();
 	}
-	
-	game.PlayerInstance->DrawLightmap();
 }
 
 void GameDrawSystem::DrawScreenLayer(const Game& game) noexcept

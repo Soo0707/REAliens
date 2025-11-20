@@ -33,6 +33,7 @@ struct PowerupWrapper
 {
 	Powerup Powerup;
 	std::string DisplayName;
+	const char* Description;
 };
 
 class PowerupMenu
@@ -85,6 +86,23 @@ class PowerupMenu
 
 			"Magnetism",
 			"Speed Boots"
+		};
+
+		static inline constexpr std::array<const char*, static_cast<size_t>(Powerup::COUNT)> PowerupDescriptions =
+		{
+			"+Aura Size, -Aura Timeout",
+			"Increase the number of projectiles shot",
+			"+Projectile Damage, -LMB Timeout",
+
+			"+Lazer Damage, -RMB Timeout",
+			"Makes you fly. Temporary Invincibility",
+
+			"Removes and prevents enemy effects",
+			"Regain health from damage delt",
+			"Increase max health",
+
+			"Auto collects XP",
+			"Increase player speed"
 		};
 
 		static inline constexpr std::array<void(PowerupMenu::*)(), static_cast<size_t>(Powerup::COUNT)> ApplyHandles = 
