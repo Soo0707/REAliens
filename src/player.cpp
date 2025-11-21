@@ -9,7 +9,6 @@ Player::Player(float pos_x, float pos_y, AssetManager &assets) :
 {
 	this->Rect = { pos_x, pos_y, PLAYER_TEXTURE_TILE_SIZE, PLAYER_TEXTURE_TILE_SIZE };
 	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_SIZE / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_SIZE / 2.0f };
-	this->Aura = { 0 };
 }
 
 void Player::Update(size_t ticks, size_t* total_distance_moved) noexcept
@@ -40,7 +39,7 @@ void Player::Draw() const noexcept
 
 void Player::DrawLightmap() const noexcept
 {
-	DrawCircleGradient(this->Centre.x, this->Centre.y, 128, WHITE, LIGHTGRAY);
+	DrawCircleGradient(this->Centre.x, this->Centre.y, 64, WHITE, LIGHTGRAY);
 }
 
 void Player::Animate(size_t ticks) noexcept
@@ -87,7 +86,6 @@ void Player::Move(size_t* total_distance_moved) noexcept
 	*total_distance_moved += speed * TICK_TIME;
 
 	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_SIZE / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_SIZE / 2.0f };
-	this->Aura.y = this->Centre.y - this->Aura.height / 2.0f;
 }
 
 void Player::IncreaseHealth(float addition) noexcept

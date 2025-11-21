@@ -12,12 +12,12 @@ void GameHelper::LoopOverMap(AssetManager& assets, Rectangle& m_obj) noexcept
 {
 	if (m_obj.x < 0)
 		m_obj.x = assets.Ground.width - m_obj.width;
-	else if (m_obj.x > assets.Ground.width)
+	else if (m_obj.x + m_obj.width > assets.Ground.width)
 		m_obj.x = 0;
 
 	if (m_obj.y < 0)
 		m_obj.y = assets.Ground.height - m_obj.height;
-	else if (m_obj.y > assets.Ground.height)
+	else if (m_obj.y + m_obj.height > assets.Ground.height)
 		m_obj.y = 0;
 }
 

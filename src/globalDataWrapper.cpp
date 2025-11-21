@@ -7,6 +7,7 @@ void GlobalDataWrapper::Reset() noexcept
 		{ Attribute::BulletCooldown, 150 },
 		{ Attribute::BulletDamage, 25.0f },
 		{ Attribute::BulletSpeed, 1000.0f },
+
 		{ Attribute::Buckshot, 3 },
 		{ Attribute::BuckshotSpread, PI / 8 },
 
@@ -32,6 +33,8 @@ void GlobalDataWrapper::Reset() noexcept
 	this->TotalDamage = 0;
 	this->TotalDistance = 0;
 	
+	this->EnemiesKilled = 0;
+
 	this->Level = 1;
 
 	this->CurrentLayer = 0;

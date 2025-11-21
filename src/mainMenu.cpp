@@ -1,7 +1,7 @@
 #include "mainMenu.hpp"
 
 #include <memory>
-#include <iostream>
+
 #include "raylib.h"
 #include "globalDataWrapper.hpp"
 #include "assetManager.hpp"

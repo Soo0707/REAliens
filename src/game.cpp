@@ -173,6 +173,8 @@ void Game::UpdateEnemies() noexcept
 		{
 			unsigned int value = EnemyXpValues[static_cast<size_t>(enemy.Type)];
 			this->Xps.emplace_back(enemy.Rect.x, enemy.Rect.y, value * static_cast<int>(enemy.Scale), *this->Assets);
+
+			this->GlobalData->EnemiesKilled++;
 		}
 	}
 
@@ -241,24 +243,12 @@ void Game::UpdatePlayer() noexcept
 {
 	if (this->PlayerInstance->Health <= 0 && !this->Settings->Data.at(SettingKey::DisableHealthCheck))
 	{
-		size_t ticks = this->GlobalData->Ticks;
-		size_t damage_per_second = this->GlobalData->TotalDamage / TICKS_TO_SECONDS(ticks);
-
-		this->GlobalData->CachedStrings[CachedString::TotalDamage] = "Damage Dealt: " + std::to_string(this->GlobalData->TotalDamage);
-		this->GlobalData->CachedStrings[CachedString::DamagePerSecond] = "Damage / Second: " + std::to_string(damage_per_second);
-
-		size_t time_per_level = TICKS_TO_SECONDS(ticks) / this->GlobalData->Level;
-		this->GlobalData->CachedStrings[CachedString::TimePerLevel] =  "Time / Level: " + std::to_string(time_per_level) + "s";
-
-		this->GlobalData->CachedStrings[CachedString::TotalDistance] = "Total Distance: " + std::to_string(this->GlobalData->TotalDistance) + "px";
-
-		size_t average_speed = this->GlobalData->TotalDistance / TICKS_TO_SECONDS(ticks);
-		this->GlobalData->CachedStrings[CachedString::AverageSpeed] = "Average Speed: " + std::to_string(average_speed) + "px/s";
-
-		this->GlobalData->ActiveState = State::GameOverMenu;
+		this->GlobalData->CachedStrings[CachedString::GameOverReason] = "Reason: Player Died";
+		this->GlobalData->ActiveState = State::GenerateGameOverStats;
 	}
 
 	this->PlayerInstance->Update(this->GlobalData->Ticks, &this->GlobalData->TotalDistance);
+
 	GameHelper::LoopOverMap(*this->Assets, this->PlayerInstance->Rect);
 }
 

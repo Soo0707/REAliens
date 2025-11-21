@@ -24,7 +24,7 @@ namespace GameEventSystem
 
 	void MagnetismExpire(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
 	void IncreasePlayerSpeed(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
-	void IncreaseAura(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
+
 
 	// The ordering here matters as it mimics the order of the definition of Event
 	static inline constexpr std::array<void(*)(Game&, size_t, std::unordered_map<Event, size_t>&), static_cast<size_t>(Event::COUNT)> EventHandlers =
@@ -41,7 +41,6 @@ namespace GameEventSystem
 		&IncreasePlayerSpeed,
 
 		&IncreasePlotArmour,
-		&IncreaseAura,
 		&AuraTick
 	};
 };

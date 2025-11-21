@@ -30,15 +30,4 @@ inline constexpr unsigned int PLAYER_TEXTURE_TILE_SIZE = 50;
 	return ticks / TICK_RATE;
 }
 
-// for drawing
 static constexpr Color CYAN = { 0, 243, 255, 255 };
-
-static constexpr Rectangle XP_BACKGROUND = { 100, 680, 1080, 15 };
-static constexpr Rectangle HEALTH_BACKGROUND = { 1060, 20, 200, 10 };
-
-static constexpr Rectangle MAGNETISM_HALF_1 = { 1185, 40, 8, 15 };
-static constexpr Rectangle MAGNETISM_HALF_2 = { 1192, 40, 7, 15 };
-
-static constexpr Rectangle GREENBULL_SQUARE = { 1205, 40, 15, 15 };
-static constexpr Rectangle MILK_SQUARE = { 1225, 40, 15, 15 };
-static constexpr Rectangle DRUNK_SQUARE = { 1245, 40, 15, 15 };

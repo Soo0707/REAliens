@@ -14,6 +14,8 @@ class GameOverMenu
 		void Draw(RenderTexture2D& canvas) const noexcept;
 		void HandleInput() noexcept;
 
+		void GenerateStats() noexcept;
+
 	private:
 		std::shared_ptr<GlobalDataWrapper> GlobalData;
 		std::shared_ptr<AssetManager> Assets;

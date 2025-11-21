@@ -76,10 +76,19 @@ unsigned int Collisions::Aura(Game& game) noexcept
 {
 	float aura_damage = game.GlobalData->Attributes.at(Attribute::AuraDamage);
 	unsigned int total_hit = 0;
+	
+	float aura_size = game.GlobalData->Attributes.at(Attribute::AuraSize);
+
+	Rectangle aura = {
+		game.PlayerInstance->Centre.x - aura_size / 2.0f,
+		game.PlayerInstance->Centre.y - aura_size / 2.0f,
+		aura_size,
+		aura_size
+	};
 
 	for (auto &enemy : game.Enemies)
 	{
-		if (enemy.Layer == game.GlobalData->CurrentLayer && CheckCollisionRecs(game.PlayerInstance->Aura, enemy.Rect))
+		if (enemy.Layer == game.GlobalData->CurrentLayer && CheckCollisionRecs(aura, enemy.Rect))
 		{
 			enemy.Health -= aura_damage;
 			enemy.FlashSprite(game.GlobalData->Ticks);

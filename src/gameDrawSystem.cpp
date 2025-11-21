@@ -76,6 +76,9 @@ void GameDrawSystem::DrawScreenLayer(const Game& game) noexcept
 
 void GameDrawSystem::DrawOverlay(const Game& game) noexcept
 {
+	static constexpr Rectangle HEALTH_BACKGROUND = { 1060, 20, 200, 10 };
+	static constexpr Rectangle XP_BACKGROUND = { 100, 680, 1080, 15 };
+
 	float health_percentage = game.PlayerInstance->Health / game.PlayerInstance->HealthMax;
 
 	Rectangle health_bar = {
@@ -95,7 +98,6 @@ void GameDrawSystem::DrawOverlay(const Game& game) noexcept
 		xp_percentage * 1080,
 		15
 	};
-
 
 	DrawRectangleRec(HEALTH_BACKGROUND, BLACK);
 	DrawRectangleRec(health_bar, (is_poisoned) ? VIOLET : GREEN);
@@ -126,37 +128,45 @@ void GameDrawSystem::DrawOverlay(const Game& game) noexcept
 
 void GameDrawSystem::DrawGreenbull(const Game& game) noexcept
 {
+	static constexpr Rectangle GREENBULL_SQUARE = { 1205, 40, 15, 15 };
+
 	size_t expiry = game.GlobalData->Events.at(Event::GreenbullExpire) - game.GlobalData->Ticks;
 
 	if (expiry >= SECONDS_TO_TICKS(5))
 		DrawRectangleRec(GREENBULL_SQUARE, GREEN);
-	else if ((expiry / TICK_RATE) % 2)
+	else if ((expiry / (TICK_RATE / 2)) % 2)
 		DrawRectangleRec(GREENBULL_SQUARE, GREEN);
 }
 
 void GameDrawSystem::DrawMilk(const Game& game) noexcept
 {
+	static constexpr Rectangle MILK_SQUARE = { 1225, 40, 15, 15 };
+
 	size_t expiry = game.GlobalData->Events.at(Event::MilkExpire) - game.GlobalData->Ticks;
 
 	if (expiry >= SECONDS_TO_TICKS(5))
 		DrawRectangleRec(MILK_SQUARE, WHITE);
-	else if ((expiry / TICK_RATE) % 2)
+	else if ((expiry / (TICK_RATE / 2)) % 2)
 		DrawRectangleRec(MILK_SQUARE, WHITE);
 }
 
 
 void GameDrawSystem::DrawDrunk(const Game& game) noexcept
 {
+	static constexpr Rectangle DRUNK_SQUARE = { 1245, 40, 15, 15 };
 	size_t expiry = game.GlobalData->Events.at(Event::DrunkExpire) - game.GlobalData->Ticks;
 
 	if (expiry >= SECONDS_TO_TICKS(5))
 		DrawRectangleRec(DRUNK_SQUARE, YELLOW);
-	else if ((expiry / TICK_RATE) % 2)
+	else if ((expiry / (TICK_RATE / 2)) % 2)
 		DrawRectangleRec(DRUNK_SQUARE, YELLOW);
 }
 
 void GameDrawSystem::DrawMagnetism(const Game& game) noexcept
 {
+	static constexpr Rectangle MAGNETISM_HALF_1 = { 1185, 40, 8, 15 };
+	static constexpr Rectangle MAGNETISM_HALF_2 = { 1192, 40, 7, 15 };
+
 	size_t expiry = game.GlobalData->Events.at(Event::MagnetismExpire) - game.GlobalData->Ticks;
 
 	if (expiry >= SECONDS_TO_TICKS(5))
@@ -164,9 +174,13 @@ void GameDrawSystem::DrawMagnetism(const Game& game) noexcept
 		DrawRectangleRec(MAGNETISM_HALF_1, DARKBLUE);
 		DrawRectangleRec(MAGNETISM_HALF_2, RED);
 	}
-	else if ((expiry / TICK_RATE) % 2)
+	else if ((expiry / (TICK_RATE / 2)) % 2)
 	{
 		DrawRectangleRec(MAGNETISM_HALF_1, DARKBLUE);
 		DrawRectangleRec(MAGNETISM_HALF_2, RED);
 	}
 }
+
+
+
+

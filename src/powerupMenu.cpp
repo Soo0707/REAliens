@@ -26,9 +26,9 @@ void PowerupMenu::Draw(RenderTexture2D& canvas) const noexcept
 	int x2 = mid - MeasureText(this->SelectionList[1].DisplayName.c_str(), 24) / 2.0f;
 	int x3 = mid - MeasureText(this->SelectionList[2].DisplayName.c_str(), 24) / 2.0f;
 
-	int x4 = mid - MeasureText(this->SelectionList[0].Description, 24) / 2.0f;
-	int x5 = mid - MeasureText(this->SelectionList[1].Description, 24) / 2.0f;
-	int x6 = mid - MeasureText(this->SelectionList[2].Description, 24) / 2.0f;
+	int x4 = mid - MeasureText(this->SelectionList[0].Description, 21) / 2.0f;
+	int x5 = mid - MeasureText(this->SelectionList[1].Description, 21) / 2.0f;
+	int x6 = mid - MeasureText(this->SelectionList[2].Description, 21) / 2.0f;
 
 	BeginTextureMode(canvas);
 		ClearBackground(BLACK);
@@ -36,13 +36,13 @@ void PowerupMenu::Draw(RenderTexture2D& canvas) const noexcept
 		DrawText("Select A Powerup", 452.5, 80, 42, VIOLET);
 
 		DrawText(this->SelectionList[0].DisplayName.c_str(), x1, 260, 24, GOLD);
-		DrawText(this->SelectionList[0].Description, x4, 294, 24, GRAY);
+		DrawText(this->SelectionList[0].Description, x4, 294, 21, GRAY);
 
 		DrawText(this->SelectionList[1].DisplayName.c_str(), x2, 360, 24, GOLD);
-		DrawText(this->SelectionList[1].Description, x5, 394, 24, GRAY);
+		DrawText(this->SelectionList[1].Description, x5, 394, 21, GRAY);
 
 		DrawText(this->SelectionList[2].DisplayName.c_str(), x3, 460, 24, GOLD);
-		DrawText(this->SelectionList[2].Description, x6, 494, 24, GRAY);
+		DrawText(this->SelectionList[2].Description, x6, 494, 21, GRAY);
 
 		DrawText("[TAB] Toggle Powerup Menu", 491.5, 580, 21, LIGHTGRAY);
 
@@ -153,10 +153,10 @@ void PowerupMenu::ApplyAura() noexcept
 
 		this->GlobalData->Attributes[Attribute::AuraDamage] += 5;
 
-		if (this->GlobalData->Attributes[Attribute::AuraCooldown] - 25 > TICK_RATE)
+		if (this->GlobalData->Attributes[Attribute::AuraCooldown] - 25 > TICK_RATE / 4)
 			this->GlobalData->Attributes[Attribute::AuraCooldown] -= 25;
 		else
-			this->GlobalData->Attributes[Attribute::AuraCooldown] = TICK_RATE;
+			this->GlobalData->Attributes[Attribute::AuraCooldown] = TICK_RATE / 4;
 	}
 	else
 	{
@@ -165,7 +165,6 @@ void PowerupMenu::ApplyAura() noexcept
 		this->GlobalData->Attributes[Attribute::AuraCooldown] = SECONDS_TO_TICKS(2);
 	}
 
-	this->GlobalData->Events[Event::IncreaseAura] = 0;
 	this->GlobalData->Events[Event::AuraTick] = this->GlobalData->Ticks + this->GlobalData->Attributes.at(Attribute::AuraCooldown);
 }
 

@@ -44,7 +44,6 @@ enum class Event
 	IncreasePlayerSpeed,
 	IncreasePlotArmour,
 
-	IncreaseAura,
 	AuraTick,
 	COUNT
 };
@@ -54,14 +53,16 @@ enum class State
 	Game,
 	GameReset,
 	PowerupMenu,
+
 	PauseMenu,
 	MainMenu,
-	GameOverMenu
+	GameOverMenu,
+
+	GenerateGameOverStats
 };
 
 enum class Effect
 {
-	Aura,
 	Greenbull,
 	Milk,
 
@@ -92,7 +93,10 @@ enum class CachedString
 
 	TimePerLevel,
 	TotalDistance,
-	AverageSpeed
+	AverageSpeed,
+
+	EnemiesKilled,
+	GameOverReason
 };
 
 struct GlobalDataWrapper
@@ -102,6 +106,9 @@ struct GlobalDataWrapper
 
 	GlobalDataWrapper(const GlobalDataWrapper&) = delete;
 	GlobalDataWrapper& operator=(const GlobalDataWrapper&) = delete;
+
+	GlobalDataWrapper(const GlobalDataWrapper&&) = delete;
+	GlobalDataWrapper& operator=(const GlobalDataWrapper&&) = delete;
 
 	std::unordered_map<Attribute, float> Attributes = 
 	{
@@ -136,6 +143,8 @@ struct GlobalDataWrapper
 	size_t Ticks = 0;
 	size_t TotalDamage = 0;
 	size_t TotalDistance = 0;
+
+	size_t EnemiesKilled = 0;
 	
 	size_t Level = 1;
 

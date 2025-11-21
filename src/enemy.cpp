@@ -40,10 +40,11 @@ Enemy::Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyTyp
 
 		this->Rect.width *= scale;
 		this->Rect.height *= scale;
+
 		this->Speed *= (1 / scale);
 		this->Health *= scale;
-		this->AnimationSpeed *= scale;
 
+		this->AnimationSpeed *= scale;
 		this->Scale = scale;
 	}
 	else

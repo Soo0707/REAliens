@@ -22,15 +22,21 @@ void PauseMenu::Draw(RenderTexture2D& canvas) const noexcept
 
 		DrawText("PAUSED", 597, 420, 21, LIGHTGRAY);
 
-		DrawText("[Space] Resume, [Esc] Main Menu", 469, 620, 21, LIGHTGRAY);
+		DrawText("[Esc] Resume, [Q] Main Menu, [P] End Session", 404, 620, 21, LIGHTGRAY);
 	EndTextureMode();
 }
 
 void PauseMenu::HandleInput() noexcept
 {
-	if (IsKeyPressed(KEY_SPACE))
+	if (IsKeyPressed(KEY_ESCAPE))
 		this->GlobalData->ActiveState = State::Game;
 
-	if (IsKeyPressed(KEY_ESCAPE))
+	if (IsKeyPressed(KEY_Q))
 		this->GlobalData->ActiveState = State::MainMenu;
+
+	if (IsKeyPressed(KEY_P))
+	{
+		this->GlobalData->CachedStrings[CachedString::GameOverReason] = "Reason: Session Terminated";
+		this->GlobalData->ActiveState = State::GenerateGameOverStats;
+	}
 }

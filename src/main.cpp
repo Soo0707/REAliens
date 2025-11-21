@@ -93,6 +93,10 @@ int main(void)
 				pause.HandleInput();
 				pause.Draw(virtual_canvas);
 				break;
+			case State::GenerateGameOverStats:
+				game_over.GenerateStats();
+				global_data->ActiveState = State::GameOverMenu;
+				break;
 		}
 
 		BeginDrawing();

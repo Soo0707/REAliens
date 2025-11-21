@@ -29,13 +29,11 @@ void GameInputSystem::HandleTickedInput(Game& game) noexcept
 		game.CanLayerUp = false;
 	}
 
-	if (game.GlobalData->Effects.count(Effect::Trapped))
-	{
-		if (IsKeyDown(KEY_SPACE))
-			game.GlobalData->Effects.erase(Effect::Trapped);
+	if (IsKeyDown(KEY_SPACE))
+		game.GlobalData->Effects.erase(Effect::Trapped);
 
+	if (game.GlobalData->Effects.count(Effect::Trapped))
 		game.PlayerInstance->Direction = { 0, 0 };
-	}
 	else
 	{
 		game.PlayerInstance->Direction.x = IsKeyDown(KEY_D) - IsKeyDown(KEY_A);

@@ -70,12 +70,6 @@ void GameEventSystem::PoisonExpire(Game& game, size_t expiry, std::unordered_map
 		game.GlobalData->Events.erase(Event::PoisonTick);
 }
 
-void GameEventSystem::IncreaseAura(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
-{
-	game.PlayerInstance->Aura.width = game.GlobalData->Attributes.at(Attribute::AuraSize);
-	game.PlayerInstance->Aura.height = game.GlobalData->Attributes.at(Attribute::AuraSize);
-}
-
 void GameEventSystem::GreenbullExpire(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
 	GameEventSystem::HandleEventExpiry(Event::GreenbullExpire, Effect::Greenbull, *game.GlobalData, expiry, new_events_map);
