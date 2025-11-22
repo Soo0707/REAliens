@@ -31,11 +31,6 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  -lwinmm\
  -static\
  -march=haswell\
+ -mwindows\
  -Wl,--strip-all
-#-Wall
-#-fno-exceptions
-#-Wextra\
-#-Wpedantic
-
-#-mwindows\
-
+#-o /mnt/tmpfs/RE::Aliens.exe\

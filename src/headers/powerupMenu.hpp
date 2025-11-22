@@ -91,18 +91,18 @@ class PowerupMenu
 		static inline constexpr std::array<const char*, static_cast<size_t>(Powerup::COUNT)> PowerupDescriptions =
 		{
 			"+Aura Size, -Aura Timeout",
-			"Increase the number of projectiles shot",
+			"Increase The Number Of Projectiles Shot",
 			"+Projectile Damage, -LMB Timeout",
 
 			"+Lazer Damage, -RMB Timeout",
-			"Makes you fly. Temporary Invincibility",
+			"Temporary Invincibility",
 
-			"Removes and prevents enemy effects",
-			"Regain health from damage delt",
-			"Increase max health",
+			"Removes and Prevents Enemy Effects",
+			"Regain Health By Dealing Damage",
+			"Increase Max Health",
 
-			"Auto collects XP",
-			"Increase player speed"
+			"Auto Collects XP",
+			"Increase Player Speed"
 		};
 
 		static inline constexpr std::array<void(PowerupMenu::*)(), static_cast<size_t>(Powerup::COUNT)> ApplyHandles = 
