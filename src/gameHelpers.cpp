@@ -23,7 +23,7 @@ void GameHelper::LoopOverMap(AssetManager& assets, Rectangle& m_obj) noexcept
 
 void GameHelper::LevelUp(Game& game, SettingsManager& settings) noexcept
 {
-	if (!settings.Data.count(SettingKey::UnlimitedPowerups))
+	if (!settings.Data.at(SettingKey::UnlimitedPowerups))
 	{
 		game.GlobalData->UnclaimedPowerups++;
 		game.GlobalData->CachedStrings[CachedString::UnclaimedPowerups] = "Unclaimed Powerups: " + std::to_string(game.GlobalData->UnclaimedPowerups);
@@ -38,7 +38,7 @@ void GameHelper::LevelUp(Game& game, SettingsManager& settings) noexcept
 	if (settings.Data.at(SettingKey::PowerupMenuInterrupt))
 		game.GlobalData->ActiveState = State::PowerupMenu;
 
-	if (game.GlobalData->Level % 5 == 0 && settings.Data.at(SettingKey::DisableLevelDebuffs))
+	if (game.GlobalData->Level % 5 == 0 && !settings.Data.at(SettingKey::DisableLevelDebuffs))
 	{
 		switch (GetRandomValue(0, 2))
 		{
