@@ -59,14 +59,14 @@ Enemy::Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyTyp
 	}
 }
 
-void Enemy::Update(Vector2& player_centre, size_t ticks) noexcept
+void Enemy::Update(Vector2& player_centre, size_t ticks, bool is_stinky) noexcept
 {
 	Enemy::Animate(ticks);
 
 	Enemy::Move();
 
 	if ((this->Modifiers & BehaviourModifier::OverrideDirection) == BehaviourModifier::None)
-		Enemy::SetDirection(player_centre);
+		Enemy::SetDirection(player_centre, is_stinky);
 
 	if (ticks - this->LastLeAttack >= this->LeAttackCooldown)
 		this->CanLeAttack = true;
@@ -112,10 +112,13 @@ void Enemy::Move() noexcept
 	this->Rect.y += this->Speed * this->Direction.y * TICK_TIME;
 }
 
-void Enemy::SetDirection(Vector2& player_centre) noexcept
+void Enemy::SetDirection(Vector2& player_centre, bool is_stinky) noexcept
 {
 	this->Direction.x = player_centre.x - this->Rect.x;
 	this->Direction.y = player_centre.y - this->Rect.y;
+
+	if (is_stinky)
+		this->Direction = Vector2Scale(this->Direction, -1.0f);
 
 	if ((this->Direction.x != 0.0f || this->Direction.y != 0.0f))
 		this->Direction = Vector2Normalize(this->Direction);

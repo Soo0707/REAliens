@@ -19,7 +19,7 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  src/mainMenu.cpp\
  src/globalDataWrapper.cpp\
  src/settingsManager.cpp\
- -o /mnt/tmpfs/out.exe\
+ -o /mnt/tmpfs/REAliens.exe\
  -O3\
  -std=c++20\
  -Iinclude/\
@@ -31,6 +31,4 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  -lwinmm\
  -static\
  -march=haswell\
- -mwindows\
- -Wl,--strip-all
-#-o /mnt/tmpfs/RE::Aliens.exe\
+ -mwindows

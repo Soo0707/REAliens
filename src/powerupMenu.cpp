@@ -214,10 +214,16 @@ void PowerupMenu::ApplyLifeSteal() noexcept
 
 void PowerupMenu::ApplyPlotArmour() noexcept
 {
-	this->GlobalData->Events[Event::IncreasePlotArmour] = 0;
+	if (this->GlobalData->Events.count(Event::IncreasePlotArmour))
+		this->GlobalData->Events[Event::IncreasePlotArmour] += 1;
+	else
+		this->GlobalData->Events[Event::IncreasePlotArmour] = 1;
 }
 
 void PowerupMenu::ApplySpeedBoots() noexcept
 {
-	this->GlobalData->Events[Event::IncreasePlayerSpeed] = 0;
+	if (this->GlobalData->Events.count(Event::IncreasePlayerSpeed))
+		this->GlobalData->Events[Event::IncreasePlayerSpeed] += 1;
+	else
+		this->GlobalData->Events[Event::IncreasePlayerSpeed] = 1;
 }

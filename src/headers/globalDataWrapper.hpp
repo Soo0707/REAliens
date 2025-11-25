@@ -75,7 +75,6 @@ enum class Effect
 
 	Aussie,
 	Stinky,
-	Blind,
 
 	Microscope,
 	Earthquake
@@ -96,7 +95,8 @@ enum class CachedString
 	AverageSpeed,
 
 	EnemiesKilled,
-	GameOverReason
+	GameOverReason,
+	LevelDebuff
 };
 
 struct GlobalDataWrapper

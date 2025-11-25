@@ -109,7 +109,7 @@ void Game::Update() noexcept
 
 	if (this->Accumulator >= MAX_TICK_TIME)
 		this->Accumulator = MAX_TICK_TIME;
-	
+	this->GlobalData->Effects.insert(Effect::Stinky);
 	while (this->Accumulator >= TICK_TIME)
 	{
 		Game::UpdateTimeouts();
@@ -146,6 +146,7 @@ void Game::UpdateEnemies() noexcept
 
 	bool has_greenbull = this->GlobalData->Effects.count(Effect::Greenbull);
 	bool is_sliding = this->PlayerInstance->Sliding;
+	bool is_stinky = this->GlobalData->Effects.count(Effect::Stinky);
 
 	for (auto &enemy : this->Enemies)
 	{
@@ -153,7 +154,7 @@ void Game::UpdateEnemies() noexcept
 
 		if (enemy.Layer == this->GlobalData->CurrentLayer && CheckCollisionRecs(this->UpdateArea, enemy.Rect))
 		{
-			enemy.Update(this->PlayerInstance->Centre, this->GlobalData->Ticks);
+			enemy.Update(this->PlayerInstance->Centre, this->GlobalData->Ticks, is_stinky);
 			GameHelper::LoopOverMap(*this->Assets, enemy.Rect);
 			
 			if (!has_greenbull)

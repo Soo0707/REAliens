@@ -46,7 +46,7 @@ class Enemy
 		
 		void Draw() const noexcept;
 		void FlashSprite(size_t ticks) noexcept;
-		void Update(Vector2& player_centre, size_t ticks) noexcept;
+		void Update(Vector2& player_centre, size_t ticks, bool is_stinky) noexcept;
 		
 		float Health;
 		float Speed;
@@ -70,7 +70,7 @@ class Enemy
 	private:
 		void Move() noexcept;
 		void Animate(size_t ticks) noexcept;
-		void SetDirection(Vector2& player_centre) noexcept;
+		void SetDirection(Vector2& player_centre, bool is_stinky) noexcept;
 
 		Texture2D Image;
 
