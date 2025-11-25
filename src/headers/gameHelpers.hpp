@@ -4,13 +4,14 @@
 #include <cstddef>
 
 #include "raylib.h"
+#include "settingsManager.hpp"
 #include "assetManager.hpp"
 #include "game.hpp"
 
 namespace GameHelper
 {
 	void LoopOverMap(AssetManager& assets, Rectangle& m_obj) noexcept;
-	void LevelUp(Game& game) noexcept;
+	void LevelUp(Game& game, SettingsManager& settings) noexcept;
 	void SpawnEnemies(Game& game) noexcept;
 
 	void RandomLocation(size_t spawn_count, Game& game, std::vector<Vector2>& locations) noexcept;

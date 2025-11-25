@@ -109,13 +109,13 @@ void Game::Update() noexcept
 
 	if (this->Accumulator >= MAX_TICK_TIME)
 		this->Accumulator = MAX_TICK_TIME;
-	this->GlobalData->Effects.insert(Effect::Stinky);
+
 	while (this->Accumulator >= TICK_TIME)
 	{
 		Game::UpdateTimeouts();
 
 		if (this->CollectedXp >= this->LevelUpTreshold)
-			GameHelper::LevelUp(*this);
+			GameHelper::LevelUp(*this, *this->Settings);
 
 		GameInputSystem::HandleTickedInput(*this);
 
@@ -155,6 +155,7 @@ void Game::UpdateEnemies() noexcept
 		if (enemy.Layer == this->GlobalData->CurrentLayer && CheckCollisionRecs(this->UpdateArea, enemy.Rect))
 		{
 			enemy.Update(this->PlayerInstance->Centre, this->GlobalData->Ticks, is_stinky);
+
 			GameHelper::LoopOverMap(*this->Assets, enemy.Rect);
 			
 			if (!has_greenbull)

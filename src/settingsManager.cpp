@@ -64,7 +64,9 @@ SettingKey SettingsManager::GetSettingKeyFromString(const std::string& key) cons
 
 		{ "UNLIMITED_POWERUPS", SettingKey::UnlimitedPowerups },
 		{ "TARGET_FRAMERATE", SettingKey::TargetFramerate },
-		{ "SEED", SettingKey::Seed }
+		{ "SEED", SettingKey::Seed },
+
+		{ "DISABLE_LEVEL_DEBUFFS", SettingKey::DisableLevelDebuffs }
 	};
 
 	return lookup.count(key) ? lookup.at(key) : SettingKey::None;

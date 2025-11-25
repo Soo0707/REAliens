@@ -21,9 +21,9 @@ void GameHelper::LoopOverMap(AssetManager& assets, Rectangle& m_obj) noexcept
 		m_obj.y = 0;
 }
 
-void GameHelper::LevelUp(Game& game) noexcept
+void GameHelper::LevelUp(Game& game, SettingsManager& settings) noexcept
 {
-	if (!game.Settings->Data.at(SettingKey::UnlimitedPowerups))
+	if (!settings.Data.count(SettingKey::UnlimitedPowerups))
 	{
 		game.GlobalData->UnclaimedPowerups++;
 		game.GlobalData->CachedStrings[CachedString::UnclaimedPowerups] = "Unclaimed Powerups: " + std::to_string(game.GlobalData->UnclaimedPowerups);
@@ -35,12 +35,12 @@ void GameHelper::LevelUp(Game& game) noexcept
 	game.CollectedXp = 0;
 	game.LevelUpTreshold += 5;
 	
-	if (game.Settings->Data.at(SettingKey::PowerupMenuInterrupt))
+	if (settings.Data.at(SettingKey::PowerupMenuInterrupt))
 		game.GlobalData->ActiveState = State::PowerupMenu;
 
-	if (game.GlobalData->Level % 5 == 0)
+	if (game.GlobalData->Level % 5 == 0 && settings.Data.at(SettingKey::DisableLevelDebuffs))
 	{
-		switch (GetRandomValue(0, 1))
+		switch (GetRandomValue(0, 2))
 		{
 			case 0:
 				game.GlobalData->Effects.insert(Effect::Microscope);
@@ -48,12 +48,16 @@ void GameHelper::LevelUp(Game& game) noexcept
 			case 1:
 				game.GlobalData->Effects.insert(Effect::Earthquake);
 				break;
+			case 2:
+				game.GlobalData->Effects.insert(Effect::Stinky);
+				break;
 		}
 	}
 	else
 	{
 		game.GlobalData->Effects.erase(Effect::Microscope);
 		game.GlobalData->Effects.erase(Effect::Earthquake);
+		game.GlobalData->Effects.erase(Effect::Stinky);
 	}
 }
 
