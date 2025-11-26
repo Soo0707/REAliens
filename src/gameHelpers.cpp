@@ -62,34 +62,17 @@ void GameHelper::SpawnEnemies(Game& game) noexcept
 	static std::vector<EnemyType> types;
 	types.reserve(spawn_count);
 
-	switch (GetRandomValue(0, 1))
-	{
-		case 0:
-			GameHelper::SingleType(spawn_count, types);
-			break;
-		case 1:
-			GameHelper::RandomType(spawn_count, types);
-			break;
-	}
+	GameHelper::SpawnTypeFunctions[GetRandomValue(0, 1)](spawn_count, types);
 
 	static std::vector<BehaviourModifier> modifiers;
 	modifiers.reserve(spawn_count);
 
-	switch (GetRandomValue(0, 2))
-	{
-		case 0:
-			GameHelper::NoModifiers(spawn_count, modifiers);
-			break;
-		case 1:
-			GameHelper::SameModifiers(spawn_count, game.GlobalData->Level, modifiers);
-			break;
-		case 2:
-			GameHelper::RandomModifiers(spawn_count, game.GlobalData->Level, modifiers);
-			break;
-	}
+	GameHelper::GenerateModifierFunctions[GetRandomValue(0, 2)](spawn_count, game.GlobalData->Level, modifiers);
+
+	float level_scale = 1 + game.GlobalData->Level / 10.0f;
 
 	for (size_t i = 0; i < spawn_count; i++)
-		game.Enemies.emplace_back(locations[i].x, locations[i].y, game.GlobalData->CurrentLayer, *game.Assets, types[i], modifiers[i]);
+		game.Enemies.emplace_back(locations[i].x, locations[i].y, level_scale, game.GlobalData->CurrentLayer, *game.Assets, types[i], modifiers[i]);
 
 
 	locations.clear();
@@ -121,7 +104,25 @@ void GameHelper::ScreenLocation(size_t spawn_count, Game& game, std::vector<Vect
 	}
 }
 
-void GameHelper::NoModifiers(size_t spawn_count, std::vector<BehaviourModifier>& modifiers) noexcept
+void GameHelper::NearPlayerLocation(size_t spawn_count, Game& game, std::vector<Vector2>& locations) noexcept
+{
+	for (size_t i = 0; i < spawn_count; i++)
+	{
+		unsigned int rand_x = GetRandomValue(32, 64);
+		unsigned int rand_y = GetRandomValue(32, 64);
+
+		rand_x = (rand_x % 2) ? (rand_x * -1) : (rand_x);
+		rand_y = (rand_y % 2) ? (rand_y * -1) : (rand_y);
+
+		locations.emplace_back(
+				(Vector2) {
+					static_cast<float>( game.PlayerInstance->Rect.x + rand_x ),
+					static_cast<float>( game.PlayerInstance->Rect.y + rand_y )
+				});
+	}
+}
+
+void GameHelper::NoModifiers(size_t spawn_count, size_t level, std::vector<BehaviourModifier>& modifiers) noexcept
 {
 	for (size_t i = 0; i < spawn_count; i++)
 		modifiers.emplace_back(BehaviourModifier::None);

@@ -48,8 +48,7 @@ void GlobalDataWrapper::Reset() noexcept
 
 void GlobalDataWrapper::InsertLevelDebuff() noexcept
 {
-	Effect random_effect = this->DebuffList[GetRandomValue(0, 3)];
-
+	Effect random_effect = this->DebuffList[GetRandomValue(0, this->DebuffList.size() - 1)];
 	this->Effects.insert(random_effect);
 }
 

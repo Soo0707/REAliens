@@ -9,10 +9,9 @@
 #include <cstddef>
 #include <array>
 
-Enemy::Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyType type, BehaviourModifier modifier) noexcept :
+Enemy::Enemy(float pos_x, float pos_y, float level_scale, int layer, AssetManager& assets, EnemyType type, BehaviourModifier modifier) noexcept :
 	Type(type),
 	Modifiers(modifier),
-	LeAttackCooldown(SECONDS_TO_TICKS(3)),
 	Rect({ pos_x, pos_y, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE }),
 	Layer(layer)
 {
@@ -23,7 +22,7 @@ Enemy::Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyTyp
 	this->AnimationSpeed = EnemyAttributes[type_index].animation_speed;
 	this->AnimationFrames = EnemyAttributes[type_index].animation_frames;
 
-	this->Health = EnemyAttributes[type_index].health;
+	this->Health = EnemyAttributes[type_index].health * level_scale;
 
 	this->Image = assets.Textures.at(EnemyAttributes[type_index].texture_key);
 

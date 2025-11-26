@@ -2,6 +2,7 @@
 
 #include "raylib.h"
 #include "assetManager.hpp"
+#include "constants.hpp"
 
 #include <cstddef>
 
@@ -41,7 +42,7 @@ inline BehaviourModifier operator& (BehaviourModifier l, BehaviourModifier r) no
 class Enemy
 {
 	public:
-		Enemy(float pos_x, float pos_y, int layer, AssetManager& assets, EnemyType type, BehaviourModifier modifier) noexcept;
+		Enemy(float pos_x, float pos_y, float level_scale, int layer, AssetManager& assets, EnemyType type, BehaviourModifier modifier) noexcept;
 		~Enemy() = default; 
 		
 		void Draw() const noexcept;
@@ -62,7 +63,7 @@ class Enemy
 
 		bool CanLeAttack = true;
 		size_t LastLeAttack = 0;
-		unsigned int LeAttackCooldown;
+		unsigned int LeAttackCooldown = 3 * TICK_RATE;
 
 		EnemyType Type;
 		BehaviourModifier Modifiers;
