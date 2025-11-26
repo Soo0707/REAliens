@@ -39,26 +39,9 @@ void GameHelper::LevelUp(Game& game, SettingsManager& settings) noexcept
 		game.GlobalData->ActiveState = State::PowerupMenu;
 
 	if (game.GlobalData->Level % 5 == 0 && !settings.Data.at(SettingKey::DisableLevelDebuffs))
-	{
-		switch (GetRandomValue(0, 2))
-		{
-			case 0:
-				game.GlobalData->Effects.insert(Effect::Microscope);
-				break;
-			case 1:
-				game.GlobalData->Effects.insert(Effect::Earthquake);
-				break;
-			case 2:
-				game.GlobalData->Effects.insert(Effect::Stinky);
-				break;
-		}
-	}
+		game.GlobalData->InsertLevelDebuff();
 	else
-	{
-		game.GlobalData->Effects.erase(Effect::Microscope);
-		game.GlobalData->Effects.erase(Effect::Earthquake);
-		game.GlobalData->Effects.erase(Effect::Stinky);
-	}
+		game.GlobalData->RemoveLevelDebuff();
 }
 
 

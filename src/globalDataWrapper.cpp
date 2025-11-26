@@ -1,5 +1,9 @@
 #include "globalDataWrapper.hpp"
 
+#include <array>
+
+#include "raylib.h"
+
 void GlobalDataWrapper::Reset() noexcept
 {
 	this->Attributes = 
@@ -41,3 +45,18 @@ void GlobalDataWrapper::Reset() noexcept
 
 	this->UnclaimedPowerups = 0;
 }
+
+void GlobalDataWrapper::InsertLevelDebuff() noexcept
+{
+	Effect random_effect = this->DebuffList[GetRandomValue(0, 3)];
+
+	this->Effects.insert(random_effect);
+}
+
+void GlobalDataWrapper::RemoveLevelDebuff() noexcept
+{
+	for (auto const effect : this->DebuffList)
+		this->Effects.erase(effect);
+}
+
+

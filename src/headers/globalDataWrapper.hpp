@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include <string>
 #include <cstddef>
+#include <array>
 
 enum class Attribute
 {
@@ -77,7 +78,8 @@ enum class Effect
 	Stinky,
 
 	Microscope,
-	Earthquake
+	Earthquake,
+	Invisible
 };
 
 enum class CachedString
@@ -127,6 +129,13 @@ struct GlobalDataWrapper
 
 	std::unordered_map<Event, size_t> Events;
 
+	static constexpr std::array<Effect, 4> DebuffList = { 
+		Effect::Microscope,
+		Effect::Earthquake,
+		Effect::Stinky,
+		Effect::Invisible
+	};
+
 	std::unordered_set<Effect> Effects;
 
 	std::unordered_map<CachedString, std::string> CachedStrings =
@@ -155,4 +164,7 @@ struct GlobalDataWrapper
 	bool Running = true;
 
 	void Reset() noexcept;
+
+	void InsertLevelDebuff() noexcept;
+	void RemoveLevelDebuff() noexcept;
 };

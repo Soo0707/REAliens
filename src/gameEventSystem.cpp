@@ -10,7 +10,7 @@
 
 void GameEventSystem::HandleEvents(Game& game) noexcept
 {
-	std::unordered_map<Event, size_t> new_events_map;
+	static std::unordered_map<Event, size_t> new_events_map;
 
 	for (auto &pair : game.GlobalData->Events)
 	{
@@ -18,6 +18,8 @@ void GameEventSystem::HandleEvents(Game& game) noexcept
 	}
 
 	game.GlobalData->Events.swap(new_events_map);
+
+	new_events_map.clear();
 }
 
 

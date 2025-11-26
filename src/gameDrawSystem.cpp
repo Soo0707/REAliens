@@ -45,12 +45,14 @@ void GameDrawSystem::DrawGame(const Game& game) noexcept
 			projectile.Draw();
 	}
 
-	game.PlayerInstance->Draw();
+	if (!game.GlobalData->Effects.count(Effect::Invisible))
+		game.PlayerInstance->Draw();
 }
 
 void GameDrawSystem::DrawLighting(const Game& game) noexcept
 {
-	game.PlayerInstance->DrawLightmap();
+	if (!game.GlobalData->Effects.count(Effect::Invisible))
+		game.PlayerInstance->DrawLightmap();
 
 	for (auto const &xp : game.Xps)
 	{
