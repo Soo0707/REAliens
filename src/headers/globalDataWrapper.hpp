@@ -8,6 +8,8 @@
 #include <cstddef>
 #include <array>
 
+#include "constants.hpp"
+
 enum class Attribute
 {
 	BulletCooldown,
@@ -26,7 +28,9 @@ enum class Attribute
 	AuraCooldown,
 	AuraDamage,
 
-	LifeStealMultiplier
+	LifeStealMultiplier,
+	SlideDuration,
+	SlideSpeed
 };
 
 // The ordering here matters as GameEventSystem uses a fixed array as a function jump table
@@ -124,7 +128,10 @@ struct GlobalDataWrapper
 		{ Attribute::LazerCooldown, 450 },
 		{ Attribute::LazerDamage, 25.0f },
 		{ Attribute::LazerScale, 1.0f },
-		{ Attribute::LazerSpeed, 3000.0f }	
+		{ Attribute::LazerSpeed, 3000.0f },
+
+		{ Attribute::SlideDuration, TICK_RATE / 4 },
+		{ Attribute::SlideSpeed, 4.0f }	
 	};
 
 	std::unordered_map<Event, size_t> Events;

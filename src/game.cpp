@@ -249,7 +249,9 @@ void Game::UpdatePlayer() noexcept
 		this->GlobalData->ActiveState = State::GenerateGameOverStats;
 	}
 
-	this->PlayerInstance->Update(this->GlobalData->Ticks, &this->GlobalData->TotalDistance);
+	float slide_speed = this->GlobalData->Attributes.at(Attribute::SlideSpeed);
+
+	this->PlayerInstance->Update(this->GlobalData->Ticks, &this->GlobalData->TotalDistance, slide_speed);
 
 	GameHelper::LoopOverMap(*this->Assets, this->PlayerInstance->Rect);
 }

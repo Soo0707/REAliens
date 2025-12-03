@@ -1,5 +1,6 @@
 #include "powerupMenu.hpp"
 
+#include <iostream>
 #include <memory>
 #include <set>
 
@@ -88,7 +89,10 @@ void PowerupMenu::HandleInput() noexcept
 		PowerupMenu::ApplyPowerup(this->SelectionList[2].Powerup);
 
 	if (IsKeyPressed(KEY_TAB))
+	{
+		this->Gamble = false;
 		this->GlobalData->ActiveState = State::Game;
+	}
 
 	if (IsKeyPressed(KEY_ENTER))
 		this->Gamble = true;
@@ -232,4 +236,10 @@ void PowerupMenu::ApplySpeedBoots() noexcept
 		this->GlobalData->Events[Event::IncreasePlayerSpeed] += 1;
 	else
 		this->GlobalData->Events[Event::IncreasePlayerSpeed] = 1;
+}
+
+void PowerupMenu::ApplyBabyOil() noexcept
+{
+	this->GlobalData->Attributes[Attribute::SlideDuration] *= 1.2f;
+	this->GlobalData->Attributes[Attribute::SlideSpeed] *= 1.1f;
 }

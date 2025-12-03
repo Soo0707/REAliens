@@ -18,7 +18,10 @@ void GlobalDataWrapper::Reset() noexcept
 		{ Attribute::LazerCooldown, 450 },
 		{ Attribute::LazerDamage, 25.0f },
 		{ Attribute::LazerScale, 1.0f },
-		{ Attribute::LazerSpeed, 3000.0f }	
+		{ Attribute::LazerSpeed, 3000.0f },
+
+		{ Attribute::SlideDuration, TICK_RATE / 4 },
+		{ Attribute::SlideSpeed, 4.0f }	
 	};
 
 	this->CachedStrings =
@@ -43,7 +46,7 @@ void GlobalDataWrapper::Reset() noexcept
 
 	this->CurrentLayer = 0;
 
-	this->UnclaimedPowerups = 72;
+	this->UnclaimedPowerups = 0;
 }
 
 void GlobalDataWrapper::InsertLevelDebuff() noexcept

@@ -26,6 +26,7 @@ enum class Powerup
 	Magnetism,
 
 	SpeedBoots,
+	BabyOil,
 	COUNT
 };
 
@@ -64,6 +65,7 @@ class PowerupMenu
 
 		void ApplyPlotArmour() noexcept;
 		void ApplySpeedBoots() noexcept;
+		void ApplyBabyOil() noexcept;
 
 		std::shared_ptr<GlobalDataWrapper> GlobalData;
 		std::shared_ptr<SettingsManager> Settings;
@@ -87,7 +89,8 @@ class PowerupMenu
 			"Plot Armour",
 
 			"Magnetism",
-			"Speed Boots"
+			"Speed Boots",
+			"Baby Oil"
 		};
 
 		static inline constexpr std::array<const char*, static_cast<size_t>(Powerup::COUNT)> PowerupDescriptions =
@@ -104,7 +107,8 @@ class PowerupMenu
 			"Increase Max Health",
 
 			"Auto Collects XP",
-			"Increase Player Speed"
+			"Increase Player Speed",
+			"Increase Slide Duration" 
 		};
 
 		static inline constexpr std::array<void(PowerupMenu::*)(), static_cast<size_t>(Powerup::COUNT)> ApplyHandles = 
@@ -121,6 +125,7 @@ class PowerupMenu
 			&PowerupMenu::ApplyPlotArmour,
 
 			&PowerupMenu::ApplyMagnetism,
-			&PowerupMenu::ApplySpeedBoots
+			&PowerupMenu::ApplySpeedBoots,
+			&PowerupMenu::ApplyBabyOil
 		};
 };

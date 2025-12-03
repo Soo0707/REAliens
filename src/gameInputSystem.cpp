@@ -53,7 +53,7 @@ void GameInputSystem::HandleTickedInput(Game& game) noexcept
 	if (IsKeyDown(KEY_LEFT_SHIFT) && game.CanSlide)
 	{
 		game.PlayerInstance->Sliding = true;
-		game.PlayerInstance->SlideExpire = game.GlobalData->Ticks + TICK_RATE / 4;
+		game.PlayerInstance->SlideExpire = game.GlobalData->Ticks + static_cast<unsigned int>(game.GlobalData->Attributes.at(Attribute::SlideDuration));
 
 		game.CanSlide = false;
 		game.LastSlide = game.GlobalData->Ticks;
