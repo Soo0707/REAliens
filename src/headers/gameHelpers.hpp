@@ -19,12 +19,6 @@ namespace GameHelper
 	void ScreenLocation(size_t spawn_count, Game& game, std::vector<Vector2>& locations) noexcept;
 	void NearPlayerLocation(size_t spawn_count, Game& game, std::vector<Vector2>& locations) noexcept;
 
-	static inline constexpr std::array<void(*)(size_t, Game&, std::vector<Vector2>&) noexcept, 3> SpawnLocationFunctions = {
-		&RandomLocation,
-		&ScreenLocation,
-		&NearPlayerLocation
-	};
-
 	void NoModifiers(size_t spawn_count, size_t level, std::vector<BehaviourModifier>& modifiers) noexcept;
 	void SameModifiers(size_t spawn_count, size_t level, std::vector<BehaviourModifier>& modifiers) noexcept;
 	void RandomModifiers(size_t spawn_count, size_t level, std::vector<BehaviourModifier>& modifiers) noexcept;

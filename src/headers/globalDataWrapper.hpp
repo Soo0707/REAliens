@@ -159,7 +159,7 @@ struct GlobalDataWrapper
 
 	int CurrentLayer = 0;
 
-	unsigned int UnclaimedPowerups = 0;
+	unsigned int UnclaimedPowerups;
 
 	bool Running = true;
 

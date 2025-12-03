@@ -22,10 +22,8 @@ enum class EnemyType : size_t
 enum class BehaviourModifier : size_t
 {
 	None = 0,
-	OverrideDirection = 1 << 0,
-	Big = 1 << 1,
-
-	IncreasedSpeed = 1 << 2
+	Big = 1 << 0,
+	IncreasedSpeed = 1 << 1
 };
 
 inline BehaviourModifier operator| (BehaviourModifier l, BehaviourModifier r) noexcept

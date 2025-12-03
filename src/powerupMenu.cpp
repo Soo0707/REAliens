@@ -44,7 +44,7 @@ void PowerupMenu::Draw(RenderTexture2D& canvas) const noexcept
 		DrawText(this->SelectionList[2].DisplayName.c_str(), x3, 460, 24, GOLD);
 		DrawText(this->SelectionList[2].Description, x6, 494, 21, GRAY);
 
-		DrawText("[TAB] Toggle Powerup Menu", 491.5, 580, 21, LIGHTGRAY);
+		DrawText("[TAB] Toggle Powerup Menu, [Enter] Roll The Slots", 365, 580, 21, LIGHTGRAY);
 
 		DrawText(this->GlobalData->CachedStrings.at(CachedString::UnclaimedPowerups).c_str(), 50, 670, 21, LIGHTGRAY);
 	EndTextureMode();
@@ -80,7 +80,7 @@ void PowerupMenu::GenerateList() noexcept
 
 void PowerupMenu::HandleInput() noexcept
 {
-	if (IsKeyPressed(KEY_ONE))
+	if (IsKeyPressed(KEY_ONE) || this->Gamble)
 		PowerupMenu::ApplyPowerup(this->SelectionList[0].Powerup);
 	else if (IsKeyPressed(KEY_TWO))
 		PowerupMenu::ApplyPowerup(this->SelectionList[1].Powerup);
@@ -89,6 +89,9 @@ void PowerupMenu::HandleInput() noexcept
 
 	if (IsKeyPressed(KEY_TAB))
 		this->GlobalData->ActiveState = State::Game;
+
+	if (IsKeyPressed(KEY_ENTER))
+		this->Gamble = true;
 }
 
 void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
@@ -106,7 +109,10 @@ void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
 	}
 
 	if (this->GlobalData->UnclaimedPowerups == 0 && !this->Settings->Data.at(SettingKey::UnlimitedPowerups))
+	{
 		this->GlobalData->ActiveState = State::Game;
+		this->Gamble = false;
+	}
 }
 
 

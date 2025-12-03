@@ -43,7 +43,7 @@ void GlobalDataWrapper::Reset() noexcept
 
 	this->CurrentLayer = 0;
 
-	this->UnclaimedPowerups = 0;
+	this->UnclaimedPowerups = 72;
 }
 
 void GlobalDataWrapper::InsertLevelDebuff() noexcept

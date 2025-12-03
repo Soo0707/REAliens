@@ -56,6 +56,8 @@ void GameHelper::SpawnEnemies(Game& game) noexcept
 
 	if (game.GlobalData->Level > 100 && !(game.GlobalData->Level % 5))
 		GameHelper::ScreenLocation(spawn_count, game, locations);
+	else if (!(game.GlobalData->Level % 5))
+		GameHelper::NearPlayerLocation(spawn_count, game, locations);
 	else
 		GameHelper::RandomLocation(spawn_count, game, locations);
 
@@ -137,9 +139,6 @@ void GameHelper::SameModifiers(size_t spawn_count, size_t level, std::vector<Beh
 	if (random > 10 && random < 30)
 		modifier = modifier | BehaviourModifier::IncreasedSpeed;
 
-	if (random >= 50 && random < 65)
-		modifier = modifier | BehaviourModifier::OverrideDirection;
-
 	if (random <= 5 && level > 50)
 		modifier = modifier | BehaviourModifier::Big;
 
@@ -158,9 +157,6 @@ void GameHelper::RandomModifiers(size_t spawn_count, size_t level, std::vector<B
 		if (random > 10 && random < 50)
 			modifier = modifier | BehaviourModifier::IncreasedSpeed;
 
-		if (random >= 50 && random < 55)
-			modifier = modifier | BehaviourModifier::OverrideDirection;
-		
 		if (random <= 20 && level > 10)
 			modifier = modifier | BehaviourModifier::Big;
 

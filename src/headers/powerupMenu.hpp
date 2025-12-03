@@ -71,6 +71,8 @@ class PowerupMenu
 
 		std::vector<PowerupWrapper> SelectionList;
 
+		bool Gamble = false;
+
 		static inline constexpr std::array<std::string, static_cast<size_t>(Powerup::COUNT)> PowerupNames =
 		{
 			"Aura",

@@ -26,13 +26,6 @@ Enemy::Enemy(float pos_x, float pos_y, float level_scale, int layer, AssetManage
 
 	this->Image = assets.Textures.at(EnemyAttributes[type_index].texture_key);
 
-	if ((modifier & BehaviourModifier::OverrideDirection) == BehaviourModifier::OverrideDirection)
-	{
-		static constexpr std::array<Vector2, 4> directions = { Vector2 {1, 0}, Vector2 {0, 1}, Vector2 {-1, 0}, Vector2 {0, -1} };
-
-		this->Direction = directions[GetRandomValue(0, 3)];
-	}
-
 	if ((this->Modifiers & BehaviourModifier::Big) == BehaviourModifier::Big)
 	{
 		float scale = static_cast<float>(GetRandomValue(2, 5));
@@ -64,8 +57,7 @@ void Enemy::Update(Vector2& player_centre, size_t ticks, bool is_stinky) noexcep
 
 	Enemy::Move();
 
-	if ((this->Modifiers & BehaviourModifier::OverrideDirection) == BehaviourModifier::None)
-		Enemy::SetDirection(player_centre, is_stinky);
+	Enemy::SetDirection(player_centre, is_stinky);
 
 	if (ticks - this->LastLeAttack >= this->LeAttackCooldown)
 		this->CanLeAttack = true;
