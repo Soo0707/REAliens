@@ -29,7 +29,6 @@ enum class Attribute
 	AuraDamage,
 
 	LifeStealMultiplier,
-	SlideDuration,
 	SlideSpeed
 };
 
@@ -116,23 +115,7 @@ struct GlobalDataWrapper
 	GlobalDataWrapper(const GlobalDataWrapper&&) = delete;
 	GlobalDataWrapper& operator=(const GlobalDataWrapper&&) = delete;
 
-	std::unordered_map<Attribute, float> Attributes = 
-	{
-		{ Attribute::BulletCooldown, 150 },
-		{ Attribute::BulletDamage, 25.0f },
-		{ Attribute::BulletSpeed, 1000.0f },
-
-		{ Attribute::Buckshot, 3 },
-		{ Attribute::BuckshotSpread, PI / 8 },
-
-		{ Attribute::LazerCooldown, 450 },
-		{ Attribute::LazerDamage, 25.0f },
-		{ Attribute::LazerScale, 1.0f },
-		{ Attribute::LazerSpeed, 3000.0f },
-
-		{ Attribute::SlideDuration, TICK_RATE / 4 },
-		{ Attribute::SlideSpeed, 4.0f }	
-	};
+	std::unordered_map<Attribute, float> Attributes; 
 
 	std::unordered_map<Event, size_t> Events;
 
@@ -143,16 +126,16 @@ struct GlobalDataWrapper
 		Effect::Invisible
 	};
 
+	static constexpr std::array<const char *, 4> DebuffNames = {
+		"Level Debuff: Microscope",
+		"Level Debuff: Earthquake",
+		"Level Debuff: Stinky",
+		"Level Debuff: Invisible"
+	};
+
 	std::unordered_set<Effect> Effects;
 
-	std::unordered_map<CachedString, std::string> CachedStrings =
-	{
-		{ CachedString::LayerText, "Current Layer: 0" },
-		{ CachedString::LevelText, "Level: 1" },
-		{ CachedString::Duration, "Duration: 0s" },
-
-		{ CachedString::UnclaimedPowerups, "" }
-	};
+	std::unordered_map<CachedString, std::string> CachedStrings;
 
 	State ActiveState = State::MainMenu;
 

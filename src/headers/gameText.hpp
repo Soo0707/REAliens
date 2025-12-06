@@ -8,16 +8,23 @@
 class GameText
 {
 	public:
-		GameText(float x, float y, std::string&& text, size_t ticks) noexcept;
+		GameText(float x, float y, Vector2 direction, float speed, std::string&& text, int size, Color colour, bool lerp, size_t creation, size_t expiry) noexcept;
 		~GameText() = default;
 
-		void Draw() const noexcept;
+		void Draw(size_t ticks) const noexcept;
 		void Update() noexcept;
 
 		Rectangle Rect;
 		size_t Expiry;
 
 	private:
+		int Size;
+		Vector2 Direction;
+		float Speed;
+
+		bool Lerp;
+		Color Colour;
+		size_t Creation;
+
 		std::string Text;
-		float Speed = 64;
 };

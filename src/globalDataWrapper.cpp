@@ -20,7 +20,6 @@ void GlobalDataWrapper::Reset() noexcept
 		{ Attribute::LazerScale, 1.0f },
 		{ Attribute::LazerSpeed, 3000.0f },
 
-		{ Attribute::SlideDuration, TICK_RATE / 4 },
 		{ Attribute::SlideSpeed, 4.0f }	
 	};
 
@@ -30,7 +29,8 @@ void GlobalDataWrapper::Reset() noexcept
 		{ CachedString::LevelText, "Level: 1" },
 		{ CachedString::Duration, "Duration: 0s" },
 
-		{ CachedString::UnclaimedPowerups, "" }
+		{ CachedString::UnclaimedPowerups, "" },
+		{ CachedString::LevelDebuff, "" }
 	};
 	
 	this->Events.clear();
@@ -51,14 +51,20 @@ void GlobalDataWrapper::Reset() noexcept
 
 void GlobalDataWrapper::InsertLevelDebuff() noexcept
 {
-	Effect random_effect = this->DebuffList[GetRandomValue(0, this->DebuffList.size() - 1)];
+	int index = GetRandomValue(0, this->DebuffList.size() - 1);
+
+	Effect random_effect = this->DebuffList[index];
+
 	this->Effects.insert(random_effect);
+	this->CachedStrings[CachedString::LevelDebuff] = std::string(this->DebuffNames[index]);
 }
 
 void GlobalDataWrapper::RemoveLevelDebuff() noexcept
 {
 	for (auto const effect : this->DebuffList)
 		this->Effects.erase(effect);
+
+	this->CachedStrings[CachedString::LevelDebuff] = "";
 }
 
 

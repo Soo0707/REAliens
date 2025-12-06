@@ -69,10 +69,12 @@ void GameDrawSystem::DrawLighting(const Game& game) noexcept
 
 void GameDrawSystem::DrawScreenLayer(const Game& game) noexcept
 {
+	size_t ticks = game.GlobalData->Ticks;
+
 	for (auto const &text : game.GameTexts)
 	{
 		if (CheckCollisionRecs(game.UpdateArea, text.Rect))
-			text.Draw();
+			text.Draw(ticks);
 	}
 }
 
@@ -125,6 +127,8 @@ void GameDrawSystem::DrawOverlay(const Game& game) noexcept
 	DrawText(game.GlobalData->CachedStrings.at(CachedString::Duration).c_str(), 20, 20, 24, LIGHTGRAY);
 	DrawText(game.GlobalData->CachedStrings.at(CachedString::LayerText).c_str(), 20, 50, 24, LIGHTGRAY);
 	DrawText(game.GlobalData->CachedStrings.at(CachedString::LevelText).c_str(), 20, 80, 24, LIGHTGRAY);
+
+	DrawText(game.GlobalData->CachedStrings.at(CachedString::LevelDebuff).c_str(), 20, 110, 24, GOLD);
 }
 
 

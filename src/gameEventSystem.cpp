@@ -1,6 +1,7 @@
 #include "gameEventSystem.hpp"
 
 #include <unordered_map>
+#include <cmath>
 
 #include "globalDataWrapper.hpp"
 #include "constants.hpp"
@@ -99,5 +100,5 @@ void GameEventSystem::MagnetismExpire(Game& game, size_t expiry, std::unordered_
 
 void GameEventSystem::IncreasePlayerSpeed(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
-	game.PlayerInstance->Speed *= 1.2 * game.GlobalData->Events.at(Event::IncreasePlayerSpeed);
+	game.PlayerInstance->Speed *= pow(1.2, game.GlobalData->Events.at(Event::IncreasePlayerSpeed));
 }

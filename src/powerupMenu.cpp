@@ -45,7 +45,7 @@ void PowerupMenu::Draw(RenderTexture2D& canvas) const noexcept
 		DrawText(this->SelectionList[2].DisplayName.c_str(), x3, 460, 24, GOLD);
 		DrawText(this->SelectionList[2].Description, x6, 494, 21, GRAY);
 
-		DrawText("[TAB] Toggle Powerup Menu, [Enter] Roll The Slots", 365, 580, 21, LIGHTGRAY);
+		DrawText("[TAB] Toggle Powerup Menu, [Enter] LET'S GO GAMBLING!!!", 326, 580, 21, LIGHTGRAY);
 
 		DrawText(this->GlobalData->CachedStrings.at(CachedString::UnclaimedPowerups).c_str(), 50, 670, 21, LIGHTGRAY);
 	EndTextureMode();
@@ -102,7 +102,7 @@ void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
 {
 	auto handler_function = this->ApplyHandles[static_cast<size_t>(powerup)];
 
-	(this->*handler_function)(); // ->* binds 'this' to the copy of the method
+	(this->*handler_function)();
 
 	PowerupMenu::GenerateList();
 
@@ -118,8 +118,6 @@ void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
 		this->Gamble = false;
 	}
 }
-
-
 
 
 void PowerupMenu::ApplyEffect(const Effect effect, const Event event, const unsigned int duration) noexcept
@@ -225,7 +223,7 @@ void PowerupMenu::ApplyLifeSteal() noexcept
 void PowerupMenu::ApplyPlotArmour() noexcept
 {
 	if (this->GlobalData->Events.count(Event::IncreasePlotArmour))
-		this->GlobalData->Events[Event::IncreasePlotArmour] += 1;
+		this->GlobalData->Events[Event::IncreasePlotArmour]++;
 	else
 		this->GlobalData->Events[Event::IncreasePlotArmour] = 1;
 }
@@ -233,13 +231,12 @@ void PowerupMenu::ApplyPlotArmour() noexcept
 void PowerupMenu::ApplySpeedBoots() noexcept
 {
 	if (this->GlobalData->Events.count(Event::IncreasePlayerSpeed))
-		this->GlobalData->Events[Event::IncreasePlayerSpeed] += 1;
+		this->GlobalData->Events[Event::IncreasePlayerSpeed]++;
 	else
 		this->GlobalData->Events[Event::IncreasePlayerSpeed] = 1;
 }
 
 void PowerupMenu::ApplyBabyOil() noexcept
 {
-	this->GlobalData->Attributes[Attribute::SlideDuration] *= 1.2f;
-	this->GlobalData->Attributes[Attribute::SlideSpeed] *= 1.1f;
+	this->GlobalData->Attributes[Attribute::SlideSpeed] *= 1.2f;
 }

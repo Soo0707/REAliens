@@ -86,6 +86,8 @@ unsigned int Collisions::Aura(Game& game) noexcept
 		aura_size
 	};
 
+	size_t ticks = game.GlobalData->Ticks;
+
 	for (auto &enemy : game.Enemies)
 	{
 		if (enemy.Layer == game.GlobalData->CurrentLayer && CheckCollisionRecs(aura, enemy.Rect))
@@ -93,7 +95,19 @@ unsigned int Collisions::Aura(Game& game) noexcept
 			enemy.Health -= aura_damage;
 			enemy.FlashSprite(game.GlobalData->Ticks);
 
-			game.GameTexts.emplace_back(enemy.Rect.x, enemy.Rect.y, std::to_string(static_cast<int>(aura_damage)), game.GlobalData->Ticks);
+			game.GameTexts.emplace_back(
+					enemy.Rect.x,
+					enemy.Rect.y, 
+					(Vector2) { 0, -1 }, 
+					64.0f, 
+					std::to_string(static_cast<unsigned int>(aura_damage)), 
+					24,
+					MAGENTA,
+					true,
+					ticks,
+					ticks + TICK_RATE / 4
+					);
+
 			total_hit++;
 		}
 	}

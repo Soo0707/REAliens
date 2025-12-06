@@ -4,6 +4,7 @@
 #include <cstddef>
 
 #include "raylib.h"
+
 #include "settingsManager.hpp"
 #include "assetManager.hpp"
 #include "game.hpp"

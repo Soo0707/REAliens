@@ -138,15 +138,18 @@ void Game::Update() noexcept
 
 void Game::UpdateEnemies() noexcept
 {
-	if ((this->GlobalData->Ticks - this->LastSpawn >= SECONDS_TO_TICKS(30)) || this->Enemies.size() == 0)
+	size_t ticks = this->GlobalData->Ticks;
+
+	if ((ticks - this->LastSpawn >= SECONDS_TO_TICKS(30)) || this->Enemies.size() == 0)
 	{
 		GameHelper::SpawnEnemies(*this);
-		this->LastSpawn = this->GlobalData->Ticks;
+		this->LastSpawn = ticks;
 	}
 
 	bool has_greenbull = this->GlobalData->Effects.count(Effect::Greenbull);
 	bool is_sliding = this->PlayerInstance->Sliding;
 	bool is_stinky = this->GlobalData->Effects.count(Effect::Stinky);
+
 
 	for (auto &enemy : this->Enemies)
 	{
@@ -154,7 +157,7 @@ void Game::UpdateEnemies() noexcept
 
 		if (enemy.Layer == this->GlobalData->CurrentLayer && CheckCollisionRecs(this->UpdateArea, enemy.Rect))
 		{
-			enemy.Update(this->PlayerInstance->Centre, this->GlobalData->Ticks, is_stinky);
+			enemy.Update(this->PlayerInstance->Centre, ticks, is_stinky);
 
 			GameHelper::LoopOverMap(*this->Assets, enemy.Rect);
 			
@@ -167,7 +170,19 @@ void Game::UpdateEnemies() noexcept
 
 		if (slide_damage > 0)
 		{
-			this->GameTexts.emplace_back(enemy.Rect.x, enemy.Rect.y, std::to_string(slide_damage), this->GlobalData->Ticks);
+			this->GameTexts.emplace_back( 
+					enemy.Rect.x,
+					enemy.Rect.y,
+					(Vector2) { 0, -1 },
+					64.0f,
+					std::to_string(slide_damage),
+					24,
+					ORANGE,
+					true,
+					ticks,
+					ticks + TICK_RATE / 4
+					);
+
 			this->GlobalData->TotalDamage += slide_damage;
 		}
 
@@ -186,6 +201,7 @@ void Game::UpdateEnemies() noexcept
 void Game::UpdateProjectiles() noexcept
 {
 	unsigned int total_damage_done = 0;
+	size_t ticks = this->GlobalData->Ticks;
 
 	for (auto &projectile : this->Projectiles)
 	{
@@ -198,7 +214,20 @@ void Game::UpdateProjectiles() noexcept
 			unsigned int damage = Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData); 
 
 			if (damage > 0)
-				this->GameTexts.emplace_back(projectile.Rect.x, projectile.Rect.y, std::to_string(damage), this->GlobalData->Ticks);
+			{
+				this->GameTexts.emplace_back( 
+						projectile.Rect.x,
+						projectile.Rect.y,
+						(Vector2) { 0, -1 },
+						64.0f,
+						std::to_string(damage),
+						24,
+						YELLOW,
+						true,
+						ticks,
+						ticks + TICK_RATE / 4
+						);
+			}
 
 			total_damage_done += damage;
 		}
@@ -238,7 +267,8 @@ void Game::UpdateGameTexts() noexcept
 			text.Update();
 	}
 
-	std::erase_if(this->GameTexts, [ticks = this->GlobalData->Ticks](const GameText& text) { return (ticks >= text.Expiry); });
+	size_t ticks = this->GlobalData->Ticks;
+	std::erase_if(this->GameTexts, [ticks](const GameText& text) { return (ticks >= text.Expiry); });
 }
 
 void Game::UpdatePlayer() noexcept
