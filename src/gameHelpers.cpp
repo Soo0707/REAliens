@@ -119,8 +119,8 @@ void GameHelper::NearPlayerLocation(size_t spawn_count, Game& game, std::vector<
 
 		locations.emplace_back(
 				(Vector2) {
-					static_cast<float>( game.PlayerInstance->Rect.x + rand_x ),
-					static_cast<float>( game.PlayerInstance->Rect.y + rand_y )
+					static_cast<float>( game.PlayerInstance->Rect.x + rand_x * 32 ),
+					static_cast<float>( game.PlayerInstance->Rect.y + rand_y * 32)
 				});
 	}
 }

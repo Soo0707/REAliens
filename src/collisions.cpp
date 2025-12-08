@@ -47,9 +47,9 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 {
 	if (enemy.CanLeAttack && CheckCollisionCircleRec(player.Centre, player.Radius, enemy.Rect))
 	{
-		unsigned int scale = static_cast<unsigned int>(enemy.Scale);
+		player.Health -= enemy.Damage;
 
-		player.Health -= EnemyAttributes[static_cast<size_t>(enemy.Type)].damage * scale;
+		unsigned int scale = static_cast<unsigned int>(enemy.Scale);
 
 		if (!global_data.Effects.count(Effect::Milk))
 			Collisions::LeAttackHooks[static_cast<size_t>(enemy.Type)](global_data, scale);
@@ -101,9 +101,8 @@ unsigned int Collisions::Aura(Game& game) noexcept
 					(Vector2) { 0, -1 }, 
 					64.0f, 
 					std::to_string(static_cast<unsigned int>(aura_damage)), 
-					24,
+					42,
 					MAGENTA,
-					true,
 					ticks,
 					ticks + TICK_RATE / 4
 					);

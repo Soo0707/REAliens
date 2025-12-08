@@ -51,6 +51,7 @@ class Enemy
 		float Speed;
 
 		float Scale;
+		float Damage;
 		int Layer;
 
 		Vector2 Direction = { 0.0f, 0.0f };

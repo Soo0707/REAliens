@@ -182,9 +182,8 @@ void Game::UpdateEnemies() noexcept
 					(Vector2) { 0, -1 },
 					64.0f,
 					std::to_string(slide_damage),
-					24,
+					52,
 					ORANGE,
-					true,
 					ticks,
 					ticks + TICK_RATE / 4
 					);
@@ -227,9 +226,8 @@ void Game::UpdateProjectiles() noexcept
 						(Vector2) { 0, -1 },
 						64.0f,
 						std::to_string(damage),
-						24,
+						48,
 						YELLOW,
-						true,
 						ticks,
 						ticks + TICK_RATE / 4
 						);

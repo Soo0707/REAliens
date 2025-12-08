@@ -19,23 +19,24 @@ Enemy::Enemy(float pos_x, float pos_y, float level_scale, int layer, AssetManage
 
 	this->Speed = EnemyAttributes[type_index].speed;
 
+	this->Damage = EnemyAttributes[type_index].damage * level_scale;
+
 	this->AnimationSpeed = EnemyAttributes[type_index].animation_speed;
 	this->AnimationFrames = EnemyAttributes[type_index].animation_frames;
 
 	this->Health = EnemyAttributes[type_index].health * level_scale;
-
 	this->Image = assets.Textures.at(EnemyAttributes[type_index].texture_key);
-
 
 	if ((this->Modifiers & BehaviourModifier::Big) == BehaviourModifier::Big)
 	{
-		int scale = GetRandomValue(2, 5);
+		float scale = static_cast<float>(GetRandomValue(2, 5));
 
 		this->Rect.width *= scale;
 		this->Rect.height *= scale;
 
 		this->Speed *= (1 / scale);
 		this->Health *= scale;
+		this->Damage *= level_scale * scale;
 
 		this->AnimationSpeed *= scale;
 		this->Scale = scale;
