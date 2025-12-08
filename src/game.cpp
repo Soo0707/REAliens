@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <vector>
 #include <string>
+#include <iostream>
 
 #include "raylib.h"
 
@@ -116,10 +117,11 @@ void Game::Update() noexcept
 
 		while (this->CollectedXp >= this->LevelUpTreshold)
 		{
-			this->CollectedXp -= this->Level
-			GameHelper::LevelUp(*this, *this->Settings);
-		}
+			size_t distance = this->CollectedXp - this->LevelUpTreshold;
 
+			GameHelper::LevelUp(*this, *this->Settings);
+			this->CollectedXp = distance;
+		}
 
 		GameInputSystem::HandleTickedInput(*this);
 
@@ -359,7 +361,7 @@ void Game::Reset() noexcept
 	this->Xps.clear();
 	this->GameTexts.clear();
 
-	this->CollectedXp = 0;
+	this->CollectedXp = 60;
 	this->LevelUpTreshold = 5;
 
 	this->LastLMB = 0;
