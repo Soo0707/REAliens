@@ -114,8 +114,12 @@ void Game::Update() noexcept
 	{
 		Game::UpdateTimeouts();
 
-		if (this->CollectedXp >= this->LevelUpTreshold)
+		while (this->CollectedXp >= this->LevelUpTreshold)
+		{
+			this->CollectedXp -= this->Level
 			GameHelper::LevelUp(*this, *this->Settings);
+		}
+
 
 		GameInputSystem::HandleTickedInput(*this);
 

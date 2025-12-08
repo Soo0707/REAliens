@@ -26,9 +26,10 @@ Enemy::Enemy(float pos_x, float pos_y, float level_scale, int layer, AssetManage
 
 	this->Image = assets.Textures.at(EnemyAttributes[type_index].texture_key);
 
+
 	if ((this->Modifiers & BehaviourModifier::Big) == BehaviourModifier::Big)
 	{
-		float scale = static_cast<float>(GetRandomValue(2, 5));
+		int scale = GetRandomValue(2, 5);
 
 		this->Rect.width *= scale;
 		this->Rect.height *= scale;
@@ -40,7 +41,7 @@ Enemy::Enemy(float pos_x, float pos_y, float level_scale, int layer, AssetManage
 		this->Scale = scale;
 	}
 	else
-		this->Scale = 1.0f;
+		this->Scale = 1;
 
 	if ((this->Modifiers & BehaviourModifier::IncreasedSpeed) == BehaviourModifier::IncreasedSpeed)
 	{

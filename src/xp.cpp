@@ -25,5 +25,5 @@ void Xp::Draw() const noexcept
 
 void Xp::DrawLightmap() const noexcept
 {
-	DrawCircleGradient(this->Centre.x, this->Centre.y, 48, GREEN, LIGHTGRAY);
+	DrawCircleGradient(this->Centre.x, this->Centre.y, 24, GREEN, LIGHTGRAY);
 }
