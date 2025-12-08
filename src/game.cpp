@@ -359,7 +359,7 @@ void Game::Reset() noexcept
 	this->Xps.clear();
 	this->GameTexts.clear();
 
-	this->CollectedXp = 60;
+	this->CollectedXp = 0;
 	this->LevelUpTreshold = 5;
 
 	this->LastLMB = 0;

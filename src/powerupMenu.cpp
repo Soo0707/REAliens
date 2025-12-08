@@ -94,8 +94,10 @@ void PowerupMenu::HandleInput() noexcept
 		this->GlobalData->ActiveState = State::Game;
 	}
 
-	if (IsKeyPressed(KEY_ENTER))
+	if (IsKeyPressed(KEY_ENTER) && this->Gamble == false)
 		this->Gamble = true;
+	else if (IsKeyPressed(KEY_ENTER) && this->Gamble == true)
+		this->Gamble = false;
 }
 
 void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
