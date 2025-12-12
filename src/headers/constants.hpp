@@ -30,4 +30,4 @@ inline constexpr unsigned int PLAYER_TEXTURE_TILE_SIZE = 50;
 	return ticks / TICK_RATE;
 }
 
-static constexpr Color CYAN = { 0, 243, 255, 255 };
+constexpr Color CYAN = { 0, 243, 255, 255 };

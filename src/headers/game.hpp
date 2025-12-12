@@ -14,6 +14,7 @@
 #include "enemy.hpp"
 #include "xp.hpp"
 #include "gameText.hpp"
+#include "particle.hpp"
 
 class Game
 {
@@ -35,6 +36,7 @@ class Game
 		std::vector<Projectile> Projectiles;
 		std::vector<Xp> Xps;
 		std::vector<GameText> GameTexts;
+		std::vector<Particle> Particles;
 
 		std::unique_ptr<Player> PlayerInstance;
 
@@ -73,6 +75,7 @@ class Game
 		void UpdateXps() noexcept;
 
 		void UpdateGameTexts() noexcept;
+		void UpdateParticles() noexcept;
 
 		float Accumulator = 0.0f;
 		size_t LastSpawn = 0;

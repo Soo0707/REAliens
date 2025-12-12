@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "raylib.h"
+#include "raymath.h"
 
 #include "globalDataWrapper.hpp"
 
@@ -135,6 +136,7 @@ void Game::Update() noexcept
 		Game::UpdateXps();
 
 		Game::UpdateGameTexts();
+		Game::UpdateParticles();
 
 		this->Accumulator -= TICK_TIME;
 		this->GlobalData->Ticks++;
@@ -206,10 +208,19 @@ void Game::UpdateEnemies() noexcept
 void Game::UpdateProjectiles() noexcept
 {
 	unsigned int total_damage_done = 0;
+
 	size_t ticks = this->GlobalData->Ticks;
+	float rand_scale = static_cast<float>(ticks % TICK_RATE) / TICK_RATE;
+
+	float particle_size = rand_scale * 25.0f;
+	float particle_rotation = rand_scale * 90.0f;
+
+	size_t particle_expiry = ticks + TICK_RATE / 2;
 
 	for (auto &projectile : this->Projectiles)
 	{
+		Vector2 particle_direction = Vector2Invert(projectile.Direction);
+
 		if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
 		{
 			projectile.Update();
@@ -230,6 +241,19 @@ void Game::UpdateProjectiles() noexcept
 						YELLOW,
 						ticks,
 						ticks + TICK_RATE / 4
+						);
+
+				this->Particles.emplace_back(
+						projectile.Rect.x,
+						projectile.Rect.y,
+						particle_size,
+						particle_rotation,
+						ticks,
+						particle_expiry,
+						particle_direction,
+						RED,
+						RED,
+						*this->Assets
 						);
 			}
 
@@ -273,6 +297,19 @@ void Game::UpdateGameTexts() noexcept
 
 	size_t ticks = this->GlobalData->Ticks;
 	std::erase_if(this->GameTexts, [ticks](const GameText& text) { return (ticks >= text.Expiry); });
+}
+
+void Game::UpdateParticles() noexcept
+{
+	size_t ticks = this->GlobalData->Ticks;
+
+	for (auto &particle : this->Particles)
+	{
+		if (CheckCollisionRecs(this->UpdateArea, particle.Rect))
+			particle.Update(ticks);
+	}
+
+	std::erase_if(this->Particles, [ticks](const Particle& particle) { return (ticks >= particle.Expiry); });
 }
 
 void Game::UpdatePlayer() noexcept

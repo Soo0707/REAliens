@@ -5,6 +5,8 @@
 
 void GameDrawSystem::DrawGame(const Game& game) noexcept
 {
+	size_t ticks = game.GlobalData->Ticks;
+
 	Rectangle viewport = game.UpdateArea;
 
 	if (viewport.x < 0)
@@ -43,6 +45,12 @@ void GameDrawSystem::DrawGame(const Game& game) noexcept
 	{
 		if (CheckCollisionRecs(game.UpdateArea, projectile.Rect))
 			projectile.Draw();
+	}
+
+	for (auto const &particle : game.Particles)
+	{
+		if (CheckCollisionRecs(game.UpdateArea, particle.Rect))
+			particle.Draw(ticks);
 	}
 
 	if (!game.GlobalData->Effects.count(Effect::Invisible))

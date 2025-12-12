@@ -19,6 +19,7 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  src/mainMenu.cpp\
  src/globalDataWrapper.cpp\
  src/settingsManager.cpp\
+ src/particle.cpp\
  -o /mnt/tmpfs/out.exe\
  -flto=auto\
  -O3\
