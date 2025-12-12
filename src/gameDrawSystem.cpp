@@ -80,34 +80,33 @@ void GameDrawSystem::DrawScreenLayer(const Game& game) noexcept
 
 void GameDrawSystem::DrawOverlay(const Game& game) noexcept
 {
-	static constexpr Rectangle HEALTH_BACKGROUND = { 1060, 20, 200, 10 };
-	static constexpr Rectangle XP_BACKGROUND = { 100, 680, 1080, 15 };
-
-	float health_percentage = game.PlayerInstance->Health / game.PlayerInstance->HealthMax;
-
-	Rectangle health_bar = {
-		1060,
-		20,
-		health_percentage * 200,
-		10
-	};
+	DrawTexture(game.Assets->Textures.at(TextureKey::HealthBarBackground), 1060, 20, WHITE);
 
 	bool is_poisoned = game.GlobalData->Effects.count(Effect::Poison);
+	float health_percentage = game.PlayerInstance->Health / game.PlayerInstance->HealthMax;
 
-	float xp_percentage = (float) game.CollectedXp / (float) game.LevelUpTreshold;
+	DrawTexturePro(
+			game.Assets->Textures.at(TextureKey::WhitePixel),
+			(Rectangle) { 0, 0, 1, 1 },
+			(Rectangle) { 1060, 20, health_percentage * 200, 10 },
+			(Vector2) { 0.0f, 0.0f },
+			0.0f,
+			(is_poisoned) ? VIOLET : GREEN
+			);
 
-	Rectangle xp_bar = {
-		100,
-		680,
-		xp_percentage * 1080,
-		15
-	};
 
-	DrawRectangleRec(HEALTH_BACKGROUND, BLACK);
-	DrawRectangleRec(health_bar, (is_poisoned) ? VIOLET : GREEN);
+	DrawTexture(game.Assets->Textures.at(TextureKey::XpBarBackground), 100, 680, WHITE);
 
-	DrawRectangleRec(XP_BACKGROUND, BLACK);
-	DrawRectangleRec(xp_bar, CYAN);
+	float xp_percentage = static_cast<float>(game.CollectedXp) / static_cast<float>(game.LevelUpTreshold);
+
+	DrawTexturePro(
+			game.Assets->Textures.at(TextureKey::WhitePixel),
+			(Rectangle) { 0, 0, 1, 1 },
+			(Rectangle) { 100, 680, xp_percentage * 1080, 15 },
+			(Vector2) { 0.0f, 0.0f },
+			0.0f,
+			CYAN
+			);
 
 	if (game.GlobalData->Effects.count(Effect::Greenbull))
 		GameDrawSystem::DrawGreenbull(game);
@@ -134,59 +133,41 @@ void GameDrawSystem::DrawOverlay(const Game& game) noexcept
 
 void GameDrawSystem::DrawGreenbull(const Game& game) noexcept
 {
-	static constexpr Rectangle GREENBULL_SQUARE = { 1205, 40, 15, 15 };
-
 	size_t expiry = game.GlobalData->Events.at(Event::GreenbullExpire) - game.GlobalData->Ticks;
 
 	if (expiry >= SECONDS_TO_TICKS(5))
-		DrawRectangleRec(GREENBULL_SQUARE, GREEN);
+		DrawTexture(game.Assets->Textures.at(TextureKey::GreenbullIcon), 1205, 40, WHITE);
 	else if ((expiry / (TICK_RATE / 2)) % 2)
-		DrawRectangleRec(GREENBULL_SQUARE, GREEN);
+		DrawTexture(game.Assets->Textures.at(TextureKey::GreenbullIcon), 1205, 40, WHITE);
 }
 
 void GameDrawSystem::DrawMilk(const Game& game) noexcept
 {
-	static constexpr Rectangle MILK_SQUARE = { 1225, 40, 15, 15 };
-
 	size_t expiry = game.GlobalData->Events.at(Event::MilkExpire) - game.GlobalData->Ticks;
 
 	if (expiry >= SECONDS_TO_TICKS(5))
-		DrawRectangleRec(MILK_SQUARE, WHITE);
+		DrawTexture(game.Assets->Textures.at(TextureKey::MilkIcon), 1225, 40, WHITE);
 	else if ((expiry / (TICK_RATE / 2)) % 2)
-		DrawRectangleRec(MILK_SQUARE, WHITE);
+		DrawTexture(game.Assets->Textures.at(TextureKey::MilkIcon), 1225, 40, WHITE);
 }
 
 
 void GameDrawSystem::DrawDrunk(const Game& game) noexcept
 {
-	static constexpr Rectangle DRUNK_SQUARE = { 1245, 40, 15, 15 };
 	size_t expiry = game.GlobalData->Events.at(Event::DrunkExpire) - game.GlobalData->Ticks;
 
 	if (expiry >= SECONDS_TO_TICKS(5))
-		DrawRectangleRec(DRUNK_SQUARE, YELLOW);
+		DrawTexture(game.Assets->Textures.at(TextureKey::DrunkIcon), 1245, 40, WHITE);
 	else if ((expiry / (TICK_RATE / 2)) % 2)
-		DrawRectangleRec(DRUNK_SQUARE, YELLOW);
+		DrawTexture(game.Assets->Textures.at(TextureKey::DrunkIcon), 1245, 40, WHITE);
 }
 
 void GameDrawSystem::DrawMagnetism(const Game& game) noexcept
 {
-	static constexpr Rectangle MAGNETISM_HALF_1 = { 1185, 40, 8, 15 };
-	static constexpr Rectangle MAGNETISM_HALF_2 = { 1192, 40, 7, 15 };
-
 	size_t expiry = game.GlobalData->Events.at(Event::MagnetismExpire) - game.GlobalData->Ticks;
 
 	if (expiry >= SECONDS_TO_TICKS(5))
-	{
-		DrawRectangleRec(MAGNETISM_HALF_1, DARKBLUE);
-		DrawRectangleRec(MAGNETISM_HALF_2, RED);
-	}
+		DrawTexture(game.Assets->Textures.at(TextureKey::MagnetismIcon), 1185, 40, WHITE);
 	else if ((expiry / (TICK_RATE / 2)) % 2)
-	{
-		DrawRectangleRec(MAGNETISM_HALF_1, DARKBLUE);
-		DrawRectangleRec(MAGNETISM_HALF_2, RED);
-	}
+		DrawTexture(game.Assets->Textures.at(TextureKey::MagnetismIcon), 1185, 40, WHITE);
 }
-
-
-
-

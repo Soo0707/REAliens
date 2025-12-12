@@ -18,7 +18,16 @@ enum class TextureKey
 	Poison,
 	Trapper,
 
-	Player
+	Player,
+
+	MilkIcon,
+	MagnetismIcon,
+	GreenbullIcon,
+	DrunkIcon,
+
+	WhitePixel,
+	HealthBarBackground,
+	XpBarBackground
 };
 
 class AssetManager
@@ -30,6 +39,7 @@ class AssetManager
 		std::unordered_map<TextureKey, Texture2D> Textures;
 
 		Texture2D Ground;
+
 	private:
 		void LoadTextures() noexcept;
 		void UnloadTextures() noexcept;

@@ -31,9 +31,8 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  -lgdi32\
  -lwinmm\
  -static\
- -march=haswell\
- -Wl,--strip-all
-#-Wall
+ -march=haswell
+ #-Wall
 #-fno-exceptions
 #-Wextra\
 #-Wpedantic

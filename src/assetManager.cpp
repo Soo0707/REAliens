@@ -59,7 +59,16 @@ TextureKey AssetManager::GetTextureKeyFromString(std::string filename) const noe
 
 		{ "poison.png", TextureKey::Poison },
 		{ "trapper.png", TextureKey::Trapper },
-		{ "player.png", TextureKey::Player }
+		{ "player.png", TextureKey::Player },
+
+		{ "milk_icon.png", TextureKey::MilkIcon },
+		{ "magnetism_icon.png", TextureKey::MagnetismIcon },
+		{ "greenbull_icon.png", TextureKey::GreenbullIcon },
+		{ "drunk_icon.png", TextureKey::DrunkIcon },
+
+		{ "white_pixel.png", TextureKey::WhitePixel },
+		{ "health_bar_background.png", TextureKey::HealthBarBackground },
+		{ "xp_bar_background.png", TextureKey::XpBarBackground }
 	};
 
 	return (lookup.count(filename)) ? lookup.at(filename) : TextureKey::None;
