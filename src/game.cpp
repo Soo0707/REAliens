@@ -211,15 +211,16 @@ void Game::UpdateProjectiles() noexcept
 
 	size_t ticks = this->GlobalData->Ticks;
 	float rand_scale = static_cast<float>(ticks % TICK_RATE) / TICK_RATE;
+	float particle_speed = static_cast<float>(GetRandomValue(12, 64));
 
-	float particle_size = rand_scale * 25.0f;
-	float particle_rotation = rand_scale * 90.0f;
+	float particle_size = static_cast<float>(GetRandomValue(5, 15));
+	float particle_rotation = static_cast<float>(GetRandomValue(0, 90));
 
-	size_t particle_expiry = ticks + TICK_RATE / 2;
+	size_t particle_expiry = ticks + static_cast<size_t>(GetRandomValue(120, TICK_RATE));
 
 	for (auto &projectile : this->Projectiles)
 	{
-		Vector2 particle_direction = Vector2Invert(projectile.Direction);
+		Vector2 particle_direction = projectile.Direction;
 
 		if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
 		{
@@ -246,6 +247,7 @@ void Game::UpdateProjectiles() noexcept
 				this->Particles.emplace_back(
 						projectile.Rect.x,
 						projectile.Rect.y,
+						particle_speed,
 						particle_size,
 						particle_rotation,
 						ticks,
