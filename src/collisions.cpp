@@ -96,18 +96,11 @@ unsigned int Collisions::Aura(Game& game) noexcept
 			enemy.FlashSprite(game.GlobalData->Ticks);
 
 			game.GameTexts.emplace_back(
-					enemy.Rect.x,
-					enemy.Rect.y, 
-					(Vector2) { 0, -1 }, 
-					64.0f, 
-					std::to_string(static_cast<unsigned int>(aura_damage)), 
-					42,
-					MAGENTA,
-					ticks,
-					ticks + TICK_RATE / 4
+					enemy.Rect.x, enemy.Rect.y, (Vector2) { 0, -1 }, 64.0f, std::to_string(static_cast<unsigned int>(aura_damage)), 
+					42, MAGENTA, ticks,	ticks + TICK_RATE / 4
 					);
 
-			for (unsigned int i = static_cast<unsigned int>(aura_damage); i > 0; i -= 10)
+			for (int i = 0; i < 15; i++)
 			{
 				float size = static_cast<float>(GetRandomValue(10, 20));
 				float rotation = static_cast<float>(GetRandomValue(0, 90));

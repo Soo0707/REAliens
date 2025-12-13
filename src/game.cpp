@@ -153,7 +153,7 @@ void Game::UpdateEnemies() noexcept
 {
 	size_t ticks = this->GlobalData->Ticks;
 
-	if (ticks - this->LastSpawn >= SECONDS_TO_TICKS(30))
+	if (ticks - this->LastSpawn >= SECONDS_TO_TICKS(30) || !this->Enemies.size())
 	{
 		GameHelper::SpawnEnemies(*this);
 		this->LastSpawn = ticks;
@@ -188,22 +188,22 @@ void Game::UpdateEnemies() noexcept
 					);
 
 			this->GlobalData->TotalDamage += slide_damage;
-		}
 
-		for (; slide_damage > 0; slide_damage -= 10)
-		{
-			float size = static_cast<float>(GetRandomValue(10, 25));
-			float rotation = static_cast<float>(GetRandomValue(0, 90));
-			size_t expiry = ticks + static_cast<size_t>(GetRandomValue(60, TICK_RATE));
-			Vector2 velocity = this->PlayerInstance->Direction;
+			for (int i = 0; i < 20; i++)
+			{
+				float size = static_cast<float>(GetRandomValue(10, 25));
+				float rotation = static_cast<float>(GetRandomValue(0, 90));
+				size_t expiry = ticks + static_cast<size_t>(GetRandomValue(60, TICK_RATE));
+				Vector2 velocity = this->PlayerInstance->Direction;
 
-			velocity.x += static_cast<float>(GetRandomValue(-192, 192));
-			velocity.y += static_cast<float>(GetRandomValue(-192, 192));
+				velocity.x += static_cast<float>(GetRandomValue(-192, 192));
+				velocity.y += static_cast<float>(GetRandomValue(-192, 192));
 
-			this->Particles.emplace_back(
-					enemy.Rect.x, enemy.Rect.y, size, rotation, ticks,
-					expiry, velocity, ORANGE, RED, *this->Assets
-					);
+				this->Particles.emplace_back(
+						enemy.Rect.x, enemy.Rect.y, size, rotation, ticks,
+						expiry, velocity, ORANGE, RED, *this->Assets
+						);
+			}
 		}
 
 		if (enemy.Health <= 0)
@@ -223,7 +223,7 @@ void Game::UpdateProjectiles() noexcept
 	unsigned int total_damage_done = 0;
 
 	size_t ticks = this->GlobalData->Ticks;
-	int spawn_particles = !(ticks % (TICK_RATE / 4));
+	bool spawn_particle = !(ticks % (TICK_RATE / 4));
 
 	for (auto &projectile : this->Projectiles)
 	{
@@ -241,9 +241,25 @@ void Game::UpdateProjectiles() noexcept
 						projectile.Rect.x, projectile.Rect.y, (Vector2) { 0, -1 }, 64.0f, std::to_string(damage),
 						48,	YELLOW, ticks, ticks + TICK_RATE / 4
 						);
+
+				for (int i = 0; i < 5; i++)
+				{
+					float size = static_cast<float>(GetRandomValue(5, 20));
+					float rotation = static_cast<float>(GetRandomValue(0, 90));
+					size_t expiry = ticks + static_cast<size_t>(GetRandomValue(120, TICK_RATE));
+					Vector2 velocity = projectile.Direction;
+
+					velocity.x += static_cast<float>(GetRandomValue(-96, 96));
+					velocity.y += static_cast<float>(GetRandomValue(-96, 96));
+
+					this->Particles.emplace_back(
+							projectile.Rect.x, projectile.Rect.y, size, rotation, ticks,
+							expiry, velocity, RED, RED, *this->Assets
+							);
+				}
 			}
 
-			for (int i = damage, j = spawn_particles; i > 0 || j; i /= 2)
+			if (spawn_particle)
 			{
 				float size = static_cast<float>(GetRandomValue(5, 20));
 				float rotation = static_cast<float>(GetRandomValue(0, 90));
@@ -255,17 +271,8 @@ void Game::UpdateProjectiles() noexcept
 
 				this->Particles.emplace_back(
 						projectile.Rect.x, projectile.Rect.y, size, rotation, ticks,
-						expiry, velocity, RED, RED, *this->Assets
+						expiry, velocity, projectile.Colour, projectile.Colour, *this->Assets
 						);
-
-				if (j)
-				{
-					this->Particles.emplace_back(
-							projectile.Rect.x, projectile.Rect.y, size, rotation, ticks,
-							expiry, velocity, projectile.Colour, projectile.Colour, *this->Assets
-							);
-					j = 0;
-				}
 			}
 
 			total_damage_done += damage;
