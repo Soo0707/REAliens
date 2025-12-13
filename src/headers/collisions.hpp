@@ -15,7 +15,7 @@ namespace Collisions
 {
 	unsigned int ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, GlobalDataWrapper& global_data) noexcept;
 	void LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& global_data) noexcept;
-	unsigned int SlideAttack(Player& player, Enemy& enemy) noexcept;
+	long long SlideAttack(Player& player, Enemy& enemy) noexcept;
 
 	unsigned int Aura(Game& game) noexcept;
 

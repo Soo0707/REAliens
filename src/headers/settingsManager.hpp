@@ -12,9 +12,8 @@ enum class SettingKey : size_t
 
 	UnlimitedPowerups,
 	TargetFramerate,
-	Seed,
-
 	DisableLevelDebuffs,
+
 	None
 };
 
@@ -32,7 +31,6 @@ class SettingsManager
 
 			{ SettingKey::TargetFramerate, 0 },
 			{ SettingKey::UnlimitedPowerups, 0 },
-			{ SettingKey::Seed, 0 },
 
 			{ SettingKey::DisableLevelDebuffs, 0 }
 		};

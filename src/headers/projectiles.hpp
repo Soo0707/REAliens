@@ -35,6 +35,7 @@ class Projectile
 		Vector2 Direction;
 
 		Rectangle Rect;
+		Color Colour;
 
 	private:
 		void BulletConstructor(float x, float y, const Vector2& direction, const GlobalDataWrapper& global_data, const AssetManager& assets) noexcept;

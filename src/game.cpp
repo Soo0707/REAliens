@@ -52,6 +52,11 @@ Game::Game(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<Asset
 		static_cast<float>(REFERENCE_WIDTH),
 		static_cast<float>(REFERENCE_HEIGHT)
 	};
+
+	this->Projectiles.reserve(100);
+	this->Xps.reserve(100);
+	this->GameTexts.reserve(100);
+	this->Particles.reserve(1000);
 }
 
 Game::~Game()
@@ -158,10 +163,9 @@ void Game::UpdateEnemies() noexcept
 	bool is_sliding = this->PlayerInstance->Sliding;
 	bool is_stinky = this->GlobalData->Effects.count(Effect::Stinky);
 
-
 	for (auto &enemy : this->Enemies)
 	{
-		unsigned int slide_damage = 0;
+		long long slide_damage = 0;
 
 		if (enemy.Layer == this->GlobalData->CurrentLayer && CheckCollisionRecs(this->UpdateArea, enemy.Rect))
 		{
@@ -179,18 +183,27 @@ void Game::UpdateEnemies() noexcept
 		if (slide_damage > 0)
 		{
 			this->GameTexts.emplace_back( 
-					enemy.Rect.x,
-					enemy.Rect.y,
-					(Vector2) { 0, -1 },
-					64.0f,
-					std::to_string(slide_damage),
-					52,
-					ORANGE,
-					ticks,
-					ticks + TICK_RATE / 4
+					enemy.Rect.x, enemy.Rect.y,	(Vector2) { 0, -1 }, 64.0f,	std::to_string(slide_damage),
+					52,	ORANGE, ticks, ticks + TICK_RATE / 4
 					);
 
 			this->GlobalData->TotalDamage += slide_damage;
+		}
+
+		for (; slide_damage > 0; slide_damage -= 10)
+		{
+			float size = static_cast<float>(GetRandomValue(10, 25));
+			float rotation = static_cast<float>(GetRandomValue(0, 90));
+			size_t expiry = ticks + static_cast<size_t>(GetRandomValue(60, TICK_RATE));
+			Vector2 velocity = this->PlayerInstance->Direction;
+
+			velocity.x += static_cast<float>(GetRandomValue(-192, 192));
+			velocity.y += static_cast<float>(GetRandomValue(-192, 192));
+
+			this->Particles.emplace_back(
+					enemy.Rect.x, enemy.Rect.y, size, rotation, ticks,
+					expiry, velocity, ORANGE, RED, *this->Assets
+					);
 		}
 
 		if (enemy.Health <= 0)
@@ -210,18 +223,10 @@ void Game::UpdateProjectiles() noexcept
 	unsigned int total_damage_done = 0;
 
 	size_t ticks = this->GlobalData->Ticks;
-	float rand_scale = static_cast<float>(ticks % TICK_RATE) / TICK_RATE;
-	float particle_speed = static_cast<float>(GetRandomValue(12, 64));
-
-	float particle_size = static_cast<float>(GetRandomValue(5, 15));
-	float particle_rotation = static_cast<float>(GetRandomValue(0, 90));
-
-	size_t particle_expiry = ticks + static_cast<size_t>(GetRandomValue(120, TICK_RATE));
+	int spawn_particles = !(ticks % (TICK_RATE / 4));
 
 	for (auto &projectile : this->Projectiles)
 	{
-		Vector2 particle_direction = projectile.Direction;
-
 		if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
 		{
 			projectile.Update();
@@ -233,30 +238,34 @@ void Game::UpdateProjectiles() noexcept
 			if (damage > 0)
 			{
 				this->GameTexts.emplace_back( 
-						projectile.Rect.x,
-						projectile.Rect.y,
-						(Vector2) { 0, -1 },
-						64.0f,
-						std::to_string(damage),
-						48,
-						YELLOW,
-						ticks,
-						ticks + TICK_RATE / 4
+						projectile.Rect.x, projectile.Rect.y, (Vector2) { 0, -1 }, 64.0f, std::to_string(damage),
+						48,	YELLOW, ticks, ticks + TICK_RATE / 4
 						);
+			}
+
+			for (int i = damage, j = spawn_particles; i > 0 || j; i /= 2)
+			{
+				float size = static_cast<float>(GetRandomValue(5, 20));
+				float rotation = static_cast<float>(GetRandomValue(0, 90));
+				size_t expiry = ticks + static_cast<size_t>(GetRandomValue(120, TICK_RATE));
+				Vector2 velocity = projectile.Direction;
+
+				velocity.x += static_cast<float>(GetRandomValue(-96, 96));
+				velocity.y += static_cast<float>(GetRandomValue(-96, 96));
 
 				this->Particles.emplace_back(
-						projectile.Rect.x,
-						projectile.Rect.y,
-						particle_speed,
-						particle_size,
-						particle_rotation,
-						ticks,
-						particle_expiry,
-						particle_direction,
-						RED,
-						RED,
-						*this->Assets
+						projectile.Rect.x, projectile.Rect.y, size, rotation, ticks,
+						expiry, velocity, RED, RED, *this->Assets
 						);
+
+				if (j)
+				{
+					this->Particles.emplace_back(
+							projectile.Rect.x, projectile.Rect.y, size, rotation, ticks,
+							expiry, velocity, projectile.Colour, projectile.Colour, *this->Assets
+							);
+					j = 0;
+				}
 			}
 
 			total_damage_done += damage;
@@ -276,6 +285,8 @@ void Game::UpdateProjectiles() noexcept
 void Game::UpdateXps() noexcept
 {
 	bool has_magnetism = this->GlobalData->Effects.count(Effect::Magnetism);
+	size_t ticks = this->GlobalData->Ticks;
+	bool spawn_particles = !(ticks % (TICK_RATE / 2));
 
 	for (auto &xp : this->Xps)
 	{
@@ -283,6 +294,19 @@ void Game::UpdateXps() noexcept
 		{
 			this->CollectedXp += xp.Value;
 			xp.Kill = true;
+		}
+
+		if (CheckCollisionRecs(this->UpdateArea, xp.Rect) && spawn_particles) 
+		{
+			float size = static_cast<float>(GetRandomValue(10, 25));
+			float rotation = static_cast<float>(GetRandomValue(0, 90));
+			size_t expiry = ticks + static_cast<size_t>(GetRandomValue(120, TICK_RATE));
+			Vector2 velocity = (Vector2) { static_cast<float>(GetRandomValue(-64, 64)), static_cast<float>(GetRandomValue(-96, -32)) };
+
+			this->Particles.emplace_back(
+					xp.Rect.x, xp.Rect.y, size, rotation, ticks,
+					expiry, velocity, GREEN, DARKGREEN, *this->Assets
+					);
 		}
 	}
 
@@ -397,6 +421,7 @@ void Game::Reset() noexcept
 	this->Projectiles.clear();
 	this->Xps.clear();
 	this->GameTexts.clear();
+	this->Particles.clear();
 
 	this->CollectedXp = 0;
 	this->LevelUpTreshold = 5;

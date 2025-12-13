@@ -9,8 +9,8 @@ class Particle
 {
 	public:
 		Particle(
-				float x, float y, float speed, float scale, float rotation, size_t creation, size_t expiry,
-				Vector2 direction, Color begin_colour, Color end_colour, AssetManager& assets
+				float x, float y, float scale, float rotation, size_t creation, size_t expiry,
+				Vector2 velocity, Color begin_colour, Color end_colour, AssetManager& assets
 				) noexcept;
 
 		~Particle() = default;
@@ -26,10 +26,9 @@ class Particle
 	private:
 		float Rotation;
 		float Scale;
-		float Speed;
 
 		size_t Creation;
-		Vector2 Direction;
+		Vector2 Velocity;
 
 		Color BeginColour;
 		Color EndColour;

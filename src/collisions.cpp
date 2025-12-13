@@ -59,7 +59,7 @@ void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& globa
 	}
 }
 
-unsigned int Collisions::SlideAttack(Player& player, Enemy& enemy) noexcept
+long long Collisions::SlideAttack(Player& player, Enemy& enemy) noexcept
 {
 	float damage_done = 0;
 
@@ -69,7 +69,7 @@ unsigned int Collisions::SlideAttack(Player& player, Enemy& enemy) noexcept
 		enemy.Health = 0;
 	}
 
-	return static_cast<unsigned int>(damage_done);
+	return static_cast<long long>(damage_done);
 }
 
 unsigned int Collisions::Aura(Game& game) noexcept
@@ -106,6 +106,19 @@ unsigned int Collisions::Aura(Game& game) noexcept
 					ticks,
 					ticks + TICK_RATE / 4
 					);
+
+			for (unsigned int i = static_cast<unsigned int>(aura_damage); i > 0; i -= 10)
+			{
+				float size = static_cast<float>(GetRandomValue(10, 20));
+				float rotation = static_cast<float>(GetRandomValue(0, 90));
+				size_t expiry = ticks + static_cast<size_t>(GetRandomValue(60, TICK_RATE));
+				Vector2 velocity = { static_cast<float>(GetRandomValue(-192, 192)), static_cast<float>(GetRandomValue(-192, 192)) } ;
+
+				game.Particles.emplace_back(
+						enemy.Rect.x, enemy.Rect.y, size, rotation, ticks,
+						expiry, velocity, PURPLE, RED, *game.Assets
+						);
+			}
 
 			total_hit++;
 		}

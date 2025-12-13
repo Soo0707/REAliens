@@ -32,9 +32,6 @@ int main(void)
 	std::shared_ptr<SettingsManager> settings = std::make_shared<SettingsManager>();
 	std::shared_ptr<GlobalDataWrapper> global_data = std::make_shared<GlobalDataWrapper>();
 
-	if (settings->Data.at(SettingKey::Seed) != 0)
-		SetRandomSeed(settings->Data.at(SettingKey::Seed));
-
 	unsigned int target_refresh_rate;
 
 	if (settings->Data.at(SettingKey::TargetFramerate) != 0)
