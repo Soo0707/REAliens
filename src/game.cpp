@@ -153,7 +153,7 @@ void Game::UpdateEnemies() noexcept
 {
 	size_t ticks = this->GlobalData->Ticks;
 
-	if ((ticks - this->LastSpawn >= SECONDS_TO_TICKS(30)) || this->Enemies.size() == 0)
+	if (ticks - this->LastSpawn >= SECONDS_TO_TICKS(30))
 	{
 		GameHelper::SpawnEnemies(*this);
 		this->LastSpawn = ticks;
