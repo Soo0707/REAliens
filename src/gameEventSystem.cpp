@@ -63,7 +63,7 @@ void GameEventSystem::PoisonTick(Game& game, size_t expiry, std::unordered_map<E
 
 void GameEventSystem::IncreasePlotArmour(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
-	game.PlayerInstance->HealthMax *= pow(1.5, game.GlobalData->Events.at(Event::IncreasePlotArmour));
+	game.PlayerInstance->HealthMax *= pow(2.0, game.GlobalData->Events.at(Event::IncreasePlotArmour));
 	game.PlayerInstance->Health = game.PlayerInstance->HealthMax;
 }
 

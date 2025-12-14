@@ -125,7 +125,11 @@ void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
 void PowerupMenu::ApplyEffect(const Effect effect, const Event event, const unsigned int duration) noexcept
 {
 	this->GlobalData->Effects.insert(effect);
-	this->GlobalData->Events[event] = this->GlobalData->Ticks + duration;
+
+	if (this->GlobalData->Events.count(event))
+		this->GlobalData->Events[event] += duration;
+	else
+		this->GlobalData->Events[event] = this->GlobalData->Ticks + duration;
 }
 
 void PowerupMenu::ApplyMilk() noexcept
