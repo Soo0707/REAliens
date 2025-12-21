@@ -6,29 +6,8 @@
 #include "settingsManager.hpp"
 #include "constants.hpp"
 
-#include <array>
-#include <string>
-
 void GameInputSystem::HandleTickedInput(Game& game) noexcept
 {
-	if (IsKeyDown(KEY_Q) && game.CanLayerDown && game.GlobalData->CurrentLayer - 1 >= 0)
-	{
-		game.GlobalData->CurrentLayer--;
-		game.GlobalData->CachedStrings[CachedString::LayerText] = "Current Layer: " + std::to_string(game.GlobalData->CurrentLayer);
-
-		game.LastLayerDown = game.GlobalData->Ticks;
-		game.CanLayerDown = false;
-	}
-
-	if (IsKeyDown(KEY_E) && game.CanLayerUp)
-	{
-		game.GlobalData->CurrentLayer++;
-		game.GlobalData->CachedStrings[CachedString::LayerText] = "Current Layer: " + std::to_string(game.GlobalData->CurrentLayer);
-
-		game.LastLayerUp = game.GlobalData->Ticks;
-		game.CanLayerUp = false;
-	}
-
 	if (IsKeyDown(KEY_SPACE))
 		game.GlobalData->Effects.erase(Effect::Trapped);
 

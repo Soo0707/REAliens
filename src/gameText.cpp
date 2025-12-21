@@ -6,9 +6,9 @@
 #include <string>
 #include <cstddef>
 
-GameText::GameText(float x, float y, Vector2 direction, float speed, std::string&& text, int size, Color colour, size_t creation, size_t expiry) noexcept : 
+GameText::GameText(float x, float y, float speed, std::string&& text, int size, Color colour, size_t creation, size_t expiry) noexcept : 
 	Rect(x, y, static_cast<float>(size), static_cast<float>(size)),
-	Direction(direction),
+	Direction({ 0.0f, -1.0f }),
 	Speed(speed),
 	Text(std::move(text)),
 	Size(size),

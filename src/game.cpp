@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <vector>
 #include <string>
-#include <iostream>
 
 #include "raylib.h"
 #include "raymath.h"
@@ -167,7 +166,7 @@ void Game::UpdateEnemies() noexcept
 	{
 		long long slide_damage = 0;
 
-		if (enemy.Layer == this->GlobalData->CurrentLayer && CheckCollisionRecs(this->UpdateArea, enemy.Rect))
+		if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
 		{
 			enemy.Update(this->PlayerInstance->Centre, ticks, is_stinky);
 
@@ -183,7 +182,7 @@ void Game::UpdateEnemies() noexcept
 		if (slide_damage > 0)
 		{
 			this->GameTexts.emplace_back( 
-					enemy.Rect.x, enemy.Rect.y,	(Vector2) { 0, -1 }, 64.0f,	std::to_string(slide_damage),
+					enemy.Rect.x, enemy.Rect.y, 64.0f, std::to_string(slide_damage),
 					52,	ORANGE, ticks, ticks + TICK_RATE / 4
 					);
 
@@ -238,7 +237,7 @@ void Game::UpdateProjectiles() noexcept
 			if (damage > 0)
 			{
 				this->GameTexts.emplace_back( 
-						projectile.Rect.x, projectile.Rect.y, (Vector2) { 0, -1 }, 64.0f, std::to_string(damage),
+						projectile.Rect.x, projectile.Rect.y, 64.0f, std::to_string(damage),
 						48,	YELLOW, ticks, ticks + TICK_RATE / 4
 						);
 
@@ -370,9 +369,7 @@ void Game::UpdateCamera() noexcept
 
 	if (this->GlobalData->Ticks % TICK_RATE && this->GlobalData->Effects.count(Effect::Earthquake))
 	{
-		unsigned int shake_offset = this->GlobalData->Ticks % 12;
-
-		(this->GlobalData->Ticks % 2) ? shake_offset : shake_offset * -1;
+		unsigned int shake_offset = GetRandomValue(-12, 12);
 
 		this->Camera.offset.x += shake_offset;
 		this->Camera.offset.y -= shake_offset;
@@ -399,16 +396,10 @@ void Game::UpdateTimeouts() noexcept
 	if (ticks - this->LastRMB >= this->GlobalData->Attributes.at(Attribute::LazerCooldown))
 		this->CanRMB = true;
 
-	if (ticks - this->LastLayerUp >= TICK_RATE)
-		this->CanLayerUp = true;
-
-	if (ticks - this->LastLayerDown >= TICK_RATE)
-		this->CanLayerDown = true;
-
 	if (ticks - this->LastSlide >= TICK_RATE)
 		this->CanSlide = true;
 
-	if (ticks % TICK_RATE == 0)
+	if (!(ticks % TICK_RATE))
 		this->GlobalData->CachedStrings[CachedString::Duration] = "Duration: " + std::to_string(TICKS_TO_SECONDS(ticks)) + "s";
 }
 
@@ -438,12 +429,6 @@ void Game::Reset() noexcept
 
 	this->LastRMB = 0;
 	this->CanRMB = true;
-
-	this->LastLayerDown = 0;
-	this->CanLayerDown = true;
-
-	this->LastLayerUp = 0;
-	this->CanLayerUp = true;
 
 	this->LastSlide = 0;
 	this->CanSlide = true;

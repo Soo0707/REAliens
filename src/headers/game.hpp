@@ -55,12 +55,6 @@ class Game
 		size_t LastRMB = 0;
 		bool CanRMB = true;
 
-		size_t LastLayerDown = 0;
-		bool CanLayerDown = true;
-
-		size_t LastLayerUp = 0;
-		bool CanLayerUp = true;
-
 		size_t LastSlide = 0;
 		bool CanSlide = true;
 

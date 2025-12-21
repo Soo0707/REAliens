@@ -9,11 +9,10 @@
 #include <cstddef>
 #include <array>
 
-Enemy::Enemy(float pos_x, float pos_y, float level_scale, int layer, AssetManager& assets, EnemyType type, BehaviourModifier modifier) noexcept :
+Enemy::Enemy(float pos_x, float pos_y, float level_scale, AssetManager& assets, EnemyType type, BehaviourModifier modifier) noexcept :
 	Type(type),
 	Modifiers(modifier),
-	Rect({ pos_x, pos_y, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE }),
-	Layer(layer)
+	Rect({ pos_x, pos_y, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE })
 {
 	size_t type_index = static_cast<size_t>(type);
 

@@ -87,16 +87,12 @@ enum class Effect
 
 enum class CachedString
 {
-	LayerText,
 	LevelText,
 	UnclaimedPowerups,
 
 	Duration,
-	TotalDamage,
 	DamagePerSecond,
 
-	TimePerLevel,
-	TotalDistance,
 	AverageSpeed,
 
 	EnemiesKilled,
@@ -146,8 +142,6 @@ struct GlobalDataWrapper
 	size_t EnemiesKilled = 0;
 	
 	size_t Level = 1;
-
-	int CurrentLayer = 0;
 
 	unsigned int UnclaimedPowerups;
 

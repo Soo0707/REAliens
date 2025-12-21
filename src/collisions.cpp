@@ -28,7 +28,7 @@ unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy
 
 	for (auto &enemy : enemies)
 	{
-		if (enemy.Layer == global_data.CurrentLayer && CheckCollisionRecs(proj.Rect, enemy.Rect))
+		if (CheckCollisionRecs(proj.Rect, enemy.Rect))
 		{
 			enemy.Health -= damage;
 			enemy.FlashSprite(global_data.Ticks);
@@ -90,13 +90,13 @@ unsigned int Collisions::Aura(Game& game) noexcept
 
 	for (auto &enemy : game.Enemies)
 	{
-		if (enemy.Layer == game.GlobalData->CurrentLayer && CheckCollisionRecs(aura, enemy.Rect))
+		if (CheckCollisionRecs(aura, enemy.Rect))
 		{
 			enemy.Health -= aura_damage;
 			enemy.FlashSprite(game.GlobalData->Ticks);
 
 			game.GameTexts.emplace_back(
-					enemy.Rect.x, enemy.Rect.y, (Vector2) { 0, -1 }, 64.0f, std::to_string(static_cast<unsigned int>(aura_damage)), 
+					enemy.Rect.x, enemy.Rect.y, 64.0f, std::to_string(static_cast<unsigned int>(aura_damage)), 
 					42, MAGENTA, ticks,	ticks + TICK_RATE / 4
 					);
 

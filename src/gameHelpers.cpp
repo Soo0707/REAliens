@@ -75,7 +75,7 @@ void GameHelper::SpawnEnemies(Game& game) noexcept
 	float level_scale = 1 + static_cast<float>(game.GlobalData->Level) / 10.0f;
 
 	for (size_t i = 0; i < spawn_count; i++)
-		game.Enemies.emplace_back(locations[i].x, locations[i].y, level_scale, game.GlobalData->CurrentLayer, *game.Assets, types[i], modifiers[i]);
+		game.Enemies.emplace_back(locations[i].x, locations[i].y, level_scale, *game.Assets, types[i], modifiers[i]);
 
 
 	locations.clear();

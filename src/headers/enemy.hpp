@@ -40,7 +40,7 @@ inline BehaviourModifier operator& (BehaviourModifier l, BehaviourModifier r) no
 class Enemy
 {
 	public:
-		Enemy(float pos_x, float pos_y, float level_scale, int layer, AssetManager& assets, EnemyType type, BehaviourModifier modifier) noexcept;
+		Enemy(float pos_x, float pos_y, float level_scale, AssetManager& assets, EnemyType type, BehaviourModifier modifier) noexcept;
 		~Enemy() = default; 
 		
 		void Draw() const noexcept;
@@ -52,7 +52,6 @@ class Enemy
 
 		float Scale;
 		float Damage;
-		int Layer;
 
 		Vector2 Direction = { 0.0f, 0.0f };
 		Rectangle Rect;

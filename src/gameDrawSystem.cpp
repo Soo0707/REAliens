@@ -37,7 +37,7 @@ void GameDrawSystem::DrawGame(const Game& game) noexcept
 	
 	for (auto const &enemy : game.Enemies)
 	{
-		if (enemy.Layer <= game.GlobalData->CurrentLayer && CheckCollisionRecs(game.UpdateArea, enemy.Rect))
+		if (CheckCollisionRecs(game.UpdateArea, enemy.Rect))
 			enemy.Draw();
 	}
 	
@@ -132,8 +132,7 @@ void GameDrawSystem::DrawOverlay(const Game& game) noexcept
 		DrawText("[Space] to untrap.", 533, 620, 24, WHITE);
 
 	DrawText(game.GlobalData->CachedStrings.at(CachedString::Duration).c_str(), 20, 20, 24, LIGHTGRAY);
-	DrawText(game.GlobalData->CachedStrings.at(CachedString::LayerText).c_str(), 20, 50, 24, LIGHTGRAY);
-	DrawText(game.GlobalData->CachedStrings.at(CachedString::LevelText).c_str(), 20, 80, 24, LIGHTGRAY);
+	DrawText(game.GlobalData->CachedStrings.at(CachedString::LevelText).c_str(), 20, 50, 24, LIGHTGRAY);
 
 	DrawText(game.GlobalData->CachedStrings.at(CachedString::LevelDebuff).c_str(), 20, 110, 24, GOLD);
 }

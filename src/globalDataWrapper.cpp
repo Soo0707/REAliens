@@ -1,7 +1,5 @@
 #include "globalDataWrapper.hpp"
 
-#include <array>
-
 #include "raylib.h"
 
 void GlobalDataWrapper::Reset() noexcept
@@ -25,7 +23,6 @@ void GlobalDataWrapper::Reset() noexcept
 
 	this->CachedStrings =
 	{
-		{ CachedString::LayerText, "Current Layer: 0" },
 		{ CachedString::LevelText, "Level: 1" },
 		{ CachedString::Duration, "Duration: 0s" },
 
@@ -43,8 +40,6 @@ void GlobalDataWrapper::Reset() noexcept
 	this->EnemiesKilled = 0;
 
 	this->Level = 1;
-
-	this->CurrentLayer = 0;
 
 	this->UnclaimedPowerups = 0;
 }
@@ -66,5 +61,3 @@ void GlobalDataWrapper::RemoveLevelDebuff() noexcept
 
 	this->CachedStrings[CachedString::LevelDebuff] = "";
 }
-
-
