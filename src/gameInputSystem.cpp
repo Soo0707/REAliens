@@ -78,9 +78,7 @@ void GameInputSystem::HandleTickedInput(Game& game) noexcept
 
 void GameInputSystem::HandleLeftClick(Game& game) noexcept
 {
-	Vector2 scale_factors = { static_cast<float>(GetScreenWidth()) / REFERENCE_WIDTH, static_cast<float>(GetScreenHeight()) / REFERENCE_HEIGHT };
-	Vector2 scaled_mouse_pos = { GetMouseX() / scale_factors.x, GetMouseY() / scale_factors.y };
-	Vector2 mouse_pos = GetScreenToWorld2D(scaled_mouse_pos, game.Camera);
+	Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), game.Camera);
 
 	Vector2 centre_direction = Vector2Subtract(mouse_pos, game.PlayerInstance->Centre);
 	Vector2 player_centre = game.PlayerInstance->Centre;
@@ -103,10 +101,10 @@ void GameInputSystem::HandleLeftClick(Game& game) noexcept
 
 void GameInputSystem::HandleRightClick(Game& game) noexcept
 {
-	static constexpr std::array<Vector2, 4> directions = { Vector2{1.0f, 0.0f}, Vector2{0.0f, 1.0f}, Vector2{-1.0f, 0.0f}, Vector2{0.0f, -1.0f} };
+	Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), game.Camera);
 
 	Vector2 centre = game.PlayerInstance->Centre;
-	
-	for (int i = 0; i < 4; i++)
-		game.Projectiles.emplace_back(centre.x, centre.y, directions[i], ProjectileType::Lazer, *game.GlobalData, *game.Assets);
+	Vector2 direction = Vector2Subtract(mouse_pos, centre);
+
+	game.Projectiles.emplace_back(centre.x, centre.y, direction, ProjectileType::Lazer, *game.GlobalData, *game.Assets);
 }

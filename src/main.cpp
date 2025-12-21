@@ -63,6 +63,8 @@ int main(void)
 			EnableCursor();
 		}
 
+		SetMouseScale(REFERENCE_WIDTH / static_cast<float>(GetScreenWidth()), REFERENCE_HEIGHT / static_cast<float>(GetScreenHeight()));
+
 		switch (global_data->ActiveState)
 		{
 			case State::GameReset:
