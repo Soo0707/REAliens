@@ -52,7 +52,7 @@ Enemy::Enemy(float pos_x, float pos_y, float level_scale, const AssetManager& as
 	}
 }
 
-void Enemy::Update(Vector2& player_centre, size_t ticks, bool is_stinky) noexcept
+void Enemy::Update(Vector2 player_centre, size_t ticks, bool is_stinky) noexcept
 {
 	Enemy::Animate(ticks);
 
@@ -104,7 +104,7 @@ void Enemy::Move() noexcept
 	this->Rect.y += this->Speed * this->Direction.y * TICK_TIME;
 }
 
-void Enemy::SetDirection(Vector2& player_centre, bool is_stinky) noexcept
+void Enemy::SetDirection(Vector2 player_centre, bool is_stinky) noexcept
 {
 	this->Direction.x = player_centre.x - this->Rect.x;
 	this->Direction.y = player_centre.y - this->Rect.y;

@@ -126,24 +126,10 @@ struct GameState
 
 	size_t LastSpawn = 0;
 
-	static constexpr std::array<Effect, 4> DebuffList = { 
-		Effect::Microscope,
-		Effect::Earthquake,
-		Effect::Stinky,
-		Effect::Invisible
-	};
-
-	static constexpr std::array<const char *, 4> DebuffNames = {
-		"Level Debuff: Microscope",
-		"Level Debuff: Earthquake",
-		"Level Debuff: Stinky",
-		"Level Debuff: Invisible"
-	};
-
 	unsigned int UnclaimedPowerups;
 	void Reset() noexcept;
 
-	void UpdateTimeouts(GlobalDataWrapper& global_data) noexcept;
+	void UpdateTimeouts() noexcept;
 
 	void UpdatePlayer(GlobalDataWrapper& global_data, const SettingsManager& settings, const AssetManager& assets) noexcept;
 	void UpdateCamera() noexcept;
@@ -155,6 +141,22 @@ struct GameState
 	void UpdateGameTexts() noexcept;
 	void UpdateParticles() noexcept;
 
+	void LevelUp(const SettingsManager& settings, GlobalDataWrapper& global_data) noexcept;
 	void InsertLevelDebuff(GlobalDataWrapper& global_data) noexcept;
 	void RemoveLevelDebuff(GlobalDataWrapper& global_data) noexcept;
+	
+	private:
+		static constexpr std::array<Effect, 4> DebuffList = { 
+			Effect::Microscope,
+			Effect::Earthquake,
+			Effect::Stinky,
+			Effect::Invisible
+		};
+
+		static constexpr std::array<const char *, 4> DebuffNames = {
+			"Level Debuff: Microscope",
+			"Level Debuff: Earthquake",
+			"Level Debuff: Stinky",
+			"Level Debuff: Invisible"
+		};
 };

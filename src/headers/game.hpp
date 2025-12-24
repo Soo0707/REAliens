@@ -16,8 +16,8 @@ class Game
 			std::shared_ptr<SettingsManager> settings, std::shared_ptr<GameState> game_state);
 		~Game();
 
-		void HandleEssentialInput() noexcept;
 		void Draw(RenderTexture2D& canvas) const noexcept;
+		void TickedUpdate() noexcept;
 		void Update() noexcept;
 
 		void Reset() noexcept;
@@ -27,12 +27,9 @@ class Game
 		std::shared_ptr<GlobalDataWrapper> GlobalData;
 		std::shared_ptr<GameState> m_GameState;
 
-
 		RenderTexture2D LightingLayer;
 		RenderTexture2D GameLayer;
 		
 	private:
-		void UpdateTimeouts() noexcept;
-
 		float Accumulator = 0.0f;
 };

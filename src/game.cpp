@@ -1,12 +1,9 @@
 #include "game.hpp"
 
 #include <memory>
-#include <algorithm>
-#include <vector>
 #include <string>
 
 #include "raylib.h"
-#include "raymath.h"
 
 #include "gameState.hpp"
 #include "globalDataWrapper.hpp"
@@ -14,7 +11,6 @@
 #include "gameEventSystem.hpp"
 #include "gameInputSystem.hpp"
 #include "gameDrawSystem.hpp"
-#include "gameHelpers.hpp"
 
 #include "constants.hpp"
 
@@ -88,6 +84,20 @@ void Game::Draw(RenderTexture2D& canvas) const noexcept
 
 void Game::Update() noexcept
 {
+	const size_t ticks = this->m_GameState->Ticks;
+
+	if (!(ticks % TICK_RATE))
+		this->GlobalData->CachedStrings[CachedString::Duration] = "Duration: " + std::to_string(TICKS_TO_SECONDS(ticks)) + "s";
+
+	if (IsKeyPressed(KEY_ESCAPE))
+		this->GlobalData->ActiveState = State::PauseMenu;
+	
+	if (IsKeyPressed(KEY_TAB) && (this->m_GameState->UnclaimedPowerups > 0 || this->Settings->Data.at(SettingKey::UnlimitedPowerups)))
+		this->GlobalData->ActiveState = State::PowerupMenu;
+}
+
+void Game::TickedUpdate() noexcept
+{
 	this->Accumulator += GetFrameTime();
 
 	if (this->Accumulator >= MAX_TICK_TIME)
@@ -95,13 +105,13 @@ void Game::Update() noexcept
 
 	while (this->Accumulator >= TICK_TIME)
 	{
-		this->m_GameState->UpdateTimeouts(*this->GlobalData);
+		this->m_GameState->UpdateTimeouts();
 
 		while (this->m_GameState->CollectedXp >= this->m_GameState->LevelUpTreshold)
 		{
-			size_t distance = this->m_GameState->CollectedXp - this->m_GameState->LevelUpTreshold;
+			const size_t distance = this->m_GameState->CollectedXp - this->m_GameState->LevelUpTreshold;
 
-			GameHelper::LevelUp(*this->m_GameState, *this->Settings, *this->GlobalData);
+			this->m_GameState->LevelUp(*this->Settings, *this->GlobalData);
 			this->m_GameState->CollectedXp = distance;
 		}
 
@@ -122,24 +132,5 @@ void Game::Update() noexcept
 		this->Accumulator -= TICK_TIME;
 		this->m_GameState->Ticks++;
 	} 
-}
-
-/*
-void Game::UpdateTimeouts() noexcept
-{
-	size_t ticks = this->m_GameState->Ticks;
-
-	if (!(ticks % TICK_RATE))
-		this->GlobalData->CachedStrings[CachedString::Duration] = "Duration: " + std::to_string(TICKS_TO_SECONDS(ticks)) + "s";
-}
-*/
-
-void Game::HandleEssentialInput() noexcept
-{
-	if (IsKeyPressed(KEY_ESCAPE))
-		this->GlobalData->ActiveState = State::PauseMenu;
-	
-	if (IsKeyPressed(KEY_TAB) && (this->m_GameState->UnclaimedPowerups > 0 || this->Settings->Data.at(SettingKey::UnlimitedPowerups)))
-		this->GlobalData->ActiveState = State::PowerupMenu;
 }
 

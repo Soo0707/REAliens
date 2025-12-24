@@ -20,6 +20,7 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  src/globalDataWrapper.cpp\
  src/settingsManager.cpp\
  src/particle.cpp\
+ src/gameState.cpp\
  -o /mnt/tmpfs/REAliens.exe\
  -flto=auto\
  -O3\

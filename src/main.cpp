@@ -81,8 +81,8 @@ int main(void)
 				main_menu.Draw(virtual_canvas);
 				break;
 			case State::Game:
-				game.HandleEssentialInput();
 				game.Update();
+				game.TickedUpdate();
 				game.Draw(virtual_canvas);
 				break;
 			case State::PowerupMenu:
