@@ -1,6 +1,7 @@
 #include "gameOverMenu.hpp"
 
 #include "raylib.h"
+#include "gameState.hpp"
 #include "globalDataWrapper.hpp"
 #include "assetManager.hpp"
 #include "constants.hpp"
@@ -62,15 +63,15 @@ void GameOverMenu::HandleInput() noexcept
 		this->GlobalData->Running = false;
 }
 
-void GameOverMenu::GenerateStats() noexcept
+void GameOverMenu::GenerateStats(const GameState& game_state) noexcept
 {
-	size_t ticks = this->GlobalData->Ticks;
-	size_t damage_per_second = this->GlobalData->TotalDamage / TICKS_TO_SECONDS(ticks);
+	size_t ticks = game_state.Ticks;
+	size_t damage_per_second = game_state.TotalDamage / TICKS_TO_SECONDS(ticks);
 
 	this->GlobalData->CachedStrings[CachedString::DamagePerSecond] = "Damage / Second: " + std::to_string(damage_per_second);
 
-	this->GlobalData->CachedStrings[CachedString::EnemiesKilled] = "Enemies Killed: " + std::to_string(this->GlobalData->EnemiesKilled);
+	this->GlobalData->CachedStrings[CachedString::EnemiesKilled] = "Enemies Killed: " + std::to_string(game_state.EnemiesKilled);
 
-	size_t average_speed = this->GlobalData->TotalDistance / TICKS_TO_SECONDS(ticks);
+	size_t average_speed = game_state.TotalDistance / TICKS_TO_SECONDS(ticks);
 	this->GlobalData->CachedStrings[CachedString::AverageSpeed] = "Average Speed: " + std::to_string(average_speed) + "px/s";
 }

@@ -2,32 +2,33 @@
 
 #include <array>
 #include <cstddef>
+#include <unordered_map>
 
-#include "game.hpp"
+#include "gameState.hpp"
+#include "assetManager.hpp"
 
 namespace GameEventSystem
 {
-	void HandleEvents(Game& game) noexcept;
+	void HandleEvents(GameState& game_state, const AssetManager& assets) noexcept;
 
-	bool HandleEventExpiry(Event event, Effect effect, GlobalDataWrapper& global_data, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
+	bool HandleEventExpiry(Event event, Effect effect, GameState& game_state, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
 
-	void AuraTick(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
-	void PoisonTick(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
+	void AuraTick(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
+	void PoisonTick(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
+	void IncreasePlotArmour(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
 
-	void IncreasePlotArmour(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
-	void PoisonExpire(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
-	void GreenbullExpire(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
+	void PoisonExpire(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
+	void GreenbullExpire(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
+	void MilkExpire(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
 
-	void MilkExpire(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
-	void DrunkExpire(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
-	void AussieExpire(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
+	void DrunkExpire(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
+	void AussieExpire(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
+	void MagnetismExpire(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
 
-	void MagnetismExpire(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
-	void IncreasePlayerSpeed(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
-
+	void IncreasePlayerSpeed(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
 
 	// The ordering here matters as it mimics the order of the definition of Event
-	static inline constexpr std::array<void(*)(Game&, size_t, std::unordered_map<Event, size_t>&), static_cast<size_t>(Event::COUNT)> EventHandlers =
+	static inline constexpr std::array<void(*)(GameState&, const AssetManager&, size_t, std::unordered_map<Event, size_t>&), static_cast<size_t>(Event::COUNT)> EventHandlers =
 	{
 		&GreenbullExpire,
 		&MilkExpire,

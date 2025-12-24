@@ -2,55 +2,12 @@
 
 #include "raylib.h"
 
-#include <unordered_map>
-#include <unordered_set>
 #include <string>
 #include <cstddef>
-#include <array>
+#include <unordered_map>
 
 #include "constants.hpp"
 
-enum class Attribute
-{
-	BulletCooldown,
-	BulletDamage,
-	BulletSpeed,
-
-	Buckshot,
-	BuckshotSpread,
-
-	LazerCooldown,
-	LazerDamage,
-	LazerScale,
-	LazerSpeed,
-
-	AuraSize,
-	AuraCooldown,
-	AuraDamage,
-
-	LifeStealMultiplier,
-	SlideSpeed
-};
-
-// The ordering here matters as GameEventSystem uses a fixed array as a function jump table
-enum class Event
-{
-	GreenbullExpire,
-	MilkExpire,
-
-	PoisonTick,
-	PoisonExpire,
-
-	DrunkExpire,
-	AussieExpire,
-	MagnetismExpire,
-
-	IncreasePlayerSpeed,
-	IncreasePlotArmour,
-
-	AuraTick,
-	COUNT
-};
 
 enum class State
 {
@@ -63,26 +20,6 @@ enum class State
 	GameOverMenu,
 
 	GenerateGameOverStats
-};
-
-enum class Effect
-{
-	Greenbull,
-	Milk,
-
-	LifeSteal,
-	Magnetism,
-
-	Trapped,
-	Poison,
-	Drunk,
-
-	Aussie,
-	Stinky,
-
-	Microscope,
-	Earthquake,
-	Invisible
 };
 
 enum class CachedString
@@ -111,44 +48,11 @@ struct GlobalDataWrapper
 	GlobalDataWrapper(const GlobalDataWrapper&&) = delete;
 	GlobalDataWrapper& operator=(const GlobalDataWrapper&&) = delete;
 
-	std::unordered_map<Attribute, float> Attributes; 
-
-	std::unordered_map<Event, size_t> Events;
-
-	static constexpr std::array<Effect, 4> DebuffList = { 
-		Effect::Microscope,
-		Effect::Earthquake,
-		Effect::Stinky,
-		Effect::Invisible
-	};
-
-	static constexpr std::array<const char *, 4> DebuffNames = {
-		"Level Debuff: Microscope",
-		"Level Debuff: Earthquake",
-		"Level Debuff: Stinky",
-		"Level Debuff: Invisible"
-	};
-
-	std::unordered_set<Effect> Effects;
-
 	std::unordered_map<CachedString, std::string> CachedStrings;
-
 	State ActiveState = State::MainMenu;
-
-	size_t Ticks = 0;
-	size_t TotalDamage = 0;
-	size_t TotalDistance = 0;
-
-	size_t EnemiesKilled = 0;
 	
-	size_t Level = 1;
-
-	unsigned int UnclaimedPowerups;
 
 	bool Running = true;
 
 	void Reset() noexcept;
-
-	void InsertLevelDebuff() noexcept;
-	void RemoveLevelDebuff() noexcept;
 };

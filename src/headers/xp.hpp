@@ -6,7 +6,7 @@
 class Xp
 {
 	public:
-		Xp(float pos_x, float pos_y, unsigned int value, AssetManager &assets) noexcept;
+		Xp(float pos_x, float pos_y, unsigned int value, const AssetManager &assets) noexcept;
 		~Xp() = default;
 
 		void Draw() const noexcept;

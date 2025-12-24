@@ -2,14 +2,14 @@
 #include "assetManager.hpp"
 #include "raylib.h"
 
-Xp::Xp(float pos_x, float pos_y, unsigned int value, AssetManager &assets) noexcept :
-	Image(assets.Textures[TextureKey::Xp]),
+Xp::Xp(float pos_x, float pos_y, unsigned int value, const AssetManager &assets) noexcept :
+	Image(assets.Textures.at(TextureKey::Xp)),
 	Value(value),
 	Rect( {
 			pos_x,
 			pos_y,
-			static_cast<float>(assets.Textures[TextureKey::Xp].width),
-			static_cast<float>(assets.Textures[TextureKey::Xp].height)
+			static_cast<float>(assets.Textures.at(TextureKey::Xp).width),
+			static_cast<float>(assets.Textures.at(TextureKey::Xp).height)
 			} ),
 	Centre( {
 			this->Rect.x + this->Rect.width / 2.0f,

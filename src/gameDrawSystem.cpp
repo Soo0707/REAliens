@@ -1,13 +1,21 @@
 #include "gameDrawSystem.hpp"
-#include "constants.hpp"
+
 #include "raylib.h"
-#include "game.hpp"
 
-void GameDrawSystem::DrawGame(const Game& game) noexcept
+#include "constants.hpp"
+#include "gameState.hpp"
+#include "globalDataWrapper.hpp"
+#include "assetManager.hpp"
+
+void GameDrawSystem::DrawGame(const GameState& game_state, const AssetManager& assets) noexcept
 {
-	size_t ticks = game.GlobalData->Ticks;
+	size_t ticks = game_state.Ticks;
 
-	Rectangle viewport = game.UpdateArea;
+	const float ground_width = assets.Ground.width;
+	const float ground_height = assets.Ground.height;
+	const Rectangle update_area = game_state.UpdateArea;
+
+	Rectangle viewport = update_area;
 
 	if (viewport.x < 0)
 	{
@@ -15,8 +23,8 @@ void GameDrawSystem::DrawGame(const Game& game) noexcept
 		viewport.x = 0;
 	}
 	
-	if (viewport.x + viewport.width > game.Assets->Ground.width)
-		viewport.width = game.Assets->Ground.width - viewport.x;
+	if (viewport.x + viewport.width > ground_width)
+		viewport.width = ground_width - viewport.x;
 
 	if (viewport.y < 0)
 	{
@@ -24,77 +32,79 @@ void GameDrawSystem::DrawGame(const Game& game) noexcept
 		viewport.y = 0;
 	}
 	
-	if (viewport.y + viewport.height > game.Assets->Ground.height)
-		viewport.height = game.Assets->Ground.height - viewport.y;
+	if (viewport.y + viewport.height > ground_height)
+		viewport.height = ground_height - viewport.y;
 
-	DrawTextureRec(game.Assets->Ground, viewport, (Vector2) { viewport.x, viewport.y }, WHITE);
+	DrawTextureRec(assets.Ground, viewport, (Vector2) { viewport.x, viewport.y }, WHITE);
 	
-	for (auto const &xp : game.Xps)
+	for (auto const &xp : game_state.Xps)
 	{
-		if (CheckCollisionRecs(game.UpdateArea, xp.Rect))
+		if (CheckCollisionRecs(update_area, xp.Rect))
 			xp.Draw();
 	}
 	
-	for (auto const &enemy : game.Enemies)
+	for (auto const &enemy : game_state.Enemies)
 	{
-		if (CheckCollisionRecs(game.UpdateArea, enemy.Rect))
+		if (CheckCollisionRecs(update_area, enemy.Rect))
 			enemy.Draw();
 	}
 	
-	for (auto const &projectile : game.Projectiles)
+	for (auto const &projectile : game_state.Projectiles)
 	{
-		if (CheckCollisionRecs(game.UpdateArea, projectile.Rect))
+		if (CheckCollisionRecs(update_area, projectile.Rect))
 			projectile.Draw();
 	}
 
-	for (auto const &particle : game.Particles)
+	for (auto const &particle : game_state.Particles)
 	{
-		if (CheckCollisionRecs(game.UpdateArea, particle.Rect))
+		if (CheckCollisionRecs(update_area, particle.Rect))
 			particle.Draw(ticks);
 	}
 
-	if (!game.GlobalData->Effects.count(Effect::Invisible))
-		game.PlayerInstance->Draw();
+	if (!game_state.Effects.count(Effect::Invisible))
+		game_state.m_Player->Draw();
 }
 
-void GameDrawSystem::DrawLighting(const Game& game) noexcept
+void GameDrawSystem::DrawLighting(const GameState& game_state) noexcept
 {
-	if (!game.GlobalData->Effects.count(Effect::Invisible))
-		game.PlayerInstance->DrawLightmap();
+	if (!game_state.Effects.count(Effect::Invisible))
+		game_state.m_Player->DrawLightmap();
 
-	for (auto const &xp : game.Xps)
+	const Rectangle update_area = game_state.UpdateArea;
+
+	for (auto const &xp : game_state.Xps)
 	{
-		if (CheckCollisionRecs(game.UpdateArea, xp.Rect))
+		if (CheckCollisionRecs(update_area, xp.Rect))
 			xp.DrawLightmap();
 	}
 
-	for (auto const &projectile : game.Projectiles)
+	for (auto const &projectile : game_state.Projectiles)
 	{
-		if (CheckCollisionRecs(game.UpdateArea, projectile.Rect))
+		if (CheckCollisionRecs(update_area, projectile.Rect))
 			projectile.DrawLightmap();
 	}
 }
 
-void GameDrawSystem::DrawScreenLayer(const Game& game) noexcept
+void GameDrawSystem::DrawScreenLayer(const GameState& game_state) noexcept
 {
-	size_t ticks = game.GlobalData->Ticks;
+	size_t ticks = game_state.Ticks;
 
-	for (auto const &text : game.GameTexts)
+	for (auto const &text : game_state.GameTexts)
 	{
-		if (CheckCollisionRecs(game.UpdateArea, text.Rect))
+		if (CheckCollisionRecs(game_state.UpdateArea, text.Rect))
 			text.Draw(ticks);
 	}
 }
 
-void GameDrawSystem::DrawOverlay(const Game& game) noexcept
+void GameDrawSystem::DrawOverlay(const GameState& game_state, const GlobalDataWrapper& global_data, const AssetManager& assets) noexcept
 {
-	DrawTexture(game.Assets->Textures.at(TextureKey::HealthBarBackground), 1060, 20, WHITE);
+	DrawTexture(assets.Textures.at(TextureKey::HealthBarBackground), 1060, 20, WHITE);
 
-	bool is_poisoned = game.GlobalData->Effects.count(Effect::Poison);
-	float health_percentage = game.PlayerInstance->Health / game.PlayerInstance->HealthMax;
+	const bool is_poisoned = game_state.Effects.count(Effect::Poison);
+	const float health_percentage = game_state.m_Player->Health / game_state.m_Player->HealthMax;
 
 	DrawTexturePro(
-			game.Assets->Textures.at(TextureKey::WhitePixel),
+			assets.Textures.at(TextureKey::WhitePixel),
 			(Rectangle) { 0, 0, 1, 1 },
 			(Rectangle) { 1060, 20, health_percentage * 200, 10 },
 			(Vector2) { 0.0f, 0.0f },
@@ -103,12 +113,12 @@ void GameDrawSystem::DrawOverlay(const Game& game) noexcept
 			);
 
 
-	DrawTexture(game.Assets->Textures.at(TextureKey::XpBarBackground), 100, 680, WHITE);
+	DrawTexture(assets.Textures.at(TextureKey::XpBarBackground), 100, 680, WHITE);
 
-	float xp_percentage = static_cast<float>(game.CollectedXp) / static_cast<float>(game.LevelUpTreshold);
+	const float xp_percentage = static_cast<float>(game_state.CollectedXp) / static_cast<float>(game_state.LevelUpTreshold);
 
 	DrawTexturePro(
-			game.Assets->Textures.at(TextureKey::WhitePixel),
+			assets.Textures.at(TextureKey::WhitePixel),
 			(Rectangle) { 0, 0, 1, 1 },
 			(Rectangle) { 100, 680, xp_percentage * 1080, 15 },
 			(Vector2) { 0.0f, 0.0f },
@@ -116,65 +126,66 @@ void GameDrawSystem::DrawOverlay(const Game& game) noexcept
 			CYAN
 			);
 
-	if (game.GlobalData->Effects.count(Effect::Greenbull))
-		GameDrawSystem::DrawGreenbull(game);
+	if (game_state.Effects.count(Effect::Greenbull))
+		GameDrawSystem::DrawGreenbull(game_state, assets);
 
-	if (game.GlobalData->Effects.count(Effect::Milk))
-		GameDrawSystem::DrawMilk(game);
+	if (game_state.Effects.count(Effect::Milk))
+		GameDrawSystem::DrawMilk(game_state, assets);
 	
-	if (game.GlobalData->Effects.count(Effect::Drunk))
-		GameDrawSystem::DrawDrunk(game);
+	if (game_state.Effects.count(Effect::Drunk))
+		GameDrawSystem::DrawDrunk(game_state, assets);
 
-	if (game.GlobalData->Effects.count(Effect::Magnetism))
-		GameDrawSystem::DrawMagnetism(game);
+	if (game_state.Effects.count(Effect::Magnetism))
+		GameDrawSystem::DrawMagnetism(game_state, assets);
 
-	if (game.GlobalData->Effects.count(Effect::Trapped))
+	if (game_state.Effects.count(Effect::Trapped))
 		DrawText("[Space] to untrap.", 533, 620, 24, WHITE);
 
-	DrawText(game.GlobalData->CachedStrings.at(CachedString::Duration).c_str(), 20, 20, 24, LIGHTGRAY);
-	DrawText(game.GlobalData->CachedStrings.at(CachedString::LevelText).c_str(), 20, 50, 24, LIGHTGRAY);
+	DrawText(global_data.CachedStrings.at(CachedString::Duration).c_str(), 20, 20, 24, LIGHTGRAY);
+	DrawText(global_data.CachedStrings.at(CachedString::LevelText).c_str(), 20, 50, 24, LIGHTGRAY);
 
-	DrawText(game.GlobalData->CachedStrings.at(CachedString::LevelDebuff).c_str(), 20, 110, 24, GOLD);
+	DrawText(global_data.CachedStrings.at(CachedString::LevelDebuff).c_str(), 20, 110, 24, GOLD);
 }
 
 
-void GameDrawSystem::DrawGreenbull(const Game& game) noexcept
+void GameDrawSystem::DrawGreenbull(const GameState& game_state, const AssetManager& assets) noexcept
 {
-	size_t expiry = game.GlobalData->Events.at(Event::GreenbullExpire) - game.GlobalData->Ticks;
+	const size_t expiry = game_state.Events.at(Event::GreenbullExpire) - game_state.Ticks;
 
 	if (expiry >= SECONDS_TO_TICKS(5))
-		DrawTexture(game.Assets->Textures.at(TextureKey::GreenbullIcon), 1205, 40, WHITE);
+		DrawTexture(assets.Textures.at(TextureKey::GreenbullIcon), 1205, 40, WHITE);
 	else if ((expiry / (TICK_RATE / 2)) % 2)
-		DrawTexture(game.Assets->Textures.at(TextureKey::GreenbullIcon), 1205, 40, WHITE);
+		DrawTexture(assets.Textures.at(TextureKey::GreenbullIcon), 1205, 40, WHITE);
 }
 
-void GameDrawSystem::DrawMilk(const Game& game) noexcept
+void GameDrawSystem::DrawMilk(const GameState& game_state, const AssetManager& assets) noexcept
 {
-	size_t expiry = game.GlobalData->Events.at(Event::MilkExpire) - game.GlobalData->Ticks;
+	const size_t expiry = game_state.Events.at(Event::MilkExpire) - game_state.Ticks;
 
 	if (expiry >= SECONDS_TO_TICKS(5))
-		DrawTexture(game.Assets->Textures.at(TextureKey::MilkIcon), 1225, 40, WHITE);
+		DrawTexture(assets.Textures.at(TextureKey::MilkIcon), 1225, 40, WHITE);
 	else if ((expiry / (TICK_RATE / 2)) % 2)
-		DrawTexture(game.Assets->Textures.at(TextureKey::MilkIcon), 1225, 40, WHITE);
+		DrawTexture(assets.Textures.at(TextureKey::MilkIcon), 1225, 40, WHITE);
 }
 
-
-void GameDrawSystem::DrawDrunk(const Game& game) noexcept
+void GameDrawSystem::DrawDrunk(const GameState& game_state, const AssetManager& assets) noexcept
 {
-	size_t expiry = game.GlobalData->Events.at(Event::DrunkExpire) - game.GlobalData->Ticks;
+	const size_t expiry = game_state.Events.at(Event::DrunkExpire) - game_state.Ticks;
 
 	if (expiry >= SECONDS_TO_TICKS(5))
-		DrawTexture(game.Assets->Textures.at(TextureKey::DrunkIcon), 1245, 40, WHITE);
+		DrawTexture(assets.Textures.at(TextureKey::DrunkIcon), 1245, 40, WHITE);
 	else if ((expiry / (TICK_RATE / 2)) % 2)
-		DrawTexture(game.Assets->Textures.at(TextureKey::DrunkIcon), 1245, 40, WHITE);
+		DrawTexture(assets.Textures.at(TextureKey::DrunkIcon), 1245, 40, WHITE);
 }
 
-void GameDrawSystem::DrawMagnetism(const Game& game) noexcept
+void GameDrawSystem::DrawMagnetism(const GameState& game_state, const AssetManager& assets) noexcept
 {
-	size_t expiry = game.GlobalData->Events.at(Event::MagnetismExpire) - game.GlobalData->Ticks;
+	const size_t expiry = game_state.Events.at(Event::MagnetismExpire) - game_state.Ticks;
 
 	if (expiry >= SECONDS_TO_TICKS(5))
-		DrawTexture(game.Assets->Textures.at(TextureKey::MagnetismIcon), 1185, 40, WHITE);
+		DrawTexture(assets.Textures.at(TextureKey::MagnetismIcon), 1185, 40, WHITE);
 	else if ((expiry / (TICK_RATE / 2)) % 2)
-		DrawTexture(game.Assets->Textures.at(TextureKey::MagnetismIcon), 1185, 40, WHITE);
+		DrawTexture(assets.Textures.at(TextureKey::MagnetismIcon), 1185, 40, WHITE);
 }
+
+

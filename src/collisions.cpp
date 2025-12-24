@@ -1,15 +1,18 @@
 #include "collisions.hpp"
 
 #include <vector>
+#include <unordered_map>
+#include <unordered_set>
 
 #include "globalDataWrapper.hpp"
-
+#include "gameState.hpp"
 #include "enemy.hpp"
 #include "enemyData.hpp"
 #include "game.hpp"
 #include "constants.hpp"
 
-unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, GlobalDataWrapper& global_data) noexcept
+unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, size_t ticks,
+		const std::unordered_map<Attribute, float>& attributes) noexcept
 {
 	float damage;
 	unsigned int damage_done = 0;
@@ -17,10 +20,10 @@ unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy
 	switch (proj.Type)
 	{
 		case ProjectileType::Lazer:
-			damage = global_data.Attributes.at(Attribute::LazerDamage);
+			damage = attributes.at(Attribute::LazerDamage);
 			break;
 		case ProjectileType::Bullet:
-			damage = global_data.Attributes.at(Attribute::BulletDamage);
+			damage = attributes.at(Attribute::BulletDamage);
 			break;
 		default:
 			damage = 0;
@@ -31,7 +34,7 @@ unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy
 		if (CheckCollisionRecs(proj.Rect, enemy.Rect))
 		{
 			enemy.Health -= damage;
-			enemy.FlashSprite(global_data.Ticks);
+			enemy.FlashSprite(ticks);
 			
 			if (proj.Type == ProjectileType::Bullet)
 				proj.Kill = true;
@@ -43,19 +46,20 @@ unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy
 	return damage_done;
 }
 
-void Collisions::LeAttack(Player& player, Enemy& enemy, GlobalDataWrapper& global_data) noexcept
+void Collisions::LeAttack(Player& player, Enemy& enemy, size_t ticks,
+		std::unordered_set<Effect>& effects, std::unordered_map<Event, size_t>& events) noexcept
 {
 	if (enemy.CanLeAttack && CheckCollisionCircleRec(player.Centre, player.Radius, enemy.Rect))
 	{
 		player.Health -= enemy.Damage;
 
-		unsigned int scale = static_cast<unsigned int>(enemy.Scale);
+		const unsigned int scale = static_cast<unsigned int>(enemy.Scale);
 
-		if (!global_data.Effects.count(Effect::Milk))
-			Collisions::LeAttackHooks[static_cast<size_t>(enemy.Type)](global_data, scale);
+		if (!effects.count(Effect::Milk))
+			Collisions::LeAttackHooks[static_cast<size_t>(enemy.Type)](effects, events, ticks, scale);
 
 		enemy.CanLeAttack = false;
-		enemy.LastLeAttack = global_data.Ticks;
+		enemy.LastLeAttack = ticks;
 	}
 }
 
@@ -72,82 +76,47 @@ long long Collisions::SlideAttack(Player& player, Enemy& enemy) noexcept
 	return static_cast<long long>(damage_done);
 }
 
-unsigned int Collisions::Aura(Game& game) noexcept
+bool Collisions::Aura(Enemy& enemy, Rectangle aura, float aura_damage, size_t ticks) noexcept
 {
-	float aura_damage = game.GlobalData->Attributes.at(Attribute::AuraDamage);
-	unsigned int total_hit = 0;
-	
-	float aura_size = game.GlobalData->Attributes.at(Attribute::AuraSize);
-
-	Rectangle aura = {
-		game.PlayerInstance->Centre.x - aura_size / 2.0f,
-		game.PlayerInstance->Centre.y - aura_size / 2.0f,
-		aura_size,
-		aura_size
-	};
-
-	size_t ticks = game.GlobalData->Ticks;
-
-	for (auto &enemy : game.Enemies)
+	if (CheckCollisionRecs(aura, enemy.Rect))
 	{
-		if (CheckCollisionRecs(aura, enemy.Rect))
-		{
-			enemy.Health -= aura_damage;
-			enemy.FlashSprite(game.GlobalData->Ticks);
-
-			game.GameTexts.emplace_back(
-					enemy.Rect.x, enemy.Rect.y, 64.0f, std::to_string(static_cast<unsigned int>(aura_damage)), 
-					42, MAGENTA, ticks,	ticks + TICK_RATE / 4
-					);
-
-			for (int i = 0; i < 15; i++)
-			{
-				float size = static_cast<float>(GetRandomValue(10, 20));
-				float rotation = static_cast<float>(GetRandomValue(0, 90));
-				size_t expiry = ticks + static_cast<size_t>(GetRandomValue(60, TICK_RATE));
-				Vector2 velocity = { static_cast<float>(GetRandomValue(-192, 192)), static_cast<float>(GetRandomValue(-192, 192)) } ;
-
-				game.Particles.emplace_back(
-						enemy.Rect.x, enemy.Rect.y, size, rotation, ticks,
-						expiry, velocity, PURPLE, RED, *game.Assets
-						);
-			}
-
-			total_hit++;
-		}
+		enemy.Health -= aura_damage;
+		enemy.FlashSprite(ticks);
+		return true;
 	}
-
-	if (game.GlobalData->Effects.count(Effect::LifeSteal))
-		game.PlayerInstance->IncreaseHealth(total_hit * aura_damage * game.GlobalData->Attributes.at(Attribute::LifeStealMultiplier));
-
-	return static_cast<unsigned int>(total_hit * aura_damage);
+	return false;
 }
 
 
-void Collisions::ApplyAustralian(GlobalDataWrapper& global_data, unsigned int scale) noexcept
+void Collisions::ApplyAustralian(std::unordered_set<Effect>& effects, std::unordered_map<Event, size_t>& events,
+		size_t ticks, unsigned int scale) noexcept
 {
-	global_data.Effects.insert(Effect::Aussie);
-	global_data.Events[Event::AussieExpire] = global_data.Ticks + SECONDS_TO_TICKS(1) * scale;
+	effects.insert(Effect::Aussie);
+	events[Event::AussieExpire] = ticks + SECONDS_TO_TICKS(1) * scale;
 }
 
-void Collisions::ApplyPoison(GlobalDataWrapper& global_data, unsigned int scale) noexcept
+void Collisions::ApplyPoison(std::unordered_set<Effect>& effects, std::unordered_map<Event, size_t>& events,
+		size_t ticks, unsigned int scale) noexcept
 {
-	global_data.Effects.insert(Effect::Poison);
+	effects.insert(Effect::Poison);
 
-	global_data.Events[Event::PoisonTick] = global_data.Ticks + SECONDS_TO_TICKS(1);
-	global_data.Events[Event::PoisonExpire] = global_data.Ticks + SECONDS_TO_TICKS(5) * scale;
+	events[Event::PoisonTick] = ticks + SECONDS_TO_TICKS(1);
+	events[Event::PoisonExpire] = ticks + SECONDS_TO_TICKS(5) * scale;
 }
 
-void Collisions::ApplyTrapped(GlobalDataWrapper& global_data, unsigned int scale) noexcept
+void Collisions::ApplyTrapped(std::unordered_set<Effect>& effects, std::unordered_map<Event, size_t>& events,
+		size_t ticks, unsigned int scale) noexcept
 {
-	global_data.Effects.insert(Effect::Trapped);
+	effects.insert(Effect::Trapped);
 }
 
-void Collisions::ApplyDrunk(GlobalDataWrapper& global_data, unsigned int scale) noexcept
+void Collisions::ApplyDrunk(std::unordered_set<Effect>& effects, std::unordered_map<Event, size_t>& events,
+		size_t ticks, unsigned int scale) noexcept
 {
-	global_data.Effects.insert(Effect::Drunk);
-	global_data.Events[Event::DrunkExpire] = global_data.Ticks + SECONDS_TO_TICKS(5) * scale;
+	effects.insert(Effect::Drunk);
+	events[Event::DrunkExpire] = ticks + SECONDS_TO_TICKS(5) * scale;
 }
 
-void Collisions::ApplyNone(GlobalDataWrapper& global_data, unsigned int scale) noexcept
+void Collisions::ApplyNone(std::unordered_set<Effect>& effects, std::unordered_map<Event, size_t>& events,
+		size_t ticks, unsigned int scale) noexcept
 {}

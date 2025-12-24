@@ -1,24 +1,25 @@
 #include "projectiles.hpp"
 
+#include <cmath>
+#include <unordered_map>
+
 #include "raylib.h"
 #include "raymath.h"
 
-#include "globalDataWrapper.hpp"
 #include "assetManager.hpp"
 #include "constants.hpp"
 
-#include <cmath>
 
-Projectile::Projectile(float x, float y, const Vector2& direction, ProjectileType type, const GlobalDataWrapper& global_data, const AssetManager& assets) noexcept :
-	Type(type)
+Projectile::Projectile(float x, float y, float speed, float scale, Vector2 direction, ProjectileType type, const AssetManager& assets) noexcept :
+	Type(type),
+	Speed(speed),
+	Scale(scale)
 {
-	if (direction.x != 0.0f || direction.y != 0.0f)
-		this->Direction = Vector2Normalize(direction);
-	else
-		this->Direction = direction;
+	// Vector2Normalize already checks 0-length vectors
+	this->Direction = Vector2Normalize(direction);
 
 	auto hook = this->ConstructorHooks[static_cast<size_t>(type)];
-	(this->*hook)(x, y, direction, global_data, assets);
+	(this->*hook)(assets);
 	
 	this->Rect = { x, y, this->Image.width * this->Scale, this->Image.height * this->Scale };
 }
@@ -44,21 +45,17 @@ void Projectile::Update() noexcept
 
 
 
-void Projectile::BulletConstructor(float x, float y, const Vector2& direction, const GlobalDataWrapper& global_data, const AssetManager& assets) noexcept
+void Projectile::BulletConstructor(const AssetManager& assets) noexcept
 {
 	this->Image = assets.Textures.at(TextureKey::Bullet);
-	this->Speed = global_data.Attributes.at(Attribute::BulletSpeed);
 	this->Rotation = atan2(this->Direction.y, this->Direction.x) * TO_DEG;
-	this->Scale = 1.0f;
 	this->Colour = YELLOW;
 }
 
-void Projectile::LazerConstructor(float x, float y, const Vector2& direction, const GlobalDataWrapper& global_data, const AssetManager& assets) noexcept
+void Projectile::LazerConstructor(const AssetManager& assets) noexcept
 {
 	this->Image = assets.Textures.at(TextureKey::Lazer);
-	this->Speed = global_data.Attributes.at(Attribute::LazerSpeed);
 	this->Rotation = atan2(this->Direction.y, this->Direction.x) * TO_DEG;
-	this->Scale = global_data.Attributes.at(Attribute::LazerScale);
 	this->Colour = CYAN;
 }
 

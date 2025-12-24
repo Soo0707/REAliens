@@ -1,10 +1,12 @@
 #pragma once
 
-#include "game.hpp"
+#include "settingsManager.hpp"
+#include "assetManager.hpp"
+#include "gameState.hpp"
 
 namespace GameInputSystem
 {
-	void HandleTickedInput(Game& game) noexcept;
-	void HandleLeftClick(Game& game) noexcept;
-	void HandleRightClick(Game& game) noexcept;
+	void HandleTickedInput(GameState& game_state, const SettingsManager& settings, const AssetManager& assets) noexcept;
+	void HandleLeftClick(GameState& game_state, const AssetManager& assets) noexcept;
+	void HandleRightClick(GameState& game_state, const AssetManager& assets) noexcept;
 }

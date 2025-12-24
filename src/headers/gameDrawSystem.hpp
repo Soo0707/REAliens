@@ -1,18 +1,20 @@
 #pragma once
 
-#include "game.hpp"
+#include "gameState.hpp"
+#include "assetManager.hpp"
+#include "globalDataWrapper.hpp"
 #include "raylib.h"
 
 namespace GameDrawSystem
 {
-	void DrawGame(const Game& game) noexcept;
-	void DrawLighting(const Game& game) noexcept;
+	void DrawScreenLayer(const GameState& game_state) noexcept;
+	void DrawLighting(const GameState& game_state) noexcept;
+	void DrawGame(const GameState& game_state, const AssetManager& assets) noexcept;
 
-	void DrawScreenLayer(const Game& game) noexcept;
-	void DrawOverlay(const Game& game) noexcept;
+	void DrawOverlay(const GameState& game_state, const GlobalDataWrapper& global_data, const AssetManager& assets) noexcept;
 
-	void DrawGreenbull(const Game& game) noexcept;
-	void DrawMilk(const Game& game) noexcept;
-	void DrawDrunk(const Game& game) noexcept;
-	void DrawMagnetism(const Game& game) noexcept;
+	void DrawGreenbull(const GameState& game_state, const AssetManager& assets) noexcept;
+	void DrawMilk(const GameState& game_state, const AssetManager& assets) noexcept;
+	void DrawDrunk(const GameState& game_state, const AssetManager& assets) noexcept;
+	void DrawMagnetism(const GameState& game_state, const AssetManager& assets) noexcept;
 }

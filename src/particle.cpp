@@ -8,7 +8,7 @@
 
 Particle::Particle(
 		float x, float y, float scale, float rotation, size_t creation, size_t expiry,
-		Vector2 velocity, Color begin_colour, Color end_colour, AssetManager& assets) noexcept :
+		Vector2 velocity, Color begin_colour, Color end_colour, const AssetManager& assets) noexcept :
 	Rect(x, y, scale, scale),
 	Scale(scale),
 	Rotation(rotation),

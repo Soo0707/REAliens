@@ -3,8 +3,11 @@
 #include "globalDataWrapper.hpp"
 #include "assetManager.hpp"
 #include "settingsManager.hpp"
+#include "gameState.hpp"
+
 
 #include "game.hpp"
+#include "gameState.hpp"
 #include "powerupMenu.hpp"
 #include "gameOverMenu.hpp"
 #include "pauseMenu.hpp"
@@ -31,6 +34,7 @@ int main(void)
 	std::shared_ptr<AssetManager> assets = std::make_shared<AssetManager>();
 	std::shared_ptr<SettingsManager> settings = std::make_shared<SettingsManager>();
 	std::shared_ptr<GlobalDataWrapper> global_data = std::make_shared<GlobalDataWrapper>();
+	std::shared_ptr<GameState> game_state = std::make_shared<GameState>(*assets);
 
 	unsigned int target_refresh_rate;
 
@@ -41,8 +45,8 @@ int main(void)
 
 	SetTargetFPS(target_refresh_rate);
 
-	Game game = Game(global_data, assets, settings);
-	PowerupMenu powerup_menu = PowerupMenu(global_data, assets, settings);
+	Game game = Game(global_data, assets, settings, game_state);
+	PowerupMenu powerup_menu = PowerupMenu(global_data, assets, settings, game_state);
 	GameOverMenu game_over = GameOverMenu(global_data, assets);
 	PauseMenu pause = PauseMenu(global_data, assets);
 	MainMenu main_menu = MainMenu(global_data, assets);
@@ -68,7 +72,8 @@ int main(void)
 		switch (global_data->ActiveState)
 		{
 			case State::GameReset:
-				game.Reset();
+				game_state->Reset();
+				global_data->Reset();
 				global_data->ActiveState = State::Game;
 				break;
 			case State::MainMenu:
@@ -93,7 +98,7 @@ int main(void)
 				pause.Draw(virtual_canvas);
 				break;
 			case State::GenerateGameOverStats:
-				game_over.GenerateStats();
+				game_over.GenerateStats(*game_state);
 				global_data->ActiveState = State::GameOverMenu;
 				break;
 		}

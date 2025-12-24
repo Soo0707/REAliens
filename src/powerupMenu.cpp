@@ -1,20 +1,23 @@
 #include "powerupMenu.hpp"
 
-#include <iostream>
 #include <memory>
 #include <set>
 
 #include "raylib.h"
+
+#include "gameState.hpp"
 #include "globalDataWrapper.hpp"
 #include "settingsManager.hpp"
 #include "assetManager.hpp"
 
 #include "constants.hpp"
 
-PowerupMenu::PowerupMenu(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets, std::shared_ptr<SettingsManager> settings) :
+PowerupMenu::PowerupMenu(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets, 
+		std::shared_ptr<SettingsManager> settings, std::shared_ptr<GameState> game_state):
 	GlobalData(global_data),
 	Settings(settings),
-	Assets(assets)
+	Assets(assets),
+	m_GameState(game_state)
 {
 	PowerupMenu::GenerateList();
 }
@@ -110,11 +113,11 @@ void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
 
 	if (!this->Settings->Data.at(SettingKey::UnlimitedPowerups))
 	{
-		this->GlobalData->UnclaimedPowerups--;
-		this->GlobalData->CachedStrings[CachedString::UnclaimedPowerups] = "Unclaimed Powerups: " + std::to_string(this->GlobalData->UnclaimedPowerups);
+		this->m_GameState->UnclaimedPowerups--;
+		this->GlobalData->CachedStrings[CachedString::UnclaimedPowerups] = "Unclaimed Powerups: " + std::to_string(this->m_GameState->UnclaimedPowerups);
 	}
 
-	if (this->GlobalData->UnclaimedPowerups == 0 && !this->Settings->Data.at(SettingKey::UnlimitedPowerups))
+	if (this->m_GameState->UnclaimedPowerups == 0 && !this->Settings->Data.at(SettingKey::UnlimitedPowerups))
 	{
 		this->GlobalData->ActiveState = State::Game;
 		this->Gamble = false;
@@ -124,26 +127,26 @@ void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
 
 void PowerupMenu::ApplyEffect(const Effect effect, const Event event, const unsigned int duration) noexcept
 {
-	this->GlobalData->Effects.insert(effect);
+	this->m_GameState->Effects.insert(effect);
 
-	if (this->GlobalData->Events.count(event))
-		this->GlobalData->Events[event] += duration;
+	if (this->m_GameState->Events.count(event))
+		this->m_GameState->Events[event] += duration;
 	else
-		this->GlobalData->Events[event] = this->GlobalData->Ticks + duration;
+		this->m_GameState->Events[event] = this->m_GameState->Ticks + duration;
 }
 
 void PowerupMenu::ApplyMilk() noexcept
 {
 	PowerupMenu::ApplyEffect(Effect::Milk, Event::MilkExpire, SECONDS_TO_TICKS(180));
 
-	this->GlobalData->Effects.erase(Effect::Aussie);
-	this->GlobalData->Effects.erase(Effect::Drunk);
-	this->GlobalData->Effects.erase(Effect::Trapped);
+	this->m_GameState->Effects.erase(Effect::Aussie);
+	this->m_GameState->Effects.erase(Effect::Drunk);
+	this->m_GameState->Effects.erase(Effect::Trapped);
 
-	this->GlobalData->Effects.erase(Effect::Poison);
+	this->m_GameState->Effects.erase(Effect::Poison);
 
-	this->GlobalData->Events.erase(Event::PoisonTick);
-	this->GlobalData->Events.erase(Event::PoisonExpire);
+	this->m_GameState->Events.erase(Event::PoisonTick);
+	this->m_GameState->Events.erase(Event::PoisonExpire);
 }
 
 void PowerupMenu::ApplyGreenbull() noexcept
@@ -158,91 +161,91 @@ void PowerupMenu::ApplyMagnetism() noexcept
 
 void PowerupMenu::ApplyAura() noexcept
 {
-	if (this->GlobalData->Attributes.count(Attribute::AuraSize))
+	if (this->m_GameState->Attributes.count(Attribute::AuraSize))
 	{
-		if (this->GlobalData->Attributes[Attribute::AuraSize] + 50 < REFERENCE_HEIGHT)
-			this->GlobalData->Attributes[Attribute::AuraSize] += 50;
+		if (this->m_GameState->Attributes[Attribute::AuraSize] + 50 < REFERENCE_HEIGHT)
+			this->m_GameState->Attributes[Attribute::AuraSize] += 50;
 		else
-			this->GlobalData->Attributes[Attribute::AuraSize] = REFERENCE_HEIGHT;
+			this->m_GameState->Attributes[Attribute::AuraSize] = REFERENCE_HEIGHT;
 
-		this->GlobalData->Attributes[Attribute::AuraDamage] += 5;
+		this->m_GameState->Attributes[Attribute::AuraDamage] += 5;
 
-		if (this->GlobalData->Attributes[Attribute::AuraCooldown] - 25 > TICK_RATE / 4)
-			this->GlobalData->Attributes[Attribute::AuraCooldown] -= 25;
+		if (this->m_GameState->Attributes[Attribute::AuraCooldown] - 25 > TICK_RATE / 4)
+			this->m_GameState->Attributes[Attribute::AuraCooldown] -= 25;
 		else
-			this->GlobalData->Attributes[Attribute::AuraCooldown] = TICK_RATE / 4;
+			this->m_GameState->Attributes[Attribute::AuraCooldown] = TICK_RATE / 4;
 	}
 	else
 	{
-		this->GlobalData->Attributes[Attribute::AuraSize] = 100;
-		this->GlobalData->Attributes[Attribute::AuraDamage] = 5;
-		this->GlobalData->Attributes[Attribute::AuraCooldown] = SECONDS_TO_TICKS(2);
+		this->m_GameState->Attributes[Attribute::AuraSize] = 100;
+		this->m_GameState->Attributes[Attribute::AuraDamage] = 5;
+		this->m_GameState->Attributes[Attribute::AuraCooldown] = SECONDS_TO_TICKS(2);
 	}
 
-	this->GlobalData->Events[Event::AuraTick] = this->GlobalData->Ticks + this->GlobalData->Attributes.at(Attribute::AuraCooldown);
+	this->m_GameState->Events[Event::AuraTick] = this->m_GameState->Ticks + this->m_GameState->Attributes.at(Attribute::AuraCooldown);
 }
 
 void PowerupMenu::ApplyBuckshot() noexcept
 {
-	this->GlobalData->Attributes[Attribute::Buckshot] += 2;
+	this->m_GameState->Attributes[Attribute::Buckshot] += 2;
 
-	if (this->GlobalData->Attributes[Attribute::BuckshotSpread] - 0.02f > 5 * TO_RAD)
-		this->GlobalData->Attributes[Attribute::BuckshotSpread] -= 0.02f;
+	if (this->m_GameState->Attributes[Attribute::BuckshotSpread] - 0.02f > 5 * TO_RAD)
+		this->m_GameState->Attributes[Attribute::BuckshotSpread] -= 0.02f;
 	else
-		this->GlobalData->Attributes[Attribute::BuckshotSpread] = 5 * TO_RAD;
+		this->m_GameState->Attributes[Attribute::BuckshotSpread] = 5 * TO_RAD;
 }
 
 void PowerupMenu::ApplyProjectile() noexcept
 {
-	if (this->GlobalData->Attributes[Attribute::BulletCooldown] - 25 > 80)
-		this->GlobalData->Attributes[Attribute::BulletCooldown] -= 25;
+	if (this->m_GameState->Attributes[Attribute::BulletCooldown] - 25 > 80)
+		this->m_GameState->Attributes[Attribute::BulletCooldown] -= 25;
 	else
-		this->GlobalData->Attributes[Attribute::BulletCooldown] = 80;
+		this->m_GameState->Attributes[Attribute::BulletCooldown] = 80;
 
-	this->GlobalData->Attributes[Attribute::BulletDamage] += 5;
-	this->GlobalData->Attributes[Attribute::BulletSpeed] += 100;
+	this->m_GameState->Attributes[Attribute::BulletDamage] += 5;
+	this->m_GameState->Attributes[Attribute::BulletSpeed] += 100;
 }
 
 void PowerupMenu::ApplyLazer() noexcept
 {
-	if (this->GlobalData->Attributes[Attribute::LazerCooldown] - 50 > 60)
-		this->GlobalData->Attributes[Attribute::LazerCooldown] -= 50;
+	if (this->m_GameState->Attributes[Attribute::LazerCooldown] - 50 > 60)
+		this->m_GameState->Attributes[Attribute::LazerCooldown] -= 50;
 	else
-		this->GlobalData->Attributes[Attribute::LazerCooldown] = 60;
+		this->m_GameState->Attributes[Attribute::LazerCooldown] = 60;
 
-	this->GlobalData->Attributes[Attribute::LazerDamage] += 10;
-	this->GlobalData->Attributes[Attribute::LazerScale] += 0.5;
-	this->GlobalData->Attributes[Attribute::LazerSpeed] += 10;
+	this->m_GameState->Attributes[Attribute::LazerDamage] += 10;
+	this->m_GameState->Attributes[Attribute::LazerScale] += 0.5;
+	this->m_GameState->Attributes[Attribute::LazerSpeed] += 10;
 }
 
 void PowerupMenu::ApplyLifeSteal() noexcept
 {
-	if (this->GlobalData->Effects.count(Effect::LifeSteal))
-		this->GlobalData->Attributes[Attribute::LifeStealMultiplier] += 0.2;
+	if (this->m_GameState->Effects.count(Effect::LifeSteal))
+		this->m_GameState->Attributes[Attribute::LifeStealMultiplier] += 0.2;
 	else
 	{
-		this->GlobalData->Attributes[Attribute::LifeStealMultiplier] = 0.1;
-		this->GlobalData->Effects.insert(Effect::LifeSteal);
+		this->m_GameState->Attributes[Attribute::LifeStealMultiplier] = 0.1;
+		this->m_GameState->Effects.insert(Effect::LifeSteal);
 	}
 }
 
 void PowerupMenu::ApplyPlotArmour() noexcept
 {
-	if (this->GlobalData->Events.count(Event::IncreasePlotArmour))
-		this->GlobalData->Events[Event::IncreasePlotArmour]++;
+	if (this->m_GameState->Events.count(Event::IncreasePlotArmour))
+		this->m_GameState->Events[Event::IncreasePlotArmour]++;
 	else
-		this->GlobalData->Events[Event::IncreasePlotArmour] = 1;
+		this->m_GameState->Events[Event::IncreasePlotArmour] = 1;
 }
 
 void PowerupMenu::ApplySpeedBoots() noexcept
 {
-	if (this->GlobalData->Events.count(Event::IncreasePlayerSpeed))
-		this->GlobalData->Events[Event::IncreasePlayerSpeed]++;
+	if (this->m_GameState->Events.count(Event::IncreasePlayerSpeed))
+		this->m_GameState->Events[Event::IncreasePlayerSpeed]++;
 	else
-		this->GlobalData->Events[Event::IncreasePlayerSpeed] = 1;
+		this->m_GameState->Events[Event::IncreasePlayerSpeed] = 1;
 }
 
 void PowerupMenu::ApplyBabyOil() noexcept
 {
-	this->GlobalData->Attributes[Attribute::SlideSpeed] *= 1.2f;
+	this->m_GameState->Attributes[Attribute::SlideSpeed] *= 1.2f;
 }

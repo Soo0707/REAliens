@@ -8,54 +8,29 @@
 #include "raylib.h"
 #include "raymath.h"
 
+#include "gameState.hpp"
 #include "globalDataWrapper.hpp"
 
 #include "gameEventSystem.hpp"
 #include "gameInputSystem.hpp"
 #include "gameDrawSystem.hpp"
 #include "gameHelpers.hpp"
-#include "gameText.hpp"
 
 #include "constants.hpp"
 
-#include "player.hpp"
 #include "settingsManager.hpp"
 #include "assetManager.hpp"
-#include "projectiles.hpp"
-#include "collisions.hpp"
-
-#include "enemy.hpp"
-
-#include "enemyData.hpp"
-#include "xp.hpp"
 
 
-Game::Game(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets, std::shared_ptr<SettingsManager> settings) :
+Game::Game(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets,
+		std::shared_ptr<SettingsManager> settings, std::shared_ptr<GameState> game_state) :
 	GlobalData(global_data),
 	Settings(settings),
-	Assets(assets)
+	Assets(assets),
+	m_GameState(game_state)
 {
-	this->PlayerInstance = std::make_unique<Player>(500, 500, *this->Assets);
-
 	this->LightingLayer = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
 	this->GameLayer = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
-
-	this->Camera = { 0 };
-	this->Camera.offset = { REFERENCE_WIDTH / 2.0f, REFERENCE_HEIGHT / 2.0f };
-	this->Camera.rotation = 0.0f;
-    this->Camera.zoom = 1.0f;
-
-	this->UpdateArea = {
-		this->PlayerInstance->Centre.x - (REFERENCE_WIDTH / 2.0f),
-		this->PlayerInstance->Centre.y - (REFERENCE_HEIGHT / 2.0f),
-		static_cast<float>(REFERENCE_WIDTH),
-		static_cast<float>(REFERENCE_HEIGHT)
-	};
-
-	this->Projectiles.reserve(100);
-	this->Xps.reserve(100);
-	this->GameTexts.reserve(100);
-	this->Particles.reserve(1000);
 }
 
 Game::~Game()
@@ -66,19 +41,21 @@ Game::~Game()
 
 void Game::Draw(RenderTexture2D& canvas) const noexcept
 {
+	const Camera2D camera = this->m_GameState->Camera;
+
 	BeginTextureMode(this->GameLayer);
 		ClearBackground(BLACK);
 
-		BeginMode2D(this->Camera);
-			GameDrawSystem::DrawGame(*this);
+		BeginMode2D(camera);
+			GameDrawSystem::DrawGame(*this->m_GameState, *this->Assets);
 		EndMode2D();
 	EndTextureMode();
 
 	BeginTextureMode(this->LightingLayer);
 		ClearBackground(LIGHTGRAY);
 
-		BeginMode2D(this->Camera);
-			GameDrawSystem::DrawLighting(*this);
+		BeginMode2D(camera);
+			GameDrawSystem::DrawLighting(*this->m_GameState);
 		EndMode2D();
 	EndTextureMode();
 
@@ -101,11 +78,11 @@ void Game::Draw(RenderTexture2D& canvas) const noexcept
 			);
 		EndBlendMode();
 
-		BeginMode2D(this->Camera);
-			GameDrawSystem::DrawScreenLayer(*this);
+		BeginMode2D(camera);
+			GameDrawSystem::DrawScreenLayer(*this->m_GameState);
 		EndMode2D();
 
-		GameDrawSystem::DrawOverlay(*this);
+		GameDrawSystem::DrawOverlay(*this->m_GameState, *this->GlobalData, *this->Assets);
 	EndTextureMode();
 }
 
@@ -118,323 +95,51 @@ void Game::Update() noexcept
 
 	while (this->Accumulator >= TICK_TIME)
 	{
-		Game::UpdateTimeouts();
+		this->m_GameState->UpdateTimeouts(*this->GlobalData);
 
-		while (this->CollectedXp >= this->LevelUpTreshold)
+		while (this->m_GameState->CollectedXp >= this->m_GameState->LevelUpTreshold)
 		{
-			size_t distance = this->CollectedXp - this->LevelUpTreshold;
+			size_t distance = this->m_GameState->CollectedXp - this->m_GameState->LevelUpTreshold;
 
-			GameHelper::LevelUp(*this, *this->Settings);
-			this->CollectedXp = distance;
+			GameHelper::LevelUp(*this->m_GameState, *this->Settings, *this->GlobalData);
+			this->m_GameState->CollectedXp = distance;
 		}
 
-		GameInputSystem::HandleTickedInput(*this);
+		GameInputSystem::HandleTickedInput(*this->m_GameState, *this->Settings, *this->Assets);
 
-		GameEventSystem::HandleEvents(*this);
+		GameEventSystem::HandleEvents(*this->m_GameState, *this->Assets);
 
-		Game::UpdatePlayer();
-		Game::UpdateCamera();
+		this->m_GameState->UpdatePlayer(*this->GlobalData, *this->Settings, *this->Assets);
+		this->m_GameState->UpdateCamera();
 
-		Game::UpdateEnemies();
-		Game::UpdateProjectiles();
-		Game::UpdateXps();
+		this->m_GameState->UpdateEnemies(*this->Assets);
+		this->m_GameState->UpdateProjectiles(*this->Assets);
+		this->m_GameState->UpdateXps(*this->Assets);
 
-		Game::UpdateGameTexts();
-		Game::UpdateParticles();
+		this->m_GameState->UpdateGameTexts();
+		this->m_GameState->UpdateParticles();
 
 		this->Accumulator -= TICK_TIME;
-		this->GlobalData->Ticks++;
+		this->m_GameState->Ticks++;
 	} 
 }
 
-
-void Game::UpdateEnemies() noexcept
-{
-	size_t ticks = this->GlobalData->Ticks;
-
-	if (ticks - this->LastSpawn >= SECONDS_TO_TICKS(30) || !this->Enemies.size())
-	{
-		GameHelper::SpawnEnemies(*this);
-		this->LastSpawn = ticks;
-	}
-
-	bool has_greenbull = this->GlobalData->Effects.count(Effect::Greenbull);
-	bool is_sliding = this->PlayerInstance->Sliding;
-	bool is_stinky = this->GlobalData->Effects.count(Effect::Stinky);
-
-	for (auto &enemy : this->Enemies)
-	{
-		long long slide_damage = 0;
-
-		if (CheckCollisionRecs(this->UpdateArea, enemy.Rect))
-		{
-			enemy.Update(this->PlayerInstance->Centre, ticks, is_stinky);
-
-			GameHelper::LoopOverMap(*this->Assets, enemy.Rect);
-			
-			if (!has_greenbull)
-				Collisions::LeAttack(*this->PlayerInstance, enemy, *this->GlobalData);
-			
-			if (is_sliding)
-				slide_damage = Collisions::SlideAttack(*this->PlayerInstance, enemy);
-		}
-
-		if (slide_damage > 0)
-		{
-			this->GameTexts.emplace_back( 
-					enemy.Rect.x, enemy.Rect.y, 64.0f, std::to_string(slide_damage),
-					52,	ORANGE, ticks, ticks + TICK_RATE / 4
-					);
-
-			this->GlobalData->TotalDamage += slide_damage;
-
-			for (int i = 0; i < 20; i++)
-			{
-				float size = static_cast<float>(GetRandomValue(10, 25));
-				float rotation = static_cast<float>(GetRandomValue(0, 90));
-				size_t expiry = ticks + static_cast<size_t>(GetRandomValue(60, TICK_RATE));
-				Vector2 velocity = this->PlayerInstance->Direction;
-
-				velocity.x += static_cast<float>(GetRandomValue(-192, 192));
-				velocity.y += static_cast<float>(GetRandomValue(-192, 192));
-
-				this->Particles.emplace_back(
-						enemy.Rect.x, enemy.Rect.y, size, rotation, ticks,
-						expiry, velocity, ORANGE, RED, *this->Assets
-						);
-			}
-		}
-
-		if (enemy.Health <= 0)
-		{
-			unsigned int value = EnemyXpValues[static_cast<size_t>(enemy.Type)];
-			this->Xps.emplace_back(enemy.Rect.x, enemy.Rect.y, value * static_cast<int>(enemy.Scale), *this->Assets);
-
-			this->GlobalData->EnemiesKilled++;
-		}
-	}
-
-	std::erase_if(this->Enemies, [](const Enemy& enemy) { return (enemy.Health <= 0); });
-}
-
-void Game::UpdateProjectiles() noexcept
-{
-	unsigned int total_damage_done = 0;
-
-	size_t ticks = this->GlobalData->Ticks;
-	bool spawn_particle = !(ticks % (TICK_RATE / 4));
-
-	for (auto &projectile : this->Projectiles)
-	{
-		if (CheckCollisionRecs(this->UpdateArea, projectile.Rect))
-		{
-			projectile.Update();
-
-			GameHelper::LoopOverMap(*this->Assets, projectile.Rect);
-
-			unsigned int damage = Collisions::ProjectileCollision(projectile, this->Enemies, *this->GlobalData); 
-
-			if (damage > 0)
-			{
-				this->GameTexts.emplace_back( 
-						projectile.Rect.x, projectile.Rect.y, 64.0f, std::to_string(damage),
-						48,	YELLOW, ticks, ticks + TICK_RATE / 4
-						);
-
-				for (int i = 0; i < 5; i++)
-				{
-					float size = static_cast<float>(GetRandomValue(5, 20));
-					float rotation = static_cast<float>(GetRandomValue(0, 90));
-					size_t expiry = ticks + static_cast<size_t>(GetRandomValue(120, TICK_RATE));
-					Vector2 velocity = projectile.Direction;
-
-					velocity.x += static_cast<float>(GetRandomValue(-96, 96));
-					velocity.y += static_cast<float>(GetRandomValue(-96, 96));
-
-					this->Particles.emplace_back(
-							projectile.Rect.x, projectile.Rect.y, size, rotation, ticks,
-							expiry, velocity, RED, RED, *this->Assets
-							);
-				}
-			}
-
-			if (spawn_particle)
-			{
-				float size = static_cast<float>(GetRandomValue(5, 20));
-				float rotation = static_cast<float>(GetRandomValue(0, 90));
-				size_t expiry = ticks + static_cast<size_t>(GetRandomValue(120, TICK_RATE));
-				Vector2 velocity = projectile.Direction;
-
-				velocity.x += static_cast<float>(GetRandomValue(-96, 96));
-				velocity.y += static_cast<float>(GetRandomValue(-96, 96));
-
-				this->Particles.emplace_back(
-						projectile.Rect.x, projectile.Rect.y, size, rotation, ticks,
-						expiry, velocity, projectile.Colour, projectile.Colour, *this->Assets
-						);
-			}
-
-			total_damage_done += damage;
-		}
-		else
-			projectile.Kill = true;
-	}
-
-	std::erase_if(this->Projectiles, [](const Projectile& proj){ return proj.Kill; });
-
-	if (this->GlobalData->Effects.count(Effect::LifeSteal))
-		this->PlayerInstance->IncreaseHealth( total_damage_done * this->GlobalData->Attributes.at(Attribute::LifeStealMultiplier) );
-
-	this->GlobalData->TotalDamage += total_damage_done;
-}
-
-void Game::UpdateXps() noexcept
-{
-	bool has_magnetism = this->GlobalData->Effects.count(Effect::Magnetism);
-	size_t ticks = this->GlobalData->Ticks;
-	bool spawn_particles = !(ticks % (TICK_RATE / 2));
-
-	for (auto &xp : this->Xps)
-	{
-		if (CheckCollisionRecs(this->PlayerInstance->Rect, xp.Rect) || has_magnetism)
-		{
-			this->CollectedXp += xp.Value;
-			xp.Kill = true;
-		}
-
-		if (CheckCollisionRecs(this->UpdateArea, xp.Rect) && spawn_particles) 
-		{
-			float size = static_cast<float>(GetRandomValue(10, 25));
-			float rotation = static_cast<float>(GetRandomValue(0, 90));
-			size_t expiry = ticks + static_cast<size_t>(GetRandomValue(120, TICK_RATE));
-			Vector2 velocity = (Vector2) { static_cast<float>(GetRandomValue(-64, 64)), static_cast<float>(GetRandomValue(-96, -32)) };
-
-			this->Particles.emplace_back(
-					xp.Rect.x, xp.Rect.y, size, rotation, ticks,
-					expiry, velocity, GREEN, DARKGREEN, *this->Assets
-					);
-		}
-	}
-
-	std::erase_if(this->Xps, [](const Xp& xp) { return xp.Kill; });
-}
-
-void Game::UpdateGameTexts() noexcept
-{
-	for (auto &text : this->GameTexts)
-	{
-		if (CheckCollisionRecs(this->UpdateArea, text.Rect))
-			text.Update();
-	}
-
-	size_t ticks = this->GlobalData->Ticks;
-	std::erase_if(this->GameTexts, [ticks](const GameText& text) { return (ticks >= text.Expiry); });
-}
-
-void Game::UpdateParticles() noexcept
-{
-	size_t ticks = this->GlobalData->Ticks;
-
-	for (auto &particle : this->Particles)
-	{
-		if (CheckCollisionRecs(this->UpdateArea, particle.Rect))
-			particle.Update(ticks);
-	}
-
-	std::erase_if(this->Particles, [ticks](const Particle& particle) { return (ticks >= particle.Expiry); });
-}
-
-void Game::UpdatePlayer() noexcept
-{
-	if (this->PlayerInstance->Health <= 0 && !this->Settings->Data.at(SettingKey::DisableHealthCheck))
-	{
-		this->GlobalData->CachedStrings[CachedString::GameOverReason] = "Reason: Player Died";
-		this->GlobalData->ActiveState = State::GenerateGameOverStats;
-	}
-
-	float slide_speed = this->GlobalData->Attributes.at(Attribute::SlideSpeed);
-
-	this->PlayerInstance->Update(this->GlobalData->Ticks, &this->GlobalData->TotalDistance, slide_speed);
-
-	GameHelper::LoopOverMap(*this->Assets, this->PlayerInstance->Rect);
-}
-
-void Game::UpdateCamera() noexcept
-{
-	this->UpdateArea.x = this->PlayerInstance->Centre.x - REFERENCE_WIDTH / 2.0f;
-	this->UpdateArea.y =  this->PlayerInstance->Centre.y - REFERENCE_HEIGHT / 2.0f;
-	
-	this->Camera.target = this->PlayerInstance->Centre;
-	this->Camera.offset = { REFERENCE_WIDTH / 2.0f, REFERENCE_HEIGHT / 2.0f };
-
-	if (this->GlobalData->Ticks % TICK_RATE && this->GlobalData->Effects.count(Effect::Earthquake))
-	{
-		unsigned int shake_offset = GetRandomValue(-12, 12);
-
-		this->Camera.offset.x += shake_offset;
-		this->Camera.offset.y -= shake_offset;
-	}
-
-	if (this->GlobalData->Effects.count(Effect::Aussie))
-		this->Camera.rotation = 180.0f;
-	else
-		this->Camera.rotation = 0.0f;
-
-	if (this->GlobalData->Effects.count(Effect::Microscope))
-		this->Camera.zoom = 2.0f;
-	else
-		this->Camera.zoom = 1.0f;
-}
-
+/*
 void Game::UpdateTimeouts() noexcept
 {
-	size_t ticks = this->GlobalData->Ticks;
-	
-	if (ticks - this->LastLMB >= this->GlobalData->Attributes.at(Attribute::BulletCooldown))
-		this->CanLMB = true;
-
-	if (ticks - this->LastRMB >= this->GlobalData->Attributes.at(Attribute::LazerCooldown))
-		this->CanRMB = true;
-
-	if (ticks - this->LastSlide >= TICK_RATE)
-		this->CanSlide = true;
+	size_t ticks = this->m_GameState->Ticks;
 
 	if (!(ticks % TICK_RATE))
 		this->GlobalData->CachedStrings[CachedString::Duration] = "Duration: " + std::to_string(TICKS_TO_SECONDS(ticks)) + "s";
 }
-
+*/
 
 void Game::HandleEssentialInput() noexcept
 {
 	if (IsKeyPressed(KEY_ESCAPE))
 		this->GlobalData->ActiveState = State::PauseMenu;
 	
-	if (IsKeyPressed(KEY_TAB) && (this->GlobalData->UnclaimedPowerups > 0 || this->Settings->Data.at(SettingKey::UnlimitedPowerups)))
+	if (IsKeyPressed(KEY_TAB) && (this->m_GameState->UnclaimedPowerups > 0 || this->Settings->Data.at(SettingKey::UnlimitedPowerups)))
 		this->GlobalData->ActiveState = State::PowerupMenu;
 }
 
-void Game::Reset() noexcept
-{
-	this->Enemies.clear();
-	this->Projectiles.clear();
-	this->Xps.clear();
-	this->GameTexts.clear();
-	this->Particles.clear();
-
-	this->CollectedXp = 0;
-	this->LevelUpTreshold = 5;
-
-	this->LastLMB = 0;
-	this->CanLMB = true;
-
-	this->LastRMB = 0;
-	this->CanRMB = true;
-
-	this->LastSlide = 0;
-	this->CanSlide = true;
-
-	this->LastSpawn = 0;
-
-	this->PlayerInstance->Reset();
-	this->GlobalData->Reset();
-}

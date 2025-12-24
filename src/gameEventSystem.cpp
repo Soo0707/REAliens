@@ -3,102 +3,148 @@
 #include <unordered_map>
 #include <cmath>
 
-#include "globalDataWrapper.hpp"
+#include "gameState.hpp"
+#include "assetManager.hpp"
 #include "constants.hpp"
 #include "collisions.hpp"
-#include "game.hpp"
 
 
-void GameEventSystem::HandleEvents(Game& game) noexcept
+void GameEventSystem::HandleEvents(GameState& game_state, const AssetManager& assets) noexcept
 {
 	static std::unordered_map<Event, size_t> new_events_map;
 
-	for (auto &pair : game.GlobalData->Events)
+	for (auto &pair : game_state.Events)
 	{
-		GameEventSystem::EventHandlers[static_cast<size_t>(pair.first)](game, pair.second, new_events_map);
+		GameEventSystem::EventHandlers[static_cast<size_t>(pair.first)](game_state, assets, pair.second, new_events_map);
 	}
 
-	game.GlobalData->Events.swap(new_events_map);
+	game_state.Events.swap(new_events_map);
 
 	new_events_map.clear();
 }
 
 
-bool GameEventSystem::HandleEventExpiry(Event event, Effect effect, GlobalDataWrapper& global_data, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
+bool GameEventSystem::HandleEventExpiry(Event event, Effect effect, GameState& game_state, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
-	if (expiry >= global_data.Ticks)
+	if (expiry >= game_state.Ticks)
 	{
 		new_events_map[event] = expiry;
 		return false;
 	}
 	else
 	{
-		global_data.Effects.erase(effect);
+		game_state.Effects.erase(effect);
 		return true;
 	}
 }
 
 
-void GameEventSystem::AuraTick(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
+void GameEventSystem::AuraTick(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
-	if (expiry >= game.GlobalData->Ticks)
+	size_t ticks = game_state.Ticks;
+
+	if (expiry >= ticks)
 		new_events_map[Event::AuraTick] = expiry;
 	else
 	{
-		game.GlobalData->TotalDamage += Collisions::Aura(game);
-		new_events_map[Event::AuraTick] = expiry + game.GlobalData->Attributes.at(Attribute::AuraCooldown);
+		unsigned int total_hit = 0;
+
+		float aura_damage = game_state.Attributes.at(Attribute::AuraDamage);
+		float aura_size = game_state.Attributes.at(Attribute::AuraSize);
+
+		Rectangle aura = {
+			game_state.m_Player->Centre.x - aura_size / 2.0f,
+			game_state.m_Player->Centre.y - aura_size / 2.0f,
+			aura_size,
+			aura_size
+		};
+
+		for (auto &enemy : game_state.Enemies)
+		{
+			bool hit = Collisions::Aura(enemy, aura, aura_damage, ticks);
+
+			if (hit)
+			{
+				game_state.GameTexts.emplace_back(
+						enemy.Rect.x, enemy.Rect.y, 64.0f, std::to_string(static_cast<unsigned int>(aura_damage)), 
+						42, MAGENTA, ticks,	ticks + TICK_RATE / 4
+						);
+
+				for (int i = 0; i < 15; i++)
+				{
+					float size = static_cast<float>(GetRandomValue(10, 20));
+					float rotation = static_cast<float>(GetRandomValue(0, 90));
+					size_t expiry = ticks + static_cast<size_t>(GetRandomValue(60, TICK_RATE));
+					Vector2 velocity = { static_cast<float>(GetRandomValue(-192, 192)), static_cast<float>(GetRandomValue(-192, 192)) } ;
+
+					game_state.Particles.emplace_back(
+							enemy.Rect.x, enemy.Rect.y, size, rotation, ticks,
+							expiry, velocity, PURPLE, RED, assets
+							);
+				}
+
+				total_hit++;
+			}
+		}
+
+		game_state.TotalDamage += static_cast<unsigned int>(total_hit * aura_damage);
+
+		if (game_state.Effects.count(Effect::LifeSteal))
+			game_state.m_Player->IncreaseHealth(total_hit * aura_damage * game_state.Attributes.at(Attribute::LifeStealMultiplier));
+
+		new_events_map[Event::AuraTick] = expiry + game_state.Attributes.at(Attribute::AuraCooldown);
 	}
 }
 
-void GameEventSystem::PoisonTick(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
+void GameEventSystem::PoisonTick(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
-	if (expiry >= game.GlobalData->Ticks)
+	if (expiry >= game_state.Ticks)
 		new_events_map[Event::PoisonTick] = expiry;
 	else
 	{
-		game.PlayerInstance->Health -= 2;
+		game_state.m_Player->Health -= 2;
 		new_events_map[Event::PoisonTick] = expiry + SECONDS_TO_TICKS(1);
 	}
 }
 
-void GameEventSystem::IncreasePlotArmour(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
+void GameEventSystem::IncreasePlotArmour(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
-	game.PlayerInstance->HealthMax *= pow(2.0, game.GlobalData->Events.at(Event::IncreasePlotArmour));
-	game.PlayerInstance->Health = game.PlayerInstance->HealthMax;
+	game_state.m_Player->HealthMax *= pow(2.0, game_state.Events.at(Event::IncreasePlotArmour));
+	game_state.m_Player->Health = game_state.m_Player->HealthMax;
 }
 
-void GameEventSystem::PoisonExpire(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
+void GameEventSystem::PoisonExpire(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
-	if (GameEventSystem::HandleEventExpiry(Event::PoisonExpire, Effect::Poison, *game.GlobalData, expiry, new_events_map))
-		game.GlobalData->Events.erase(Event::PoisonTick);
+	if (GameEventSystem::HandleEventExpiry(Event::PoisonExpire, Effect::Poison, game_state, expiry, new_events_map))
+		game_state.Events.erase(Event::PoisonTick);
 }
 
-void GameEventSystem::GreenbullExpire(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
+void GameEventSystem::GreenbullExpire(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
-	GameEventSystem::HandleEventExpiry(Event::GreenbullExpire, Effect::Greenbull, *game.GlobalData, expiry, new_events_map);
+	GameEventSystem::HandleEventExpiry(Event::GreenbullExpire, Effect::Greenbull, game_state, expiry, new_events_map);
 }
 
-void GameEventSystem::MilkExpire(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
+void GameEventSystem::MilkExpire(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
-	GameEventSystem::HandleEventExpiry(Event::MilkExpire, Effect::Milk, *game.GlobalData, expiry, new_events_map);
+	GameEventSystem::HandleEventExpiry(Event::MilkExpire, Effect::Milk, game_state, expiry, new_events_map);
 }
 
-void GameEventSystem::DrunkExpire(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
+void GameEventSystem::DrunkExpire(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
-	GameEventSystem::HandleEventExpiry(Event::DrunkExpire, Effect::Drunk, *game.GlobalData, expiry, new_events_map);
+	GameEventSystem::HandleEventExpiry(Event::DrunkExpire, Effect::Drunk, game_state, expiry, new_events_map);
 }
 
-void GameEventSystem::AussieExpire(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
+void GameEventSystem::AussieExpire(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
-	GameEventSystem::HandleEventExpiry(Event::AussieExpire, Effect::Aussie, *game.GlobalData, expiry, new_events_map);
+	GameEventSystem::HandleEventExpiry(Event::AussieExpire, Effect::Aussie, game_state, expiry, new_events_map);
 }
 
-void GameEventSystem::MagnetismExpire(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
+void GameEventSystem::MagnetismExpire(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
-	GameEventSystem::HandleEventExpiry(Event::MagnetismExpire, Effect::Magnetism, *game.GlobalData, expiry, new_events_map);
+	GameEventSystem::HandleEventExpiry(Event::MagnetismExpire, Effect::Magnetism, game_state, expiry, new_events_map);
 }
 
-void GameEventSystem::IncreasePlayerSpeed(Game& game, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
+void GameEventSystem::IncreasePlayerSpeed(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
-	game.PlayerInstance->Speed *= pow(1.2, game.GlobalData->Events.at(Event::IncreasePlayerSpeed));
+	game_state.m_Player->Speed *= pow(1.2, game_state.Events.at(Event::IncreasePlayerSpeed));
 }

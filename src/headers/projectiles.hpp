@@ -1,12 +1,11 @@
 #pragma once
 
+#include <unordered_map>
 #include <cstddef>
 #include <array>
 
 #include "assetManager.hpp"
-#include "globalDataWrapper.hpp"
 #include "raylib.h"
-
 
 enum class ProjectileType : size_t
 {
@@ -18,7 +17,7 @@ enum class ProjectileType : size_t
 class Projectile
 {
 	public:
-		Projectile(float x, float y, const Vector2& direction, ProjectileType type, const GlobalDataWrapper& global_data, const AssetManager& assets) noexcept;
+		Projectile(float x, float y, float speed, float scale, Vector2 direction, ProjectileType type, const AssetManager& assets) noexcept;
 		~Projectile() = default;
 
 		void Update() noexcept;
@@ -38,8 +37,8 @@ class Projectile
 		Color Colour;
 
 	private:
-		void BulletConstructor(float x, float y, const Vector2& direction, const GlobalDataWrapper& global_data, const AssetManager& assets) noexcept;
-		void LazerConstructor(float x, float y, const Vector2& direction, const GlobalDataWrapper& global_data, const AssetManager& assets) noexcept;
+		void BulletConstructor(const AssetManager& assets) noexcept;
+		void LazerConstructor(const AssetManager& assets) noexcept;
 
 		void BulletUpdate() noexcept;
 		void LazerUpdate() noexcept;
@@ -47,7 +46,7 @@ class Projectile
 		void BulletDrawLightmap() const noexcept;
 		void LazerDrawLightmap() const noexcept;
 
-		using ConstructorHook = void(Projectile::*)(float, float, const Vector2&, const GlobalDataWrapper&, const AssetManager&) noexcept;
+		using ConstructorHook = void(Projectile::*)(const AssetManager&) noexcept;
 		static inline constexpr std::array<ConstructorHook, static_cast<size_t>(ProjectileType::COUNT)> ConstructorHooks =
 		{
 			&BulletConstructor,
