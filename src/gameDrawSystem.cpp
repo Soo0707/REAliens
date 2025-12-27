@@ -9,7 +9,7 @@
 
 void GameDrawSystem::DrawGame(const GameState& game_state, const AssetManager& assets) noexcept
 {
-	size_t ticks = game_state.Ticks;
+	const size_t ticks = game_state.Ticks;
 
 	const float ground_width = assets.Ground.width;
 	const float ground_height = assets.Ground.height;
@@ -62,13 +62,13 @@ void GameDrawSystem::DrawGame(const GameState& game_state, const AssetManager& a
 	}
 
 	if (!game_state.Effects.count(Effect::Invisible))
-		game_state.m_Player->Draw();
+		game_state.Player->Draw();
 }
 
 void GameDrawSystem::DrawLighting(const GameState& game_state) noexcept
 {
 	if (!game_state.Effects.count(Effect::Invisible))
-		game_state.m_Player->DrawLightmap();
+		game_state.Player->DrawLightmap();
 
 	const Rectangle update_area = game_state.UpdateArea;
 
@@ -87,7 +87,7 @@ void GameDrawSystem::DrawLighting(const GameState& game_state) noexcept
 
 void GameDrawSystem::DrawScreenLayer(const GameState& game_state) noexcept
 {
-	size_t ticks = game_state.Ticks;
+	const size_t ticks = game_state.Ticks;
 
 	for (auto const &text : game_state.GameTexts)
 	{
@@ -101,7 +101,7 @@ void GameDrawSystem::DrawOverlay(const GameState& game_state, const GlobalDataWr
 	DrawTexture(assets.Textures.at(TextureKey::HealthBarBackground), 1060, 20, WHITE);
 
 	const bool is_poisoned = game_state.Effects.count(Effect::Poison);
-	const float health_percentage = game_state.m_Player->Health / game_state.m_Player->HealthMax;
+	const float health_percentage = game_state.Player->Health / game_state.Player->HealthMax;
 
 	DrawTexturePro(
 			assets.Textures.at(TextureKey::WhitePixel),

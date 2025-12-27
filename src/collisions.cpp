@@ -1,14 +1,11 @@
 #include "collisions.hpp"
 
-#include <vector>
 #include <unordered_map>
 #include <unordered_set>
 
-#include "globalDataWrapper.hpp"
 #include "gameState.hpp"
 #include "enemy.hpp"
 #include "enemyData.hpp"
-#include "game.hpp"
 #include "constants.hpp"
 
 unsigned int Collisions::ProjectileCollision(Projectile& proj, std::vector<Enemy>& enemies, size_t ticks,

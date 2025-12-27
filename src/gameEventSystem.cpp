@@ -41,7 +41,7 @@ bool GameEventSystem::HandleEventExpiry(Event event, Effect effect, GameState& g
 
 void GameEventSystem::AuraTick(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
-	size_t ticks = game_state.Ticks;
+	const size_t ticks = game_state.Ticks;
 
 	if (expiry >= ticks)
 		new_events_map[Event::AuraTick] = expiry;
@@ -49,19 +49,19 @@ void GameEventSystem::AuraTick(GameState& game_state, const AssetManager& assets
 	{
 		unsigned int total_hit = 0;
 
-		float aura_damage = game_state.Attributes.at(Attribute::AuraDamage);
-		float aura_size = game_state.Attributes.at(Attribute::AuraSize);
+		const float aura_damage = game_state.Attributes.at(Attribute::AuraDamage);
+		const float aura_size = game_state.Attributes.at(Attribute::AuraSize);
 
-		Rectangle aura = {
-			game_state.m_Player->Centre.x - aura_size / 2.0f,
-			game_state.m_Player->Centre.y - aura_size / 2.0f,
+		const Rectangle aura = {
+			game_state.Player->Centre.x - aura_size / 2.0f,
+			game_state.Player->Centre.y - aura_size / 2.0f,
 			aura_size,
 			aura_size
 		};
 
 		for (auto &enemy : game_state.Enemies)
 		{
-			bool hit = Collisions::Aura(enemy, aura, aura_damage, ticks);
+			const bool hit = Collisions::Aura(enemy, aura, aura_damage, ticks);
 
 			if (hit)
 			{
@@ -90,7 +90,7 @@ void GameEventSystem::AuraTick(GameState& game_state, const AssetManager& assets
 		game_state.TotalDamage += static_cast<unsigned int>(total_hit * aura_damage);
 
 		if (game_state.Effects.count(Effect::LifeSteal))
-			game_state.m_Player->IncreaseHealth(total_hit * aura_damage * game_state.Attributes.at(Attribute::LifeStealMultiplier));
+			game_state.Player->IncreaseHealth(total_hit * aura_damage * game_state.Attributes.at(Attribute::LifeStealMultiplier));
 
 		new_events_map[Event::AuraTick] = expiry + game_state.Attributes.at(Attribute::AuraCooldown);
 	}
@@ -102,15 +102,15 @@ void GameEventSystem::PoisonTick(GameState& game_state, const AssetManager& asse
 		new_events_map[Event::PoisonTick] = expiry;
 	else
 	{
-		game_state.m_Player->Health -= 2;
+		game_state.Player->Health -= 2;
 		new_events_map[Event::PoisonTick] = expiry + SECONDS_TO_TICKS(1);
 	}
 }
 
 void GameEventSystem::IncreasePlotArmour(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
-	game_state.m_Player->HealthMax *= pow(2.0, game_state.Events.at(Event::IncreasePlotArmour));
-	game_state.m_Player->Health = game_state.m_Player->HealthMax;
+	game_state.Player->HealthMax *= pow(2.0, game_state.Events.at(Event::IncreasePlotArmour));
+	game_state.Player->Health = game_state.Player->HealthMax;
 }
 
 void GameEventSystem::PoisonExpire(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
@@ -146,5 +146,5 @@ void GameEventSystem::MagnetismExpire(GameState& game_state, const AssetManager&
 
 void GameEventSystem::IncreasePlayerSpeed(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
-	game_state.m_Player->Speed *= pow(1.2, game_state.Events.at(Event::IncreasePlayerSpeed));
+	game_state.Player->Speed *= pow(1.2, game_state.Events.at(Event::IncreasePlayerSpeed));
 }

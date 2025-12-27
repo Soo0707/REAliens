@@ -87,7 +87,7 @@ struct GameState
 	GameState(AssetManager& assets) noexcept;
 	~GameState() = default;
 
-	std::unique_ptr<Player> m_Player;
+	const std::unique_ptr<class Player> Player;
 
 	std::vector<Enemy> Enemies;
 	std::vector<Projectile> Projectiles;

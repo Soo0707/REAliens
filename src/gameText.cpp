@@ -1,6 +1,6 @@
 #include "gameText.hpp"
+
 #include "raylib.h"
-#include "raymath.h"
 #include "constants.hpp"
 
 #include <string>
@@ -19,7 +19,7 @@ GameText::GameText(float x, float y, float speed, std::string&& text, int size, 
 
 void GameText::Draw(size_t ticks) const noexcept
 {
-	int size = this->Size * (this->Expiry - ticks) / (this->Expiry - this->Creation);
+	const int size = this->Size * (this->Expiry - ticks) / (this->Expiry - this->Creation);
 	DrawText(this->Text.c_str(), this->Rect.x, this->Rect.y, size, this->Colour);
 }
 

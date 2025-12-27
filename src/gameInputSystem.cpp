@@ -13,28 +13,27 @@ void GameInputSystem::HandleTickedInput(GameState& game_state, const SettingsMan
 		game_state.Effects.erase(Effect::Trapped);
 
 	if (game_state.Effects.count(Effect::Trapped))
-		game_state.m_Player->Direction = { 0, 0 };
+		game_state.Player->Direction = { 0, 0 };
 	else
 	{
-		game_state.m_Player->Direction.x = IsKeyDown(KEY_D) - IsKeyDown(KEY_A);
-		game_state.m_Player->Direction.y = IsKeyDown(KEY_S) - IsKeyDown(KEY_W);
+		game_state.Player->Direction.x = IsKeyDown(KEY_D) - IsKeyDown(KEY_A);
+		game_state.Player->Direction.y = IsKeyDown(KEY_S) - IsKeyDown(KEY_W);
 	}
 
 	if (game_state.Effects.count(Effect::Drunk))
 	{
-		game_state.m_Player->Direction.x *= -1;
-		game_state.m_Player->Direction.y *= -1;
+		game_state.Player->Direction.x *= -1;
+		game_state.Player->Direction.y *= -1;
 	}
 
-	if (game_state.m_Player->Direction.x != 0.0f && game_state.m_Player->Direction.y != 0.0f)
-		game_state.m_Player->Direction = Vector2Normalize(game_state.m_Player->Direction);
+	game_state.Player->Direction = Vector2Normalize(game_state.Player->Direction);
 
 	const size_t ticks = game_state.Ticks;
 
 	if (IsKeyDown(KEY_LEFT_SHIFT) && game_state.CanSlide)
 	{
-		game_state.m_Player->Sliding = true;
-		game_state.m_Player->SlideExpire = ticks + TICK_RATE / 6;
+		game_state.Player->Sliding = true;
+		game_state.Player->SlideExpire = ticks + TICK_RATE / 6;
 
 		game_state.CanSlide = false;
 		game_state.LastSlide = ticks;
@@ -61,7 +60,7 @@ void GameInputSystem::HandleLeftClick(GameState& game_state, const AssetManager&
 {
 	const Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), game_state.Camera);
 
-	const Vector2 player_centre = game_state.m_Player->Centre;
+	const Vector2 player_centre = game_state.Player->Centre;
 	const Vector2 centre_direction = Vector2Subtract(mouse_pos, player_centre);
 
 	const float spread_angle = game_state.Attributes.at(Attribute::BuckshotSpread);
@@ -86,7 +85,7 @@ void GameInputSystem::HandleRightClick(GameState& game_state, const AssetManager
 {
 	const Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), game_state.Camera);
 
-	const Vector2 centre = game_state.m_Player->Centre;
+	const Vector2 centre = game_state.Player->Centre;
 	const Vector2 direction = Vector2Subtract(mouse_pos, centre);
 
 	const float speed = game_state.Attributes.at(Attribute::LazerSpeed);

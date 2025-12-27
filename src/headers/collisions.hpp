@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <unordered_set>
 #include <array>
 #include <cstddef>
 
@@ -8,7 +9,6 @@
 #include "enemy.hpp"
 #include "projectiles.hpp"
 #include "gameState.hpp"
-#include "raylib.h"
 
 namespace Collisions
 {
@@ -25,8 +25,8 @@ namespace Collisions
 	void ApplyDrunk(std::unordered_set<Effect>& effects, std::unordered_map<Event, size_t>& events, size_t ticks, unsigned int scale) noexcept;
 	void ApplyNone(std::unordered_set<Effect>& effects, std::unordered_map<Event, size_t>& events, size_t ticks, unsigned int scale) noexcept;
 
-	using EffectPrototype = void(*)(std::unordered_set<Effect>&, std::unordered_map<Event, size_t>&, size_t, unsigned int) noexcept;
-	static inline constexpr std::array<EffectPrototype, static_cast<size_t>(EnemyType::COUNT)> LeAttackHooks =
+	using EffectSignature = void(*)(std::unordered_set<Effect>&, std::unordered_map<Event, size_t>&, size_t, unsigned int) noexcept;
+	static inline constexpr std::array<EffectSignature, static_cast<size_t>(EnemyType::COUNT)> LeAttackHooks =
 	{
 		&ApplyAustralian,
 		&ApplyDrunk,

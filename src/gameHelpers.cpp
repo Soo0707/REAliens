@@ -23,7 +23,7 @@ void GameHelper::LoopOverMap(float ground_width, float ground_height, Rectangle&
 		m_obj.y = 0;
 }
 
-void GameHelper::LevelUp(GameState& game_state, SettingsManager& settings, GlobalDataWrapper& global_data) noexcept
+void GameHelper::LevelUp(GameState& game_state, const SettingsManager& settings, GlobalDataWrapper& global_data) noexcept
 {
 	if (!settings.Data.at(SettingKey::UnlimitedPowerups))
 	{
@@ -64,7 +64,7 @@ void GameHelper::SpawnEnemies(GameState& game_state, const AssetManager& assets)
 	}
 	else if (!(level % 5))
 	{
-		const Vector2 player_location = (Vector2) { game_state.m_Player->Rect.x, game_state.m_Player->Rect.y };
+		const Vector2 player_location = (Vector2) { game_state.Player->Rect.x, game_state.Player->Rect.y };
 
 		GameHelper::NearPlayerLocation(spawn_count, player_location, locations);
 	}
@@ -168,7 +168,7 @@ void GameHelper::RandomModifiers(size_t spawn_count, size_t level, std::vector<B
 	{
 		BehaviourModifier modifier = BehaviourModifier::None;
 		
-		unsigned int random = GetRandomValue(0, 100);
+		const unsigned int random = GetRandomValue(0, 100);
 
 		if (random > 10 && random < 50)
 			modifier = modifier | BehaviourModifier::IncreasedSpeed;
@@ -183,7 +183,7 @@ void GameHelper::RandomModifiers(size_t spawn_count, size_t level, std::vector<B
 
 void GameHelper::SingleType(size_t spawn_count, std::vector<EnemyType>& types) noexcept
 {
-	EnemyType type = static_cast<EnemyType>(GetRandomValue(0, static_cast<int>(EnemyType::COUNT) - 1));
+	const EnemyType type = static_cast<EnemyType>(GetRandomValue(0, static_cast<int>(EnemyType::COUNT) - 1));
 
 	for (size_t i = 0; i < spawn_count; i++)
 		types.emplace_back(type);

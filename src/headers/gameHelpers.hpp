@@ -14,7 +14,7 @@
 namespace GameHelper
 {
 	void LoopOverMap(float ground_width, float ground_height, Rectangle& m_obj) noexcept;
-	void LevelUp(GameState& game_state, SettingsManager& settings, GlobalDataWrapper& global_data) noexcept;
+	void LevelUp(GameState& game_state, const SettingsManager& settings, GlobalDataWrapper& global_data) noexcept;
 
 	void SpawnEnemies(GameState& game_state, const AssetManager& assets) noexcept;
 

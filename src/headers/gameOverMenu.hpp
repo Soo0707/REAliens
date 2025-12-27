@@ -18,6 +18,6 @@ class GameOverMenu
 		void GenerateStats(const GameState& game_state) noexcept;
 
 	private:
-		std::shared_ptr<GlobalDataWrapper> GlobalData;
-		std::shared_ptr<AssetManager> Assets;
+		const std::shared_ptr<GlobalDataWrapper> GlobalData;
+		const std::shared_ptr<AssetManager> Assets;
 };

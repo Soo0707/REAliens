@@ -3,7 +3,6 @@
 #include "gameState.hpp"
 #include "assetManager.hpp"
 #include "globalDataWrapper.hpp"
-#include "raylib.h"
 
 namespace GameDrawSystem
 {

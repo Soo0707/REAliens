@@ -20,18 +20,17 @@
 #include "gameText.hpp"
 #include "particle.hpp"
 
-GameState::GameState(AssetManager& assets) noexcept
+GameState::GameState(AssetManager& assets) noexcept :
+	Player(std::make_unique<class Player>(500, 500, assets))
 {
-	this->m_Player = std::make_unique<Player>(500, 500, assets);
-
 	this->Camera = { 0 };
 	this->Camera.offset = { REFERENCE_WIDTH / 2.0f, REFERENCE_HEIGHT / 2.0f };
 	this->Camera.rotation = 0.0f;
     this->Camera.zoom = 1.0f;
 
 	this->UpdateArea = {
-		this->m_Player->Centre.x - (REFERENCE_WIDTH / 2.0f),
-		this->m_Player->Centre.y - (REFERENCE_HEIGHT / 2.0f),
+		this->Player->Centre.x - (REFERENCE_WIDTH / 2.0f),
+		this->Player->Centre.y - (REFERENCE_HEIGHT / 2.0f),
 		static_cast<float>(REFERENCE_WIDTH),
 		static_cast<float>(REFERENCE_HEIGHT)
 	};
@@ -44,7 +43,7 @@ GameState::GameState(AssetManager& assets) noexcept
 
 void GameState::Reset() noexcept
 {
-	this->m_Player->Reset();
+	this->Player->Reset();
 
 	this->Enemies.clear();
 	this->Projectiles.clear();
@@ -115,11 +114,11 @@ void GameState::UpdateEnemies(const AssetManager& assets) noexcept
 	const float ground_height = assets.Ground.height;
 
 	const bool has_greenbull = this->Effects.count(Effect::Greenbull);
-	const bool is_sliding = this->m_Player->Sliding;
+	const bool is_sliding = this->Player->Sliding;
 	const bool is_stinky = this->Effects.count(Effect::Stinky);
 
 	const Rectangle update_area = this->UpdateArea;
-	const Vector2 player_centre = this->m_Player->Centre;
+	const Vector2 player_centre = this->Player->Centre;
 
 	for (auto &enemy : this->Enemies)
 	{
@@ -132,10 +131,10 @@ void GameState::UpdateEnemies(const AssetManager& assets) noexcept
 			GameHelper::LoopOverMap(ground_width, ground_height, enemy.Rect);
 			
 			if (!has_greenbull)
-				Collisions::LeAttack(*this->m_Player, enemy, ticks, this->Effects, this->Events);
+				Collisions::LeAttack(*this->Player, enemy, ticks, this->Effects, this->Events);
 			
 			if (is_sliding)
-				slide_damage = Collisions::SlideAttack(*this->m_Player, enemy);
+				slide_damage = Collisions::SlideAttack(*this->Player, enemy);
 		}
 
 		if (slide_damage > 0)
@@ -153,7 +152,7 @@ void GameState::UpdateEnemies(const AssetManager& assets) noexcept
 				const float rotation = static_cast<float>(GetRandomValue(0, 90));
 				const size_t expiry = ticks + static_cast<size_t>(GetRandomValue(60, TICK_RATE));
 
-				Vector2 velocity = this->m_Player->Direction;
+				Vector2 velocity = this->Player->Direction;
 
 				velocity.x += static_cast<float>(GetRandomValue(-192, 192));
 				velocity.y += static_cast<float>(GetRandomValue(-192, 192));
@@ -248,7 +247,7 @@ void GameState::UpdateProjectiles(const AssetManager& assets) noexcept
 	std::erase_if(this->Projectiles, [](const Projectile& proj){ return proj.Kill; });
 
 	if (this->Effects.count(Effect::LifeSteal))
-		this->m_Player->IncreaseHealth( total_damage_done * this->Attributes.at(Attribute::LifeStealMultiplier) );
+		this->Player->IncreaseHealth( total_damage_done * this->Attributes.at(Attribute::LifeStealMultiplier) );
 
 	this->TotalDamage += total_damage_done;
 }
@@ -263,7 +262,7 @@ void GameState::UpdateXps(const AssetManager& assets) noexcept
 
 	for (auto &xp : this->Xps)
 	{
-		if (CheckCollisionRecs(this->m_Player->Rect, xp.Rect) || has_magnetism)
+		if (CheckCollisionRecs(this->Player->Rect, xp.Rect) || has_magnetism)
 		{
 			this->CollectedXp += xp.Value;
 			xp.Kill = true;
@@ -314,7 +313,7 @@ void GameState::UpdateParticles() noexcept
 
 void GameState::UpdatePlayer(GlobalDataWrapper& global_data, const SettingsManager& settings, const AssetManager& assets) noexcept
 {
-	if (this->m_Player->Health <= 0 && !settings.Data.at(SettingKey::DisableHealthCheck))
+	if (this->Player->Health <= 0 && !settings.Data.at(SettingKey::DisableHealthCheck))
 	{
 		global_data.CachedStrings[CachedString::GameOverReason] = "Reason: Player Died";
 		global_data.ActiveState = State::GenerateGameOverStats;
@@ -322,20 +321,20 @@ void GameState::UpdatePlayer(GlobalDataWrapper& global_data, const SettingsManag
 
 	const float slide_speed = this->Attributes.at(Attribute::SlideSpeed);
 
-	this->m_Player->Update(this->Ticks, &this->TotalDistance, slide_speed);
+	this->Player->Update(this->Ticks, &this->TotalDistance, slide_speed);
 
 	const float ground_width = assets.Ground.width;
 	const float ground_height = assets.Ground.height;
 
-	GameHelper::LoopOverMap(ground_width, ground_height, this->m_Player->Rect);
+	GameHelper::LoopOverMap(ground_width, ground_height, this->Player->Rect);
 }
 
 void GameState::UpdateCamera() noexcept
 {
-	this->UpdateArea.x = this->m_Player->Centre.x - REFERENCE_WIDTH / 2.0f;
-	this->UpdateArea.y =  this->m_Player->Centre.y - REFERENCE_HEIGHT / 2.0f;
+	this->UpdateArea.x = this->Player->Centre.x - REFERENCE_WIDTH / 2.0f;
+	this->UpdateArea.y =  this->Player->Centre.y - REFERENCE_HEIGHT / 2.0f;
 	
-	this->Camera.target = this->m_Player->Centre;
+	this->Camera.target = this->Player->Centre;
 	this->Camera.offset = { REFERENCE_WIDTH / 2.0f, REFERENCE_HEIGHT / 2.0f };
 
 	if (this->Ticks % TICK_RATE && this->Effects.count(Effect::Earthquake))

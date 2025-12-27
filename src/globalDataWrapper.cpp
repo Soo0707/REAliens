@@ -1,7 +1,5 @@
 #include "globalDataWrapper.hpp"
 
-#include "raylib.h"
-
 void GlobalDataWrapper::Reset() noexcept
 {
 	this->CachedStrings =
