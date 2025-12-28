@@ -1,6 +1,7 @@
 #include "particle.hpp"
 
 #include <cstddef>
+#include <vector>
 
 #include "raylib.h"
 #include "constants.hpp"

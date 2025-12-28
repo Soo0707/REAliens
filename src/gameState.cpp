@@ -130,7 +130,7 @@ void GameState::UpdateEnemies(const AssetManager& assets) noexcept
 
 			GameHelper::LoopOverMap(ground_width, ground_height, enemy.Rect);
 			
-			if (!has_greenbull)
+			if (!has_greenbull && !is_sliding)
 				Collisions::LeAttack(*this->Player, enemy, ticks, this->Effects, this->Events);
 			
 			if (is_sliding)
@@ -146,22 +146,9 @@ void GameState::UpdateEnemies(const AssetManager& assets) noexcept
 					52,	ORANGE, ticks, ticks + TICK_RATE / 4
 					);
 
-			for (int i = 0; i < 20; i++)
-			{
-				const float size = static_cast<float>(GetRandomValue(10, 25));
-				const float rotation = static_cast<float>(GetRandomValue(0, 90));
-				const size_t expiry = ticks + static_cast<size_t>(GetRandomValue(60, TICK_RATE));
-
-				Vector2 velocity = this->Player->Direction;
-
-				velocity.x += static_cast<float>(GetRandomValue(-192, 192));
-				velocity.y += static_cast<float>(GetRandomValue(-192, 192));
-
-				this->Particles.emplace_back(
-						enemy.Rect.x, enemy.Rect.y, size, rotation, ticks,
-						expiry, velocity, ORANGE, RED, assets
-						);
-			}
+			GameState::EmitParticles(
+					20, enemy.Rect.x, enemy.Rect.y, 10, 25,
+					60, TICK_RATE, this->Player->Direction, 512, ORANGE, RED, assets);
 		}
 
 		if (enemy.Health <= 0)
@@ -207,37 +194,17 @@ void GameState::UpdateProjectiles(const AssetManager& assets) noexcept
 						48,	YELLOW, ticks, ticks + TICK_RATE / 4
 						);
 
-				for (int i = 0; i < 5; i++)
-				{
-					const float size = static_cast<float>(GetRandomValue(5, 20));
-					const float rotation = static_cast<float>(GetRandomValue(0, 90));
-					const size_t expiry = ticks + static_cast<size_t>(GetRandomValue(120, TICK_RATE));
-					Vector2 velocity = projectile.Direction;
-
-					velocity.x += static_cast<float>(GetRandomValue(-96, 96));
-					velocity.y += static_cast<float>(GetRandomValue(-96, 96));
-
-					this->Particles.emplace_back(
-							projectile.Rect.x, projectile.Rect.y, size, rotation, ticks,
-							expiry, velocity, RED, RED, assets
-							);
-				}
+				GameState::EmitParticles(
+						5, projectile.Rect.x, projectile.Rect.y, 5, 20,
+						120, TICK_RATE, projectile.Direction, 256, RED, RED, assets
+						);
 			}
 
 			if (spawn_particle)
 			{
-				const float size = static_cast<float>(GetRandomValue(5, 20));
-				const float rotation = static_cast<float>(GetRandomValue(0, 90));
-				const size_t expiry = ticks + static_cast<size_t>(GetRandomValue(120, TICK_RATE));
-				Vector2 velocity = projectile.Direction;
-
-				velocity.x += static_cast<float>(GetRandomValue(-96, 96));
-				velocity.y += static_cast<float>(GetRandomValue(-96, 96));
-
-				this->Particles.emplace_back(
-						projectile.Rect.x, projectile.Rect.y, size, rotation, ticks,
-						expiry, velocity, projectile.Colour, projectile.Colour, assets
-						);
+				GameState::EmitParticles(
+						1, projectile.Rect.x, projectile.Rect.y, 5, 20, 120, TICK_RATE, 
+						projectile.Direction, 128, projectile.Colour, projectile.Colour, assets);
 			}
 		}
 		else
@@ -270,15 +237,9 @@ void GameState::UpdateXps(const AssetManager& assets) noexcept
 
 		if (CheckCollisionRecs(this->UpdateArea, xp.Rect) && spawn_particles) 
 		{
-			const float size = static_cast<float>(GetRandomValue(10, 25));
-			const float rotation = static_cast<float>(GetRandomValue(0, 90));
-			const size_t expiry = ticks + static_cast<size_t>(GetRandomValue(120, TICK_RATE));
 			const Vector2 velocity = (Vector2) { static_cast<float>(GetRandomValue(-64, 64)), static_cast<float>(GetRandomValue(-96, -32)) };
 
-			this->Particles.emplace_back(
-					xp.Rect.x, xp.Rect.y, size, rotation, ticks,
-					expiry, velocity, GREEN, DARKGREEN, assets
-					);
+			GameState::EmitParticles(1, xp.Rect.x, xp.Rect.y, 10, 25, 120, TICK_RATE, velocity, 0, GREEN, DARKGREEN, assets);
 		}
 	}
 
@@ -411,3 +372,29 @@ void GameState::LevelUp(const SettingsManager& settings, GlobalDataWrapper& glob
 	else
 		this->RemoveLevelDebuff(global_data);
 }
+
+
+void GameState::EmitParticles(
+		size_t number, float x, float y, unsigned int min_size, unsigned int max_size, unsigned int min_lifetime, unsigned int max_lifetime,
+		Vector2 velocity, unsigned int max_speed, Color start_colour, Color end_colour, const AssetManager& assets
+		) noexcept
+{
+	const size_t ticks = this->Ticks;
+
+	for (size_t i = 0; i < number; i++)
+	{
+		const float size = static_cast<float>(GetRandomValue(min_size, max_size));
+		const float rotation = static_cast<float>(GetRandomValue(0, 90));
+		const size_t expiry = ticks + static_cast<size_t>(GetRandomValue(min_lifetime, max_lifetime));
+
+		velocity.x += static_cast<float>(GetRandomValue(-max_speed, max_speed));
+		velocity.y += static_cast<float>(GetRandomValue(-max_speed, max_speed));
+
+		this->Particles.emplace_back(
+				x, y, size, rotation, ticks,
+				expiry, velocity, start_colour, end_colour, assets
+				);
+	}
+}
+
+

@@ -146,6 +146,11 @@ struct GameState
 	void RemoveLevelDebuff(GlobalDataWrapper& global_data) noexcept;
 	
 	private:
+		void EmitParticles(
+				size_t number, float x, float y, unsigned int min_size, unsigned int max_size, unsigned int min_lifetime, unsigned int max_lifetime,
+				Vector2 velocity, unsigned int max_speed, Color start_colour, Color end_colour, const AssetManager& assets
+				) noexcept;
+
 		static constexpr std::array<Effect, 4> DebuffList = { 
 			Effect::Microscope,
 			Effect::Earthquake,
