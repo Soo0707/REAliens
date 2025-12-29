@@ -26,6 +26,7 @@ namespace GameEventSystem
 	void MagnetismExpire(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
 
 	void IncreasePlayerSpeed(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
+	void SpawnEnemies(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept;
 
 	// The ordering here matters as it mimics the order of the definition of Event
 	static inline constexpr std::array<void(*)(GameState&, const AssetManager&, size_t, std::unordered_map<Event, size_t>&), static_cast<size_t>(Event::COUNT)> EventHandlers =
@@ -42,6 +43,7 @@ namespace GameEventSystem
 		&IncreasePlayerSpeed,
 
 		&IncreasePlotArmour,
-		&AuraTick
+		&AuraTick,
+		&SpawnEnemies
 	};
 };

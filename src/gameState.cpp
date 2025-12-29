@@ -83,7 +83,7 @@ void GameState::Reset() noexcept
 	this->LastSlide = 0;
 	this->CanSlide = true;
 
-	this->LastSpawn = 0;
+	this->NextSpawn = 0;
 
 	this->Ticks = 0;
 	this->TotalDamage = 0;
@@ -104,12 +104,12 @@ void GameState::UpdateEnemies(const AssetManager& assets) noexcept
 {
 	const size_t ticks = this->Ticks;
 
-	if (ticks - this->LastSpawn >= SECONDS_TO_TICKS(30) || !this->Enemies.size())
+	if (!this->Enemies.size() && !this->Events.count(Event::SpawnEnemies))
 	{
-		GameHelper::SpawnEnemies(*this, assets);
-		this->LastSpawn = ticks;
+		GameHelper::RandomLocation(*this, assets);
+		this->Events[Event::SpawnEnemies] = ticks + SECONDS_TO_TICKS(3);
 	}
-	
+
 	const float ground_width = assets.Ground.width;
 	const float ground_height = assets.Ground.height;
 
@@ -290,6 +290,24 @@ void GameState::UpdatePlayer(GlobalDataWrapper& global_data, const SettingsManag
 	GameHelper::LoopOverMap(ground_width, ground_height, this->Player->Rect);
 }
 
+void GameState::UpdateLocations(const AssetManager& assets) noexcept
+{
+	const bool spawn_particles = !(this->Ticks % (TICK_RATE / 2));
+
+	if (spawn_particles)
+	{
+		for (auto const& location : this->SpawnLocations)
+		{
+			const Vector2 velocity = (Vector2) { static_cast<float>(GetRandomValue(-32, 32)), static_cast<float>(GetRandomValue(-96, -64)) };
+
+			GameState::EmitParticles(
+					20, location.x, location.y, 5, 20,
+					120, TICK_RATE, velocity, 32, PURPLE, DARKPURPLE, assets
+					);
+		}
+	}
+}
+
 void GameState::UpdateCamera() noexcept
 {
 	this->UpdateArea.x = this->Player->Centre.x - REFERENCE_WIDTH / 2.0f;
@@ -298,9 +316,9 @@ void GameState::UpdateCamera() noexcept
 	this->Camera.target = this->Player->Centre;
 	this->Camera.offset = { REFERENCE_WIDTH / 2.0f, REFERENCE_HEIGHT / 2.0f };
 
-	if (this->Ticks % TICK_RATE && this->Effects.count(Effect::Earthquake))
+	if (this->Effects.count(Effect::Earthquake))
 	{
-		const unsigned int shake_offset = GetRandomValue(-12, 12);
+		const float shake_offset = static_cast<float>(GetRandomValue(-6, 6));
 
 		this->Camera.offset.x += shake_offset;
 		this->Camera.offset.y -= shake_offset;

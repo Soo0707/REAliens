@@ -54,28 +54,6 @@ void GameHelper::SpawnEnemies(GameState& game_state, const AssetManager& assets)
 
 	game_state.Enemies.reserve(game_state.Enemies.size() + spawn_count);
 
-	static std::vector<Vector2> locations;
-	locations.reserve(spawn_count);
-
-	if (level > 100 && !(level % 5))
-	{
-		Rectangle update_area = game_state.UpdateArea;
-		GameHelper::ScreenLocation(update_area, spawn_count, locations);
-	}
-	else if (!(level % 5))
-	{
-		const Vector2 player_location = (Vector2) { game_state.Player->Rect.x, game_state.Player->Rect.y };
-
-		GameHelper::NearPlayerLocation(spawn_count, player_location, locations);
-	}
-	else
-	{
-		const float ground_width = assets.Ground.width;
-		const float ground_height = assets.Ground.height;
-
-		GameHelper::RandomLocation(spawn_count, ground_width, ground_height, locations);
-	}
-
 	static std::vector<EnemyType> types;
 	types.reserve(spawn_count);
 
@@ -89,49 +67,27 @@ void GameHelper::SpawnEnemies(GameState& game_state, const AssetManager& assets)
 	const float level_scale = 1 + static_cast<float>(level) / 10.0f;
 
 	for (size_t i = 0; i < spawn_count; i++)
-		game_state.Enemies.emplace_back(locations[i].x, locations[i].y, level_scale, assets, types[i], modifiers[i]);
+		game_state.Enemies.emplace_back(game_state.SpawnLocations[i].x, game_state.SpawnLocations[i].y, level_scale, assets, types[i], modifiers[i]);
 
-	locations.clear();
 	types.clear();
 	modifiers.clear();
+	game_state.SpawnLocations.clear();
 }
 
 
-void GameHelper::ScreenLocation(Rectangle update_area, size_t spawn_count, std::vector<Vector2>& locations) noexcept
+void GameHelper::RandomLocation(GameState& game_state, const AssetManager& assets) noexcept
 {
+	const float ground_width = assets.Ground.width;
+	const float ground_height = assets.Ground.height;
+
+	const size_t level = game_state.Level;
+	const size_t spawn_count = level * 15;
+
+	game_state.SpawnLocations.reserve(spawn_count);
+
 	for (size_t i = 0; i < spawn_count; i++)
 	{
-		locations.emplace_back(
-				(Vector2) {
-				static_cast<float>( GetRandomValue(update_area.x, update_area.x + REFERENCE_WIDTH) ),
-				static_cast<float>( GetRandomValue(update_area.y, update_area.y + REFERENCE_HEIGHT) )
-				});
-	}
-}
-
-void GameHelper::NearPlayerLocation(size_t spawn_count, Vector2 player_location, std::vector<Vector2>& locations) noexcept
-{
-	for (size_t i = 0; i < spawn_count; i++)
-	{
-		unsigned int rand_x = GetRandomValue(32, 64);
-		unsigned int rand_y = GetRandomValue(32, 64);
-
-		rand_x = (GetRandomValue(-6, 18) <= 0) ? (rand_x * -1) : (rand_x);
-		rand_y = (GetRandomValue(-12, 12) <= 0) ? (rand_y * -1) : (rand_y);
-
-		locations.emplace_back(
-				(Vector2) {
-					static_cast<float>(player_location.x + rand_x * 32),
-					static_cast<float>(player_location.y + rand_y * 32)
-				});
-	}
-}
-
-void GameHelper::RandomLocation(size_t spawn_count, float ground_width, float ground_height, std::vector<Vector2>& locations) noexcept
-{
-	for (size_t i = 0; i < spawn_count; i++)
-	{
-		locations.emplace_back(
+		game_state.SpawnLocations.emplace_back(
 				(Vector2) {
 				static_cast<float>( GetRandomValue(0, ground_width) ),
 				static_cast<float>( GetRandomValue(0, ground_height) )

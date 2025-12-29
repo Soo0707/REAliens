@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "gameState.hpp"
+#include "gameHelpers.hpp"
 #include "assetManager.hpp"
 #include "constants.hpp"
 #include "collisions.hpp"
@@ -147,4 +148,14 @@ void GameEventSystem::MagnetismExpire(GameState& game_state, const AssetManager&
 void GameEventSystem::IncreasePlayerSpeed(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
 {
 	game_state.Player->Speed *= pow(1.2, game_state.Events.at(Event::IncreasePlayerSpeed));
+}
+
+void GameEventSystem::SpawnEnemies(GameState& game_state, const AssetManager& assets, size_t expiry, std::unordered_map<Event, size_t>& new_events_map) noexcept
+{
+	const size_t ticks = game_state.Ticks;
+
+	if (expiry >= ticks)
+		new_events_map[Event::SpawnEnemies] = expiry;
+	else
+		GameHelper::SpawnEnemies(game_state, assets);
 }

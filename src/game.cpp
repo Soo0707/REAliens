@@ -122,6 +122,8 @@ void Game::TickedUpdate() noexcept
 		this->GameState->UpdatePlayer(*this->GlobalData, *this->Settings, *this->Assets);
 		this->GameState->UpdateCamera();
 
+		this->GameState->UpdateLocations(*this->Assets);
+
 		this->GameState->UpdateEnemies(*this->Assets);
 		this->GameState->UpdateProjectiles(*this->Assets);
 		this->GameState->UpdateXps(*this->Assets);

@@ -18,9 +18,7 @@ namespace GameHelper
 
 	void SpawnEnemies(GameState& game_state, const AssetManager& assets) noexcept;
 
-	void ScreenLocation(Rectangle update_area, size_t spawn_count, std::vector<Vector2>& locations) noexcept;
-	void NearPlayerLocation(size_t spawn_count, Vector2 player_location, std::vector<Vector2>& locations) noexcept;
-	void RandomLocation(size_t spawn_count, float ground_width, float ground_height, std::vector<Vector2>& locations) noexcept;
+	void RandomLocation(GameState& game_state, const AssetManager& assets) noexcept;
 
 	void NoModifiers(size_t spawn_count, size_t level, std::vector<BehaviourModifier>& modifiers) noexcept;
 	void SameModifiers(size_t spawn_count, size_t level, std::vector<BehaviourModifier>& modifiers) noexcept;

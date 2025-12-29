@@ -58,6 +58,7 @@ enum class Event
 	IncreasePlotArmour,
 
 	AuraTick,
+	SpawnEnemies,
 	COUNT
 };
 
@@ -94,6 +95,7 @@ struct GameState
 	std::vector<Xp> Xps;
 	std::vector<GameText> GameTexts;
 	std::vector<Particle> Particles;
+	std::vector<Vector2> SpawnLocations;
 
 	Camera2D Camera;
 	Rectangle UpdateArea;
@@ -124,7 +126,7 @@ struct GameState
 	size_t LastSlide = 0;
 	bool CanSlide = true;
 
-	size_t LastSpawn = 0;
+	size_t NextSpawn = 0;
 
 	unsigned int UnclaimedPowerups;
 	void Reset() noexcept;
@@ -137,6 +139,7 @@ struct GameState
 	void UpdateEnemies(const AssetManager& assets) noexcept;
 	void UpdateProjectiles(const AssetManager& assets) noexcept;
 	void UpdateXps(const AssetManager& assets) noexcept;
+	void UpdateLocations(const AssetManager& assets) noexcept;
 
 	void UpdateGameTexts() noexcept;
 	void UpdateParticles() noexcept;
