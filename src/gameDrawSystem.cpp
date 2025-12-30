@@ -1,6 +1,7 @@
 #include "gameDrawSystem.hpp"
 
 #include "raylib.h"
+#include <iostream>
 
 #include "constants.hpp"
 #include "gameState.hpp"
@@ -145,6 +146,13 @@ void GameDrawSystem::DrawOverlay(const GameState& game_state, const GlobalDataWr
 	DrawText(global_data.CachedStrings.at(CachedString::LevelText).c_str(), 20, 50, 24, LIGHTGRAY);
 
 	DrawText(global_data.CachedStrings.at(CachedString::LevelDebuff).c_str(), 20, 110, 24, GOLD);
+
+	if (game_state.UnclaimedPowerups)
+		DrawText("[TAB]", 40, 680, 15, GOLD);
+
+	DrawText("[LMB]", 1058, 640, 20, (game_state.CanPerform[static_cast<size_t>(Action::LMB)] ? YELLOW : GRAY));
+	DrawText("[RMB]", 1120, 640, 20, (game_state.CanPerform[static_cast<size_t>(Action::RMB)] ? CYAN : GRAY));
+	DrawText("[SHIFT]", 1184, 640, 20, (game_state.CanPerform[static_cast<size_t>(Action::Slide)] ? ORANGE : GRAY));
 }
 
 

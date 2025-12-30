@@ -44,21 +44,19 @@ void Player::DrawLightmap() const noexcept
 
 void Player::Animate(size_t ticks) noexcept
 {
-	if (this->Direction.x != 0.0f || this->Direction.y != 0.0f)
-	{
-		if (ticks - this->LastAnimationUpdate >= this->AnimationSpeed)
-		{
-			this->ImageIndex++;
-			this->LastAnimationUpdate = ticks;
-		}
-	}
-	else
+	if (this->Direction.x == 0.0f && this->Direction.y == 0.0f)
 	{
 		this->ImageIndex = 0;
 		this->LastAnimationUpdate = ticks;
+		return;
 	}
 
-	this->ImageIndex %= this->AnimationFrames;
+	if (ticks - this->LastAnimationUpdate >= this->AnimationInterval)
+	{
+		this->ImageIndex++;
+		this->LastAnimationUpdate = ticks;
+		this->ImageIndex %= this->AnimationFrames;
+	}
 }
 
 void Player::SetBearing() noexcept

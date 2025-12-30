@@ -38,7 +38,7 @@ GameState::GameState(AssetManager& assets) noexcept :
 	this->Projectiles.reserve(100);
 	this->Xps.reserve(100);
 	this->GameTexts.reserve(100);
-	this->Particles.reserve(1000);
+	this->Particles.reserve(1024);
 }
 
 void GameState::Reset() noexcept
@@ -74,16 +74,10 @@ void GameState::Reset() noexcept
 	this->Events.clear();
 	this->Effects.clear();
 
-	this->LastLMB = 0;
-	this->CanLMB = true;
+	this->Stats = { 0 };
 
-	this->LastRMB = 0;
-	this->CanRMB = true;
-
-	this->LastSlide = 0;
-	this->CanSlide = true;
-
-	this->NextSpawn = 0;
+	this->CanPerform = { true, true, true };
+	this->LastPerformed = { 0 };
 
 	this->Ticks = 0;
 	this->TotalDamage = 0;
@@ -104,7 +98,7 @@ void GameState::UpdateEnemies(const AssetManager& assets) noexcept
 {
 	const size_t ticks = this->Ticks;
 
-	if (!this->Enemies.size() && !this->Events.count(Event::SpawnEnemies))
+	if (this->Enemies.size() <= 5 && !this->Events.count(Event::SpawnEnemies))
 	{
 		GameHelper::RandomLocation(*this, assets);
 		this->Events[Event::SpawnEnemies] = ticks + SECONDS_TO_TICKS(3);
@@ -168,7 +162,7 @@ void GameState::UpdateProjectiles(const AssetManager& assets) noexcept
 	const size_t ticks = this->Ticks;
 	unsigned int total_damage_done = 0;
 
-	const bool spawn_particle = !(ticks % (TICK_RATE / 4));
+	const bool spawn_particle = GetRandomValue(1, 100) < 5;
 
 	const float ground_width = assets.Ground.width;
 	const float ground_height = assets.Ground.height;
@@ -224,8 +218,7 @@ void GameState::UpdateXps(const AssetManager& assets) noexcept
 	const size_t ticks = this->Ticks;
 	
 	const bool has_magnetism = this->Effects.count(Effect::Magnetism);
-
-	const bool spawn_particles = !(ticks % (TICK_RATE / 2));
+	const bool spawn_particles = GetRandomValue(1, 100) < 3;
 
 	for (auto &xp : this->Xps)
 	{
@@ -292,17 +285,17 @@ void GameState::UpdatePlayer(GlobalDataWrapper& global_data, const SettingsManag
 
 void GameState::UpdateLocations(const AssetManager& assets) noexcept
 {
-	const bool spawn_particles = !(this->Ticks % (TICK_RATE / 2));
+	const bool spawn_particles = !(this->Ticks % TICK_RATE);
 
 	if (spawn_particles)
 	{
 		for (auto const& location : this->SpawnLocations)
 		{
-			const Vector2 velocity = (Vector2) { static_cast<float>(GetRandomValue(-32, 32)), static_cast<float>(GetRandomValue(-96, -64)) };
+			const Vector2 velocity = (Vector2) { static_cast<float>(GetRandomValue(-8, 8)), static_cast<float>(GetRandomValue(-96, -64)) };
 
 			GameState::EmitParticles(
 					20, location.x, location.y, 5, 20,
-					120, TICK_RATE, velocity, 32, PURPLE, DARKPURPLE, assets
+					120, TICK_RATE, velocity, 32, RED, MAGENTA, assets
 					);
 		}
 	}
@@ -339,14 +332,14 @@ void GameState::UpdateTimeouts() noexcept
 {
 	const size_t ticks = this->Ticks;
 	
-	if (ticks - this->LastLMB >= this->Attributes.at(Attribute::BulletCooldown))
-		this->CanLMB = true;
+	if (ticks - this->LastPerformed[static_cast<size_t>(Action::LMB)] >= this->Attributes.at(Attribute::BulletCooldown))
+		this->CanPerform[static_cast<size_t>(Action::LMB)] = true;
 
-	if (ticks - this->LastRMB >= this->Attributes.at(Attribute::LazerCooldown))
-		this->CanRMB = true;
+	if (ticks - this->LastPerformed[static_cast<size_t>(Action::RMB)] >= this->Attributes.at(Attribute::LazerCooldown))
+		this->CanPerform[static_cast<size_t>(Action::RMB)] = true;
 
-	if (ticks - this->LastSlide >= TICK_RATE)
-		this->CanSlide = true;
+	if (ticks - this->LastPerformed[static_cast<size_t>(Action::Slide)] >= TICK_RATE)
+		this->CanPerform[static_cast<size_t>(Action::Slide)]= true;
 }
 
 void GameState::InsertLevelDebuff(GlobalDataWrapper& global_data) noexcept

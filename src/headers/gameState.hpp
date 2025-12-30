@@ -82,6 +82,24 @@ enum class Effect
 	Invisible
 };
 
+enum class Stat : size_t
+{
+	TotalDamage,
+	TotalDistance,
+	Kills,
+
+	COUNT
+};
+
+enum class Action : size_t
+{
+	LMB,
+	RMB,
+	Slide,
+
+	COUNT
+};
+
 
 struct GameState
 {
@@ -102,9 +120,13 @@ struct GameState
 
 	std::unordered_set<Effect> Effects;
 
-	std::unordered_map<Attribute, float> Attributes; 
-
+	std::unordered_map<Attribute, float> Attributes;
 	std::unordered_map<Event, size_t> Events;
+
+	std::array<size_t, static_cast<size_t>(Stat::COUNT)> Stats;
+
+	std::array<bool, static_cast<size_t>(Action::COUNT)> CanPerform;
+	std::array<size_t, static_cast<size_t>(Action::COUNT)> LastPerformed;
 
 	size_t Ticks = 0;
 	size_t TotalDamage = 0;
@@ -116,17 +138,6 @@ struct GameState
 
 	size_t CollectedXp = 0;
 	size_t LevelUpTreshold = 5;
-	
-	size_t LastLMB = 0;
-	bool CanLMB = true;
-
-	size_t LastRMB = 0;
-	bool CanRMB = true;
-
-	size_t LastSlide = 0;
-	bool CanSlide = true;
-
-	size_t NextSpawn = 0;
 
 	unsigned int UnclaimedPowerups;
 	void Reset() noexcept;

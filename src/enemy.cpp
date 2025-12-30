@@ -14,13 +14,13 @@ Enemy::Enemy(float pos_x, float pos_y, float level_scale, const AssetManager& as
 	Modifiers(modifier),
 	Rect({ pos_x, pos_y, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE })
 {
-	size_t type_index = static_cast<size_t>(type);
+	const size_t type_index = static_cast<size_t>(type);
 
 	this->Speed = EnemyAttributes[type_index].speed;
 
 	this->Damage = EnemyAttributes[type_index].damage * level_scale;
 
-	this->AnimationSpeed = EnemyAttributes[type_index].animation_speed;
+	this->AnimationInterval = EnemyAttributes[type_index].animation_interval;
 	this->AnimationFrames = EnemyAttributes[type_index].animation_frames;
 
 	this->Health = EnemyAttributes[type_index].health * level_scale;
@@ -28,27 +28,25 @@ Enemy::Enemy(float pos_x, float pos_y, float level_scale, const AssetManager& as
 
 	if ((this->Modifiers & BehaviourModifier::Big) == BehaviourModifier::Big)
 	{
-		float scale = static_cast<float>(GetRandomValue(2, 5));
+		this->Rect.width *= 2;
+		this->Rect.height *= 2;
 
-		this->Rect.width *= scale;
-		this->Rect.height *= scale;
+		this->Speed *= (1 / 2);
+		this->Health *= 2;
+		this->Damage *= level_scale * 2;
 
-		this->Speed *= (1 / scale);
-		this->Health *= scale;
-		this->Damage *= level_scale * scale;
-
-		this->AnimationSpeed *= scale;
-		this->Scale = scale;
+		this->AnimationInterval *= 2;
+		this->Scale = 2;
 	}
 	else
 		this->Scale = 1;
 
 	if ((this->Modifiers & BehaviourModifier::IncreasedSpeed) == BehaviourModifier::IncreasedSpeed)
 	{
-		float scale = static_cast<float>(GetRandomValue(200, 300)) / 100.0f;
+		float scale = static_cast<float>(GetRandomValue(125, 150)) / 100.0f;
 
 		this->Speed *= scale;
-		this->AnimationSpeed *= (1 / scale);
+		this->AnimationInterval *= (1 / scale);
 	}
 }
 
@@ -81,21 +79,19 @@ void Enemy::Draw() const noexcept
 
 void Enemy::Animate(size_t ticks) noexcept
 {
-	if (this->Direction.x != 0.0f || this->Direction.y != 0.0f)
-	{
-		if (ticks - this->LastAnimationUpdate >= this->AnimationSpeed)
-		{
-			this->ImageIndex++;
-			this->LastAnimationUpdate = ticks;
-		}
-	}
-	else
+	if (this->Direction.x == 0.0f && this->Direction.y == 0.0f)
 	{
 		this->ImageIndex = 0;
 		this->LastAnimationUpdate = ticks;
+		return;
 	}
 
-	this->ImageIndex %= this->AnimationFrames;
+	if (ticks - this->LastAnimationUpdate >= this->AnimationInterval)
+	{
+		this->ImageIndex++;
+		this->LastAnimationUpdate = ticks;
+		this->ImageIndex %= this->AnimationFrames;
+	}
 }
 
 void Enemy::Move() noexcept

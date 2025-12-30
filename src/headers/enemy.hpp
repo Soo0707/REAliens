@@ -75,6 +75,6 @@ class Enemy
 
 		size_t LastAnimationUpdate = 0;
 		unsigned int ImageIndex = 0;
-		unsigned int AnimationSpeed;
+		unsigned int AnimationInterval;
 		unsigned int AnimationFrames;
 };

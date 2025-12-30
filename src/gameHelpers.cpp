@@ -23,28 +23,6 @@ void GameHelper::LoopOverMap(float ground_width, float ground_height, Rectangle&
 		m_obj.y = 0;
 }
 
-void GameHelper::LevelUp(GameState& game_state, const SettingsManager& settings, GlobalDataWrapper& global_data) noexcept
-{
-	if (!settings.Data.at(SettingKey::UnlimitedPowerups))
-	{
-		game_state.UnclaimedPowerups++;
-		global_data.CachedStrings[CachedString::UnclaimedPowerups] = "Unclaimed Powerups: " + std::to_string(game_state.UnclaimedPowerups);
-	}
-
-	game_state.Level++;
-	global_data.CachedStrings[CachedString::LevelText] = "Level: " + std::to_string(game_state.Level);
-
-	game_state.CollectedXp = 0;
-	game_state.LevelUpTreshold += 5;
-	
-	if (settings.Data.at(SettingKey::PowerupMenuInterrupt))
-		global_data.ActiveState = State::PowerupMenu;
-
-	if (game_state.Level % 5 == 0 && !settings.Data.at(SettingKey::DisableLevelDebuffs))
-		game_state.InsertLevelDebuff(global_data);
-	else
-		game_state.RemoveLevelDebuff(global_data);
-}
 
 
 void GameHelper::SpawnEnemies(GameState& game_state, const AssetManager& assets) noexcept

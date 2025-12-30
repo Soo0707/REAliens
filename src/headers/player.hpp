@@ -51,7 +51,7 @@ class Player
 		size_t LastAnimationUpdate = 0;
 		unsigned int AnimationFrames = 2;
 		unsigned int ImageIndex = 0;
-		unsigned int AnimationSpeed = 30;
+		unsigned int AnimationInterval = 20;
 
 		void SetBearing() noexcept;
 };

@@ -30,29 +30,31 @@ void GameInputSystem::HandleTickedInput(GameState& game_state, const SettingsMan
 
 	const size_t ticks = game_state.Ticks;
 
-	if (IsKeyDown(KEY_LEFT_SHIFT) && game_state.CanSlide)
+	if (IsKeyDown(KEY_LEFT_SHIFT) && game_state.CanPerform[static_cast<size_t>(Action::Slide)])
 	{
 		game_state.Player->Sliding = true;
 		game_state.Player->SlideExpire = ticks + TICK_RATE / 6;
 
-		game_state.CanSlide = false;
-		game_state.LastSlide = ticks;
+		game_state.CanPerform[static_cast<size_t>(Action::Slide)] = false;
+		game_state.LastPerformed[static_cast<size_t>(Action::Slide)] = ticks;
 	}
 
 	const bool auto_click = settings.Data.at(SettingKey::AutoClick);
 
-	if ((IsMouseButtonDown(MOUSE_BUTTON_LEFT) || auto_click) && game_state.CanLMB)
+	if ((IsMouseButtonDown(MOUSE_BUTTON_LEFT) || auto_click) && game_state.CanPerform[static_cast<size_t>(Action::LMB)])
 	{
 		GameInputSystem::HandleLeftClick(game_state, assets);
-		game_state.CanLMB = false;
-		game_state.LastLMB = ticks;
+
+		game_state.CanPerform[static_cast<size_t>(Action::LMB)] = false;
+		game_state.LastPerformed[static_cast<size_t>(Action::LMB)] = ticks;
 	}
 	
-	if ((IsMouseButtonDown(MOUSE_BUTTON_RIGHT) || auto_click) && game_state.CanRMB)
+	if ((IsMouseButtonDown(MOUSE_BUTTON_RIGHT) || auto_click) && game_state.CanPerform[static_cast<size_t>(Action::RMB)])
 	{
 		GameInputSystem::HandleRightClick(game_state, assets);
-		game_state.CanRMB = false;
-		game_state.LastRMB = ticks;
+
+		game_state.CanPerform[static_cast<size_t>(Action::RMB)] = false;
+		game_state.LastPerformed[static_cast<size_t>(Action::RMB)] = ticks;
 	}
 }
 
