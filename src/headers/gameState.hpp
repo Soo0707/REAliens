@@ -129,11 +129,7 @@ struct GameState
 	std::array<size_t, static_cast<size_t>(Action::COUNT)> LastPerformed;
 
 	size_t Ticks = 0;
-	size_t TotalDamage = 0;
-	size_t TotalDistance = 0;
 
-	size_t EnemiesKilled = 0;
-	
 	size_t Level = 1;
 
 	size_t CollectedXp = 0;
@@ -160,6 +156,8 @@ struct GameState
 	void RemoveLevelDebuff(GlobalDataWrapper& global_data) noexcept;
 	
 	private:
+		void GenerateRandomLocations(const AssetManager& assets) noexcept;
+
 		void EmitParticles(
 				size_t number, float x, float y, unsigned int min_size, unsigned int max_size, unsigned int min_lifetime, unsigned int max_lifetime,
 				Vector2 velocity, unsigned int max_speed, Color start_colour, Color end_colour, const AssetManager& assets

@@ -24,7 +24,7 @@ void GameHelper::LoopOverMap(float ground_width, float ground_height, Rectangle&
 }
 
 
-
+/*
 void GameHelper::SpawnEnemies(GameState& game_state, const AssetManager& assets) noexcept
 {
 	const size_t level = game_state.Level;
@@ -52,7 +52,6 @@ void GameHelper::SpawnEnemies(GameState& game_state, const AssetManager& assets)
 	game_state.SpawnLocations.clear();
 }
 
-
 void GameHelper::RandomLocation(GameState& game_state, const AssetManager& assets) noexcept
 {
 	const float ground_width = assets.Ground.width;
@@ -73,6 +72,7 @@ void GameHelper::RandomLocation(GameState& game_state, const AssetManager& asset
 	}
 }
 
+*/
 
 void GameHelper::NoModifiers(size_t spawn_count, size_t level, std::vector<BehaviourModifier>& modifiers) noexcept
 {

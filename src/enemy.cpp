@@ -108,7 +108,7 @@ void Enemy::SetDirection(Vector2 player_centre, bool is_stinky) noexcept
 	if (is_stinky)
 		this->Direction = Vector2Scale(this->Direction, -1.0f);
 
-	if ((this->Direction.x != 0.0f || this->Direction.y != 0.0f))
+	if (this->Direction.x != 0.0f || this->Direction.y != 0.0f)
 		this->Direction = Vector2Normalize(this->Direction);
 	else
 		this->Direction = Vector2 { 0.0f, 0.0f };

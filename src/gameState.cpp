@@ -80,11 +80,6 @@ void GameState::Reset() noexcept
 	this->LastPerformed = { 0 };
 
 	this->Ticks = 0;
-	this->TotalDamage = 0;
-	this->TotalDistance = 0;
-	
-	this->EnemiesKilled = 0;
-
 	this->Level = 1;
 
 	this->UnclaimedPowerups = 0;
@@ -100,7 +95,7 @@ void GameState::UpdateEnemies(const AssetManager& assets) noexcept
 
 	if (this->Enemies.size() <= 5 && !this->Events.count(Event::SpawnEnemies))
 	{
-		GameHelper::RandomLocation(*this, assets);
+		this->GenerateRandomLocations(assets);
 		this->Events[Event::SpawnEnemies] = ticks + SECONDS_TO_TICKS(3);
 	}
 
@@ -133,7 +128,7 @@ void GameState::UpdateEnemies(const AssetManager& assets) noexcept
 
 		if (slide_damage > 0)
 		{
-			this->TotalDamage += slide_damage;
+			this->Stats[static_cast<size_t>(Stat::TotalDamage)] += slide_damage;
 
 			this->GameTexts.emplace_back( 
 					enemy.Rect.x, enemy.Rect.y, 64.0f, std::to_string(slide_damage),
@@ -150,7 +145,7 @@ void GameState::UpdateEnemies(const AssetManager& assets) noexcept
 			const unsigned int value = EnemyXpValues[static_cast<size_t>(enemy.Type)];
 			this->Xps.emplace_back(enemy.Rect.x, enemy.Rect.y, value * static_cast<int>(enemy.Scale), assets);
 
-			this->EnemiesKilled++;
+			this->Stats[static_cast<size_t>(Stat::Kills)]++;
 		}
 	}
 
@@ -210,7 +205,7 @@ void GameState::UpdateProjectiles(const AssetManager& assets) noexcept
 	if (this->Effects.count(Effect::LifeSteal))
 		this->Player->IncreaseHealth( total_damage_done * this->Attributes.at(Attribute::LifeStealMultiplier) );
 
-	this->TotalDamage += total_damage_done;
+	this->Stats[static_cast<size_t>(Stat::TotalDamage)] += total_damage_done;
 }
 
 void GameState::UpdateXps(const AssetManager& assets) noexcept
@@ -274,8 +269,9 @@ void GameState::UpdatePlayer(GlobalDataWrapper& global_data, const SettingsManag
 	}
 
 	const float slide_speed = this->Attributes.at(Attribute::SlideSpeed);
+	size_t* total_distance = &this->Stats[static_cast<size_t>(Stat::TotalDistance)];
 
-	this->Player->Update(this->Ticks, &this->TotalDistance, slide_speed);
+	this->Player->Update(this->Ticks, total_distance, slide_speed);
 
 	const float ground_width = assets.Ground.width;
 	const float ground_height = assets.Ground.height;
@@ -291,7 +287,10 @@ void GameState::UpdateLocations(const AssetManager& assets) noexcept
 	{
 		for (auto const& location : this->SpawnLocations)
 		{
-			const Vector2 velocity = (Vector2) { static_cast<float>(GetRandomValue(-8, 8)), static_cast<float>(GetRandomValue(-96, -64)) };
+			const Vector2 velocity = (Vector2) { 
+				static_cast<float>(GetRandomValue(-8, 8)),
+				static_cast<float>(GetRandomValue(-96, -64))
+			};
 
 			GameState::EmitParticles(
 					20, location.x, location.y, 5, 20,
@@ -360,6 +359,24 @@ void GameState::RemoveLevelDebuff(GlobalDataWrapper& global_data) noexcept
 	global_data.CachedStrings[CachedString::LevelDebuff] = "";
 }
 
+void GameState::GenerateRandomLocations(const AssetManager& assets) noexcept
+{
+	const float ground_width = assets.Ground.width;
+	const float ground_height = assets.Ground.height;
+
+	const size_t spawn_count = this->Level * 15;
+
+	this->SpawnLocations.reserve(spawn_count);
+
+	for (size_t i = 0; i < spawn_count; i++)
+	{
+		this->SpawnLocations.emplace_back(
+				(Vector2) {
+				static_cast<float>( GetRandomValue(0, ground_width) ),
+				static_cast<float>( GetRandomValue(0, ground_height) )
+				});
+	}
+}
 
 void GameState::LevelUp(const SettingsManager& settings, GlobalDataWrapper& global_data) noexcept
 {

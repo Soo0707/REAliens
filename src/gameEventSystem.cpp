@@ -88,7 +88,7 @@ void GameEventSystem::AuraTick(GameState& game_state, const AssetManager& assets
 			}
 		}
 
-		game_state.TotalDamage += static_cast<unsigned int>(total_hit * aura_damage);
+		game_state.Stats[static_cast<size_t>(Stat::TotalDamage)] += static_cast<unsigned int>(total_hit * aura_damage);
 
 		if (game_state.Effects.count(Effect::LifeSteal))
 			game_state.Player->IncreaseHealth(total_hit * aura_damage * game_state.Attributes.at(Attribute::LifeStealMultiplier));
@@ -157,5 +157,27 @@ void GameEventSystem::SpawnEnemies(GameState& game_state, const AssetManager& as
 	if (expiry >= ticks)
 		new_events_map[Event::SpawnEnemies] = expiry;
 	else
-		GameHelper::SpawnEnemies(game_state, assets);
+	{
+		const size_t level = game_state.Level;
+		const size_t spawn_count = level * 15;
+
+		game_state.Enemies.reserve(game_state.Enemies.size() + spawn_count);
+
+		std::vector<EnemyType> types;
+		types.reserve(spawn_count);
+
+		GameHelper::SpawnTypeFunctions[GetRandomValue(0, 1)](spawn_count, types);
+
+		std::vector<BehaviourModifier> modifiers;
+		modifiers.reserve(spawn_count);
+
+		GameHelper::GenerateModifierFunctions[GetRandomValue(0, 2)](spawn_count, level, modifiers);
+
+		const float level_scale = 1 + static_cast<float>(level) / 10.0f;
+
+		for (size_t i = 0; i < spawn_count; i++)
+			game_state.Enemies.emplace_back(game_state.SpawnLocations[i].x, game_state.SpawnLocations[i].y, level_scale, assets, types[i], modifiers[i]);
+
+		game_state.SpawnLocations.clear();
+	}
 }
