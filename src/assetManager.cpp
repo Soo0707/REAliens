@@ -52,6 +52,7 @@ TextureKey AssetManager::GetTextureKeyFromString(std::string filename) const noe
 		{ "lazer.png", TextureKey::Lazer },
 		{ "bullet.png", TextureKey::Bullet },
 		{ "xp.png", TextureKey::Xp },
+		{ "ball.png", TextureKey::Ball },
 
 		{ "australian.png", TextureKey::Australian },
 		{ "drunkard.png", TextureKey::Drunkard },

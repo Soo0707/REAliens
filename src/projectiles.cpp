@@ -13,7 +13,8 @@
 Projectile::Projectile(float x, float y, float speed, float scale, Vector2 direction, ProjectileType type, const AssetManager& assets) noexcept :
 	Type(type),
 	Speed(speed),
-	Scale(scale)
+	Scale(scale),
+	Kill(false)
 {
 	// Vector2Normalize already checks 0-length vectors
 	this->Direction = Vector2Normalize(direction);
@@ -59,6 +60,12 @@ void Projectile::LazerConstructor(const AssetManager& assets) noexcept
 	this->Colour = CYAN;
 }
 
+void Projectile::BallConstructor(const AssetManager& assets) noexcept
+{
+
+
+}
+
 /*
  * since AABB is axis aligned by definition, there is no way to sync the hitbox and the texture if rotated.
  * as such, calculating the centre is useless and we're better off using the top left x and y coordinates
@@ -73,6 +80,12 @@ void Projectile::LazerDrawLightmap() const noexcept
 	DrawCircleGradient(this->Rect.x, this->Rect.y, std::max(this->Rect.width, this->Rect.height) * 2.0f, CYAN, LIGHTGRAY);
 }
 
+void Projectile::BallDrawLightmap() const noexcept
+{
+
+
+}
+
 
 void Projectile::BulletUpdate() noexcept
 {
@@ -84,4 +97,9 @@ void Projectile::LazerUpdate() noexcept
 {
 	this->Rect.x += this->Direction.x * this->Speed * TICK_TIME;
 	this->Rect.y += this->Direction.y * this->Speed * TICK_TIME;
+}
+
+void Projectile::BallUpdate() noexcept
+{
+
 }

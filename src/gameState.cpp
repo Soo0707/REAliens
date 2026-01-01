@@ -136,7 +136,7 @@ void GameState::UpdateEnemies(const AssetManager& assets) noexcept
 					);
 
 			GameState::EmitParticles(
-					20, enemy.Rect.x, enemy.Rect.y, 10, 25,
+					50, enemy.Rect.x, enemy.Rect.y, 10, 25,
 					60, TICK_RATE, this->Player->Direction, 512, ORANGE, RED, assets);
 		}
 
@@ -170,7 +170,7 @@ void GameState::UpdateProjectiles(const AssetManager& assets) noexcept
 		{
 			projectile.Update();
 
-			GameHelper::LoopOverMap(ground_width, ground_height, projectile.Rect);
+			//GameHelper::LoopOverMap(ground_width, ground_height, projectile.Rect);
 
 			const unsigned int damage = Collisions::ProjectileCollision(projectile, this->Enemies, ticks, this->Attributes); 
 

@@ -11,6 +11,8 @@ enum class ProjectileType : size_t
 {
 	Bullet,
 	Lazer,
+	Ball,
+
 	COUNT
 };
 
@@ -24,7 +26,8 @@ class Projectile
 		void Draw() const noexcept;
 		void DrawLightmap() const noexcept;
 
-		bool Kill = false;
+		bool Kill;
+		bool KeepAlive;
 		ProjectileType Type;
 
 		float Rotation;
@@ -39,30 +42,36 @@ class Projectile
 	private:
 		void BulletConstructor(const AssetManager& assets) noexcept;
 		void LazerConstructor(const AssetManager& assets) noexcept;
+		void BallConstructor(const AssetManager& assets) noexcept;
 
 		void BulletUpdate() noexcept;
 		void LazerUpdate() noexcept;
+		void BallUpdate() noexcept;
 		
 		void BulletDrawLightmap() const noexcept;
 		void LazerDrawLightmap() const noexcept;
+		void BallDrawLightmap() const noexcept;
 
 		using ConstructorHook = void(Projectile::*)(const AssetManager&) noexcept;
 		static inline constexpr std::array<ConstructorHook, static_cast<size_t>(ProjectileType::COUNT)> ConstructorHooks =
 		{
 			&BulletConstructor,
-			&LazerConstructor
+			&LazerConstructor,
+			&BallConstructor
 		};
 
 		static inline constexpr std::array<void(Projectile::*)(), static_cast<size_t>(ProjectileType::COUNT)> UpdateHooks = 
 		{
 			&BulletUpdate,
-			&LazerUpdate
+			&LazerUpdate,
+			&BallUpdate
 		};
 
 		static inline constexpr std::array<void(Projectile::*)() const noexcept, static_cast<size_t>(ProjectileType::COUNT)> DrawLightmapHooks =
 		{
 			&BulletDrawLightmap,
-			&LazerDrawLightmap
+			&LazerDrawLightmap,
+			&BallDrawLightmap
 		};
 
 		Texture2D Image;

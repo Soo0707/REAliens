@@ -11,6 +11,7 @@ enum class TextureKey
 	Lazer,
 	Bullet,
 	Xp,
+	Ball,
 
 	Australian,
 	Drunkard,
