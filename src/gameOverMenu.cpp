@@ -1,7 +1,9 @@
 #include "gameOverMenu.hpp"
 
 #include "raylib.h"
-#include "gameState.hpp"
+
+#include "stats.hpp"
+#include "statSystem.hpp"
 #include "globalDataWrapper.hpp"
 #include "assetManager.hpp"
 #include "constants.hpp"
@@ -63,15 +65,15 @@ void GameOverMenu::HandleInput() noexcept
 		this->GlobalData->Running = false;
 }
 
-void GameOverMenu::GenerateStats(const GameState& game_state) noexcept
+void GameOverMenu::GenerateStats(const Game& game, const StatSystem& stat_system) noexcept
 {
-	const size_t ticks = game_state.Ticks;
-	const size_t damage_per_second = game_state.Stats[static_cast<size_t>(Stat::TotalDamage)] / TICKS_TO_SECONDS(ticks);
+	const size_t ticks = game.Ticks;
+	const size_t damage_per_second = stat_system.GetStat(Stat::TotalDamage) / TICKS_TO_SECONDS(ticks);
 
 	this->GlobalData->CachedStrings[CachedString::DamagePerSecond] = "Damage / Second: " + std::to_string(damage_per_second);
 
-	this->GlobalData->CachedStrings[CachedString::EnemiesKilled] = "Enemies Killed: " + std::to_string(game_state.Stats[static_cast<size_t>(Stat::Kills)]);
+	this->GlobalData->CachedStrings[CachedString::EnemiesKilled] = "Enemies Killed: " + std::to_string(stat_system.GetStat(Stat::TotalDamage));
 
-	const size_t average_speed = game_state.Stats[static_cast<size_t>(Stat::TotalDistance)] / TICKS_TO_SECONDS(ticks);
+	const size_t average_speed = stat_system.GetStat(Stat::TotalDistance) / TICKS_TO_SECONDS(ticks);
 	this->GlobalData->CachedStrings[CachedString::AverageSpeed] = "Average Speed: " + std::to_string(average_speed) + "px/s";
 }

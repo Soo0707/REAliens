@@ -1,19 +1,23 @@
 #pragma once
 
-#include "gameState.hpp"
+#include "game.hpp"
 #include "assetManager.hpp"
 #include "globalDataWrapper.hpp"
+#include "modifierSystem.hpp"
+#include "timerSystem.hpp"
 
 namespace GameDrawSystem
 {
-	void DrawScreenLayer(const GameState& game_state) noexcept;
-	void DrawLighting(const GameState& game_state) noexcept;
-	void DrawGame(const GameState& game_state, const AssetManager& assets) noexcept;
+	void DrawGame(const Game& game, const ModifierSystem& modifier_system, const AssetManager& assets) noexcept;
+	void DrawLighting(const Game& game, const ModifierSystem& modifier_system) noexcept;
+	void DrawScreenLayer(const Game& game) noexcept;
+	void DrawOverlay(
+			const Game& game, const TimerSystem& timer_system, const ModifierSystem& modifier_system,
+			const GlobalDataWrapper& global_data, const AssetManager& assets
+			) noexcept;
 
-	void DrawOverlay(const GameState& game_state, const GlobalDataWrapper& global_data, const AssetManager& assets) noexcept;
-
-	void DrawGreenbull(const GameState& game_state, const AssetManager& assets) noexcept;
-	void DrawMilk(const GameState& game_state, const AssetManager& assets) noexcept;
-	void DrawDrunk(const GameState& game_state, const AssetManager& assets) noexcept;
-	void DrawMagnetism(const GameState& game_state, const AssetManager& assets) noexcept;
+	void DrawGreenbull(const TimerSystem& timer_system, const AssetManager& assets, const size_t ticks) noexcept;
+	void DrawMilk(const TimerSystem& timer_system, const AssetManager& assets, const size_t ticks) noexcept;
+	void DrawDrunk(const TimerSystem& timer_system, const AssetManager& assets, const size_t ticks) noexcept;
+	void DrawMagnetism(const TimerSystem& timer_system, const AssetManager& assets, const size_t ticks) noexcept;
 }

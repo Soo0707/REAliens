@@ -9,8 +9,10 @@
 
 #include "globalDataWrapper.hpp"
 #include "settingsManager.hpp"
-#include "gameState.hpp"
 #include "assetManager.hpp"
+
+#include "messageSystem.hpp"
+#include "timerSystem.hpp"
 
 enum class Powerup
 {
@@ -41,8 +43,12 @@ struct PowerupWrapper
 class PowerupMenu
 {
 	public:
-		PowerupMenu(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets,
-				std::shared_ptr<SettingsManager> settings, std::shared_ptr<struct GameState> game_state);
+		PowerupMenu(
+				std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets,
+				std::shared_ptr<SettingsManager> settings, std::shared_ptr<struct MessageSystem> message_system,
+				std::shared_ptr<class TimerSystem> timer_system
+				);
+
 		~PowerupMenu() = default;
 
 		void Draw(RenderTexture2D& canvas) const noexcept;
@@ -52,7 +58,6 @@ class PowerupMenu
 		void GenerateList() noexcept;
 
 		void ApplyPowerup(Powerup powerup) noexcept;
-		void ApplyEffect(const Effect effect, const Event event, const unsigned int duration) noexcept;
 
 		void ApplyMilk() noexcept;
 		void ApplyAura() noexcept;
@@ -69,14 +74,14 @@ class PowerupMenu
 		void ApplySpeedBoots() noexcept;
 		void ApplyBabyOil() noexcept;
 
+		std::vector<PowerupWrapper> SelectionList;
+
 		const std::shared_ptr<GlobalDataWrapper> GlobalData;
 		const std::shared_ptr<SettingsManager> Settings;
 		const std::shared_ptr<AssetManager> Assets;
-		const std::shared_ptr<struct GameState> GameState;
 
-		std::vector<PowerupWrapper> SelectionList;
-
-		bool Gamble = false;
+		const std::shared_ptr<struct MessageSystem> MessageSystem;
+		const std::shared_ptr<class TimerSystem> TimerSystem;
 
 		static inline constexpr std::array<std::string, static_cast<size_t>(Powerup::COUNT)> PowerupNames =
 		{
@@ -131,4 +136,6 @@ class PowerupMenu
 			&PowerupMenu::ApplySpeedBoots,
 			&PowerupMenu::ApplyBabyOil
 		};
+
+		bool Gamble = false;
 };

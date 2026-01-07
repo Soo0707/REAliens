@@ -2,96 +2,118 @@
 
 #include "raylib.h"
 #include "raymath.h"
-#include "gameState.hpp"
 #include "settingsManager.hpp"
-#include "assetManager.hpp"
-#include "constants.hpp"
 
-void GameInputSystem::HandleTickedInput(GameState& game_state, const SettingsManager& settings, const AssetManager& assets) noexcept
+#include "commands.hpp"
+#include "messageSystem.hpp"
+#include "modifierSystem.hpp"
+
+void GameInputSystem::HandleTickedInput(
+		Game& game, MessageSystem& message_system, const ModifierSystem& modifier_system,
+		const SettingsManager& settings
+		) noexcept
 {
 	if (IsKeyDown(KEY_SPACE))
-		game_state.Effects.erase(Effect::Trapped);
+		message_system.ModifierSystemCommands.emplace_back(ModifierSystemCommandType::RemoveTrapped);
 
-	if (game_state.Effects.count(Effect::Trapped))
-		game_state.Player->Direction = { 0, 0 };
+	if (modifier_system.EffectStatus(Effect::Trapped))
+		game.Player->Direction = { 0, 0 };
 	else
 	{
-		game_state.Player->Direction.x = IsKeyDown(KEY_D) - IsKeyDown(KEY_A);
-		game_state.Player->Direction.y = IsKeyDown(KEY_S) - IsKeyDown(KEY_W);
+		game.Player->Direction.x = IsKeyDown(KEY_D) - IsKeyDown(KEY_A);
+		game.Player->Direction.y = IsKeyDown(KEY_S) - IsKeyDown(KEY_W);
 	}
 
-	if (game_state.Effects.count(Effect::Drunk))
+	if (modifier_system.EffectStatus(Effect::Drunk))
 	{
-		game_state.Player->Direction.x *= -1;
-		game_state.Player->Direction.y *= -1;
+		game.Player->Direction.x *= -1;
+		game.Player->Direction.y *= -1;
 	}
 
-	game_state.Player->Direction = Vector2Normalize(game_state.Player->Direction);
+	game.Player->Direction = Vector2Normalize(game.Player->Direction);
 
-	const size_t ticks = game_state.Ticks;
+	const size_t ticks = game.Ticks;
 
-	if (IsKeyDown(KEY_LEFT_SHIFT) && game_state.CanPerform[static_cast<size_t>(Action::Slide)])
+	if (IsKeyDown(KEY_LEFT_SHIFT) && game.CanPerform[static_cast<size_t>(Action::Slide)])
 	{
-		game_state.Player->Sliding = true;
-		game_state.Player->SlideExpire = ticks + TICK_RATE / 6;
+		game.Player->Sliding = true;
+		game.Player->SlideExpire = ticks + TICK_RATE / 6;
 
-		game_state.CanPerform[static_cast<size_t>(Action::Slide)] = false;
-		game_state.LastPerformed[static_cast<size_t>(Action::Slide)] = ticks;
+		game.CanPerform[static_cast<size_t>(Action::Slide)] = false;
+		game.LastPerformed[static_cast<size_t>(Action::Slide)] = ticks;
 	}
 
 	const bool auto_click = settings.Data.at(SettingKey::AutoClick);
 
-	if ((IsMouseButtonDown(MOUSE_BUTTON_LEFT) || auto_click) && game_state.CanPerform[static_cast<size_t>(Action::LMB)])
-	{
-		GameInputSystem::HandleLeftClick(game_state, assets);
+	const Vector2 player_centre = game.Player->Centre;
+	const Camera2D camera = game.Camera;
 
-		game_state.CanPerform[static_cast<size_t>(Action::LMB)] = false;
-		game_state.LastPerformed[static_cast<size_t>(Action::LMB)] = ticks;
+	if ((IsMouseButtonDown(MOUSE_BUTTON_LEFT) || auto_click) && game.CanPerform[static_cast<size_t>(Action::LMB)])
+	{
+		GameInputSystem::HandleLeftClick(message_system, modifier_system, player_centre, camera);
+
+		game.CanPerform[static_cast<size_t>(Action::LMB)] = false;
+		game.LastPerformed[static_cast<size_t>(Action::LMB)] = ticks;
 	}
 	
-	if ((IsMouseButtonDown(MOUSE_BUTTON_RIGHT) || auto_click) && game_state.CanPerform[static_cast<size_t>(Action::RMB)])
+	if ((IsMouseButtonDown(MOUSE_BUTTON_RIGHT) || auto_click) && game.CanPerform[static_cast<size_t>(Action::RMB)])
 	{
-		GameInputSystem::HandleRightClick(game_state, assets);
+		GameInputSystem::HandleRightClick(message_system, modifier_system, player_centre, camera);
 
-		game_state.CanPerform[static_cast<size_t>(Action::RMB)] = false;
-		game_state.LastPerformed[static_cast<size_t>(Action::RMB)] = ticks;
+		game.CanPerform[static_cast<size_t>(Action::RMB)] = false;
+		game.LastPerformed[static_cast<size_t>(Action::RMB)] = ticks;
 	}
 }
 
-void GameInputSystem::HandleLeftClick(GameState& game_state, const AssetManager& assets) noexcept
+void GameInputSystem::HandleLeftClick(
+		MessageSystem& message_system, const ModifierSystem& modifier_system,
+		const Vector2 player_centre, const Camera2D camera
+		) noexcept
 {
-	const Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), game_state.Camera);
+	const Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), camera);
 
-	const Vector2 player_centre = game_state.Player->Centre;
 	const Vector2 centre_direction = Vector2Subtract(mouse_pos, player_centre);
 
-	const float spread_angle = game_state.Attributes.at(Attribute::BuckshotSpread);
-	const int buckshot = static_cast<int>((game_state.Attributes.at(Attribute::Buckshot) - 1) / 2);
+	const float spread_angle = modifier_system.GetAttribute(Attribute::BuckshotSpread);
+	const int buckshot = static_cast<int>((modifier_system.GetAttribute(Attribute::Buckshot) - 1) / 2);
 	
-	const float speed = game_state.Attributes.at(Attribute::BulletSpeed);
+	const float speed = modifier_system.GetAttribute(Attribute::BulletSpeed);
 
 	for (int i = -buckshot; i <= buckshot; i++)
 	{
 		if (i == 0)
 		{
-			game_state.Projectiles.emplace_back(player_centre.x, player_centre.y, speed, 1.0f, centre_direction, ProjectileType::Bullet, assets);
+			message_system.ProjectileSystemCommands.emplace_back(
+					ProjectileType::Bullet, centre_direction, player_centre.x,
+					player_centre.y, speed, 1.0f
+					);
+
 			continue;
 		}
+
 		const Vector2 direction = Vector2Rotate(centre_direction, spread_angle * i);
 
-		game_state.Projectiles.emplace_back(player_centre.x, player_centre.y, speed, 1.0f, direction, ProjectileType::Bullet, assets);
+		message_system.ProjectileSystemCommands.emplace_back(
+				ProjectileType::Bullet, direction, player_centre.x,
+				player_centre.y, speed, 1.0f
+				);
 	}
 }
 
-void GameInputSystem::HandleRightClick(GameState& game_state, const AssetManager& assets) noexcept
+void GameInputSystem::HandleRightClick(
+		MessageSystem& message_system, const ModifierSystem& modifier_system,
+		const Vector2 player_centre, const Camera2D camera
+		) noexcept
 {
-	const Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), game_state.Camera);
+	const Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), camera);
 
-	const Vector2 centre = game_state.Player->Centre;
-	const Vector2 direction = Vector2Subtract(mouse_pos, centre);
+	const Vector2 direction = Vector2Subtract(mouse_pos, player_centre);
 
-	const float speed = game_state.Attributes.at(Attribute::LazerSpeed);
-	const float scale = game_state.Attributes.at(Attribute::LazerScale);
+	const float speed = modifier_system.GetAttribute(Attribute::LazerSpeed);
+	const float scale = modifier_system.GetAttribute(Attribute::LazerScale);
 
-	game_state.Projectiles.emplace_back(centre.x, centre.y, speed, scale, direction, ProjectileType::Lazer, assets);
+	message_system.ProjectileSystemCommands.emplace_back(
+			ProjectileType::Lazer, direction, player_centre.x,
+			player_centre.y, speed, scale
+			);
 }

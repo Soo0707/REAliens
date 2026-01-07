@@ -1,12 +1,17 @@
 #pragma once
 
 #include "settingsManager.hpp"
-#include "assetManager.hpp"
-#include "gameState.hpp"
+
+#include "raylib.h"
+
+#include "game.hpp"
+#include "messageSystem.hpp"
+#include "modifierSystem.hpp"
 
 namespace GameInputSystem
 {
-	void HandleTickedInput(GameState& game_state, const SettingsManager& settings, const AssetManager& assets) noexcept;
-	void HandleLeftClick(GameState& game_state, const AssetManager& assets) noexcept;
-	void HandleRightClick(GameState& game_state, const AssetManager& assets) noexcept;
+	void HandleTickedInput(Game& game, MessageSystem& message_system, const ModifierSystem& modifier_system, const SettingsManager& settings) noexcept;
+
+	void HandleLeftClick(MessageSystem& message_system, const ModifierSystem& modifier_system, const Vector2 player_centre, const Camera2D camera) noexcept;
+	void HandleRightClick(MessageSystem& message_system, const ModifierSystem& modifier_system, const Vector2 player_centre, const Camera2D camera) noexcept;
 }

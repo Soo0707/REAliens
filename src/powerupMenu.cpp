@@ -1,23 +1,31 @@
 #include "powerupMenu.hpp"
 
 #include <memory>
+#include <variant>
 #include <set>
 
 #include "raylib.h"
 
-#include "gameState.hpp"
+#include "constants.hpp"
+
 #include "globalDataWrapper.hpp"
 #include "settingsManager.hpp"
 #include "assetManager.hpp"
 
-#include "constants.hpp"
+#include "messageSystem.hpp"
+#include "commands.hpp"
+#include "timerSystem.hpp"
 
-PowerupMenu::PowerupMenu(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets, 
-		std::shared_ptr<SettingsManager> settings, std::shared_ptr<struct GameState> game_state):
+PowerupMenu::PowerupMenu(
+		std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets, 
+		std::shared_ptr<SettingsManager> settings, std::shared_ptr<struct MessageSystem> message_system,
+		std::shared_ptr<class TimerSystem> timer_system
+		):
 	GlobalData(global_data),
 	Settings(settings),
 	Assets(assets),
-	GameState(game_state)
+	MessageSystem(message_system),
+	TimerSystem(timer_system)
 {
 	PowerupMenu::GenerateList();
 }
@@ -57,6 +65,7 @@ void PowerupMenu::Draw(RenderTexture2D& canvas) const noexcept
 void PowerupMenu::GenerateList() noexcept
 {
 	std::set<Powerup> powerup_set = {};
+
 	while (true)
 	{
 		Powerup powerup = static_cast<Powerup>( GetRandomValue(0, ( static_cast<int>(Powerup::COUNT) ) - 1) );
@@ -113,139 +122,88 @@ void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
 
 	if (!this->Settings->Data.at(SettingKey::UnlimitedPowerups))
 	{
-		this->GameState->UnclaimedPowerups--;
-		this->GlobalData->CachedStrings[CachedString::UnclaimedPowerups] = "Unclaimed Powerups: " + std::to_string(this->GameState->UnclaimedPowerups);
+		this->GlobalData->UnclaimedPowerups--;
+		this->GlobalData->CachedStrings[CachedString::UnclaimedPowerups] = "Unclaimed Powerups: " + std::to_string(this->GlobalData->UnclaimedPowerups);
 	}
 
-	if (this->GameState->UnclaimedPowerups == 0 && !this->Settings->Data.at(SettingKey::UnlimitedPowerups))
+	if (this->GlobalData->UnclaimedPowerups == 0 && !this->Settings->Data.at(SettingKey::UnlimitedPowerups))
 	{
 		this->GlobalData->ActiveState = State::Game;
 		this->Gamble = false;
 	}
 }
 
-
-void PowerupMenu::ApplyEffect(const Effect effect, const Event event, const unsigned int duration) noexcept
-{
-	this->GameState->Effects.insert(effect);
-
-	if (this->GameState->Events.count(event))
-		this->GameState->Events[event] += duration;
-	else
-		this->GameState->Events[event] = this->GameState->Ticks + duration;
-}
-
 void PowerupMenu::ApplyMilk() noexcept
 {
-	PowerupMenu::ApplyEffect(Effect::Milk, Event::MilkExpire, SECONDS_TO_TICKS(180));
+	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyMilk);
+	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::RemovePoison);
 
-	this->GameState->Effects.erase(Effect::Aussie);
-	this->GameState->Effects.erase(Effect::Drunk);
-	this->GameState->Effects.erase(Effect::Trapped);
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<RegisterTimer>, SECONDS_TO_TICKS(180), false, Timer::MilkExpire);
 
-	this->GameState->Effects.erase(Effect::Poison);
-
-	this->GameState->Events.erase(Event::PoisonTick);
-	this->GameState->Events.erase(Event::PoisonExpire);
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<DeregisterTimer>, Timer::PoisonTick);
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<DeregisterTimer>, Timer::PoisonExpire);
 }
 
 void PowerupMenu::ApplyGreenbull() noexcept
 {
-	PowerupMenu::ApplyEffect(Effect::Greenbull, Event::GreenbullExpire, SECONDS_TO_TICKS(120));
+	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyGreenbull);
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<RegisterTimer>, SECONDS_TO_TICKS(120), false, Timer::GreenbullExpire);
 }
 
 void PowerupMenu::ApplyMagnetism() noexcept
 {
-	PowerupMenu::ApplyEffect(Effect::Magnetism, Event::MagnetismExpire, SECONDS_TO_TICKS(240));
+	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyMagnetism);
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<RegisterTimer>, SECONDS_TO_TICKS(240), false, Timer::MagnetismExpire);
 }
 
 void PowerupMenu::ApplyAura() noexcept
 {
-	if (this->GameState->Attributes.count(Attribute::AuraSize))
-	{
-		if (this->GameState->Attributes[Attribute::AuraSize] + 50 < REFERENCE_HEIGHT)
-			this->GameState->Attributes[Attribute::AuraSize] += 50;
-		else
-			this->GameState->Attributes[Attribute::AuraSize] = REFERENCE_HEIGHT;
+	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyAura);
 
-		this->GameState->Attributes[Attribute::AuraDamage] += 5;
-
-		if (this->GameState->Attributes[Attribute::AuraCooldown] - 25 > TICK_RATE / 4)
-			this->GameState->Attributes[Attribute::AuraCooldown] -= 25;
-		else
-			this->GameState->Attributes[Attribute::AuraCooldown] = TICK_RATE / 4;
-	}
+	if (!this->TimerSystem->GetTimerStatus(Timer::AuraTick))
+		this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<RegisterTimer>, SECONDS_TO_TICKS(2), true, Timer::AuraTick);
 	else
 	{
-		this->GameState->Attributes[Attribute::AuraSize] = 100;
-		this->GameState->Attributes[Attribute::AuraDamage] = 5;
-		this->GameState->Attributes[Attribute::AuraCooldown] = SECONDS_TO_TICKS(2);
-	}
+		const size_t interval = this->TimerSystem->GetTimerInterval(Timer::AuraTick);
 
-	this->GameState->Events[Event::AuraTick] = this->GameState->Ticks + this->GameState->Attributes.at(Attribute::AuraCooldown);
+		if (interval - 25 > TICK_RATE / 4)
+			this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, interval - 25, true, Timer::AuraTick);
+		else
+			this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, TICK_RATE / 4, true, Timer::AuraTick);
+	}
 }
 
 void PowerupMenu::ApplyBuckshot() noexcept
 {
-	this->GameState->Attributes[Attribute::Buckshot] += 2;
-
-	if (this->GameState->Attributes[Attribute::BuckshotSpread] - 0.02f > 5 * TO_RAD)
-		this->GameState->Attributes[Attribute::BuckshotSpread] -= 0.02f;
-	else
-		this->GameState->Attributes[Attribute::BuckshotSpread] = 5 * TO_RAD;
+	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyBuckshot);
 }
 
 void PowerupMenu::ApplyProjectile() noexcept
 {
-	if (this->GameState->Attributes[Attribute::BulletCooldown] - 25 > 80)
-		this->GameState->Attributes[Attribute::BulletCooldown] -= 25;
-	else
-		this->GameState->Attributes[Attribute::BulletCooldown] = 80;
-
-	this->GameState->Attributes[Attribute::BulletDamage] += 5;
-	this->GameState->Attributes[Attribute::BulletSpeed] += 100;
+	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyProjectile);
 }
 
 void PowerupMenu::ApplyLazer() noexcept
 {
-	if (this->GameState->Attributes[Attribute::LazerCooldown] - 50 > 60)
-		this->GameState->Attributes[Attribute::LazerCooldown] -= 50;
-	else
-		this->GameState->Attributes[Attribute::LazerCooldown] = 60;
-
-	this->GameState->Attributes[Attribute::LazerDamage] += 10;
-	this->GameState->Attributes[Attribute::LazerScale] += 0.5;
-	this->GameState->Attributes[Attribute::LazerSpeed] += 10;
+	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyLazer);
 }
 
 void PowerupMenu::ApplyLifeSteal() noexcept
 {
-	if (this->GameState->Effects.count(Effect::LifeSteal))
-		this->GameState->Attributes[Attribute::LifeStealMultiplier] += 0.2;
-	else
-	{
-		this->GameState->Attributes[Attribute::LifeStealMultiplier] = 0.1;
-		this->GameState->Effects.insert(Effect::LifeSteal);
-	}
+	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyLifeSteal);
 }
 
 void PowerupMenu::ApplyPlotArmour() noexcept
 {
-	if (this->GameState->Events.count(Event::IncreasePlotArmour))
-		this->GameState->Events[Event::IncreasePlotArmour]++;
-	else
-		this->GameState->Events[Event::IncreasePlotArmour] = 1;
+	this->MessageSystem->PlayerSignals[static_cast<size_t>(PlayerSignal::IncreasePlotArmour)]++;
 }
 
 void PowerupMenu::ApplySpeedBoots() noexcept
 {
-	if (this->GameState->Events.count(Event::IncreasePlayerSpeed))
-		this->GameState->Events[Event::IncreasePlayerSpeed]++;
-	else
-		this->GameState->Events[Event::IncreasePlayerSpeed] = 1;
+	this->MessageSystem->PlayerSignals[static_cast<size_t>(PlayerSignal::ApplySpeedBoots)]++;
 }
 
 void PowerupMenu::ApplyBabyOil() noexcept
 {
-	this->GameState->Attributes[Attribute::SlideSpeed] *= 1.2f;
+	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyBabyOil);
 }

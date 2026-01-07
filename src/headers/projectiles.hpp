@@ -27,7 +27,6 @@ class Projectile
 		void DrawLightmap() const noexcept;
 
 		bool Kill;
-		bool KeepAlive;
 		ProjectileType Type;
 
 		float Rotation;

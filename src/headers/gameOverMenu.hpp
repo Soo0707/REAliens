@@ -3,7 +3,9 @@
 #include <memory>
 
 #include "globalDataWrapper.hpp"
-#include "gameState.hpp"
+
+#include "game.hpp"
+#include "statSystem.hpp"
 #include "assetManager.hpp"
 
 class GameOverMenu
@@ -15,7 +17,7 @@ class GameOverMenu
 		void Draw(RenderTexture2D& canvas) const noexcept;
 		void HandleInput() noexcept;
 
-		void GenerateStats(const GameState& game_state) noexcept;
+		void GenerateStats(const Game& game, const StatSystem& stat_system) noexcept;
 
 	private:
 		const std::shared_ptr<GlobalDataWrapper> GlobalData;

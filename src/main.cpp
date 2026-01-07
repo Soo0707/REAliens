@@ -3,11 +3,18 @@
 #include "globalDataWrapper.hpp"
 #include "assetManager.hpp"
 #include "settingsManager.hpp"
-#include "gameState.hpp"
 
+#include "messageSystem.hpp"
+#include "timerSystem.hpp"
+#include "modifierSystem.hpp"
+#include "particleSystem.hpp"
+#include "gameTextSystem.hpp"
+#include "projectileSystem.hpp"
+#include "enemySystem.hpp"
+#include "statSystem.hpp"
+#include "xpSystem.hpp"
 
 #include "game.hpp"
-#include "gameState.hpp"
 #include "powerupMenu.hpp"
 #include "gameOverMenu.hpp"
 #include "pauseMenu.hpp"
@@ -31,10 +38,10 @@ int main(void)
 
 	SetExitKey(KEY_NULL);
 
-	std::shared_ptr<AssetManager> assets = std::make_shared<AssetManager>();
-	std::shared_ptr<SettingsManager> settings = std::make_shared<SettingsManager>();
-	std::shared_ptr<GlobalDataWrapper> global_data = std::make_shared<GlobalDataWrapper>();
-	std::shared_ptr<GameState> game_state = std::make_shared<GameState>(*assets);
+	const std::shared_ptr<AssetManager> assets = std::make_shared<AssetManager>();
+	const std::shared_ptr<SettingsManager> settings = std::make_shared<SettingsManager>();
+	const std::shared_ptr<GlobalDataWrapper> global_data = std::make_shared<GlobalDataWrapper>();
+	//std::shared_ptr<GameState> game_state = std::make_shared<GameState>(*assets);
 
 	unsigned int target_refresh_rate;
 
@@ -45,8 +52,22 @@ int main(void)
 
 	SetTargetFPS(target_refresh_rate);
 
-	Game game = Game(global_data, assets, settings, game_state);
-	PowerupMenu powerup_menu = PowerupMenu(global_data, assets, settings, game_state);
+	const std::shared_ptr<MessageSystem> message_system = std::make_shared<MessageSystem>();
+	const std::shared_ptr<TimerSystem> timer_system = std::make_shared<TimerSystem>();
+	const std::shared_ptr<ModifierSystem> modifier_system = std::make_shared<ModifierSystem>();
+	const std::shared_ptr<ParticleSystem> particle_system = std::make_shared<ParticleSystem>();
+	const std::shared_ptr<GameTextSystem> game_text_system = std::make_shared<GameTextSystem>();
+	const std::shared_ptr<ProjectileSystem> projectile_system = std::make_shared<ProjectileSystem>();
+	const std::shared_ptr<EnemySystem> enemy_system = std::make_shared<EnemySystem>();
+	const std::shared_ptr<StatSystem> stat_system = std::make_shared<StatSystem>();
+	const std::shared_ptr<XpSystem> xp_system = std::make_shared<XpSystem>();
+
+	Game game = Game(
+			global_data, assets, settings, message_system, timer_system, modifier_system,
+			particle_system, game_text_system, projectile_system, enemy_system, stat_system, xp_system
+			);
+
+	PowerupMenu powerup_menu = PowerupMenu(global_data, assets, settings, message_system, timer_system);
 	GameOverMenu game_over = GameOverMenu(global_data, assets);
 	PauseMenu pause = PauseMenu(global_data, assets);
 	MainMenu main_menu = MainMenu(global_data, assets);
@@ -72,7 +93,16 @@ int main(void)
 		switch (global_data->ActiveState)
 		{
 			case State::GameReset:
-				game_state->Reset();
+				message_system->Reset();
+				timer_system->Reset();
+				modifier_system->Reset();
+				particle_system->Reset();
+				game_text_system->Reset();
+				projectile_system->Reset();
+				enemy_system->Reset();
+				stat_system->Reset();
+				xp_system->Reset();
+				game.Reset();
 				global_data->Reset();
 				global_data->ActiveState = State::Game;
 				break;
@@ -98,7 +128,7 @@ int main(void)
 				pause.Draw(virtual_canvas);
 				break;
 			case State::GenerateGameOverStats:
-				game_over.GenerateStats(*game_state);
+				game_over.GenerateStats(game, *stat_system);
 				global_data->ActiveState = State::GameOverMenu;
 				break;
 		}

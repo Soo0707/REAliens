@@ -1,8 +1,15 @@
 #include "player.hpp"
+
+#include <cstdint>
+#include <cmath>
+
 #include "assetManager.hpp"
 #include "raylib.h"
 #include "constants.hpp"
 
+#include "messageSystem.hpp"
+#include "commands.hpp"
+#include "signals.hpp"
 
 Player::Player(float pos_x, float pos_y, AssetManager &assets) :
 	Image(assets.Textures.at(TextureKey::Player))
@@ -11,7 +18,23 @@ Player::Player(float pos_x, float pos_y, AssetManager &assets) :
 	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_SIZE / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_SIZE / 2.0f };
 }
 
-void Player::Update(size_t ticks, size_t* total_distance_moved, float slide_speed) noexcept
+void Player::PollSignals(MessageSystem& message_system) noexcept
+{
+	for (size_t i = 0; i < static_cast<size_t>(PlayerSignal::COUNT); i++)
+	{
+		const unsigned int times = static_cast<unsigned int>(message_system.PlayerSignals[i]);
+		
+		if (times > 0)
+		{
+			auto signal_handler = this->SignalHandlers[i];
+			(this->*signal_handler)(times);
+		}
+	}
+
+	message_system.PlayerSignals = { 0 };
+}
+
+void Player::Update(MessageSystem& message_system, const size_t ticks, const float slide_speed) noexcept
 {
 	Player::SetBearing();
 	Player::Animate(ticks);
@@ -19,7 +42,7 @@ void Player::Update(size_t ticks, size_t* total_distance_moved, float slide_spee
 	if (ticks >= this->SlideExpire)
 		this->Sliding = false;
 
-	Player::Move(total_distance_moved, slide_speed);
+	Player::Move(message_system, slide_speed);
 }
 
 void Player::Draw() const noexcept
@@ -42,7 +65,7 @@ void Player::DrawLightmap() const noexcept
 	DrawCircleGradient(this->Centre.x, this->Centre.y, 64, WHITE, LIGHTGRAY);
 }
 
-void Player::Animate(size_t ticks) noexcept
+void Player::Animate(const size_t ticks) noexcept
 {
 	if (this->Direction.x == 0.0f && this->Direction.y == 0.0f)
 	{
@@ -71,7 +94,7 @@ void Player::SetBearing() noexcept
 		this->Bearing = Bearing::North;
 }
 
-void Player::Move(size_t* total_distance_moved, float slide_speed) noexcept
+void Player::Move(MessageSystem& message_system, const float slide_speed) noexcept
 {
 	float speed = this->Speed;
 
@@ -81,12 +104,12 @@ void Player::Move(size_t* total_distance_moved, float slide_speed) noexcept
 	this->Rect.x += speed * this->Direction.x * TICK_TIME;
 	this->Rect.y += speed * this->Direction.y * TICK_TIME;
 
-	*total_distance_moved += speed * TICK_TIME;
+	message_system.StatSystemCommands.emplace_back(Stat::TotalDistance, static_cast<uint32_t>(speed * TICK_TIME));
 
 	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_SIZE / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_SIZE / 2.0f };
 }
 
-void Player::IncreaseHealth(float addition) noexcept
+void Player::IncreaseHealth(const float addition) noexcept
 {
 	if (this->Health + addition <= this->HealthMax)
 		this->Health += addition;
@@ -105,4 +128,20 @@ void Player::Reset() noexcept
 	this->Speed = 300;
 	this->Sliding = false;
 	this->SlideExpire = 0;
+}
+
+void Player::IncreasePlotArmour(const unsigned int times) noexcept
+{
+	this->HealthMax *= pow(2.0, static_cast<float>(times));
+	this->Health = this->HealthMax;
+}
+
+void Player::ApplySpeedBoots(const unsigned int times) noexcept
+{
+	this->Speed *= pow(1.2, static_cast<float>(times));
+}
+
+void Player::PoisonTick(const unsigned int times) noexcept
+{
+	this->Health -= 2.0f;
 }

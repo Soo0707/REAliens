@@ -6,7 +6,7 @@
 #include <string>
 #include <cstddef>
 
-GameText::GameText(float x, float y, float speed, std::string&& text, int size, Color colour, size_t creation, size_t expiry) noexcept : 
+GameText::GameText(float x, float y, float speed, std::string&& text, unsigned int size, Color colour, size_t creation, size_t expiry) noexcept : 
 	Rect(x, y, static_cast<float>(size), static_cast<float>(size)),
 	Direction({ 0.0f, -1.0f }),
 	Speed(speed),
@@ -19,7 +19,7 @@ GameText::GameText(float x, float y, float speed, std::string&& text, int size, 
 
 void GameText::Draw(size_t ticks) const noexcept
 {
-	const int size = this->Size * (this->Expiry - ticks) / (this->Expiry - this->Creation);
+	const unsigned int size = this->Size * (this->Expiry - ticks) / (this->Expiry - this->Creation);
 	DrawText(this->Text.c_str(), this->Rect.x, this->Rect.y, size, this->Colour);
 }
 

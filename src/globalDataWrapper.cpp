@@ -10,4 +10,6 @@ void GlobalDataWrapper::Reset() noexcept
 		{ CachedString::UnclaimedPowerups, "" },
 		{ CachedString::LevelDebuff, "" }
 	};
+
+	this->UnclaimedPowerups = 0;
 }

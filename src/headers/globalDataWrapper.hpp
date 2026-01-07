@@ -8,7 +8,6 @@
 
 #include "constants.hpp"
 
-
 enum class State
 {
 	Game,
@@ -50,9 +49,9 @@ struct GlobalDataWrapper
 
 	std::unordered_map<CachedString, std::string> CachedStrings;
 	State ActiveState = State::MainMenu;
-	
 
 	bool Running = true;
+	unsigned int UnclaimedPowerups;
 
 	void Reset() noexcept;
 };

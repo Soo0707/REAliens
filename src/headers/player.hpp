@@ -1,10 +1,12 @@
 #pragma once
 
+#include <cstddef>
+#include <array>
+
 #include "raylib.h"
 #include "assetManager.hpp"
 #include "constants.hpp"
-
-#include <cstddef>
+#include "messageSystem.hpp"
 
 enum class Bearing : size_t
 {
@@ -20,14 +22,16 @@ class Player
 		Player(float pos_x, float pos_y, AssetManager &assets);
 		~Player() = default; 
 		
-		void Move(size_t* total_distance_moved, float slide_speed) noexcept;
-		void Update(size_t ticks, size_t* total_distance_moved, float slide_speed) noexcept;
-		void Animate(size_t ticks) noexcept;
+		void PollSignals(MessageSystem& message_system) noexcept;
+
+		void Move(MessageSystem& message_system, const float slide_speed) noexcept;
+		void Update(MessageSystem& message_system, const size_t ticks, const float slide_speed) noexcept;
+		void Animate(const size_t ticks) noexcept;
 
 		void Draw() const noexcept;
 		void DrawLightmap() const noexcept;
 
-		void IncreaseHealth(float addition) noexcept;
+		void IncreaseHealth(const float addition) noexcept;
 		void Reset() noexcept;
 		
 		float Health = 100;
@@ -47,6 +51,17 @@ class Player
 		Texture2D Image;
 
 		Bearing Bearing = Bearing::South;
+
+		void IncreasePlotArmour(const unsigned int times) noexcept;
+		void ApplySpeedBoots(const unsigned int times) noexcept;
+		void PoisonTick(const unsigned int times) noexcept;
+
+		std::array<void(Player::*)(const unsigned int) noexcept, static_cast<size_t>(PlayerSignal::COUNT)> SignalHandlers = 
+		{
+			&IncreasePlotArmour,
+			&ApplySpeedBoots,
+			&PoisonTick
+		};
 
 		size_t LastAnimationUpdate = 0;
 		unsigned int AnimationFrames = 2;
