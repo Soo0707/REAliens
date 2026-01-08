@@ -7,7 +7,6 @@
 #include "stats.hpp"
 #include "timers.hpp"
 #include "projectiles.hpp"
-#include "enemy.hpp"
 
 struct CreateParticles
 {

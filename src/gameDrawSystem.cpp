@@ -43,7 +43,7 @@ void GameDrawSystem::DrawGame(const Game& game, const ModifierSystem& modifier_s
 
 	DrawTextureRec(assets.Ground, viewport, (Vector2) { viewport.x, viewport.y }, WHITE);
 	game.XpSystem->Draw(update_area);
-	game.EnemySystem->Draw(update_area);
+	game.EnemySystem->Draw(assets);
 	game.ProjectileSystem->Draw(update_area);
 	game.ParticleSystem->Draw(update_area, ticks);
 

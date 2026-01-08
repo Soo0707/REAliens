@@ -20,12 +20,12 @@ inline constexpr unsigned int TEXTURE_TILE_SIZE = 64;
 
 inline constexpr unsigned int PLAYER_TEXTURE_TILE_SIZE = 50;
 
-[[nodiscard]] inline size_t SECONDS_TO_TICKS(unsigned int seconds)
+[[nodiscard]] inline constexpr size_t SECONDS_TO_TICKS(unsigned int seconds)
 {
 	return seconds * TICK_RATE;
 }
 
-[[nodiscard]] inline size_t TICKS_TO_SECONDS(size_t ticks)
+[[nodiscard]] inline constexpr size_t TICKS_TO_SECONDS(size_t ticks)
 {
 	return ticks / TICK_RATE;
 }

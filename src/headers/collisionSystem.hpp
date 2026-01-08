@@ -5,12 +5,11 @@
 #include <cstddef>
 
 #include "player.hpp"
-#include "enemy.hpp"
 #include "projectiles.hpp"
 
 #include "messageSystem.hpp"
 #include "modifierSystem.hpp"
-
+/*
 class CollisionSystem
 {
 	public:
@@ -43,3 +42,4 @@ class CollisionSystem
 			&ApplyTrapped
 		};
 };
+*/

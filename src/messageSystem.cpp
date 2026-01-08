@@ -2,14 +2,14 @@
 
 MessageSystem::MessageSystem()
 {
-	this->ParticleSystemCommands.reserve(256);
-	this->GameTextSystemCommands.reserve(256);
-	this->ProjectileSystemCommands.reserve(256);
-	this->XpSystemCommands.reserve(256);
+	this->ParticleSystemCommands.reserve(128);
+	this->GameTextSystemCommands.reserve(128);
+	this->ProjectileSystemCommands.reserve(128);
+	this->XpSystemCommands.reserve(128);
 
-	this->ModifierSystemCommands.reserve(256);
-	this->TimerSystemCommands.reserve(256);
-	this->StatSystemCommands.reserve(256);
+	this->ModifierSystemCommands.reserve(128);
+	this->TimerSystemCommands.reserve(16);
+	this->StatSystemCommands.reserve(16);
 }
 
 void MessageSystem::Reset() noexcept

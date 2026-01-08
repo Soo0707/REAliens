@@ -4,6 +4,7 @@
 #include <cstddef>
 
 #include "raylib.h"
+#include "constants.hpp"
 #include "assetManager.hpp"
 
 #include "commands.hpp"

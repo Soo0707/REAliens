@@ -6,35 +6,7 @@
 
 #include <cstddef>
 
-static constexpr unsigned int FLASH_DURATION = 60;
 
-enum class EnemyType : size_t
-{
-	Australian,
-	Drunkard,
-	Pleb,
-
-	Poison,
-	Trapper,
-	COUNT
-};
-
-enum class BehaviourModifier : size_t
-{
-	None = 0,
-	Big = 1 << 0,
-	IncreasedSpeed = 1 << 1
-};
-
-inline BehaviourModifier operator| (BehaviourModifier l, BehaviourModifier r) noexcept
-{
-	return static_cast<BehaviourModifier>(static_cast<size_t>(l) | static_cast<size_t>(r));
-}
-
-inline BehaviourModifier operator& (BehaviourModifier l, BehaviourModifier r) noexcept
-{
-	return static_cast<BehaviourModifier>(static_cast<size_t>(l) & static_cast<size_t>(r));
-}
 
 
 class Enemy
@@ -61,7 +33,7 @@ class Enemy
 
 		bool CanLeAttack = true;
 		size_t LastLeAttack = 0;
-		unsigned int LeAttackCooldown = 3 * TICK_RATE;
+		//unsigned int LeAttackCooldown = 3 * TICK_RATE;
 
 		EnemyType Type;
 		BehaviourModifier Modifiers;

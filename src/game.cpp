@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <string>
-#include <iostream>
 
 #include "raylib.h"
 
@@ -317,12 +316,12 @@ void Game::LevelUp() noexcept
 	
 	if (this->Settings->Data.at(SettingKey::PowerupMenuInterrupt))
 		this->GlobalData->ActiveState = State::PowerupMenu;
-
-	/*
+/*
+	TODO: Emit signals to this
 	if (this->Level % 5 == 0 && !this->Settings->Data.at(SettingKey::DisableLevelDebuffs))
-		this->InsertLevelDebuff(global_data);
+		this->ModifierSystem->InsertLevelDebuff(*this->MessageSystem);
 	else
-		this->RemoveLevelDebuff(global_data);
+		this->ModifierSystem->RemoveLevelDebuff(*this->MessageSystem);
 		*/
 }
 

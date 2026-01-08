@@ -9,10 +9,8 @@
 #include "messageSystem.hpp"
 #include "modifierSystem.hpp"
 
-#include "enemy.hpp"
-#include "enemyData.hpp"
 #include "constants.hpp"
-
+/*
 void CollisionSystem::ProjectileCollision(std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies,
 		MessageSystem& message_system, const ModifierSystem& modifier_system, const size_t ticks) noexcept
 {
@@ -141,10 +139,8 @@ void CollisionSystem::Aura(std::vector<Enemy>& enemies, MessageSystem& message_s
 			total_hit++;
 		}
 	}
-/*
 	if (game_state.Effects.count(Effect::LifeSteal))
 		game_state.Player->IncreaseHealth(total_hit * aura_damage * game_state.Attributes.at(Attribute::LifeStealMultiplier));
-		*/
 	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_hit * aura_damage);
 }
 
@@ -178,3 +174,4 @@ void CollisionSystem::ApplyDrunk(MessageSystem& message_system, const size_t tic
 
 void CollisionSystem::ApplyNone(MessageSystem& message_system, const size_t ticks, const unsigned int scale) noexcept
 {}
+*/
