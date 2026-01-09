@@ -14,20 +14,16 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  src/modifierSystem.cpp\
  src/messageSystem.cpp\
  src/assetManager.cpp\
- src/projectiles.cpp\
- src/enemy.cpp\
  src/powerupMenu.cpp\
  src/xp.cpp\
  src/gameOverMenu.cpp\
  src/pauseMenu.cpp\
- src/gameText.cpp\
  src/gameDrawSystem.cpp\
  src/gameHelpers.cpp\
  src/gameInputSystem.cpp\
  src/mainMenu.cpp\
  src/globalDataWrapper.cpp\
  src/settingsManager.cpp\
- src/particle.cpp\
  -o /mnt/tmpfs/out.exe\
  -flto=auto\
  -O3\
@@ -41,6 +37,8 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  -lwinmm\
  -static\
  -march=haswell
+ #-fopt-info-vec-missed
+ #-fopt-info-vec-optimized
  #-Wall
 #-fno-exceptions
 #-Wextra\
