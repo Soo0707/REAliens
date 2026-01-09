@@ -42,10 +42,11 @@ void GameDrawSystem::DrawGame(const Game& game, const ModifierSystem& modifier_s
 		viewport.height = ground_height - viewport.y;
 
 	DrawTextureRec(assets.Ground, viewport, (Vector2) { viewport.x, viewport.y }, WHITE);
+
 	game.XpSystem->Draw(update_area);
 	game.EnemySystem->Draw(assets);
-	game.ProjectileSystem->Draw(update_area);
-	game.ParticleSystem->Draw(update_area, ticks);
+	game.ProjectileSystem->Draw(assets);
+	game.ParticleSystem->Draw(assets, ticks);
 
 	if(!modifier_system.EffectStatus(Effect::Invisible))
 		game.Player->Draw();
@@ -59,14 +60,13 @@ void GameDrawSystem::DrawLighting(const Game& game, const ModifierSystem& modifi
 	const Rectangle update_area = game.UpdateArea;
 
 	game.XpSystem->DrawLightmap(update_area);
-	game.ProjectileSystem->DrawLightmap(update_area);
+	game.ProjectileSystem->DrawLightmap();
 }
 
 void GameDrawSystem::DrawScreenLayer(const Game& game) noexcept
 {
 	const size_t ticks = game.Ticks;
-	const Rectangle update_area = game.UpdateArea;
-	game.GameTextSystem->Draw(ticks, update_area);
+	game.GameTextSystem->Draw(ticks);
 }
 
 void GameDrawSystem::DrawOverlay(

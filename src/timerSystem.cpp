@@ -86,10 +86,19 @@ void TimerSystem::RegisterTimer(const TimerSystemCommand& command, const size_t 
 
 void TimerSystem::DeregisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept
 {
-	const size_t index = static_cast<size_t>(std::get<struct RegisterTimer>(command).Type);
+	const size_t index = static_cast<size_t>(std::get<struct DeregisterTimer>(command).Type);
 
 	this->TimerActive[index] = false;
 }
+
+void TimerSystem::UpdateTimerInterval(const TimerSystemCommand& command, const size_t ticks) noexcept
+{
+	const struct UpdateTimerInterval& data = std::get<struct UpdateTimerInterval>(command);
+
+	const size_t index = static_cast<size_t>(data.Type);
+	this->TimerInterval[index] = data.NewInterval;
+}
+
 
 void TimerSystem::GreenbullExpireHandler(MessageSystem& message_system) const noexcept
 {

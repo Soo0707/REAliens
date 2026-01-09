@@ -6,11 +6,11 @@
 
 #include "stats.hpp"
 #include "timers.hpp"
-#include "projectiles.hpp"
+#include "projectileData.hpp"
 
 struct CreateParticles
 {
-	size_t Ticks;
+	size_t Creation;
 	size_t Number;
 	Vector2 Velocity;
 	float X;
@@ -32,7 +32,7 @@ struct CreateGameTexts
 	float Y;
 	float Speed;
 	unsigned int Text;
-	unsigned int Size;
+	int Size;
 	Color Colour;
 };
 

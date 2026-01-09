@@ -5,7 +5,7 @@
 #include <cstddef>
 
 #include "player.hpp"
-#include "projectiles.hpp"
+#include "projectileData.hpp"
 
 #include "messageSystem.hpp"
 #include "modifierSystem.hpp"
