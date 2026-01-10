@@ -1,7 +1,7 @@
 #include "xpSystem.hpp"
 
-#include <algorithm>
 #include <cstddef>
+#include <cstdint>
 
 #include "raylib.h"
 #include "constants.hpp"
@@ -12,67 +12,129 @@
 
 XpSystem::XpSystem()
 {
-	this->Xps.reserve(1024);
+	this->XpKill.reserve(1024);
+	this->XpIsVisible.reserve(1024);
+	this->XpValue.reserve(1024);
+	this->XpCentre.reserve(1024);
+	this->XpRect.reserve(1024);
 }
 
 void XpSystem::Reset() noexcept
 {
-	this->Xps.clear();
+	this->XpKill.clear();
+	this->XpIsVisible.clear();
+	this->XpValue.clear();
+	this->XpCentre.clear();
+	this->XpRect.clear();
 }
 
 void XpSystem::ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept
 {
+	const float texture_width = assets.Textures.at(TextureKey::Xp).width;
+	const float texture_height = assets.Textures.at(TextureKey::Xp).height;
+
 	for (auto const& command : message_system.XpSystemCommands)
-		this->Xps.emplace_back(command.X, command.Y, command.Value, assets);
+		this->CreateXp(command.X, command.Y, texture_width, texture_height, command.Value);
 
 	message_system.XpSystemCommands.clear();
 }
 
-void XpSystem::UpdateXps(const size_t ticks, const Rectangle update_area, MessageSystem& message_system) noexcept
+void XpSystem::UpdateXps(MessageSystem& message_system, const Rectangle update_area, const size_t ticks) noexcept
 {
 	/*
 	const bool has_magnetism = this->Effects.count(Effect::Magnetism);
-*/
-	const bool spawn_particles = GetRandomValue(1, 100) < 3;
 
 	for (auto &xp : this->Xps)
 	{
-		/*
 		if (CheckCollisionRecs(this->Player->Rect, xp.Rect) || has_magnetism)
 		{
 			this->CollectedXp += xp.Value;
 			xp.Kill = true;
 		}
-		*/
+	}
+	*/
+	this->VisibilityCheck(update_area);
+	this->EmitParticles(message_system, ticks);
+}
 
-		if (CheckCollisionRecs(update_area, xp.Rect) && spawn_particles) 
+void XpSystem::Draw(const AssetManager& assets) const noexcept
+{
+	for (size_t i = 0, n = this->XpIsVisible.size(); i < n; i++)
+	{
+		if (this->XpIsVisible[i])
 		{
-			const Vector2 velocity = (Vector2) { static_cast<float>(GetRandomValue(-64, 64)), static_cast<float>(GetRandomValue(-96, -32)) };
+			DrawTexture(
+					assets.Textures.at(TextureKey::Xp),
+					static_cast<int>(this->XpRect[i].x),
+					static_cast<int>(this->XpRect[i].y),
+					WHITE
+					);
+		}
+	}
+}
+
+void XpSystem::DrawLightmap() const noexcept
+{
+	for (size_t i = 0, n = this->XpIsVisible.size(); i < n; i++)
+	{
+		if (this->XpIsVisible[i])
+			DrawCircleGradient(this->XpCentre[i].x, this->XpCentre[i].y, 24, GREEN, LIGHTGRAY);
+	}
+}
+
+void XpSystem::VisibilityCheck(const Rectangle update_area) noexcept
+{
+	for (size_t i = 0, n = this->XpIsVisible.size(); i < n; i++)
+		this->XpIsVisible[i] = static_cast<uint8_t>(CheckCollisionRecs(update_area, this->XpRect[i]));
+}
+
+void XpSystem::CreateXp(const float x, const float y, const float texture_width, const float texture_height, const unsigned int value) noexcept
+{
+	this->XpKill.emplace_back(static_cast<bool>(false));
+	this->XpIsVisible.emplace_back(static_cast<bool>(false));
+	this->XpValue.emplace_back(value);
+	this->XpCentre.emplace_back(x + texture_width / 2.0f, y + texture_height / 2.0f);
+	this->XpRect.emplace_back(x, y, texture_width, texture_height);
+}
+
+void XpSystem::RemoveXp() noexcept
+{
+	for (size_t i = 0; i < this->XpKill.size(); )
+	{
+		if (this->XpKill[i])
+		{
+			this->XpKill[i] = this->XpKill.back();
+			this->XpIsVisible[i] = this->XpIsVisible.back();
+			this->XpValue[i] = this->XpValue.back();
+			this->XpCentre[i] = this->XpCentre.back();
+			this->XpRect[i] = this->XpRect.back();
+
+
+			this->XpKill.pop_back();
+			this->XpIsVisible.pop_back();
+			this->XpValue.pop_back();
+			this->XpCentre.pop_back();
+			this->XpRect.pop_back();
+		}
+		else
+			i++;
+	}
+}
+
+void XpSystem::EmitParticles(MessageSystem& message_system, const size_t ticks) noexcept
+{
+	for (size_t i = 0, n = this->XpIsVisible.size(); i < n; i++)
+	{
+		const bool spawn_particles = GetRandomValue(1, 100) < 3;
+
+		if (spawn_particles && this->XpIsVisible[i])
+		{
+			const Vector2 velocity = { static_cast<float>(GetRandomValue(-64, 64)), static_cast<float>(GetRandomValue(-96, -32)) };
+
 			message_system.ParticleSystemCommands.emplace_back(
-					ticks, 1, velocity, xp.Rect.x, xp.Rect.y, 
+					ticks, 1, velocity, this->XpCentre[i].x, this->XpCentre[i].y, 
 					10, 25, 120, TICK_RATE, 0, GREEN, DARKGREEN
 					);
 		}
 	}
-
-	std::erase_if(this->Xps, [](const Xp& xp) { return xp.Kill; });
 }
-
-void XpSystem::Draw(const Rectangle update_area) const noexcept
-{
-	for (auto const &xp : this->Xps)
-	{
-		if (CheckCollisionRecs(update_area, xp.Rect))
-			xp.Draw();
-	}
-}
-
-void XpSystem::DrawLightmap(const Rectangle update_area) const noexcept
-{
-	for (auto const &xp : this->Xps)
-	{
-		if (CheckCollisionRecs(update_area, xp.Rect))
-			xp.DrawLightmap();
-	}
-}
-

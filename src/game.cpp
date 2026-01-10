@@ -255,7 +255,7 @@ void Game::UpdateStatSystem() noexcept
 void Game::UpdateXpSystem(const size_t ticks, const Rectangle update_area) noexcept
 {
 	this->XpSystem->ExecuteCommands(*this->MessageSystem, *this->Assets);
-	this->XpSystem->UpdateXps(ticks, update_area, *this->MessageSystem);
+	this->XpSystem->UpdateXps(*this->MessageSystem, update_area, ticks);
 }
 
 void Game::UpdateCamera() noexcept

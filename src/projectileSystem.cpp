@@ -209,7 +209,7 @@ void ProjectileSystem::SpawnParticles(MessageSystem& message_system, const size_
 	{
 		const bool spawn_particle = GetRandomValue(1, 100) < 10;
 
-		if (spawn_particle)
+		if (spawn_particle && this->ProjectileIsVisible[i])
 		{
 			message_system.ParticleSystemCommands.emplace_back(
 					ticks, 1, this->ProjectileDirection[i], this->ProjectileRect[i].x, this->ProjectileRect[i].y, 

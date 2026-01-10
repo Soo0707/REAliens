@@ -43,7 +43,7 @@ void GameDrawSystem::DrawGame(const Game& game, const ModifierSystem& modifier_s
 
 	DrawTextureRec(assets.Ground, viewport, (Vector2) { viewport.x, viewport.y }, WHITE);
 
-	game.XpSystem->Draw(update_area);
+	game.XpSystem->Draw(assets);
 	game.EnemySystem->Draw(assets);
 	game.ProjectileSystem->Draw(assets);
 	game.ParticleSystem->Draw(assets, ticks);
@@ -57,9 +57,7 @@ void GameDrawSystem::DrawLighting(const Game& game, const ModifierSystem& modifi
 	if (!modifier_system.EffectStatus(Effect::Invisible))
 		game.Player->DrawLightmap();
 
-	const Rectangle update_area = game.UpdateArea;
-
-	game.XpSystem->DrawLightmap(update_area);
+	game.XpSystem->DrawLightmap();
 	game.ProjectileSystem->DrawLightmap();
 }
 

@@ -15,7 +15,6 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  src/messageSystem.cpp\
  src/assetManager.cpp\
  src/powerupMenu.cpp\
- src/xp.cpp\
  src/gameOverMenu.cpp\
  src/pauseMenu.cpp\
  src/gameDrawSystem.cpp\
