@@ -1,5 +1,7 @@
 #include "gameInputSystem.hpp"
 
+#include <variant>
+
 #include "raylib.h"
 #include "raymath.h"
 #include "settingsManager.hpp"
@@ -84,8 +86,8 @@ void GameInputSystem::HandleLeftClick(
 		if (i == 0)
 		{
 			message_system.ProjectileSystemCommands.emplace_back(
-					ProjectileType::Bullet, centre_direction, player_centre.x,
-					player_centre.y, speed, 1.0f
+					std::in_place_type<struct CreateProjectile>, ProjectileType::Bullet, centre_direction,
+					player_centre.x, player_centre.y, speed, 1.0f
 					);
 
 			continue;
@@ -94,8 +96,8 @@ void GameInputSystem::HandleLeftClick(
 		const Vector2 direction = Vector2Rotate(centre_direction, spread_angle * i);
 
 		message_system.ProjectileSystemCommands.emplace_back(
-				ProjectileType::Bullet, direction, player_centre.x,
-				player_centre.y, speed, 1.0f
+				std::in_place_type<struct CreateProjectile>, ProjectileType::Bullet, direction,
+				player_centre.x, player_centre.y, speed, 1.0f
 				);
 	}
 }
@@ -113,7 +115,7 @@ void GameInputSystem::HandleRightClick(
 	const float scale = modifier_system.GetAttribute(Attribute::LazerScale);
 
 	message_system.ProjectileSystemCommands.emplace_back(
-			ProjectileType::Lazer, direction, player_centre.x,
-			player_centre.y, speed, scale
+			std::in_place_type<struct CreateProjectile>, ProjectileType::Lazer, direction,
+			player_centre.x, player_centre.y, speed, scale
 			);
 }

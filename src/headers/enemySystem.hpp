@@ -6,77 +6,11 @@
 #include <cstdint>
 
 #include "raylib.h"
+#include "enemyData.hpp"
 #include "constants.hpp"
+#include "commands.hpp"
 #include "messageSystem.hpp"
 #include "assetManager.hpp"
-
-enum class EnemyType : uint8_t
-{
-	Australian,
-	Drunkard,
-	Pleb,
-	Poison,
-	Trapper,
-	COUNT
-};
-
-enum class BehaviourModifier : uint8_t
-{
-	None = 0,
-	Big = 1 << 0,
-	IncreasedSpeed = 1 << 1
-};
-
-struct EnemyAttackComponent
-{
-	size_t LastLeAttack;
-	float Damage;
-	bool CanLeAttack;
-};
-
-struct EnemyDisplayComponent
-{
-	size_t LastFlash;
-	TextureKey Texture;
-	bool Flash;
-};
-
-struct EnemyAnimationComponent
-{
-	size_t LastAnimationUpdate;
-	uint8_t ImageIndex;
-	uint8_t AnimationInterval;
-	uint8_t AnimationFrames;
-};
-
-struct EnemyData
-{
-	const TextureKey Texture;
-	const float Damage;
-	const float Speed;
-	const float Health;
-
-	const uint8_t AnimationInterval;
-	/*
-	animation_frames = number of actual frames -1
-
-	case index = 0:
-		0 * TEXTURE_TILE_SIZE = 0, first frame
-	
-	so everything is off by 1
-	*/
-	const uint8_t AnimationFrames;
-};
-
-inline BehaviourModifier operator| (BehaviourModifier l, BehaviourModifier r) noexcept
-{
-	return static_cast<BehaviourModifier>(static_cast<size_t>(l) | static_cast<size_t>(r));
-}
-
-inline BehaviourModifier operator& (BehaviourModifier l, BehaviourModifier r) noexcept
-{
-	return static_cast<BehaviourModifier>(static_cast<size_t>(l) & static_cast<size_t>(r));
-}
 
 class EnemySystem
 {
@@ -87,6 +21,7 @@ class EnemySystem
 		void Reset() noexcept;
 
 		void PollSignals(MessageSystem& message_system, const AssetManager& assets, const size_t level) noexcept;
+		void ExecuteCommands(MessageSystem& message_system) noexcept;
 
 		void UpdateEnemies(
 				const size_t ticks, const Rectangle update_area, const Vector2 player_centre,
@@ -129,6 +64,15 @@ class EnemySystem
 			&SpawnEnemies
 		};
 
+		void DamageEnemyHandler(const EnemySystemCommand& command) noexcept;
+		void EnemyLeAttackedHandler(const EnemySystemCommand& command) noexcept;
+
+		static constexpr std::array<void(EnemySystem::*)(const EnemySystemCommand&) noexcept, 2> CommandHandlers = 
+		{
+			&DamageEnemyHandler,
+			&EnemyLeAttackedHandler
+		};
+
 		static constexpr std::array<uint8_t, static_cast<size_t>(EnemyType::COUNT)> EnemyXpValues = 
 		{
 			1, 2, 1, 2, 2
@@ -147,8 +91,7 @@ class EnemySystem
 		std::vector<float> EnemyHealth;
 		std::vector<float> EnemyScale;
 		std::vector<float> EnemySpeed;
-		// std::vector<bool> is a special overload of dynamic bit fields,
-		// it will not work in our case when we're trying to SIMD
+
 		std::vector<uint8_t> EnemyIsVisible;
 		std::vector<Vector2> EnemyDirection;
 		std::vector<Rectangle> EnemyRect;

@@ -23,7 +23,8 @@ class Player
 		~Player() = default; 
 		
 		void PollSignals(MessageSystem& message_system) noexcept;
-
+		void ExecuteCommands(MessageSystem& message_system) noexcept;
+		
 		void Move(MessageSystem& message_system, const float slide_speed) noexcept;
 		void Update(MessageSystem& message_system, const size_t ticks, const float slide_speed) noexcept;
 		void Animate(const size_t ticks) noexcept;
@@ -69,4 +70,5 @@ class Player
 		unsigned int AnimationInterval = 20;
 
 		void SetBearing() noexcept;
+		void TakeDamage(const PlayerCommand& command) noexcept;
 };

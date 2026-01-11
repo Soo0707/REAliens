@@ -65,6 +65,17 @@ void EnemySystem::PollSignals(MessageSystem& message_system, const AssetManager&
 	}
 }
 
+void EnemySystem::ExecuteCommands(MessageSystem& message_system) noexcept
+{
+	for (auto const& command : message_system.EnemySystemCommands)
+	{
+		auto handler = this->CommandHandlers[command.index()];
+		(this->*handler)(command);
+	}
+
+	message_system.EnemySystemCommands.clear();
+}
+
 void EnemySystem::UpdateEnemies(
 		const size_t ticks, const Rectangle update_area, const Vector2 player_centre,
 		const float map_width, const float map_height, const bool is_stinky, MessageSystem& message_system
@@ -284,6 +295,19 @@ void EnemySystem::KillEnemies(MessageSystem& message_system) noexcept
 	}
 
 	message_system.StatSystemCommands.emplace_back(Stat::Kills, killed);
+}
+
+
+void EnemySystem::DamageEnemyHandler(const EnemySystemCommand& command) noexcept
+{
+	const DamageEnemy& data = std::get<struct DamageEnemy>(command);
+	this->EnemyHealth[data.EnemyIndex] -= this->EnemyHealth[data.DamageAmount];
+}
+
+void EnemySystem::EnemyLeAttackedHandler(const EnemySystemCommand& command) noexcept
+{
+	const EnemyLeAttacked& data = std::get<struct EnemyLeAttacked>(command);
+	this->EnemyAttackComponents[data.EnemyIndex].LastLeAttack = data.Ticks;
 }
 
 void EnemySystem::EmitParticlesFromLocations(const size_t ticks, MessageSystem& message_system) noexcept

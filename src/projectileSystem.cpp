@@ -17,6 +17,7 @@
 ProjectileSystem::ProjectileSystem()
 {
 	this->ProjectileIsVisible.reserve(1024);
+	this->ProjectileKill.reserve(1024);
 	this->ProjectileSpeed.reserve(1024);
 	this->ProjectileRotation.reserve(1024);
 	this->ProjectileScale.reserve(1024);
@@ -30,6 +31,7 @@ ProjectileSystem::ProjectileSystem()
 void ProjectileSystem::Reset() noexcept
 {
 	this->ProjectileIsVisible.clear();
+	this->ProjectileKill.clear();
 	this->ProjectileSpeed.clear();
 	this->ProjectileRotation.clear();
 	this->ProjectileScale.clear();
@@ -40,17 +42,15 @@ void ProjectileSystem::Reset() noexcept
 	this->ProjectileTypes.clear();
 }
 
+
 void ProjectileSystem::ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept
 {
 	for (auto const& command : message_system.ProjectileSystemCommands)
 	{
-		const size_t index = static_cast<size_t>(command.Type);
-		const TextureKey texture_key = this->ProjectileAttributes[index].Texture;
+		const size_t handler_index = command.index();
 
-		const float texture_width = assets.Textures.at(texture_key).width;
-		const float texture_height = assets.Textures.at(texture_key).height;
-
-		this->CreateProjectile(command.X, command.Y, command.Speed, command.Scale, command.Direction, command.Type, texture_width, texture_height);
+		auto handler_function = this->CommandHandlers[handler_index];
+		(this->*handler_function)(command, assets);
 	}
 
 	message_system.ProjectileSystemCommands.clear();
@@ -97,7 +97,6 @@ void ProjectileSystem::UpdateProjectiles(const size_t ticks, const Rectangle upd
 	this->MoveProjectiles();
 	this->SpawnParticles(message_system, ticks);
 	this->RemoveProjectiles();
-
 }
 
 void ProjectileSystem::Draw(const AssetManager& assets) const noexcept
@@ -142,6 +141,7 @@ void ProjectileSystem::CreateProjectile(
 	const size_t index = static_cast<size_t>(type);
 
 	this->ProjectileIsVisible.emplace_back(static_cast<uint8_t>(false));
+	this->ProjectileKill.emplace_back(static_cast<uint8_t>(false));
 	this->ProjectileSpeed.emplace_back(speed);
 
 	this->ProjectileRotation.emplace_back(atan2(direction.y, direction.x) * TO_DEG);
@@ -175,9 +175,10 @@ void ProjectileSystem::RemoveProjectiles() noexcept
 {
 	for (size_t i = 0; i < this->ProjectileIsVisible.size(); )
 	{
-		if (!this->ProjectileIsVisible[i])
+		if (!this->ProjectileIsVisible[i] || this->ProjectileKill[i])
 		{
 			this->ProjectileIsVisible[i] = this->ProjectileIsVisible.back();
+			this->ProjectileKill[i] = this->ProjectileKill.back();
 			this->ProjectileSpeed[i] = this->ProjectileSpeed.back();
 			this->ProjectileRotation[i] = this->ProjectileRotation.back();
 			this->ProjectileScale[i] = this->ProjectileScale.back();
@@ -189,6 +190,7 @@ void ProjectileSystem::RemoveProjectiles() noexcept
 
 
 			this->ProjectileIsVisible.pop_back();
+			this->ProjectileKill.pop_back();
 			this->ProjectileSpeed.pop_back();
 			this->ProjectileRotation.pop_back();
 			this->ProjectileScale.pop_back();
@@ -217,4 +219,25 @@ void ProjectileSystem::SpawnParticles(MessageSystem& message_system, const size_
 					);
 		}
 	}
+}
+
+void ProjectileSystem::CreateProjectileHandler(const ProjectileSystemCommand& command, const AssetManager& assets) noexcept
+{
+	const struct CreateProjectile& data = std::get<struct CreateProjectile>(command);
+
+	const size_t index = static_cast<size_t>(data.Type);
+	const TextureKey texture_key = this->ProjectileAttributes[index].Texture;
+
+	const float texture_width = assets.Textures.at(texture_key).width;
+	const float texture_height = assets.Textures.at(texture_key).height;
+
+	this->CreateProjectile(data.X, data.Y, data.Speed, data.Scale, data.Direction, data.Type, texture_width, texture_height);
+}
+
+void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& command, const AssetManager& assets) noexcept
+{
+	const struct ProjectileHit& data = std::get<struct ProjectileHit>(command);
+
+	if (this->ProjectileTypes[data.ProjectileIndex] == ProjectileType::Bullet)
+		this->ProjectileKill[data.ProjectileIndex] = static_cast<uint8_t>(true);
 }

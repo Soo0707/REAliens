@@ -6,7 +6,8 @@ MessageSystem::MessageSystem()
 	this->GameTextSystemCommands.reserve(128);
 	this->ProjectileSystemCommands.reserve(128);
 	this->XpSystemCommands.reserve(128);
-
+	this->PlayerCommands.reserve(128);
+	this->EnemySystemCommands.reserve(128);
 	this->ModifierSystemCommands.reserve(128);
 	this->TimerSystemCommands.reserve(16);
 	this->StatSystemCommands.reserve(16);
@@ -18,7 +19,8 @@ void MessageSystem::Reset() noexcept
 	this->GameTextSystemCommands.clear();
 	this->ProjectileSystemCommands.clear();
 	this->XpSystemCommands.clear();
-
+	this->PlayerCommands.clear();
+	this->EnemySystemCommands.clear();
 	this->ModifierSystemCommands.clear();
 	this->TimerSystemCommands.clear();
 	this->StatSystemCommands.clear();

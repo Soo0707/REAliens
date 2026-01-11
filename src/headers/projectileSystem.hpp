@@ -40,7 +40,17 @@ class ProjectileSystem
 			(ProjectileData) { CYAN, TextureKey::Lazer }
 		};
 
+		void CreateProjectileHandler(const ProjectileSystemCommand& command, const AssetManager& assets) noexcept;
+		void ProjectileHitHandler(const ProjectileSystemCommand& command, const AssetManager& assets) noexcept;
+
+		static inline constexpr std::array<void(ProjectileSystem::*)(const ProjectileSystemCommand&, const AssetManager&) noexcept, 2> CommandHandlers = 
+		{
+			&CreateProjectileHandler,
+			&ProjectileHitHandler
+		};
+
 		std::vector<uint8_t> ProjectileIsVisible;
+		std::vector<uint8_t> ProjectileKill;
 
 		std::vector<float> ProjectileSpeed;
 

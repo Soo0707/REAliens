@@ -1,6 +1,7 @@
 #include "collisionSystem.hpp"
 
 #include <vector>
+#include <cstdint>
 #include <cstddef>
 
 #include "raylib.h"
@@ -9,18 +10,22 @@
 #include "messageSystem.hpp"
 #include "modifierSystem.hpp"
 
+#include "enemyData.hpp"
 #include "constants.hpp"
-/*
-void CollisionSystem::ProjectileCollision(std::vector<Projectile>& projectiles, std::vector<Enemy>& enemies,
-		MessageSystem& message_system, const ModifierSystem& modifier_system, const size_t ticks) noexcept
+
+void CollisionSystem::ProjectileCollision(
+		const std::vector<Rectangle>& projectile_rect, const std::vector<ProjectileType>& projectile_type,
+		const std::vector<Vector2>& projectile_direction, const std::vector<Rectangle>& enemy_rect,
+		MessageSystem& message_system, const ModifierSystem& modifier_system, const size_t ticks
+		) noexcept
 {
 	unsigned int total_damage_done = 0;
 
-	for (auto& projectile : projectiles)
+	for (size_t i = 0, n = projectile_rect.size(); i < n; i++)
 	{
-		float damage;
+		float damage = 0.0f;
 
-		switch (projectile.Type)
+		switch (projectile_type[i])
 		{
 			case ProjectileType::Lazer:
 				damage = modifier_system.GetAttribute(Attribute::LazerDamage);
@@ -28,33 +33,27 @@ void CollisionSystem::ProjectileCollision(std::vector<Projectile>& projectiles, 
 			case ProjectileType::Bullet:
 				damage = modifier_system.GetAttribute(Attribute::BulletDamage);
 				break;
-			default:
-				damage = 0;
 		}
 
-		for (auto& enemy : enemies)
+		for (size_t j = 0, m = enemy_rect.size(); j < m; i++)
 		{
-			if (CheckCollisionRecs(projectile.Rect, enemy.Rect))
+			if (CheckCollisionRecs(projectile_rect[i], enemy_rect[j]))
 			{
-				//TODO: message enemy system to damage enemy instead
+				message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, m, damage);
+				message_system.ProjectileSystemCommands.emplace_back(std::in_place_type<struct ProjectileHit>, i);
 				
-				enemy.Health -= damage;
-				enemy.FlashSprite(ticks);
-				
-				if (projectile.Type == ProjectileType::Bullet)
-					projectile.Kill = true;
-
-				total_damage_done += static_cast<unsigned int>(damage);
-
 				message_system.GameTextSystemCommands.emplace_back(
-						ticks, ticks + TICK_RATE / 4, projectile.Rect.x, projectile.Rect.y,
+						ticks, ticks + TICK_RATE / 4, projectile_rect[i].x, projectile_rect[i].y,
 						48.0f, damage, 48, YELLOW
 						);
 
 				message_system.ParticleSystemCommands.emplace_back(
-						ticks, 5, projectile.Direction, projectile.Rect.x, projectile.Rect.y,
+						ticks, 5, projectile_direction[i], projectile_rect[i].x, projectile_rect[i].y,
 						5, 20, 120, TICK_RATE, 256, RED, RED
 						);
+
+				total_damage_done += static_cast<unsigned int>(damage);
+				break;
 			}
 		}
 	}
@@ -62,47 +61,60 @@ void CollisionSystem::ProjectileCollision(std::vector<Projectile>& projectiles, 
 	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_damage_done);
 }
 
-void CollisionSystem::LeAttack(std::vector<Enemy>& enemies, Player& player, MessageSystem& message_system, const ModifierSystem& modifier_system, const size_t ticks) noexcept
+void CollisionSystem::LeAttack(
+		const std::vector<Rectangle>& enemy_rect, const std::vector<EnemyAttackComponent>& enemy_attack_components,
+		const std::vector<EnemyType>& enemy_type, const Vector2 player_centre, const float player_radius,
+		MessageSystem& message_system, const ModifierSystem& modifier_system, const size_t ticks
+		) noexcept
 {
-	for (auto& enemy : enemies)
+	if (modifier_system.EffectStatus(Effect::Greenbull))
+		return;
+
+	const bool has_milk = modifier_system.EffectStatus(Effect::Milk);
+	float total_damage = 0.0f;
+
+	for (size_t i = 0, n = enemy_attack_components.size(); i < n; i++)
 	{
-		if (enemy.CanLeAttack && CheckCollisionCircleRec(player.Centre, player.Radius, enemy.Rect))
+		if (enemy_attack_components[i].CanLeAttack && CheckCollisionCircleRec(player_centre, player_radius, enemy_rect[i]))
 		{
-			player.Health -= enemy.Damage;
-
-			const unsigned int scale = static_cast<unsigned int>(enemy.Scale);
-
-			if (!modifier_system.EffectStatus(Effect::Milk))
+			total_damage += enemy_attack_components[i].Damage;
+			
+			if (!has_milk)
 			{
-				auto le_attack_hook = CollisionSystem::LeAttackHooks[static_cast<size_t>(enemy.Type)];
-				(this->*le_attack_hook)(message_system, ticks, scale);
-			};
+				auto le_attack_hook = CollisionSystem::LeAttackHooks[static_cast<size_t>(enemy_type[i])];
+				(this->*le_attack_hook)(message_system, ticks, 1.0f);
+			}
 
-			enemy.CanLeAttack = false;
-			enemy.LastLeAttack = ticks;
+			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct EnemyLeAttacked>, i, ticks);
 		}
 	}
+
+	message_system.PlayerCommands.emplace_back(std::in_place_type<struct DamagePlayer>, total_damage);
 }
 
-void CollisionSystem::SlideAttack(Player& player, std::vector<Enemy>& enemies, MessageSystem& message_system, const size_t ticks) noexcept
+void CollisionSystem::SlideAttack(
+		const std::vector<Rectangle>& enemy_rect, const Vector2 player_centre, const float player_radius,
+		const Vector2 player_direction,	const std::vector<float>& enemy_health, MessageSystem& message_system,
+		const size_t ticks
+		) noexcept
 {
-	unsigned int total_damage_done = 0;
+	unsigned int total_damage_done = 0.0f;
 
-	for (auto& enemy : enemies)
+	for (size_t i = 0, n = enemy_rect.size(); i < n; i++)
 	{
-		if (CheckCollisionCircleRec(player.Centre, player.Radius, enemy.Rect))
+		if (CheckCollisionCircleRec(player_centre, player_radius, enemy_rect[i]))
 		{
-			float damage_done = enemy.Health;
+			const float damage_done = enemy_health[i];
 
-			enemy.Health = 0.0f;
+			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, i, damage_done);
 
 			message_system.GameTextSystemCommands.emplace_back(
-					ticks, ticks + TICK_RATE / 4, enemy.Rect.x, enemy.Rect.y,
+					ticks, ticks + TICK_RATE / 4, enemy_rect[i].x, enemy_rect[i].y,
 					64.0f, damage_done, 52, ORANGE
 					);
 
 			message_system.ParticleSystemCommands.emplace_back(
-					ticks, 50, player.Direction, enemy.Rect.x, enemy.Rect.y,
+					ticks, 50, player_direction, enemy_rect[i].x, enemy_rect[i].y,
 					10, 25, 60, TICK_RATE, 512, ORANGE, RED
 					);
 
@@ -113,35 +125,41 @@ void CollisionSystem::SlideAttack(Player& player, std::vector<Enemy>& enemies, M
 	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_damage_done);
 }
 
-void CollisionSystem::Aura(std::vector<Enemy>& enemies, MessageSystem& message_system, const Rectangle aura, const float aura_damage, const size_t ticks) noexcept
+void CollisionSystem::Aura(
+		const std::vector<Rectangle>& enemy_rect, const Rectangle aura, const ModifierSystem& modifier_system,
+		MessageSystem& message_system, const float aura_damage, const size_t ticks
+		) noexcept
 {
 	unsigned int total_hit = 0;
 
-	for (auto& enemy : enemies)
+	for (size_t i = 0, n = enemy_rect.size(); i < n; i++)
 	{
-		if (CheckCollisionRecs(aura, enemy.Rect))
+		if (CheckCollisionRecs(aura, enemy_rect[i]))
 		{
-			enemy.Health -= aura_damage;
-			enemy.FlashSprite(ticks);
+			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, i, aura_damage);
+			//enemy.FlashSprite(ticks);
 
 			message_system.GameTextSystemCommands.emplace_back(
-					ticks, ticks + TICK_RATE / 4, enemy.Rect.x, enemy.Rect.y,
+					ticks, ticks + TICK_RATE / 4, enemy_rect[i].x, enemy_rect[i].y,
 					64.0f, aura_damage, 42, MAGENTA
 					);
 
 			const Vector2 velocity = { static_cast<float>(GetRandomValue(-192, 192)), static_cast<float>(GetRandomValue(-192, 192)) };
 
 			message_system.ParticleSystemCommands.emplace_back(
-					ticks, 15, velocity, enemy.Rect.x, enemy.Rect.y,
+					ticks, 15, velocity, enemy_rect[i].x, enemy_rect[i].y,
 					10, 20, 60, TICK_RATE, 0, PURPLE, RED
 					);
 
 			total_hit++;
 		}
 	}
-	if (game_state.Effects.count(Effect::LifeSteal))
+/*
+	if (modifier_system.EffectStatus(Effect::LifeSteal))
 		game_state.Player->IncreaseHealth(total_hit * aura_damage * game_state.Attributes.at(Attribute::LifeStealMultiplier));
-	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_hit * aura_damage);
+		*/
+
+	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_hit * static_cast<unsigned int>(aura_damage));
 }
 
 
@@ -168,10 +186,9 @@ void CollisionSystem::ApplyTrapped(MessageSystem& message_system, const size_t t
 void CollisionSystem::ApplyDrunk(MessageSystem& message_system, const size_t ticks, const unsigned int scale) noexcept
 {
 	message_system.ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyDrunk);
-	
 	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5) * scale, false, Timer::DrunkExpire);
 }
 
 void CollisionSystem::ApplyNone(MessageSystem& message_system, const size_t ticks, const unsigned int scale) noexcept
 {}
-*/
+

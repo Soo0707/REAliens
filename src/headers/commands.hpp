@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <variant>
 
 #include "raylib.h"
 
@@ -24,6 +25,7 @@ struct CreateParticles
 	Color EndColour;
 };
 
+
 struct CreateGameTexts
 {
 	size_t Creation;
@@ -36,6 +38,7 @@ struct CreateGameTexts
 	Color Colour;
 };
 
+
 struct CreateProjectile
 {
 	ProjectileType Type;
@@ -46,12 +49,21 @@ struct CreateProjectile
 	float Scale;
 };
 
+struct ProjectileHit
+{
+	size_t ProjectileIndex;
+};
+
+using ProjectileSystemCommand = std::variant<struct CreateProjectile, struct ProjectileHit>;
+
+
 struct CreateXp
 {
 	float X;
 	float Y;
 	unsigned int Value;
 };
+
 
 enum class ModifierSystemCommandType : uint8_t
 {
@@ -85,6 +97,7 @@ struct ModifierSystemCommand
 	ModifierSystemCommandType Type;
 };
 
+
 struct RegisterTimer
 {
 	uint32_t Interval;
@@ -103,10 +116,33 @@ struct UpdateTimerInterval
 	Timer Type;
 };
 
-using TimerSystemCommand = std::variant<RegisterTimer, DeregisterTimer, UpdateTimerInterval>;
+using TimerSystemCommand = std::variant<struct RegisterTimer, struct DeregisterTimer, struct UpdateTimerInterval>;
+
 
 struct StatSystemCommand
 {
 	Stat StatType;
 	uint32_t Amount;
 };
+
+struct DamageEnemy
+{
+	size_t EnemyIndex;
+	float DamageAmount;
+};
+
+struct EnemyLeAttacked
+{
+	size_t EnemyIndex;
+	size_t Ticks;
+};
+
+using EnemySystemCommand = std::variant<struct DamageEnemy, struct EnemyLeAttacked>;
+
+
+struct DamagePlayer
+{
+	float DamageAmount;
+};
+
+using PlayerCommand = std::variant<struct DamagePlayer>;

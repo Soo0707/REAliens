@@ -28,10 +28,19 @@ void Player::PollSignals(MessageSystem& message_system) noexcept
 		{
 			auto signal_handler = this->SignalHandlers[i];
 			(this->*signal_handler)(times);
+
+			message_system.PlayerSignals[i] = 0;
 		}
 	}
+}
 
-	message_system.PlayerSignals = { 0 };
+void Player::ExecuteCommands(MessageSystem& message_system) noexcept
+{
+	for (auto const& command : message_system.PlayerCommands)
+	{
+		this->TakeDamage(command);
+	}
+	message_system.PlayerCommands.clear();
 }
 
 void Player::Update(MessageSystem& message_system, const size_t ticks, const float slide_speed) noexcept
@@ -115,6 +124,12 @@ void Player::IncreaseHealth(const float addition) noexcept
 		this->Health += addition;
 	else
 		this->Health = this->HealthMax;
+}
+
+void Player::TakeDamage(const PlayerCommand& command) noexcept
+{
+	const DamagePlayer& data = std::get<DamagePlayer>(command);
+	this->Health -= data.DamageAmount;
 }
 
 void Player::Reset() noexcept
