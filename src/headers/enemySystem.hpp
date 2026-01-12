@@ -10,6 +10,7 @@
 #include "constants.hpp"
 #include "commands.hpp"
 #include "messageSystem.hpp"
+#include "timerSystem.hpp"
 #include "assetManager.hpp"
 
 class EnemySystem
@@ -20,12 +21,13 @@ class EnemySystem
 
 		void Reset() noexcept;
 
-		void PollSignals(MessageSystem& message_system, const AssetManager& assets, const size_t level) noexcept;
+		void PollSignals(MessageSystem& message_system, const AssetManager& assets, const size_t level, const size_t ticks) noexcept;
 		void ExecuteCommands(MessageSystem& message_system) noexcept;
 
 		void UpdateEnemies(
-				const size_t ticks, const Rectangle update_area, const Vector2 player_centre,
-				const float map_width, const float map_height, const bool is_stinky, MessageSystem& message_system) noexcept;
+				const size_t ticks, const Rectangle update_area, const Vector2 player_centre, const float map_width, const float map_height,
+				const bool is_stinky, const size_t level, MessageSystem& message_system, const TimerSystem& timer_system
+				) noexcept;
 
 		void Draw(const AssetManager& assets) const noexcept;
 
@@ -54,13 +56,14 @@ class EnemySystem
 			&RandomModifiers,
 		};
 
-		void EmitParticlesFromLocations(const size_t ticks, MessageSystem& message_system) noexcept;
 		void PrepareSpawnEnemies(const size_t level, const float map_width, const float map_height) noexcept;
-		void SpawnEnemies(const size_t level, const float map_width, const float map_height) noexcept;
 
-		static constexpr std::array<void(EnemySystem::*)(const size_t, const float, const float), static_cast<size_t>(EnemySystemSignal::COUNT)> SignalHandlers =
+		void EmitParticlesFromLocations(const size_t ticks, const size_t level, MessageSystem& message_system) noexcept;
+		void SpawnEnemies(const size_t ticks, const size_t level, MessageSystem& message_system) noexcept;
+
+		static constexpr std::array<void(EnemySystem::*)(const size_t, const size_t, MessageSystem&) noexcept, static_cast<size_t>(EnemySystemSignal::COUNT)> SignalHandlers =
 		{
-			&PrepareSpawnEnemies,
+			&EmitParticlesFromLocations,
 			&SpawnEnemies
 		};
 

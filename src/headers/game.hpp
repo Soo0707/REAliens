@@ -90,6 +90,7 @@ class Game
 		void UpdateEnemySystem(const size_t ticks, const size_t level, const Rectangle update_area) noexcept;
 		void UpdateStatSystem() noexcept;
 		void UpdateXpSystem(const size_t ticks, const Rectangle update_area) noexcept;
+		void UpdateCollisionSystem(const size_t ticks) noexcept;
 
 		void LevelUp() noexcept;
 		void UpdateCamera() noexcept;

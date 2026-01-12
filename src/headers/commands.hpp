@@ -61,8 +61,15 @@ struct CreateXp
 {
 	float X;
 	float Y;
-	unsigned int Value;
+	uint8_t Value;
 };
+
+struct KillXp
+{
+	size_t XpIndex;
+};
+
+using XpSystemCommand = std::variant<struct CreateXp, struct KillXp>;
 
 
 enum class ModifierSystemCommandType : uint8_t

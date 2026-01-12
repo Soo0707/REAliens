@@ -237,14 +237,14 @@ void Game::UpdateProjectileSystem(const size_t ticks, const Rectangle update_are
 
 void Game::UpdateEnemySystem(const size_t ticks, const size_t level, const Rectangle update_area) noexcept
 {
-	this->EnemySystem->PollSignals(*this->MessageSystem, *this->Assets, level);
+	this->EnemySystem->PollSignals(*this->MessageSystem, *this->Assets, level, ticks);
 
 	const Vector2 player_centre = this->Player->Centre;
 	const float map_width = this->Assets->Ground.width;
 	const float map_height = this->Assets->Ground.height;
 	const bool is_stinky = this->ModifierSystem->EffectStatus(Effect::Stinky);
 
-	this->EnemySystem->UpdateEnemies(ticks, update_area, player_centre, map_width, map_height, is_stinky, *this->MessageSystem);
+	this->EnemySystem->UpdateEnemies(ticks, update_area, player_centre, map_width, map_height, is_stinky, level, *this->MessageSystem, *this->TimerSystem);
 }
 
 void Game::UpdateStatSystem() noexcept
@@ -256,6 +256,12 @@ void Game::UpdateXpSystem(const size_t ticks, const Rectangle update_area) noexc
 {
 	this->XpSystem->ExecuteCommands(*this->MessageSystem, *this->Assets);
 	this->XpSystem->UpdateXps(*this->MessageSystem, update_area, ticks);
+}
+
+void Game::UpdateCollisionSystem(const size_t ticks) noexcept
+{
+
+
 }
 
 void Game::UpdateCamera() noexcept

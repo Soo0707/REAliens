@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <variant>
 
 #include "raylib.h"
 #include "constants.hpp"
@@ -30,29 +31,18 @@ void XpSystem::Reset() noexcept
 
 void XpSystem::ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept
 {
-	const float texture_width = assets.Textures.at(TextureKey::Xp).width;
-	const float texture_height = assets.Textures.at(TextureKey::Xp).height;
-
 	for (auto const& command : message_system.XpSystemCommands)
-		this->CreateXp(command.X, command.Y, texture_width, texture_height, command.Value);
+	{
+		const size_t handler_index = command.index();
+		auto handler = this->CommandHandlers[handler_index];
+		(this->*handler)(command, assets);
+	}
 
 	message_system.XpSystemCommands.clear();
 }
 
 void XpSystem::UpdateXps(MessageSystem& message_system, const Rectangle update_area, const size_t ticks) noexcept
 {
-	/*
-	const bool has_magnetism = this->Effects.count(Effect::Magnetism);
-
-	for (auto &xp : this->Xps)
-	{
-		if (CheckCollisionRecs(this->Player->Rect, xp.Rect) || has_magnetism)
-		{
-			this->CollectedXp += xp.Value;
-			xp.Kill = true;
-		}
-	}
-	*/
 	this->VisibilityCheck(update_area);
 	this->EmitParticles(message_system, ticks);
 }
@@ -88,7 +78,7 @@ void XpSystem::VisibilityCheck(const Rectangle update_area) noexcept
 		this->XpIsVisible[i] = static_cast<uint8_t>(CheckCollisionRecs(update_area, this->XpRect[i]));
 }
 
-void XpSystem::CreateXp(const float x, const float y, const float texture_width, const float texture_height, const unsigned int value) noexcept
+void XpSystem::CreateXp(const float x, const float y, const float texture_width, const float texture_height, const uint8_t value) noexcept
 {
 	this->XpKill.emplace_back(static_cast<bool>(false));
 	this->XpIsVisible.emplace_back(static_cast<bool>(false));
@@ -137,4 +127,19 @@ void XpSystem::EmitParticles(MessageSystem& message_system, const size_t ticks) 
 					);
 		}
 	}
+}
+
+void XpSystem::CreateXpHandler(const XpSystemCommand& command, const AssetManager& assets) noexcept
+{
+	const struct CreateXp& data = std::get<struct CreateXp>(command);
+	const float texture_width = assets.Textures.at(TextureKey::Xp).width;
+	const float texture_height = assets.Textures.at(TextureKey::Xp).height;
+
+	this->CreateXp(data.X, data.Y, texture_width, texture_height, data.Value);
+}
+
+void XpSystem::KillXpHandler(const XpSystemCommand& command, const AssetManager& assets) noexcept
+{
+	const struct KillXp& data = std::get<struct KillXp>(command);
+	this->XpKill[data.XpIndex] = static_cast<uint8_t>(true);
 }

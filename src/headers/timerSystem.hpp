@@ -37,6 +37,9 @@ class TimerSystem
 		void MagnetismExpireHandler(MessageSystem& message_system) const noexcept;
 		void AuraTickHandler(MessageSystem& message_system) const noexcept;
 
+		void EmitLocationParticlesHandler(MessageSystem& message_system) const noexcept;
+		void SpawnEnemiesHandler(MessageSystem& message_system) const noexcept;
+
 		void RegisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
 		void DeregisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
 		void UpdateTimerInterval(const TimerSystemCommand& command, const size_t ticks) noexcept;
@@ -57,6 +60,8 @@ class TimerSystem
 			&DrunkExpireHandler,
 			&AussieExpireHandler,
 			&MagnetismExpireHandler,
-			&AuraTickHandler
+			&AuraTickHandler,
+			&EmitLocationParticlesHandler,
+			&SpawnEnemiesHandler
 		};
 };

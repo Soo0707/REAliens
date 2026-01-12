@@ -15,5 +15,7 @@ enum class Timer : uint8_t
 	MagnetismExpire,
 
 	AuraTick,
+	EmitLocationParticles,
+	SpawnEnemies,
 	COUNT
 };

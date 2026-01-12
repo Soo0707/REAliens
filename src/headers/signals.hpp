@@ -4,7 +4,7 @@
 
 enum class EnemySystemSignal : uint8_t
 {
-	PrepareSpawnEnemies,
+	EmitLocationParticles,
 	SpawnEnemies,
 
 	COUNT

@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <variant>
 
 #include "raylib.h"
 #include "raymath.h"
@@ -12,6 +13,7 @@
 #include "signals.hpp"
 #include "commands.hpp"
 #include "messageSystem.hpp"
+#include "timerSystem.hpp"
 
 EnemySystem::EnemySystem()
 {
@@ -48,17 +50,14 @@ void EnemySystem::Reset() noexcept
 	this->FutureSpawnLocations.clear();
 }
 
-void EnemySystem::PollSignals(MessageSystem& message_system, const AssetManager& assets, const size_t level) noexcept
+void EnemySystem::PollSignals(MessageSystem& message_system, const AssetManager& assets, const size_t level, const size_t ticks) noexcept
 {
-	const float map_width = assets.Ground.width;
-	const float map_height = assets.Ground.height;
-
 	for (size_t i = 0; i < message_system.EnemySystemSignals.size(); i++)
 	{
 		if (message_system.EnemySystemSignals[i])
 		{
 			auto handler_function = this->SignalHandlers[i];
-			(this->*handler_function)(level, map_width, map_height);
+			(this->*handler_function)(ticks, level, message_system);
 
 			message_system.EnemySystemSignals[i] = false;
 		}
@@ -77,39 +76,16 @@ void EnemySystem::ExecuteCommands(MessageSystem& message_system) noexcept
 }
 
 void EnemySystem::UpdateEnemies(
-		const size_t ticks, const Rectangle update_area, const Vector2 player_centre,
-		const float map_width, const float map_height, const bool is_stinky, MessageSystem& message_system
+		const size_t ticks, const Rectangle update_area, const Vector2 player_centre, const float map_width, const float map_height,
+		const bool is_stinky, const size_t level, MessageSystem& message_system, const TimerSystem& timer_system
 		) noexcept
 {
-	/*
-	long long slide_damage = 0;
-	
-	for (auto &enemy : this->Enemies)
+	if (this->EnemyHealth.size() < 5 && !timer_system.GetTimerStatus(Timer::SpawnEnemies))
 	{
-		if (CheckCollisionRecs(update_area, enemy.Rect))
-		{
-			enemy.Update(player_centre, ticks, is_stinky);
-
-			if (!has_greenbull && !is_sliding)
-				Collisions::LeAttack(*this->Player, enemy, ticks, this->Effects, this->Events);
-			
-			if (is_sliding)
-				slide_damage = Collisions::SlideAttack(*this->Player, enemy);
-		}
-		if (slide_damage > 0)
-		{
-			this->Stats[static_cast<size_t>(Stat::TotalDamage)] += slide_damage;
-
-			this->GameTexts.emplace_back( 
-					enemy.Rect.x, enemy.Rect.y, 64.0f, std::to_string(slide_damage),
-					52,	ORANGE, ticks, ticks + TICK_RATE / 4
-					);
-
-			GameState::EmitParticles(
-					50, enemy.Rect.x, enemy.Rect.y, 10, 25,
-					60, TICK_RATE, this->Player->Direction, 512, ORANGE, RED, assets);
-		}
-		*/
+		message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, TICK_RATE, true, Timer::EmitLocationParticles);
+		message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5), false, Timer::SpawnEnemies);
+		this->PrepareSpawnEnemies(level, map_width, map_height);
+	}
 
 	this->VisibilityCheck(update_area);
 
@@ -285,9 +261,9 @@ void EnemySystem::KillEnemies(MessageSystem& message_system) noexcept
 			this->EnemyTypes.pop_back();
 			this->EnemyBehaviourModifiers.pop_back();
 
-			const unsigned int value = this->EnemyXpValues[static_cast<size_t>(this->EnemyTypes[i])];
+			const uint8_t value = this->EnemyXpValues[static_cast<size_t>(this->EnemyTypes[i])];
 		
-			message_system.XpSystemCommands.emplace_back(x, y, value * static_cast<int>(this->EnemyScale[i]));
+			message_system.XpSystemCommands.emplace_back(std::in_place_type<struct CreateXp>, x, y, value * static_cast<uint8_t>(this->EnemyScale[i]));
 			killed++;
 		}
 		else
@@ -310,7 +286,8 @@ void EnemySystem::EnemyLeAttackedHandler(const EnemySystemCommand& command) noex
 	this->EnemyAttackComponents[data.EnemyIndex].LastLeAttack = data.Ticks;
 }
 
-void EnemySystem::EmitParticlesFromLocations(const size_t ticks, MessageSystem& message_system) noexcept
+void EnemySystem::EmitParticlesFromLocations(
+		const size_t ticks, const size_t level, MessageSystem& message_system) noexcept
 {
 	for (auto const& location : this->FutureSpawnLocations)
 	{
@@ -323,7 +300,8 @@ void EnemySystem::EmitParticlesFromLocations(const size_t ticks, MessageSystem& 
 	}
 }
 
-void EnemySystem::SpawnEnemies(const size_t level, const float map_width, const float map_height) noexcept
+void EnemySystem::SpawnEnemies(
+		const size_t ticks, const size_t level, MessageSystem& message_system) noexcept
 {
 	const size_t spawn_count = level * 15;
 	const float level_scale = 1 + static_cast<float>(level) / 10.0f;

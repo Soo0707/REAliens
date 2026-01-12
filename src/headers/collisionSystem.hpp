@@ -39,6 +39,12 @@ class CollisionSystem
 				MessageSystem& message_system, const float aura_damage, const size_t ticks
 				) noexcept;
 
+		void XpCollision(
+				const Rectangle player_rect, const std::vector<Rectangle>& xp_rect,
+				const std::vector<uint8_t>& xp_value, size_t* collected_xp,
+				const ModifierSystem& modifier_system, MessageSystem& message_system
+				) noexcept;
+
 	private:
 		void ApplyAussie(MessageSystem& message_system,	const size_t ticks, const unsigned int scale) noexcept;
 		void ApplyDrunk(MessageSystem& message_system, const size_t ticks, const unsigned int scale) noexcept;

@@ -24,13 +24,21 @@ class XpSystem
 
 	private:
 		void VisibilityCheck(const Rectangle update_area) noexcept;
-		void CreateXp(const float x, const float y, const float texture_width, const float texture_height, const unsigned int value) noexcept;
+		void CreateXp(const float x, const float y, const float texture_width, const float texture_height, const uint8_t value) noexcept;
 		void RemoveXp() noexcept;
 		void EmitParticles(MessageSystem& message_system, const size_t ticks) noexcept;
 
+		void CreateXpHandler(const XpSystemCommand& command, const AssetManager& assets) noexcept;
+		void KillXpHandler(const XpSystemCommand& command, const AssetManager& assets) noexcept;
+
+		std::array<void(XpSystem::*)(const XpSystemCommand&, const AssetManager&), 2> CommandHandlers = {
+			&CreateXpHandler,
+			&KillXpHandler
+		};
+
 		std::vector<uint8_t> XpIsVisible;
 		std::vector<uint8_t> XpKill;
-		std::vector<unsigned int> XpValue;
+		std::vector<uint8_t> XpValue;
 		std::vector<Vector2> XpCentre;
 		std::vector<Rectangle> XpRect;
 };

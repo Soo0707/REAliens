@@ -141,3 +141,13 @@ void TimerSystem::AuraTickHandler(MessageSystem& message_system) const noexcept
 	//TODO
 }
 
+void TimerSystem::EmitLocationParticlesHandler(MessageSystem& message_system) const noexcept
+{
+	message_system.EnemySystemSignals[static_cast<size_t>(EnemySystemSignal::EmitLocationParticles)] = true;
+}
+
+void TimerSystem::SpawnEnemiesHandler(MessageSystem& message_system) const noexcept
+{
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct DeregisterTimer>, Timer::EmitLocationParticles);
+	message_system.EnemySystemSignals[static_cast<size_t>(EnemySystemSignal::SpawnEnemies)] = true;
+}
