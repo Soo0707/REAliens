@@ -22,6 +22,9 @@ class XpSystem
 		void Draw(const AssetManager& assets) const noexcept;
 		void DrawLightmap() const noexcept;
 
+		const std::vector<Rectangle>& GetXpRect() const noexcept;
+		const std::vector<uint8_t>& GetXpValue() const noexcept;
+
 	private:
 		void VisibilityCheck(const Rectangle update_area) noexcept;
 		void CreateXp(const float x, const float y, const float texture_width, const float texture_height, const uint8_t value) noexcept;

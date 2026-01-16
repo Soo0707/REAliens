@@ -32,7 +32,8 @@ Game::Game(
 		std::shared_ptr<class TimerSystem> timer_system, std::shared_ptr<class ModifierSystem> modifier_system,
 		std::shared_ptr<class ParticleSystem> particle_system, std::shared_ptr<class GameTextSystem> game_text_system,
 		std::shared_ptr<class ProjectileSystem> projectile_system, std::shared_ptr<class EnemySystem> enemy_system,
-		std::shared_ptr<class StatSystem> stat_system, std::shared_ptr<class XpSystem> xp_system
+		std::shared_ptr<class StatSystem> stat_system, std::shared_ptr<class XpSystem> xp_system,
+		std::shared_ptr<class CollisionSystem> collision_system
 		) :
 	Player(std::make_unique<class Player>(500.0f, 500.0f, *assets)),
 	GlobalData(global_data),
@@ -46,7 +47,8 @@ Game::Game(
 	ProjectileSystem(projectile_system),
 	EnemySystem(enemy_system),
 	StatSystem(stat_system),
-	XpSystem(xp_system)
+	XpSystem(xp_system),
+	CollisionSystem(collision_system)
 {
 	this->Camera = { 0 };
 	this->Camera.offset = { REFERENCE_WIDTH / 2.0f, REFERENCE_HEIGHT / 2.0f };
@@ -181,6 +183,7 @@ void Game::TickedUpdate() noexcept
 		this->UpdateEnemySystem(ticks, this->Level, update_area);
 		this->UpdateStatSystem();
 		this->UpdateXpSystem(ticks, update_area);
+		this->UpdateCollisionSystem(ticks);
 
 		this->Accumulator -= TICK_TIME;
 		this->Ticks++;
@@ -190,6 +193,7 @@ void Game::TickedUpdate() noexcept
 void Game::UpdatePlayer(const size_t ticks) noexcept
 {
 	this->Player->PollSignals(*this->MessageSystem);
+	this->Player->ExecuteCommands(*this->MessageSystem);
 
 	if (this->Player->Health <= 0 && !this->Settings->Data.at(SettingKey::DisableHealthCheck))
 	{
@@ -238,6 +242,7 @@ void Game::UpdateProjectileSystem(const size_t ticks, const Rectangle update_are
 void Game::UpdateEnemySystem(const size_t ticks, const size_t level, const Rectangle update_area) noexcept
 {
 	this->EnemySystem->PollSignals(*this->MessageSystem, *this->Assets, level, ticks);
+	this->EnemySystem->ExecuteCommands(*this->MessageSystem);
 
 	const Vector2 player_centre = this->Player->Centre;
 	const float map_width = this->Assets->Ground.width;
@@ -260,8 +265,48 @@ void Game::UpdateXpSystem(const size_t ticks, const Rectangle update_area) noexc
 
 void Game::UpdateCollisionSystem(const size_t ticks) noexcept
 {
+	const Rectangle player_rect = this->Player->Rect;
+	const Vector2 player_centre = this->Player->Centre;
+	const Vector2 player_direction = this->Player->Direction;
+	const float player_radius = this->Player->Radius;
+
+	const bool has_greenbull = this->ModifierSystem->EffectStatus(Effect::Greenbull);
+	const bool is_sliding = this->Player->Sliding;
 
 
+	this->CollisionSystem->ProjectileCollision(
+			this->ProjectileSystem->GetProjectileRect(), this->ProjectileSystem->GetProjectileType(),
+			this->ProjectileSystem->GetProjectileDirection(), this->EnemySystem->GetEnemyRect(),
+			*this->MessageSystem, *this->ModifierSystem, ticks
+			);
+
+	if (is_sliding)
+	{
+		this->CollisionSystem->SlideAttack(
+				this->EnemySystem->GetEnemyRect(), player_centre, player_radius,
+				player_direction, this->EnemySystem->GetEnemyHealth(), *this->MessageSystem, ticks
+				);
+	}
+
+	if (!has_greenbull && !is_sliding)
+	{
+		this->CollisionSystem->LeAttack(
+				this->EnemySystem->GetEnemyRect(), this->EnemySystem->GetEnemyAttackComponents(),
+				this->EnemySystem->GetEnemyType(), player_centre, player_radius,
+				*this->MessageSystem, *this->ModifierSystem, ticks
+				);
+	}
+	/*
+	void Aura(
+			const std::vector<Rectangle>& enemy_rect, const Rectangle aura, const ModifierSystem& modifier_system,
+			MessageSystem& message_system, const float aura_damage, const size_t ticks
+			) noexcept;
+			*/
+	this->CollisionSystem->XpCollision(
+			player_rect, this->XpSystem->GetXpRect(),
+			this->XpSystem->GetXpValue(), &this->CollectedXp,
+			*this->ModifierSystem, *this->MessageSystem
+			);
 }
 
 void Game::UpdateCamera() noexcept
@@ -322,12 +367,10 @@ void Game::LevelUp() noexcept
 	
 	if (this->Settings->Data.at(SettingKey::PowerupMenuInterrupt))
 		this->GlobalData->ActiveState = State::PowerupMenu;
-/*
-	TODO: Emit signals to this
+
 	if (this->Level % 5 == 0 && !this->Settings->Data.at(SettingKey::DisableLevelDebuffs))
-		this->ModifierSystem->InsertLevelDebuff(*this->MessageSystem);
+		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::InsertLevelDebuff)] = true;
 	else
-		this->ModifierSystem->RemoveLevelDebuff(*this->MessageSystem);
-		*/
+		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveLevelDebuff)] = true;
 }
 

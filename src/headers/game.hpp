@@ -19,6 +19,7 @@
 #include "enemySystem.hpp"
 #include "statSystem.hpp"
 #include "xpSystem.hpp"
+#include "collisionSystem.hpp"
 
 enum class Action : uint8_t
 {
@@ -38,7 +39,8 @@ class Game
 			std::shared_ptr<class TimerSystem> timer_system, std::shared_ptr<class ModifierSystem> modifier_system,
 			std::shared_ptr<class ParticleSystem> particle_system, std::shared_ptr<class GameTextSystem> game_text_system,
 			std::shared_ptr<class ProjectileSystem> projectile_system, std::shared_ptr<class EnemySystem> enemy_system,
-			std::shared_ptr<class StatSystem> stat_system, std::shared_ptr<class XpSystem> xp_system
+			std::shared_ptr<class StatSystem> stat_system, std::shared_ptr<class XpSystem> xp_system,
+			std::shared_ptr<class CollisionSystem> collision_system
 			);
 
 		~Game();
@@ -65,6 +67,7 @@ class Game
 		const std::shared_ptr<class EnemySystem> EnemySystem;
 		const std::shared_ptr<class StatSystem> StatSystem;
 		const std::shared_ptr<class XpSystem> XpSystem;
+		const std::shared_ptr<class CollisionSystem> CollisionSystem;
 
 		Camera2D Camera;
 		Rectangle UpdateArea;

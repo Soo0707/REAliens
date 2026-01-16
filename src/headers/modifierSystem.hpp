@@ -14,6 +14,7 @@ class ModifierSystem
 		~ModifierSystem() = default;
 
 		void ExecuteCommands(MessageSystem& message_system) noexcept;
+		void PollSignals(MessageSystem& message_system) noexcept;
 
 		bool EffectStatus(const Effect effect) const noexcept;
 		float GetAttribute(const Attribute attribute) const noexcept;
@@ -79,8 +80,14 @@ class ModifierSystem
 		std::array<float, static_cast<size_t>(Attribute::COUNT)> Attributes;
 		Effect Effects;
 
-		void InsertLevelDebuff(MessageSystem& message_system) noexcept;
-		void RemoveLevelDebuff(MessageSystem& message_system) noexcept;
+		void InsertLevelDebuff() noexcept;
+		void RemoveLevelDebuff() noexcept;
+
+		std::array<void(ModifierSystem::*)() noexcept, static_cast<size_t>(ModifierSystemSignal::COUNT)> SignalHandlers =
+		{
+			&InsertLevelDebuff,
+			&RemoveLevelDebuff
+		};
 
 		static constexpr std::array<Effect, 4> DebuffList = { 
 			Effect::Microscope,

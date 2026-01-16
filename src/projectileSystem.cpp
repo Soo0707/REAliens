@@ -58,45 +58,25 @@ void ProjectileSystem::ExecuteCommands(MessageSystem& message_system, const Asse
 
 void ProjectileSystem::UpdateProjectiles(const size_t ticks, const Rectangle update_area, MessageSystem& message_system) noexcept
 {
-/*
-	unsigned int total_damage_done = 0;
-
-	for (auto &projectile : this->Projectiles)
-	{
-		if (CheckCollisionRecs(update_area, projectile.Rect))
-		{
-			projectile.Update();
-			const unsigned int damage = Collisions::ProjectileCollision(projectile, this->Enemies, ticks, this->Attributes); 
-
-			if (damage > 0)
-			{
-				total_damage_done += damage;
-
-				message_system.GameTextSystemCommands.emplace_back(ticks, ticks + TICK_RATE / 4, projectile.Rect.x, projectile.Rect.y, 48.0f, damage, 48, YELLOW);
-				message_system.ParticleSystemCommands.emplace_back(ticks, 5, projectile.Direction, projectile.Rect.x, projectile.Rect.y, 5, 20, 120, TICK_RATE, 256, RED, RED);
-			}
-
-			if (spawn_particle)
-			{
-				message_system.ParticleSystemCommands.emplace_back(
-						ticks, 1, projectile.Direction, projectile.Rect.x, projectile.Rect.y, 
-						5, 20, 120, TICK_RATE, 128, projectile.Colour, projectile.Colour
-						);
-			}
-		}
-		else
-			projectile.Kill = true;
-	}
-
-	if (this->Effects.count(Effect::LifeSteal))
-		this->Player->IncreaseHealth( total_damage_done * this->Attributes.at(Attribute::LifeStealMultiplier) );
-
-	this->Stats[static_cast<size_t>(Stat::TotalDamage)] += total_damage_done;
-*/
 	this->VisibilityCheck(update_area);
 	this->MoveProjectiles();
 	this->SpawnParticles(message_system, ticks);
 	this->RemoveProjectiles();
+}
+
+const std::vector<Rectangle>& ProjectileSystem::GetProjectileRect() const noexcept
+{
+	return this->ProjectileRect;
+}
+
+const std::vector<ProjectileType>& ProjectileSystem::GetProjectileType() const noexcept
+{
+	return this->ProjectileTypes;
+}
+
+const std::vector<Vector2>& ProjectileSystem::GetProjectileDirection() const noexcept
+{
+	return this->ProjectileDirection;
 }
 
 void ProjectileSystem::Draw(const AssetManager& assets) const noexcept
@@ -108,7 +88,7 @@ void ProjectileSystem::Draw(const AssetManager& assets) const noexcept
 			const Vector2 position = { this->ProjectileRect[i].x, this->ProjectileRect[i].y };
 
 			DrawTextureEx(
-					assets.Textures.at(this->ProjectileTexture[i]),
+					assets.GetTexture(this->ProjectileTexture[i]),
 					position,
 					this->ProjectileRotation[i],
 					this->ProjectileScale[i],
@@ -228,8 +208,8 @@ void ProjectileSystem::CreateProjectileHandler(const ProjectileSystemCommand& co
 	const size_t index = static_cast<size_t>(data.Type);
 	const TextureKey texture_key = this->ProjectileAttributes[index].Texture;
 
-	const float texture_width = assets.Textures.at(texture_key).width;
-	const float texture_height = assets.Textures.at(texture_key).height;
+	const float texture_width = assets.GetTexture(texture_key).width;
+	const float texture_height = assets.GetTexture(texture_key).height;
 
 	this->CreateProjectile(data.X, data.Y, data.Speed, data.Scale, data.Direction, data.Type, texture_width, texture_height);
 }

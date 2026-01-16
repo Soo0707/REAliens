@@ -31,6 +31,12 @@ class EnemySystem
 
 		void Draw(const AssetManager& assets) const noexcept;
 
+		const std::vector<Rectangle>& GetEnemyRect() const noexcept;
+		const std::vector<EnemyAttackComponent>& GetEnemyAttackComponents() const noexcept;
+
+		const std::vector<EnemyType>& GetEnemyType() const noexcept;
+		const std::vector<float>& GetEnemyHealth() const noexcept;
+
 	private:
 		static constexpr std::array<EnemyData, static_cast<size_t>(EnemyType::COUNT)> EnemyAttributes = 
 		{
@@ -43,18 +49,6 @@ class EnemySystem
 
 		void GenerateLocations(const size_t spawn_count, const float map_width, const float map_height) noexcept;
 		void GenerateTypes(const size_t spawn_count) noexcept;
-		void GenerateModifiers(const size_t spawn_count, const size_t level) noexcept;
-		
-		void NoModifiers(const size_t spawn_count, const size_t level) noexcept;
-		void SameModifiers(const size_t spawn_count, const size_t level) noexcept;
-		void RandomModifiers(const size_t spawn_count, const size_t level) noexcept;
-
-		static constexpr std::array<void(EnemySystem::*)(const size_t, const size_t) noexcept, 3> GenerateModifierFunctions =
-		{
-			&NoModifiers,
-			&SameModifiers,
-			&RandomModifiers,
-		};
 
 		void PrepareSpawnEnemies(const size_t level, const float map_width, const float map_height) noexcept;
 
@@ -81,7 +75,7 @@ class EnemySystem
 			1, 2, 1, 2, 2
 		};
 
-		void CreateEnemy(const float x, const float y, const float level_scale, const EnemyType type, const BehaviourModifier modifier) noexcept;
+		void CreateEnemy(const float x, const float y, const float level_scale, const EnemyType type) noexcept;
 		void KillEnemies(MessageSystem& message_system) noexcept;
 
 		void VisibilityCheck(const Rectangle update_area) noexcept;
@@ -89,23 +83,19 @@ class EnemySystem
 		void EnemiesSetDirection(const Vector2 player_centre, const bool is_stinky) noexcept;
 		void AnimateEnemies(const size_t ticks) noexcept;
 		void EnemiesUpdateTimers(const size_t ticks) noexcept;
-		void FlashSprite(const size_t ticks) noexcept;
 
 		std::vector<float> EnemyHealth;
-		std::vector<float> EnemyScale;
 		std::vector<float> EnemySpeed;
 
 		std::vector<uint8_t> EnemyIsVisible;
 		std::vector<Vector2> EnemyDirection;
 		std::vector<Rectangle> EnemyRect;
 		std::vector<EnemyType> EnemyTypes;
-		std::vector<BehaviourModifier> EnemyBehaviourModifiers;
 		std::vector<EnemyAttackComponent> EnemyAttackComponents;
-		std::vector<EnemyDisplayComponent> EnemyDisplayComponents;
+		std::vector<TextureKey> EnemyTextureKey;
 		std::vector<EnemyAnimationComponent> EnemyAnimationComponents;
 
 
 		std::vector<EnemyType> FutureEnemyTypes;
-		std::vector<BehaviourModifier> FutureEnemyModifiers;
-		std::vector<Vector2> FutureSpawnLocations;	
+		std::vector<Vector2> FutureSpawnLocations;
 };

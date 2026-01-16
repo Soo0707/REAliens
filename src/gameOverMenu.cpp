@@ -72,7 +72,7 @@ void GameOverMenu::GenerateStats(const Game& game, const StatSystem& stat_system
 
 	this->GlobalData->CachedStrings[CachedString::DamagePerSecond] = "Damage / Second: " + std::to_string(damage_per_second);
 
-	this->GlobalData->CachedStrings[CachedString::EnemiesKilled] = "Enemies Killed: " + std::to_string(stat_system.GetStat(Stat::TotalDamage));
+	this->GlobalData->CachedStrings[CachedString::EnemiesKilled] = "Enemies Killed: " + std::to_string(stat_system.GetStat(Stat::Kills));
 
 	const size_t average_speed = stat_system.GetStat(Stat::TotalDistance) / TICKS_TO_SECONDS(ticks);
 	this->GlobalData->CachedStrings[CachedString::AverageSpeed] = "Average Speed: " + std::to_string(average_speed) + "px/s";

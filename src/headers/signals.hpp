@@ -17,3 +17,10 @@ enum class PlayerSignal : uint8_t
 	PoisonTick,
 	COUNT
 };
+
+enum class ModifierSystemSignal : uint8_t
+{
+	InsertLevelDebuff,
+	RemoveLevelDebuff,
+	COUNT
+};

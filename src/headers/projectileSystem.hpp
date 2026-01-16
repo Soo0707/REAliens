@@ -24,6 +24,10 @@ class ProjectileSystem
 		void Draw(const AssetManager& assets) const noexcept;
 		void DrawLightmap() const noexcept;
 
+		const std::vector<Rectangle>& GetProjectileRect() const noexcept;
+		const std::vector<ProjectileType>& GetProjectileType() const noexcept;
+		const std::vector<Vector2>& GetProjectileDirection() const noexcept;
+
 	private:
 		void CreateProjectile(
 				const float x, const float y, const float speed, const float scale, const Vector2 direction,

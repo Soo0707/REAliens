@@ -45,6 +45,7 @@ void XpSystem::UpdateXps(MessageSystem& message_system, const Rectangle update_a
 {
 	this->VisibilityCheck(update_area);
 	this->EmitParticles(message_system, ticks);
+	this->RemoveXp();
 }
 
 void XpSystem::Draw(const AssetManager& assets) const noexcept
@@ -54,7 +55,7 @@ void XpSystem::Draw(const AssetManager& assets) const noexcept
 		if (this->XpIsVisible[i])
 		{
 			DrawTexture(
-					assets.Textures.at(TextureKey::Xp),
+					assets.GetTexture(TextureKey::Xp),
 					static_cast<int>(this->XpRect[i].x),
 					static_cast<int>(this->XpRect[i].y),
 					WHITE
@@ -132,8 +133,8 @@ void XpSystem::EmitParticles(MessageSystem& message_system, const size_t ticks) 
 void XpSystem::CreateXpHandler(const XpSystemCommand& command, const AssetManager& assets) noexcept
 {
 	const struct CreateXp& data = std::get<struct CreateXp>(command);
-	const float texture_width = assets.Textures.at(TextureKey::Xp).width;
-	const float texture_height = assets.Textures.at(TextureKey::Xp).height;
+	const float texture_width = assets.GetTexture(TextureKey::Xp).width;
+	const float texture_height = assets.GetTexture(TextureKey::Xp).height;
 
 	this->CreateXp(data.X, data.Y, texture_width, texture_height, data.Value);
 }
@@ -142,4 +143,15 @@ void XpSystem::KillXpHandler(const XpSystemCommand& command, const AssetManager&
 {
 	const struct KillXp& data = std::get<struct KillXp>(command);
 	this->XpKill[data.XpIndex] = static_cast<uint8_t>(true);
+}
+
+
+const std::vector<Rectangle>& XpSystem::GetXpRect() const noexcept
+{
+	return this->XpRect;
+}
+
+const std::vector<uint8_t>& XpSystem::GetXpValue() const noexcept
+{
+	return this->XpValue;
 }

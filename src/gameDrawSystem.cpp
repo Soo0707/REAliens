@@ -72,13 +72,13 @@ void GameDrawSystem::DrawOverlay(
 		const GlobalDataWrapper& global_data, const AssetManager& assets
 		) noexcept
 {
-	DrawTexture(assets.Textures.at(TextureKey::HealthBarBackground), 1060, 20, WHITE);
+	DrawTexture(assets.GetTexture(TextureKey::HealthBarBackground), 1060, 20, WHITE);
 
 	const bool is_poisoned = modifier_system.EffectStatus(Effect::Poison);
 	const float health_percentage = game.Player->Health / game.Player->HealthMax;
 
 	DrawTexturePro(
-			assets.Textures.at(TextureKey::WhitePixel),
+			assets.GetTexture(TextureKey::WhitePixel),
 			(Rectangle) { 0, 0, 1, 1 },
 			(Rectangle) { 1060, 20, health_percentage * 200, 10 },
 			(Vector2) { 0.0f, 0.0f },
@@ -87,12 +87,12 @@ void GameDrawSystem::DrawOverlay(
 			);
 
 
-	DrawTexture(assets.Textures.at(TextureKey::XpBarBackground), 100, 680, WHITE);
+	DrawTexture(assets.GetTexture(TextureKey::XpBarBackground), 100, 680, WHITE);
 
 	const float xp_percentage = static_cast<float>(game.CollectedXp) / static_cast<float>(game.LevelUpThreshold);
 
 	DrawTexturePro(
-			assets.Textures.at(TextureKey::WhitePixel),
+			assets.GetTexture(TextureKey::WhitePixel),
 			(Rectangle) { 0, 0, 1, 1 },
 			(Rectangle) { 100, 680, xp_percentage * 1080, 15 },
 			(Vector2) { 0.0f, 0.0f },
@@ -136,9 +136,9 @@ void GameDrawSystem::DrawGreenbull(const TimerSystem& timer_system, const AssetM
 	const size_t expiry = timer_system.GetTimer(Timer::GreenbullExpire) - ticks;
 
 	if (expiry >= SECONDS_TO_TICKS(5))
-		DrawTexture(assets.Textures.at(TextureKey::GreenbullIcon), 1205, 40, WHITE);
+		DrawTexture(assets.GetTexture(TextureKey::GreenbullIcon), 1205, 40, WHITE);
 	else if ((expiry / (TICK_RATE / 2)) % 2)
-		DrawTexture(assets.Textures.at(TextureKey::GreenbullIcon), 1205, 40, WHITE);
+		DrawTexture(assets.GetTexture(TextureKey::GreenbullIcon), 1205, 40, WHITE);
 }
 
 void GameDrawSystem::DrawMilk(const TimerSystem& timer_system, const AssetManager& assets, const size_t ticks) noexcept
@@ -146,9 +146,9 @@ void GameDrawSystem::DrawMilk(const TimerSystem& timer_system, const AssetManage
 	const size_t expiry = timer_system.GetTimer(Timer::MilkExpire) - ticks;
 
 	if (expiry >= SECONDS_TO_TICKS(5))
-		DrawTexture(assets.Textures.at(TextureKey::MilkIcon), 1225, 40, WHITE);
+		DrawTexture(assets.GetTexture(TextureKey::MilkIcon), 1225, 40, WHITE);
 	else if ((expiry / (TICK_RATE / 2)) % 2)
-		DrawTexture(assets.Textures.at(TextureKey::MilkIcon), 1225, 40, WHITE);
+		DrawTexture(assets.GetTexture(TextureKey::MilkIcon), 1225, 40, WHITE);
 }
 
 void GameDrawSystem::DrawDrunk(const TimerSystem& timer_system, const AssetManager& assets, const size_t ticks) noexcept
@@ -156,9 +156,9 @@ void GameDrawSystem::DrawDrunk(const TimerSystem& timer_system, const AssetManag
 	const size_t expiry = timer_system.GetTimer(Timer::DrunkExpire) - ticks;
 
 	if (expiry >= SECONDS_TO_TICKS(5))
-		DrawTexture(assets.Textures.at(TextureKey::DrunkIcon), 1245, 40, WHITE);
+		DrawTexture(assets.GetTexture(TextureKey::DrunkIcon), 1245, 40, WHITE);
 	else if ((expiry / (TICK_RATE / 2)) % 2)
-		DrawTexture(assets.Textures.at(TextureKey::DrunkIcon), 1245, 40, WHITE);
+		DrawTexture(assets.GetTexture(TextureKey::DrunkIcon), 1245, 40, WHITE);
 }
 
 void GameDrawSystem::DrawMagnetism(const TimerSystem& timer_system, const AssetManager& assets, const size_t ticks) noexcept
@@ -166,9 +166,9 @@ void GameDrawSystem::DrawMagnetism(const TimerSystem& timer_system, const AssetM
 	const size_t expiry = timer_system.GetTimer(Timer::MagnetismExpire) - ticks;
 
 	if (expiry >= SECONDS_TO_TICKS(5))
-		DrawTexture(assets.Textures.at(TextureKey::MagnetismIcon), 1185, 40, WHITE);
+		DrawTexture(assets.GetTexture(TextureKey::MagnetismIcon), 1185, 40, WHITE);
 	else if ((expiry / (TICK_RATE / 2)) % 2)
-		DrawTexture(assets.Textures.at(TextureKey::MagnetismIcon), 1185, 40, WHITE);
+		DrawTexture(assets.GetTexture(TextureKey::MagnetismIcon), 1185, 40, WHITE);
 }
 
 

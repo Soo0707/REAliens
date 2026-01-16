@@ -12,7 +12,7 @@
 #include "signals.hpp"
 
 Player::Player(float pos_x, float pos_y, AssetManager &assets) :
-	Image(assets.Textures.at(TextureKey::Player))
+	Image(assets.GetTexture(TextureKey::Player))
 {
 	this->Rect = { pos_x, pos_y, PLAYER_TEXTURE_TILE_SIZE, PLAYER_TEXTURE_TILE_SIZE };
 	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_SIZE / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_SIZE / 2.0f };

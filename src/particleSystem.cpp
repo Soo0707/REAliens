@@ -70,7 +70,7 @@ void ParticleSystem::Draw(const AssetManager& assets, const size_t ticks) const 
 			const Color colour = ColorLerp(this->ParticleEndColour[i], this->ParticleStartColour[i], lerp_factor);
 
 			DrawTexturePro(
-					assets.Textures.at(TextureKey::WhitePixel),
+					assets.GetTexture(TextureKey::WhitePixel),
 					{ 0.0f, 0.0f, 1.0f, 1.0f },
 					this->ParticleRect[i],
 					{ 0.0f, 0.0f },

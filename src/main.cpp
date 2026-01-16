@@ -13,6 +13,7 @@
 #include "enemySystem.hpp"
 #include "statSystem.hpp"
 #include "xpSystem.hpp"
+#include "collisionSystem.hpp"
 
 #include "game.hpp"
 #include "powerupMenu.hpp"
@@ -41,7 +42,6 @@ int main(void)
 	const std::shared_ptr<AssetManager> assets = std::make_shared<AssetManager>();
 	const std::shared_ptr<SettingsManager> settings = std::make_shared<SettingsManager>();
 	const std::shared_ptr<GlobalDataWrapper> global_data = std::make_shared<GlobalDataWrapper>();
-	//std::shared_ptr<GameState> game_state = std::make_shared<GameState>(*assets);
 
 	unsigned int target_refresh_rate;
 
@@ -61,10 +61,11 @@ int main(void)
 	const std::shared_ptr<EnemySystem> enemy_system = std::make_shared<EnemySystem>();
 	const std::shared_ptr<StatSystem> stat_system = std::make_shared<StatSystem>();
 	const std::shared_ptr<XpSystem> xp_system = std::make_shared<XpSystem>();
+	const std::shared_ptr<CollisionSystem> collision_system = std::make_shared<CollisionSystem>();
 
 	Game game = Game(
 			global_data, assets, settings, message_system, timer_system, modifier_system,
-			particle_system, game_text_system, projectile_system, enemy_system, stat_system, xp_system
+			particle_system, game_text_system, projectile_system, enemy_system, stat_system, xp_system, collision_system
 			);
 
 	PowerupMenu powerup_menu = PowerupMenu(global_data, assets, settings, message_system, timer_system);

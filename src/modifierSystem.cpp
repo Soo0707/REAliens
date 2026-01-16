@@ -20,6 +20,19 @@ void ModifierSystem::ExecuteCommands(MessageSystem& message_system) noexcept
 	message_system.ModifierSystemCommands.clear();
 }
 
+void ModifierSystem::PollSignals(MessageSystem& message_system) noexcept
+{
+	for (size_t i = 0, n = static_cast<size_t>(ModifierSystemSignal::COUNT); i < n; i++)
+	{
+		if (message_system.ModifierSystemSignals[i])
+		{
+			auto signal_handler = this->SignalHandlers[i];
+			(this->*signal_handler)();
+			message_system.ModifierSystemSignals[i] = false;
+		}
+	}
+}
+
 void ModifierSystem::Reset() noexcept
 {
 	this->Attributes = { 0 };
@@ -246,7 +259,7 @@ void ModifierSystem::RemoveDrunk() noexcept
 }
 
 
-void ModifierSystem::InsertLevelDebuff(MessageSystem& message_system) noexcept
+void ModifierSystem::InsertLevelDebuff() noexcept
 {
 	const int index = GetRandomValue(0, this->DebuffList.size() - 1);
 
@@ -256,7 +269,7 @@ void ModifierSystem::InsertLevelDebuff(MessageSystem& message_system) noexcept
 	//global_data.CachedStrings[CachedString::LevelDebuff] = std::string(this->DebuffNames[index]);
 }
 
-void ModifierSystem::RemoveLevelDebuff(MessageSystem& message_system) noexcept
+void ModifierSystem::RemoveLevelDebuff() noexcept
 {
 	for (auto const effect : this->DebuffList)
 		this->RemoveEffect(effect);

@@ -26,4 +26,5 @@ struct MessageSystem
 
 	std::array<bool, static_cast<size_t>(EnemySystemSignal::COUNT)> EnemySystemSignals;
 	std::array<unsigned int, static_cast<size_t>(PlayerSignal::COUNT)> PlayerSignals;
+	std::array<bool, static_cast<size_t>(ModifierSystemSignal::COUNT)> ModifierSystemSignals;
 };

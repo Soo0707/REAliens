@@ -27,4 +27,5 @@ void MessageSystem::Reset() noexcept
 
 	this->EnemySystemSignals = { 0 };
 	this->PlayerSignals = { 0 };
+	this->ModifierSystemSignals = { 0 };
 }

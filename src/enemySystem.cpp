@@ -18,35 +18,30 @@
 EnemySystem::EnemySystem()
 {
 	this->EnemyHealth.reserve(1024);
-	this->EnemyScale.reserve(1024);
 	this->EnemySpeed.reserve(1024);
 	this->EnemyIsVisible.reserve(1024);
 	this->EnemyDirection.reserve(1024);
 	this->EnemyRect.reserve(1024);
 	this->EnemyAttackComponents.reserve(1024);
-	this->EnemyDisplayComponents.reserve(1024);
+	this->EnemyTextureKey.reserve(1024);
 	this->EnemyAnimationComponents.reserve(1024);
 	this->EnemyTypes.reserve(1024);
-	this->EnemyBehaviourModifiers.reserve(1024);
 }
 
 void EnemySystem::Reset() noexcept
 {
 	this->EnemyHealth.clear();
-	this->EnemyScale.clear();
 	this->EnemySpeed.clear();
 	this->EnemyIsVisible.clear();
 	this->EnemyDirection.clear();
 	this->EnemyRect.clear();
 	this->EnemyAttackComponents.clear();
-	this->EnemyDisplayComponents.clear();
+	this->EnemyTextureKey.clear();
 	this->EnemyAnimationComponents.clear();
 	this->EnemyTypes.clear();
-	this->EnemyBehaviourModifiers.clear();
 
 
 	this->FutureEnemyTypes.clear();
-	this->FutureEnemyModifiers.clear();
 	this->FutureSpawnLocations.clear();
 }
 
@@ -82,8 +77,14 @@ void EnemySystem::UpdateEnemies(
 {
 	if (this->EnemyHealth.size() < 5 && !timer_system.GetTimerStatus(Timer::SpawnEnemies))
 	{
-		message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, TICK_RATE, true, Timer::EmitLocationParticles);
-		message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5), false, Timer::SpawnEnemies);
+		message_system.TimerSystemCommands.emplace_back(
+				std::in_place_type<struct RegisterTimer>, TICK_RATE / 2,
+				true, Timer::EmitLocationParticles
+				);
+		message_system.TimerSystemCommands.emplace_back(
+				std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(3),
+				false, Timer::SpawnEnemies
+				);
 		this->PrepareSpawnEnemies(level, map_width, map_height);
 	}
 
@@ -99,12 +100,11 @@ void EnemySystem::UpdateEnemies(
 
 void EnemySystem::Draw(const AssetManager& assets) const noexcept
 {
-	for (size_t i = 0, n = this->EnemyDisplayComponents.size(); i < n; i++)
+	for (size_t i = 0, n = this->EnemyTextureKey.size(); i < n; i++)
 	{
 		if (this->EnemyIsVisible[i])
 		{
-			const Texture2D texture = assets.Textures.at(this->EnemyDisplayComponents[i].Texture);
-			const bool flash = this->EnemyDisplayComponents[i].Flash;
+			const Texture2D texture = assets.GetTexture(this->EnemyTextureKey[i]);
 
 			const Rectangle source_rect = {
 				static_cast<float>(this->EnemyAnimationComponents[i].ImageIndex) * TEXTURE_TILE_SIZE,
@@ -119,7 +119,7 @@ void EnemySystem::Draw(const AssetManager& assets) const noexcept
 					this->EnemyRect[i],
 					{ 0.0f, 0.0f },
 					0.0f,
-					(flash) ? YELLOW : WHITE
+					WHITE
 					);
 		}
 	}
@@ -188,42 +188,42 @@ void EnemySystem::EnemiesUpdateTimers(const size_t ticks) noexcept
 	{
 		if (ticks - this->EnemyAttackComponents[i].LastLeAttack >= SECONDS_TO_TICKS(3))
 			this->EnemyAttackComponents[i].CanLeAttack = true;
-
-		if (ticks - this->EnemyDisplayComponents[i].LastFlash >= 60)
-			this->EnemyDisplayComponents[i].Flash = false;
 	}
 }
 
-void EnemySystem::FlashSprite(const size_t ticks) noexcept
+const std::vector<Rectangle>& EnemySystem::GetEnemyRect() const noexcept
 {
-	/*
-	this->Flash = true;
-	this->FlashTriggered = ticks;
-	*/
+	return this->EnemyRect;
 }
 
-void EnemySystem::CreateEnemy(const float x, const float y, const float level_scale, const EnemyType type, const BehaviourModifier modifier) noexcept
+const std::vector<EnemyAttackComponent>& EnemySystem::GetEnemyAttackComponents() const noexcept
+{
+	return this->EnemyAttackComponents;
+}
+
+const std::vector<EnemyType>& EnemySystem::GetEnemyType() const noexcept
+{
+	return this->EnemyTypes;
+}
+
+const std::vector<float>& EnemySystem::GetEnemyHealth() const noexcept
+{
+	return this->EnemyHealth;
+}
+
+void EnemySystem::CreateEnemy(const float x, const float y, const float level_scale, const EnemyType type) noexcept
 {
 	const size_t type_index = static_cast<size_t>(type);
 
 	this->EnemyHealth.emplace_back(this->EnemyAttributes[type_index].Health * level_scale);
-
-	this->EnemyScale.emplace_back(1.0f);
-
 	this->EnemySpeed.emplace_back(this->EnemyAttributes[type_index].Speed);
 	this->EnemyIsVisible.emplace_back(false);
-
 	this->EnemyDirection.emplace_back(0.0f, 0.0f);
 	this->EnemyRect.emplace_back(x, y, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE);
-
 	this->EnemyAttackComponents.emplace_back(0, this->EnemyAttributes[type_index].Damage * level_scale, true);
-
-	this->EnemyDisplayComponents.emplace_back(0, this->EnemyAttributes[type_index].Texture, false);
-
+	this->EnemyTextureKey.emplace_back(this->EnemyAttributes[type_index].Texture);
 	this->EnemyAnimationComponents.emplace_back(0, 0, this->EnemyAttributes[type_index].AnimationInterval, this->EnemyAttributes[type_index].AnimationFrames);
-
 	this->EnemyTypes.emplace_back(type);
-	this->EnemyBehaviourModifiers.emplace_back(modifier);
 }
 
 void EnemySystem::KillEnemies(MessageSystem& message_system) noexcept
@@ -232,38 +232,35 @@ void EnemySystem::KillEnemies(MessageSystem& message_system) noexcept
 
 	for (size_t i = 0; i < this->EnemyHealth.size(); )
 	{
-		if (this->EnemyHealth[i] <= 0)
+		if (this->EnemyHealth[i] <= 0.0f)
 		{
 			const float x = this->EnemyRect[i].x;
 			const float y = this->EnemyRect[i].y;
+			const EnemyType type = this->EnemyTypes[i];
 
 			this->EnemyHealth[i] = this->EnemyHealth.back();
-			this->EnemyScale[i] = this->EnemyScale.back();
 			this->EnemySpeed[i] = this->EnemySpeed.back();
 			this->EnemyIsVisible[i] = this->EnemyIsVisible.back();
 			this->EnemyDirection[i] = this->EnemyDirection.back();
 			this->EnemyRect[i] = this->EnemyRect.back();
 			this->EnemyAttackComponents[i] = this->EnemyAttackComponents.back();
-			this->EnemyDisplayComponents[i] = this->EnemyDisplayComponents.back();
+			this->EnemyTextureKey[i] = this->EnemyTextureKey.back();
 			this->EnemyAnimationComponents[i] = this->EnemyAnimationComponents.back();
 			this->EnemyTypes[i] = this->EnemyTypes.back();
-			this->EnemyBehaviourModifiers[i] = this->EnemyBehaviourModifiers.back();
 
 			this->EnemyHealth.pop_back();
-			this->EnemyScale.pop_back();
 			this->EnemySpeed.pop_back();
 			this->EnemyIsVisible.pop_back();
 			this->EnemyDirection.pop_back();
 			this->EnemyRect.pop_back();
 			this->EnemyAttackComponents.pop_back();
-			this->EnemyDisplayComponents.pop_back();
+			this->EnemyTextureKey.pop_back();
 			this->EnemyAnimationComponents.pop_back();
 			this->EnemyTypes.pop_back();
-			this->EnemyBehaviourModifiers.pop_back();
 
-			const uint8_t value = this->EnemyXpValues[static_cast<size_t>(this->EnemyTypes[i])];
+			const uint8_t value = this->EnemyXpValues[static_cast<size_t>(type)];
 		
-			message_system.XpSystemCommands.emplace_back(std::in_place_type<struct CreateXp>, x, y, value * static_cast<uint8_t>(this->EnemyScale[i]));
+			message_system.XpSystemCommands.emplace_back(std::in_place_type<struct CreateXp>, x, y, value);
 			killed++;
 		}
 		else
@@ -277,12 +274,14 @@ void EnemySystem::KillEnemies(MessageSystem& message_system) noexcept
 void EnemySystem::DamageEnemyHandler(const EnemySystemCommand& command) noexcept
 {
 	const DamageEnemy& data = std::get<struct DamageEnemy>(command);
-	this->EnemyHealth[data.EnemyIndex] -= this->EnemyHealth[data.DamageAmount];
+	this->EnemyHealth[data.EnemyIndex] -= data.DamageAmount;
 }
 
 void EnemySystem::EnemyLeAttackedHandler(const EnemySystemCommand& command) noexcept
 {
 	const EnemyLeAttacked& data = std::get<struct EnemyLeAttacked>(command);
+
+	this->EnemyAttackComponents[data.EnemyIndex].CanLeAttack = false;
 	this->EnemyAttackComponents[data.EnemyIndex].LastLeAttack = data.Ticks;
 }
 
@@ -309,29 +308,25 @@ void EnemySystem::SpawnEnemies(
 	const size_t new_size = this->EnemyHealth.size() + spawn_count;
 
 	this->EnemyHealth.reserve(new_size);
-	this->EnemyScale.reserve(new_size);
 	this->EnemySpeed.reserve(new_size);
 	this->EnemyIsVisible.reserve(new_size);
 	this->EnemyDirection.reserve(new_size);
 	this->EnemyRect.reserve(new_size);
 	this->EnemyAttackComponents.reserve(new_size);
-	this->EnemyDisplayComponents.reserve(new_size);
+	this->EnemyTextureKey.reserve(new_size);
 	this->EnemyAnimationComponents.reserve(new_size);
 	this->EnemyTypes.reserve(new_size);
-	this->EnemyBehaviourModifiers.reserve(new_size);
 
 	for (size_t i = 0; i < spawn_count; i++)
 	{
 		const Vector2 location = this->FutureSpawnLocations[i];
 		const EnemyType type = this->FutureEnemyTypes[i];
-		const BehaviourModifier modifier = this->FutureEnemyModifiers[i];
 
-		this->CreateEnemy(location.x, location.y, level_scale, type, modifier);
+		this->CreateEnemy(location.x, location.y, level_scale, type);
 	}
 
 	this->FutureSpawnLocations.clear();
 	this->FutureEnemyTypes.clear();
-	this->FutureEnemyModifiers.clear();
 }
 
 void EnemySystem::PrepareSpawnEnemies(const size_t level, const float map_width, const float map_height) noexcept
@@ -340,7 +335,6 @@ void EnemySystem::PrepareSpawnEnemies(const size_t level, const float map_width,
 	
 	EnemySystem::GenerateLocations(spawn_count, map_width, map_height);
 	EnemySystem::GenerateTypes(spawn_count);
-	EnemySystem::GenerateModifiers(spawn_count, level);
 }
 
 void EnemySystem::GenerateLocations(const size_t spawn_count, const float map_width, const float map_height) noexcept
@@ -362,53 +356,4 @@ void EnemySystem::GenerateTypes(const size_t spawn_count) noexcept
 
 	for (size_t i = 0; i < spawn_count; i++)
 		this->FutureEnemyTypes.emplace_back(static_cast<EnemyType>(GetRandomValue(0, static_cast<int>(EnemyType::COUNT) - 1)));
-}
-
-void EnemySystem::GenerateModifiers(const size_t spawn_count, const size_t level) noexcept
-{
-	this->FutureEnemyModifiers.reserve(spawn_count);
-
-	auto RandomModifierFunction = this->GenerateModifierFunctions[GetRandomValue(0, this->GenerateModifierFunctions.size() - 1)];
-
-	(this->*RandomModifierFunction)(spawn_count, level);
-}
-
-void EnemySystem::NoModifiers(const size_t spawn_count, const size_t level) noexcept
-{
-	for (size_t i = 0; i < spawn_count; i++)
-		this->FutureEnemyModifiers.emplace_back(BehaviourModifier::None);
-}
-
-void EnemySystem::SameModifiers(const size_t spawn_count, const size_t level) noexcept
-{
-	BehaviourModifier modifier = BehaviourModifier::None;
-
-	const unsigned int random = GetRandomValue(1, 100);
-
-	if (random >= 10 && random < 30)
-		modifier = modifier | BehaviourModifier::IncreasedSpeed;
-
-	if (random <= 5 && level > 20)
-		modifier = modifier | BehaviourModifier::Big;
-
-	for (size_t i = 0; i < spawn_count; i++)
-		this->FutureEnemyModifiers.emplace_back(modifier);
-}
-
-void EnemySystem::RandomModifiers(const size_t spawn_count, const size_t level) noexcept
-{
-	for (size_t i = 0; i < spawn_count; i++)
-	{
-		BehaviourModifier modifier = BehaviourModifier::None;
-		
-		const unsigned int random = GetRandomValue(1, 100);
-
-		if (random >= 10 && random < 50)
-			modifier = modifier | BehaviourModifier::IncreasedSpeed;
-
-		if (random <= 20 && level > 10)
-			modifier = modifier | BehaviourModifier::Big;
-
-		this->FutureEnemyModifiers.emplace_back(modifier);
-	}
 }

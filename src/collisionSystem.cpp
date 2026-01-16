@@ -11,10 +11,11 @@
 #include "modifierSystem.hpp"
 
 #include "enemyData.hpp"
+#include "projectileData.hpp"
 #include "constants.hpp"
 
 void CollisionSystem::ProjectileCollision(
-		const std::vector<Rectangle>& projectile_rect, const std::vector<ProjectileType>& projectile_type,
+		const std::vector<Rectangle>& projectile_rect, const std::vector<ProjectileType>& projectile_types,
 		const std::vector<Vector2>& projectile_direction, const std::vector<Rectangle>& enemy_rect,
 		MessageSystem& message_system, const ModifierSystem& modifier_system, const size_t ticks
 		) noexcept
@@ -25,7 +26,7 @@ void CollisionSystem::ProjectileCollision(
 	{
 		float damage = 0.0f;
 
-		switch (projectile_type[i])
+		switch (projectile_types[i])
 		{
 			case ProjectileType::Lazer:
 				damage = modifier_system.GetAttribute(Attribute::LazerDamage);
@@ -35,11 +36,11 @@ void CollisionSystem::ProjectileCollision(
 				break;
 		}
 
-		for (size_t j = 0, m = enemy_rect.size(); j < m; i++)
+		for (size_t j = 0, m = enemy_rect.size(); j < m; j++)
 		{
 			if (CheckCollisionRecs(projectile_rect[i], enemy_rect[j]))
 			{
-				message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, m, damage);
+				message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, j, damage);
 				message_system.ProjectileSystemCommands.emplace_back(std::in_place_type<struct ProjectileHit>, i);
 				
 				message_system.GameTextSystemCommands.emplace_back(
@@ -57,6 +58,10 @@ void CollisionSystem::ProjectileCollision(
 			}
 		}
 	}
+	/*
+	if (this->Effects.count(Effect::LifeSteal))
+		this->Player->IncreaseHealth( total_damage_done * this->Attributes.at(Attribute::LifeStealMultiplier) );
+		*/
 
 	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_damage_done);
 }
@@ -67,9 +72,6 @@ void CollisionSystem::LeAttack(
 		MessageSystem& message_system, const ModifierSystem& modifier_system, const size_t ticks
 		) noexcept
 {
-	if (modifier_system.EffectStatus(Effect::Greenbull))
-		return;
-
 	const bool has_milk = modifier_system.EffectStatus(Effect::Milk);
 	float total_damage = 0.0f;
 
@@ -174,7 +176,7 @@ void CollisionSystem::XpCollision(
 	{
 		if (CheckCollisionRecs(player_rect, xp_rect[i]) || has_magnetism)
 		{
-			collected_xp += xp_value[i];
+			*collected_xp += xp_value[i];
 			message_system.XpSystemCommands.emplace_back(std::in_place_type<struct KillXp>, i);
 		}
 	}

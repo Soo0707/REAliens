@@ -8,14 +8,25 @@
 
 AssetManager::AssetManager()
 {
-	AssetManager::LoadTextures();
-
+	this->TextureLoaded = { 0 };
 	this->Ground = LoadTexture("assets/map/ground.png");
+
+	AssetManager::LoadTextures();
 }
 
 AssetManager::~AssetManager()
 {
 	AssetManager::UnloadTextures();
+}
+
+const Texture2D AssetManager::GetTexture(const TextureKey texture_key) const noexcept
+{
+	const size_t index = static_cast<size_t>(texture_key);
+
+	if (!this->TextureLoaded[index])
+		exit(1);
+
+	return this->Textures[index];
 }
 
 void AssetManager::LoadTextures() noexcept
@@ -27,23 +38,25 @@ void AssetManager::LoadTextures() noexcept
 
 	for (auto const &item : std::filesystem::directory_iterator(path))
 	{
-		TextureKey current_texture = AssetManager::GetTextureKeyFromString(std::filesystem::relative(item, path).string());
+		const TextureKey current_texture = AssetManager::GetTextureKeyFromString(std::filesystem::relative(item, path).string());
+		const size_t index = static_cast<size_t>(current_texture);
 
 		if (current_texture != TextureKey::None)
 		{
-			this->Textures[current_texture] = LoadTexture(item.path().string().c_str());
+			this->Textures[index] = LoadTexture(item.path().string().c_str());
+			this->TextureLoaded[index] = true;
 		}
 	}
 }
 
 void AssetManager::UnloadTextures() noexcept
 {
-	for (auto const &pair : this->Textures)
+	for (size_t i = 0, n = static_cast<size_t>(TextureKey::COUNT); i < n; i++)
 	{
-		UnloadTexture(this->Textures[pair.first]);
+		if (this->TextureLoaded[i])
+			UnloadTexture(this->Textures[i]);
 	}
 }
-
 
 TextureKey AssetManager::GetTextureKeyFromString(std::string filename) const noexcept
 {
