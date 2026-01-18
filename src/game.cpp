@@ -218,7 +218,6 @@ void Game::UpdateTimerSystem(const size_t ticks) noexcept
 
 void Game::UpdateModifierSystem() noexcept
 {
-	//this->ModifierSystem->ExecuteCommands(*this->MessageSystem);
 	this->ModifierSystem->PollSignals(*this->MessageSystem);
 }
 

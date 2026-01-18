@@ -10,7 +10,7 @@
 class TimerSystem
 {
 	public:
-		TimerSystem();
+		TimerSystem() = default;
 		~TimerSystem() = default;
 
 		void ExecuteCommands(MessageSystem& message_system, const size_t ticks) noexcept;

@@ -2,24 +2,12 @@
 
 #include <limits>
 
+#include "signals.hpp"
 #include "commands.hpp"
 #include "constants.hpp"
 #include "modifiers.hpp"
 #include "messageSystem.hpp"
-/*
-void ModifierSystem::ExecuteCommands(MessageSystem& message_system) noexcept
-{
-	for (auto const& command : message_system.ModifierSystemCommands)
-	{
-		const size_t index = static_cast<size_t>(command.Type);
-		auto command_handler = this->CommandHandlers[index];
 
-		(this->*command_handler)();
-	}
-
-	message_system.ModifierSystemCommands.clear();
-}
-*/
 void ModifierSystem::PollSignals(MessageSystem& message_system) noexcept
 {
 	for (size_t i = 0; i < static_cast<size_t>(ModifierSystemSignal::COUNT); i++)

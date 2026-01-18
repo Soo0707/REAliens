@@ -121,9 +121,3 @@ struct DamagePlayer
 };
 
 using PlayerCommand = std::variant<struct DamagePlayer>;
-/*
-struct AuraTickSignal
-{};
-
-using CollisionSystemCommand = std::variant<struct AuraTickSignal>;
-*/

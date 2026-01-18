@@ -21,8 +21,6 @@ struct MessageSystem
 	std::vector<XpSystemCommand> XpSystemCommands;
 	std::vector<PlayerCommand> PlayerCommands;
 	std::vector<EnemySystemCommand> EnemySystemCommands;
-	//std::vector<ModifierSystemCommand> ModifierSystemCommands;
-	//std::vector<CollisionSystemCommand> CollisionSystemCommands;
 	std::vector<TimerSystemCommand> TimerSystemCommands;
 	std::vector<StatSystemCommand> StatSystemCommands;
 

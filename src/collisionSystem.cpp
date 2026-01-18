@@ -15,23 +15,6 @@
 #include "enemyData.hpp"
 #include "projectileData.hpp"
 #include "constants.hpp"
-/*
-void CollisionSystem::ExecuteCommands(
-		MessageSystem& message_system, const std::vector<Rectangle>& enemy_rect, const Vector2 player_centre,
-		const ModifierSystem& modifier_system, const size_t ticks
-		) noexcept
-{
-	for (auto const& command : message_system.CollisionSystemCommands)
-	{
-		const size_t handler_index = command.index();
-
-		auto handler = this->CommandHandlers[handler_index];
-		(this->*handler)(enemy_rect, player_centre, modifier_system, message_system, ticks);
-	}
-
-	message_system.CollisionSystemCommands.clear();
-}
-*/
 
 void CollisionSystem::PollSignals(
 		MessageSystem& message_system, const std::vector<Rectangle>& enemy_rect, const Vector2 player_centre,

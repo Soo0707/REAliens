@@ -7,11 +7,6 @@
 #include "commands.hpp"
 #include "messageSystem.hpp"
 
-TimerSystem::TimerSystem()
-{
-
-}
-
 void TimerSystem::ExecuteCommands(MessageSystem& message_system, const size_t ticks) noexcept
 {
 	for (auto const& command : message_system.TimerSystemCommands)

@@ -13,7 +13,6 @@ class ModifierSystem
 		ModifierSystem() = default;
 		~ModifierSystem() = default;
 
-		//void ExecuteCommands(MessageSystem& message_system) noexcept;
 		void PollSignals(MessageSystem& message_system) noexcept;
 
 		bool EffectStatus(const Effect effect) const noexcept;
