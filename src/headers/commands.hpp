@@ -72,39 +72,6 @@ struct KillXp
 using XpSystemCommand = std::variant<struct CreateXp, struct KillXp>;
 
 
-enum class ModifierSystemCommandType : uint8_t
-{
-	ApplyMilk,
-	ApplyGreenbull,
-	ApplyMagnetism,
-	ApplyAura,
-	ApplyBuckshot,
-	ApplyProjectile,
-	ApplyLazer,
-	ApplyLifeSteal,
-	ApplyBabyOil,
-	ApplyAussie,
-	ApplyPoison,
-	ApplyTrapped,
-	ApplyDrunk,
-
-	RemoveMilk,
-	RemoveGreenbull,
-	RemoveMagnetism,
-	RemoveAussie,
-	RemovePoison,
-	RemoveTrapped,
-	RemoveDrunk,
-
-	COUNT
-};
-
-struct ModifierSystemCommand
-{
-	ModifierSystemCommandType Type;
-};
-
-
 struct RegisterTimer
 {
 	uint32_t Interval;
@@ -132,6 +99,7 @@ struct StatSystemCommand
 	uint32_t Amount;
 };
 
+
 struct DamageEnemy
 {
 	size_t EnemyIndex;
@@ -153,3 +121,9 @@ struct DamagePlayer
 };
 
 using PlayerCommand = std::variant<struct DamagePlayer>;
+/*
+struct AuraTickSignal
+{};
+
+using CollisionSystemCommand = std::variant<struct AuraTickSignal>;
+*/

@@ -3,22 +3,61 @@
 #include <vector>
 #include <cstdint>
 #include <cstddef>
+#include <variant>
 
 #include "raylib.h"
 
 #include "commands.hpp"
+#include "signals.hpp"
 #include "messageSystem.hpp"
 #include "modifierSystem.hpp"
 
 #include "enemyData.hpp"
 #include "projectileData.hpp"
 #include "constants.hpp"
+/*
+void CollisionSystem::ExecuteCommands(
+		MessageSystem& message_system, const std::vector<Rectangle>& enemy_rect, const Vector2 player_centre,
+		const ModifierSystem& modifier_system, const size_t ticks
+		) noexcept
+{
+	for (auto const& command : message_system.CollisionSystemCommands)
+	{
+		const size_t handler_index = command.index();
+
+		auto handler = this->CommandHandlers[handler_index];
+		(this->*handler)(enemy_rect, player_centre, modifier_system, message_system, ticks);
+	}
+
+	message_system.CollisionSystemCommands.clear();
+}
+*/
+
+void CollisionSystem::PollSignals(
+		MessageSystem& message_system, const std::vector<Rectangle>& enemy_rect, const Vector2 player_centre,
+		const ModifierSystem& modifier_system, const size_t ticks
+		) const noexcept
+{
+	for (size_t i = 0; i < static_cast<size_t>(CollisionSystemSignal::COUNT); i++)
+	{
+		const uint16_t times = static_cast<uint16_t>(message_system.CollisionSystemSignals[i]);
+		
+		auto signal_handler = this->SignalHandlers[i];
+
+		if (times > 0)
+			(this->*signal_handler)(enemy_rect, player_centre, modifier_system, message_system, ticks);
+
+
+		message_system.CollisionSystemSignals[i] = 0;
+	}
+}
+
 
 void CollisionSystem::ProjectileCollision(
 		const std::vector<Rectangle>& projectile_rect, const std::vector<ProjectileType>& projectile_types,
 		const std::vector<Vector2>& projectile_direction, const std::vector<Rectangle>& enemy_rect,
 		MessageSystem& message_system, const ModifierSystem& modifier_system, const size_t ticks
-		) noexcept
+		) const noexcept
 {
 	unsigned int total_damage_done = 0;
 
@@ -70,7 +109,7 @@ void CollisionSystem::LeAttack(
 		const std::vector<Rectangle>& enemy_rect, const std::vector<EnemyAttackComponent>& enemy_attack_components,
 		const std::vector<EnemyType>& enemy_type, const Vector2 player_centre, const float player_radius,
 		MessageSystem& message_system, const ModifierSystem& modifier_system, const size_t ticks
-		) noexcept
+		) const noexcept
 {
 	const bool has_milk = modifier_system.EffectStatus(Effect::Milk);
 	float total_damage = 0.0f;
@@ -84,7 +123,7 @@ void CollisionSystem::LeAttack(
 			if (!has_milk)
 			{
 				auto le_attack_hook = CollisionSystem::LeAttackHooks[static_cast<size_t>(enemy_type[i])];
-				(this->*le_attack_hook)(message_system, ticks, 1.0f);
+				(this->*le_attack_hook)(message_system, ticks);
 			}
 
 			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct EnemyLeAttacked>, i, ticks);
@@ -98,7 +137,7 @@ void CollisionSystem::SlideAttack(
 		const std::vector<Rectangle>& enemy_rect, const Vector2 player_centre, const float player_radius,
 		const Vector2 player_direction,	const std::vector<float>& enemy_health, MessageSystem& message_system,
 		const size_t ticks
-		) noexcept
+		) const noexcept
 {
 	unsigned int total_damage_done = 0.0f;
 
@@ -128,18 +167,22 @@ void CollisionSystem::SlideAttack(
 }
 
 void CollisionSystem::Aura(
-		const std::vector<Rectangle>& enemy_rect, const Rectangle aura, const ModifierSystem& modifier_system,
-		MessageSystem& message_system, const float aura_damage, const size_t ticks
-		) noexcept
+		const std::vector<Rectangle>& enemy_rect, const Vector2 player_centre, const ModifierSystem& modifier_system,
+		MessageSystem& message_system, const size_t ticks
+		) const noexcept
 {
 	unsigned int total_hit = 0;
+
+	const float aura_size = modifier_system.GetAttribute(Attribute::AuraSize);
+	const float aura_damage = modifier_system.GetAttribute(Attribute::AuraDamage);
+
+	const Rectangle aura = { player_centre.x - aura_size / 2.0f, player_centre.y - aura_size / 2.0f, aura_size, aura_size };
 
 	for (size_t i = 0, n = enemy_rect.size(); i < n; i++)
 	{
 		if (CheckCollisionRecs(aura, enemy_rect[i]))
 		{
 			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, i, aura_damage);
-			//enemy.FlashSprite(ticks);
 
 			message_system.GameTextSystemCommands.emplace_back(
 					ticks, ticks + TICK_RATE / 4, enemy_rect[i].x, enemy_rect[i].y,
@@ -168,7 +211,7 @@ void CollisionSystem::XpCollision(
 		const Rectangle player_rect, const std::vector<Rectangle>& xp_rect,
 		const std::vector<uint8_t>& xp_value, size_t* collected_xp,
 		const ModifierSystem& modifier_system, MessageSystem& message_system
-		) noexcept
+		) const noexcept
 {
 	const bool has_magnetism = modifier_system.EffectStatus(Effect::Magnetism);
 
@@ -182,32 +225,32 @@ void CollisionSystem::XpCollision(
 	}
 }
 
-void CollisionSystem::ApplyAussie(MessageSystem& message_system, const size_t ticks, const unsigned int scale) noexcept
+void CollisionSystem::ApplyAussie(MessageSystem& message_system, const size_t ticks) const noexcept
 {
-	message_system.ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyAussie);
+	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyAussie)]++;
 
-	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(1) * scale, false, Timer::AussieExpire);
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(1), false, Timer::AussieExpire);
 }
 
-void CollisionSystem::ApplyPoison(MessageSystem& message_system, const size_t ticks, const unsigned int scale) noexcept
+void CollisionSystem::ApplyPoison(MessageSystem& message_system, const size_t ticks) const noexcept
 {
-	message_system.ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyPoison);
+	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyPoison)]++;
 
 	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(1), true, Timer::PoisonTick);
 	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5), false, Timer::PoisonExpire);
 }
 
-void CollisionSystem::ApplyTrapped(MessageSystem& message_system, const size_t ticks, const unsigned int scale) noexcept
+void CollisionSystem::ApplyTrapped(MessageSystem& message_system, const size_t ticks) const noexcept
 {
-	message_system.ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyTrapped);
+	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyTrapped)]++;
 }
 
-void CollisionSystem::ApplyDrunk(MessageSystem& message_system, const size_t ticks, const unsigned int scale) noexcept
+void CollisionSystem::ApplyDrunk(MessageSystem& message_system, const size_t ticks) const noexcept
 {
-	message_system.ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyDrunk);
-	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5) * scale, false, Timer::DrunkExpire);
+	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyDrunk)]++;
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5), false, Timer::DrunkExpire);
 }
 
-void CollisionSystem::ApplyNone(MessageSystem& message_system, const size_t ticks, const unsigned int scale) noexcept
+void CollisionSystem::ApplyNone(MessageSystem& message_system, const size_t ticks) const noexcept
 {}
 

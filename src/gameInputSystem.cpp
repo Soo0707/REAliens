@@ -6,6 +6,7 @@
 #include "raymath.h"
 #include "settingsManager.hpp"
 
+#include "signals.hpp"
 #include "commands.hpp"
 #include "messageSystem.hpp"
 #include "modifierSystem.hpp"
@@ -16,7 +17,7 @@ void GameInputSystem::HandleTickedInput(
 		) noexcept
 {
 	if (IsKeyDown(KEY_SPACE))
-		message_system.ModifierSystemCommands.emplace_back(ModifierSystemCommandType::RemoveTrapped);
+		message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveTrapped)]++;
 
 	if (modifier_system.EffectStatus(Effect::Trapped))
 		game.Player->Direction = { 0, 0 };

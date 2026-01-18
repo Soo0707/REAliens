@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <array>
+#include <cstdint>
 #include <variant>
 
 #include "commands.hpp"
@@ -20,11 +21,13 @@ struct MessageSystem
 	std::vector<XpSystemCommand> XpSystemCommands;
 	std::vector<PlayerCommand> PlayerCommands;
 	std::vector<EnemySystemCommand> EnemySystemCommands;
-	std::vector<ModifierSystemCommand> ModifierSystemCommands;
+	//std::vector<ModifierSystemCommand> ModifierSystemCommands;
+	//std::vector<CollisionSystemCommand> CollisionSystemCommands;
 	std::vector<TimerSystemCommand> TimerSystemCommands;
 	std::vector<StatSystemCommand> StatSystemCommands;
 
-	std::array<bool, static_cast<size_t>(EnemySystemSignal::COUNT)> EnemySystemSignals;
-	std::array<unsigned int, static_cast<size_t>(PlayerSignal::COUNT)> PlayerSignals;
-	std::array<bool, static_cast<size_t>(ModifierSystemSignal::COUNT)> ModifierSystemSignals;
+	std::array<uint16_t, static_cast<size_t>(EnemySystemSignal::COUNT)> EnemySystemSignals;
+	std::array<uint16_t, static_cast<size_t>(PlayerSignal::COUNT)> PlayerSignals;
+	std::array<uint16_t, static_cast<size_t>(ModifierSystemSignal::COUNT)> ModifierSystemSignals;
+	std::array<uint16_t, static_cast<size_t>(CollisionSystemSignal::COUNT)> CollisionSystemSignals;
 };

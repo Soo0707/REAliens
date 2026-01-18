@@ -135,8 +135,7 @@ void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
 
 void PowerupMenu::ApplyMilk() noexcept
 {
-	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyMilk);
-	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::RemovePoison);
+	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyMilk)]++;
 
 	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<RegisterTimer>, SECONDS_TO_TICKS(180), false, Timer::MilkExpire);
 
@@ -146,19 +145,19 @@ void PowerupMenu::ApplyMilk() noexcept
 
 void PowerupMenu::ApplyGreenbull() noexcept
 {
-	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyGreenbull);
+	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyGreenbull)]++;
 	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<RegisterTimer>, SECONDS_TO_TICKS(120), false, Timer::GreenbullExpire);
 }
 
 void PowerupMenu::ApplyMagnetism() noexcept
 {
-	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyMagnetism);
+	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyMagnetism)]++;
 	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<RegisterTimer>, SECONDS_TO_TICKS(240), false, Timer::MagnetismExpire);
 }
 
 void PowerupMenu::ApplyAura() noexcept
 {
-	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyAura);
+	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyAura)]++;
 
 	if (!this->TimerSystem->GetTimerStatus(Timer::AuraTick))
 		this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<RegisterTimer>, SECONDS_TO_TICKS(2), true, Timer::AuraTick);
@@ -175,22 +174,22 @@ void PowerupMenu::ApplyAura() noexcept
 
 void PowerupMenu::ApplyBuckshot() noexcept
 {
-	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyBuckshot);
+	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyBuckshot)]++;
 }
 
 void PowerupMenu::ApplyProjectile() noexcept
 {
-	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyProjectile);
+	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyProjectile)]++;
 }
 
 void PowerupMenu::ApplyLazer() noexcept
 {
-	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyLazer);
+	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyLazer)]++;
 }
 
 void PowerupMenu::ApplyLifeSteal() noexcept
 {
-	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyLifeSteal);
+	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyLifeSteal)]++;
 }
 
 void PowerupMenu::ApplyPlotArmour() noexcept
@@ -205,5 +204,5 @@ void PowerupMenu::ApplySpeedBoots() noexcept
 
 void PowerupMenu::ApplyBabyOil() noexcept
 {
-	this->MessageSystem->ModifierSystemCommands.emplace_back(ModifierSystemCommandType::ApplyBabyOil);
+	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyBabyOil)]++;
 }

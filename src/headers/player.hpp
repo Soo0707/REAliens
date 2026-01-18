@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include <array>
 
 #include "raylib.h"
@@ -8,7 +9,7 @@
 #include "constants.hpp"
 #include "messageSystem.hpp"
 
-enum class Bearing : size_t
+enum class Bearing : uint16_t
 {
 	North = 0 * PLAYER_TEXTURE_TILE_SIZE,
 	South = 1 * PLAYER_TEXTURE_TILE_SIZE,
@@ -53,15 +54,13 @@ class Player
 
 		Bearing Bearing = Bearing::South;
 
-		void IncreasePlotArmour(const unsigned int times) noexcept;
-		void ApplySpeedBoots(const unsigned int times) noexcept;
-		void PoisonTick(const unsigned int times) noexcept;
+		void IncreasePlotArmour(const uint16_t times) noexcept;
+		void ApplySpeedBoots(const uint16_t times) noexcept;
 
-		std::array<void(Player::*)(const unsigned int) noexcept, static_cast<size_t>(PlayerSignal::COUNT)> SignalHandlers = 
+		static constexpr std::array<void(Player::*)(const uint16_t) noexcept, static_cast<size_t>(PlayerSignal::COUNT)> SignalHandlers = 
 		{
 			&IncreasePlotArmour,
-			&ApplySpeedBoots,
-			&PoisonTick
+			&ApplySpeedBoots
 		};
 
 		size_t LastAnimationUpdate = 0;

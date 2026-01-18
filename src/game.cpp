@@ -79,7 +79,7 @@ void Game::Reset() noexcept
 	this->CollectedXp = 0;
 	this->LevelUpThreshold = 5;
 
-	this->CanPerform = { true, true, true };
+	this->CanPerform = { 1 };
 	this->LastPerformed = { 0 };
 
 	this->Ticks = 0;
@@ -218,7 +218,8 @@ void Game::UpdateTimerSystem(const size_t ticks) noexcept
 
 void Game::UpdateModifierSystem() noexcept
 {
-	this->ModifierSystem->ExecuteCommands(*this->MessageSystem);
+	//this->ModifierSystem->ExecuteCommands(*this->MessageSystem);
+	this->ModifierSystem->PollSignals(*this->MessageSystem);
 }
 
 void Game::UpdateParticleSystem(const size_t ticks, const Rectangle update_area) noexcept
@@ -273,6 +274,10 @@ void Game::UpdateCollisionSystem(const size_t ticks) noexcept
 	const bool has_greenbull = this->ModifierSystem->EffectStatus(Effect::Greenbull);
 	const bool is_sliding = this->Player->Sliding;
 
+	this->CollisionSystem->PollSignals(
+			*this->MessageSystem, this->EnemySystem->GetEnemyRect(), player_centre,
+			*this->ModifierSystem, ticks
+			);
 
 	this->CollisionSystem->ProjectileCollision(
 			this->ProjectileSystem->GetProjectileRect(), this->ProjectileSystem->GetProjectileType(),
@@ -296,12 +301,7 @@ void Game::UpdateCollisionSystem(const size_t ticks) noexcept
 				*this->MessageSystem, *this->ModifierSystem, ticks
 				);
 	}
-	/*
-	void Aura(
-			const std::vector<Rectangle>& enemy_rect, const Rectangle aura, const ModifierSystem& modifier_system,
-			MessageSystem& message_system, const float aura_damage, const size_t ticks
-			) noexcept;
-			*/
+
 	this->CollisionSystem->XpCollision(
 			player_rect, this->XpSystem->GetXpRect(),
 			this->XpSystem->GetXpValue(), &this->CollectedXp,

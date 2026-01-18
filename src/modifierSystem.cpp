@@ -6,7 +6,7 @@
 #include "constants.hpp"
 #include "modifiers.hpp"
 #include "messageSystem.hpp"
-
+/*
 void ModifierSystem::ExecuteCommands(MessageSystem& message_system) noexcept
 {
 	for (auto const& command : message_system.ModifierSystemCommands)
@@ -19,17 +19,19 @@ void ModifierSystem::ExecuteCommands(MessageSystem& message_system) noexcept
 
 	message_system.ModifierSystemCommands.clear();
 }
-
+*/
 void ModifierSystem::PollSignals(MessageSystem& message_system) noexcept
 {
-	for (size_t i = 0, n = static_cast<size_t>(ModifierSystemSignal::COUNT); i < n; i++)
+	for (size_t i = 0; i < static_cast<size_t>(ModifierSystemSignal::COUNT); i++)
 	{
-		if (message_system.ModifierSystemSignals[i])
-		{
-			auto signal_handler = this->SignalHandlers[i];
+		const uint16_t times = static_cast<uint16_t>(message_system.ModifierSystemSignals[i]);
+		
+		auto signal_handler = this->SignalHandlers[i];
+
+		for (uint16_t i = times; i > 0; i--)
 			(this->*signal_handler)();
-			message_system.ModifierSystemSignals[i] = false;
-		}
+
+		message_system.ModifierSystemSignals[i] = 0;
 	}
 }
 
@@ -112,7 +114,7 @@ void ModifierSystem::DecreaseAttribute(const Attribute attribute, const float am
 		this->Attributes[index] = new_value;
 }
 
-// Handlers
+
 void ModifierSystem::ApplyMilk() noexcept
 {
 	this->ApplyEffect(Effect::Milk);
@@ -191,15 +193,11 @@ void ModifierSystem::ApplyBabyOil() noexcept
 void ModifierSystem::ApplyAussie() noexcept
 {
 	this->ApplyEffect(Effect::Aussie);
-	//events[Event::AussieExpire] = ticks + SECONDS_TO_TICKS(1) * scale;
 }
 
 void ModifierSystem::ApplyPoison() noexcept
 {
 	this->ApplyEffect(Effect::Poison);
-
-	//events[Event::PoisonTick] = ticks + SECONDS_TO_TICKS(1);
-	//events[Event::PoisonExpire] = ticks + SECONDS_TO_TICKS(5) * scale;
 }
 
 void ModifierSystem::ApplyTrapped() noexcept
@@ -210,41 +208,32 @@ void ModifierSystem::ApplyTrapped() noexcept
 void ModifierSystem::ApplyDrunk() noexcept
 {
 	this->ApplyEffect(Effect::Drunk);
-	//events[Event::DrunkExpire] = ticks + SECONDS_TO_TICKS(5) * scale;
 }
 
 
 void ModifierSystem::RemoveMilk() noexcept
 {
 	this->RemoveEffect(Effect::Milk);
-	// remove timer
 }
 
 void ModifierSystem::RemoveGreenbull() noexcept
 {
 	this->RemoveEffect(Effect::Greenbull);
-
-	//PowerupMenu::ApplyEffect(Effect::Greenbull, Event::GreenbullExpire, SECONDS_TO_TICKS(120));
 }
 
 void ModifierSystem::RemoveMagnetism() noexcept
 {
 	this->RemoveEffect(Effect::Magnetism);
-	//PowerupMenu::ApplyEffect(Effect::Magnetism, Event::MagnetismExpire, SECONDS_TO_TICKS(240));
 }
 
 void ModifierSystem::RemoveAussie() noexcept
 {
 	this->RemoveEffect(Effect::Aussie);
-	//events[Event::AussieExpire] = ticks + SECONDS_TO_TICKS(1) * scale;
 }
 
 void ModifierSystem::RemovePoison() noexcept
 {
 	this->RemoveEffect(Effect::Poison);
-
-	//events[Event::PoisonTick] = ticks + SECONDS_TO_TICKS(1);
-	//events[Event::PoisonExpire] = ticks + SECONDS_TO_TICKS(5) * scale;
 }
 
 void ModifierSystem::RemoveTrapped() noexcept
@@ -255,7 +244,6 @@ void ModifierSystem::RemoveTrapped() noexcept
 void ModifierSystem::RemoveDrunk() noexcept
 {
 	this->RemoveEffect(Effect::Drunk);
-	//events[Event::DrunkExpire] = ticks + SECONDS_TO_TICKS(5) * scale;
 }
 
 
@@ -266,14 +254,11 @@ void ModifierSystem::InsertLevelDebuff() noexcept
 	const Effect random_effect = this->DebuffList[index];
 
 	this->ApplyEffect(random_effect);
-	//global_data.CachedStrings[CachedString::LevelDebuff] = std::string(this->DebuffNames[index]);
 }
 
 void ModifierSystem::RemoveLevelDebuff() noexcept
 {
 	for (auto const effect : this->DebuffList)
 		this->RemoveEffect(effect);
-
-	//global_data.CachedStrings[CachedString::LevelDebuff] = "";
 }
 

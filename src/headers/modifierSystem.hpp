@@ -13,7 +13,7 @@ class ModifierSystem
 		ModifierSystem() = default;
 		~ModifierSystem() = default;
 
-		void ExecuteCommands(MessageSystem& message_system) noexcept;
+		//void ExecuteCommands(MessageSystem& message_system) noexcept;
 		void PollSignals(MessageSystem& message_system) noexcept;
 
 		bool EffectStatus(const Effect effect) const noexcept;
@@ -52,7 +52,12 @@ class ModifierSystem
 		void RemoveTrapped() noexcept;
 		void RemoveDrunk() noexcept;
 
-		static constexpr std::array<void(ModifierSystem::*)() noexcept, static_cast<size_t>(ModifierSystemCommandType::COUNT)> CommandHandlers = 
+		void InsertLevelDebuff() noexcept;
+		void RemoveLevelDebuff() noexcept;
+
+		std::array<float, static_cast<size_t>(Attribute::COUNT)> Attributes;
+
+		static constexpr std::array<void(ModifierSystem::*)() noexcept, static_cast<size_t>(ModifierSystemSignal::COUNT)> SignalHandlers =
 		{
 			&ApplyMilk,
 			&ApplyGreenbull,
@@ -74,17 +79,8 @@ class ModifierSystem
 			&RemoveAussie,
 			&RemovePoison,
 			&RemoveTrapped,
-			&RemoveDrunk
-		};
+			&RemoveDrunk,
 
-		std::array<float, static_cast<size_t>(Attribute::COUNT)> Attributes;
-		Effect Effects;
-
-		void InsertLevelDebuff() noexcept;
-		void RemoveLevelDebuff() noexcept;
-
-		std::array<void(ModifierSystem::*)() noexcept, static_cast<size_t>(ModifierSystemSignal::COUNT)> SignalHandlers =
-		{
 			&InsertLevelDebuff,
 			&RemoveLevelDebuff
 		};
@@ -95,4 +91,6 @@ class ModifierSystem
 			Effect::Stinky,
 			Effect::Invisible
 		};
+		
+		Effect Effects;
 };

@@ -8,7 +8,8 @@ MessageSystem::MessageSystem()
 	this->XpSystemCommands.reserve(128);
 	this->PlayerCommands.reserve(128);
 	this->EnemySystemCommands.reserve(128);
-	this->ModifierSystemCommands.reserve(128);
+	//this->ModifierSystemCommands.reserve(128);
+	//this->CollisionSystemCommands.reserve(128);
 	this->TimerSystemCommands.reserve(16);
 	this->StatSystemCommands.reserve(16);
 }
@@ -21,11 +22,13 @@ void MessageSystem::Reset() noexcept
 	this->XpSystemCommands.clear();
 	this->PlayerCommands.clear();
 	this->EnemySystemCommands.clear();
-	this->ModifierSystemCommands.clear();
+	//this->ModifierSystemCommands.clear();
+	//this->CollisionSystemCommands.clear();
 	this->TimerSystemCommands.clear();
 	this->StatSystemCommands.clear();
 
 	this->EnemySystemSignals = { 0 };
 	this->PlayerSignals = { 0 };
 	this->ModifierSystemSignals = { 0 };
+	this->CollisionSystemSignals = { 0 };
 }

@@ -47,17 +47,17 @@ enum class Effect : uint32_t
 
 constexpr Effect operator&(const Effect l, const Effect r) noexcept
 { 
-	return static_cast<Effect>(static_cast<uint8_t>(l) & static_cast<uint8_t>(r));
+	return static_cast<Effect>(static_cast<uint32_t>(l) & static_cast<uint32_t>(r));
 }
 
 constexpr Effect operator|(const Effect l, const Effect r) noexcept
 {
-	return static_cast<Effect>(static_cast<uint8_t>(l) | static_cast<uint8_t>(r));
+	return static_cast<Effect>(static_cast<uint32_t>(l) | static_cast<uint32_t>(r));
 }
 
 constexpr Effect operator~(const Effect target) noexcept
 {
-	return static_cast<Effect>(~static_cast<uint8_t>(target));
+	return static_cast<Effect>(~static_cast<uint32_t>(target));
 }
 
 constexpr Effect& operator&=(Effect& l, const Effect r) noexcept

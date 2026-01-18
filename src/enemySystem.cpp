@@ -54,7 +54,7 @@ void EnemySystem::PollSignals(MessageSystem& message_system, const AssetManager&
 			auto handler_function = this->SignalHandlers[i];
 			(this->*handler_function)(ticks, level, message_system);
 
-			message_system.EnemySystemSignals[i] = false;
+			message_system.EnemySystemSignals[i] = 0;
 		}
 	}
 }
@@ -85,13 +85,14 @@ void EnemySystem::UpdateEnemies(
 				std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(3),
 				false, Timer::SpawnEnemies
 				);
+
 		this->PrepareSpawnEnemies(level, map_width, map_height);
 	}
 
 	this->VisibilityCheck(update_area);
 
-	this->MoveEnemies(map_width, map_height);
 	this->EnemiesSetDirection(player_centre, is_stinky);
+	this->MoveEnemies(map_width, map_height);
 	this->AnimateEnemies(ticks);
 	this->EnemiesUpdateTimers(ticks);
 

@@ -22,7 +22,7 @@ void Player::PollSignals(MessageSystem& message_system) noexcept
 {
 	for (size_t i = 0; i < static_cast<size_t>(PlayerSignal::COUNT); i++)
 	{
-		const unsigned int times = static_cast<unsigned int>(message_system.PlayerSignals[i]);
+		const uint16_t times = static_cast<uint16_t>(message_system.PlayerSignals[i]);
 		
 		if (times > 0)
 		{
@@ -145,18 +145,13 @@ void Player::Reset() noexcept
 	this->SlideExpire = 0;
 }
 
-void Player::IncreasePlotArmour(const unsigned int times) noexcept
+void Player::IncreasePlotArmour(const uint16_t times) noexcept
 {
 	this->HealthMax *= pow(2.0, static_cast<float>(times));
 	this->Health = this->HealthMax;
 }
 
-void Player::ApplySpeedBoots(const unsigned int times) noexcept
+void Player::ApplySpeedBoots(const uint16_t times) noexcept
 {
 	this->Speed *= pow(1.2, static_cast<float>(times));
-}
-
-void Player::PoisonTick(const unsigned int times) noexcept
-{
-	this->Health -= 2.0f;
 }
