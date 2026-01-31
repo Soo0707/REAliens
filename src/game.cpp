@@ -138,7 +138,7 @@ void Game::Update() noexcept
 	const size_t ticks = this->Ticks;
 
 	if (!(ticks % TICK_RATE))
-		this->GlobalData->CachedStrings[CachedString::Duration] = "Duration: " + std::to_string(TICKS_TO_SECONDS(ticks)) + "s";
+		this->GlobalData->CacheString("Duration: " + std::to_string(TICKS_TO_SECONDS(ticks)) + "s", CachedString::Duration);
 
 	if (IsKeyPressed(KEY_ESCAPE))
 		this->GlobalData->ActiveState = State::PauseMenu;
@@ -197,7 +197,7 @@ void Game::UpdatePlayer(const size_t ticks) noexcept
 
 	if (this->Player->Health <= 0 && !this->Settings->Data.at(SettingKey::DisableHealthCheck))
 	{
-		this->GlobalData->CachedStrings[CachedString::GameOverReason] = "Reason: Player Died";
+		this->GlobalData->CacheString("Reason: Player Died", CachedString::GameOverReason);
 		this->GlobalData->ActiveState = State::GenerateGameOverStats;
 	}
 
@@ -355,11 +355,15 @@ void Game::LevelUp() noexcept
 	if (!this->Settings->Data.at(SettingKey::UnlimitedPowerups))
 	{
 		this->GlobalData->UnclaimedPowerups++;
-		this->GlobalData->CachedStrings[CachedString::UnclaimedPowerups] = "Unclaimed Powerups: " + std::to_string(this->GlobalData->UnclaimedPowerups);
+
+		this->GlobalData->CacheString(
+				"Unclaimed Poweurps: " + std::to_string(this->GlobalData->UnclaimedPowerups),
+				CachedString::UnclaimedPowerups
+				);
 	}
 
 	this->Level++;
-	this->GlobalData->CachedStrings[CachedString::LevelText] = "Level: " + std::to_string(this->Level);
+	this->GlobalData->CacheString("Level: " + std::to_string(this->Level), CachedString::LevelText);
 
 	this->CollectedXp = 0;
 	this->LevelUpThreshold += 5;
@@ -368,8 +372,8 @@ void Game::LevelUp() noexcept
 		this->GlobalData->ActiveState = State::PowerupMenu;
 
 	if (this->Level % 5 == 0 && !this->Settings->Data.at(SettingKey::DisableLevelDebuffs))
-		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::InsertLevelDebuff)] = true;
+		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::InsertLevelDebuff)]++;
 	else
-		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveLevelDebuff)] = true;
+		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveLevelDebuff)]++;
 }
 

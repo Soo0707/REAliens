@@ -58,7 +58,7 @@ void PowerupMenu::Draw(RenderTexture2D& canvas) const noexcept
 
 		DrawText("[TAB] Toggle Powerup Menu, [Enter] LET'S GO GAMBLING!!!", 326, 580, 21, LIGHTGRAY);
 
-		DrawText(this->GlobalData->CachedStrings.at(CachedString::UnclaimedPowerups).c_str(), 50, 670, 21, LIGHTGRAY);
+		DrawText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::UnclaimedPowerups)].c_str(), 50, 670, 21, LIGHTGRAY);
 	EndTextureMode();
 }
 
@@ -123,7 +123,7 @@ void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
 	if (!this->Settings->Data.at(SettingKey::UnlimitedPowerups))
 	{
 		this->GlobalData->UnclaimedPowerups--;
-		this->GlobalData->CachedStrings[CachedString::UnclaimedPowerups] = "Unclaimed Powerups: " + std::to_string(this->GlobalData->UnclaimedPowerups);
+		this->GlobalData->CacheString("Unclaimed Powerups: " + std::to_string(this->GlobalData->UnclaimedPowerups), CachedString::UnclaimedPowerups);
 	}
 
 	if (this->GlobalData->UnclaimedPowerups == 0 && !this->Settings->Data.at(SettingKey::UnlimitedPowerups))

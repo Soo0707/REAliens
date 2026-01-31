@@ -41,6 +41,12 @@ void ModifierSystem::Reset() noexcept
 
 	this->SetAttribute(Attribute::SlideSpeedMultiplier, 2.0f);
 
+	this->SetAttribute(Attribute::LuckBottomLimit, 0.0f);
+	this->SetAttribute(Attribute::LuckUpperLimit, 99.0f);
+	//TODO: either set this to be random or find some other value
+	// also incorparate it somehow
+	this->SetAttribute(Attribute::LuckBoundary, 49.0f);
+
 	this->Effects = static_cast<Effect>(0);
 }
 

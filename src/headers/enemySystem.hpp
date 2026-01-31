@@ -41,9 +41,9 @@ class EnemySystem
 		static constexpr std::array<EnemyData, static_cast<size_t>(EnemyType::COUNT)> EnemyAttributes = 
 		{
 			(EnemyData) { TextureKey::Australian, 5, 87.5, 75, 30, 2 },
-			(EnemyData) { TextureKey::Drunkard, 5, 125, 50, 15,	4 },
+			(EnemyData) { TextureKey::Drunkard, 5, 125, 50, 15,	2 },
 			(EnemyData) { TextureKey::Pleb, 5, 75,	75,	30,	2 },
-			(EnemyData) { TextureKey::Poison, 5, 62.5, 100, 30, 3 },
+			(EnemyData) { TextureKey::Poison, 5, 62.5, 100, 30, 2 },
 			(EnemyData) { TextureKey::Trapper, 10, 0, 100, 30, 3 }
 		};
 

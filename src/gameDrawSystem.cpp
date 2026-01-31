@@ -117,10 +117,10 @@ void GameDrawSystem::DrawOverlay(
 	if (modifier_system.EffectStatus(Effect::Trapped))
 		DrawText("[Space] to untrap.", 533, 620, 24, WHITE);
 
-	DrawText(global_data.CachedStrings.at(CachedString::Duration).c_str(), 20, 20, 24, LIGHTGRAY);
-	DrawText(global_data.CachedStrings.at(CachedString::LevelText).c_str(), 20, 50, 24, LIGHTGRAY);
+	DrawText(global_data.StringCache[static_cast<size_t>(CachedString::Duration)].c_str(), 20, 20, 24, LIGHTGRAY);
+	DrawText(global_data.StringCache[static_cast<size_t>(CachedString::LevelText)].c_str(), 20, 50, 24, LIGHTGRAY);
 
-	DrawText(global_data.CachedStrings.at(CachedString::LevelDebuff).c_str(), 20, 110, 24, GOLD);
+	DrawText(global_data.StringCache[static_cast<size_t>(CachedString::LevelDebuff)].c_str(), 20, 110, 24, GOLD);
 
 	if (global_data.UnclaimedPowerups)
 		DrawText("[TAB]", 40, 680, 15, GOLD);

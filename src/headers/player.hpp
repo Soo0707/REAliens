@@ -33,41 +33,53 @@ class Player
 		void Draw() const noexcept;
 		void DrawLightmap() const noexcept;
 
-		void IncreaseHealth(const float addition) noexcept;
 		void Reset() noexcept;
 		
-		float Health = 100;
-		float HealthMax = 100;
+		float Health;
+		float HealthMax;
 
-		Vector2 Direction = { 0.0f, 0.0f };
+		Vector2 Direction;
 		Rectangle Rect;
 
 		Vector2 Centre;
-		const float Radius = 10;
+		float Radius;
 
-		float Speed = 300;
-		bool Sliding = false;
-		size_t SlideExpire = 0;
+		float Speed;
+		bool Sliding;
 
 	private:
 		Texture2D Image;
 
-		Bearing Bearing = Bearing::South;
+		Bearing Bearing;
+
+		void IncreaseHealth(const PlayerCommand& command) noexcept;
+		void TakeDamage(const PlayerCommand& command) noexcept;
+		void SetDirection(const PlayerCommand& command) noexcept;
+
+		static constexpr std::array<void(Player::*)(const PlayerCommand&) noexcept, 4> CommandHandlers = 
+		{
+			&TakeDamage,
+			&IncreaseHealth,
+			&SetDirection
+		};
 
 		void IncreasePlotArmour(const uint16_t times) noexcept;
 		void ApplySpeedBoots(const uint16_t times) noexcept;
+		void ApplySlide(const uint16_t times) noexcept;
+		void RemoveSlide(const uint16_t times) noexcept;
 
 		static constexpr std::array<void(Player::*)(const uint16_t) noexcept, static_cast<size_t>(PlayerSignal::COUNT)> SignalHandlers = 
 		{
 			&IncreasePlotArmour,
-			&ApplySpeedBoots
+			&ApplySpeedBoots,
+			&ApplySlide,
+			&RemoveSlide
 		};
 
-		size_t LastAnimationUpdate = 0;
-		unsigned int AnimationFrames = 2;
-		unsigned int ImageIndex = 0;
-		unsigned int AnimationInterval = 20;
+		size_t LastAnimationUpdate;
+		uint8_t ImageIndex;
+		static constexpr uint8_t AnimationFrames = 2;
+		static constexpr uint8_t AnimationInterval = 20;
 
 		void SetBearing() noexcept;
-		void TakeDamage(const PlayerCommand& command) noexcept;
 };

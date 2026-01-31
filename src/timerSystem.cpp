@@ -95,54 +95,59 @@ void TimerSystem::UpdateTimerInterval(const TimerSystemCommand& command, const s
 }
 
 
-void TimerSystem::GreenbullExpireHandler(MessageSystem& message_system) noexcept
+void TimerSystem::GreenbullExpireHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveGreenbull)]++;
 }
 
-void TimerSystem::MilkExpireHandler(MessageSystem& message_system) noexcept
+void TimerSystem::MilkExpireHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveMilk)]++;
 }
 
-void TimerSystem::PoisonTickHandler(MessageSystem& message_system) noexcept
+void TimerSystem::PoisonTickHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.PlayerCommands.emplace_back(std::in_place_type<struct DamagePlayer>, 2.0f);
 }
 
-void TimerSystem::PoisonExpireHandler(MessageSystem& message_system) noexcept
+void TimerSystem::PoisonExpireHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemovePoison)]++;
 	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct DeregisterTimer>, Timer::PoisonTick);
 }
 
-void TimerSystem::DrunkExpireHandler(MessageSystem& message_system) noexcept
+void TimerSystem::DrunkExpireHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveDrunk)]++;
 }
 
-void TimerSystem::AussieExpireHandler(MessageSystem& message_system) noexcept
+void TimerSystem::AussieExpireHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveAussie)]++;
 }
 
-void TimerSystem::MagnetismExpireHandler(MessageSystem& message_system) noexcept
+void TimerSystem::MagnetismExpireHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveMagnetism)]++;
 }
 
-void TimerSystem::AuraTickHandler(MessageSystem& message_system) noexcept
+void TimerSystem::AuraTickHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.CollisionSystemSignals[static_cast<size_t>(CollisionSystemSignal::AuraTick)]++;
 }
 
-void TimerSystem::EmitLocationParticlesHandler(MessageSystem& message_system) noexcept
+void TimerSystem::EmitLocationParticlesHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.EnemySystemSignals[static_cast<size_t>(EnemySystemSignal::EmitLocationParticles)]++;
 }
 
-void TimerSystem::SpawnEnemiesHandler(MessageSystem& message_system) noexcept
+void TimerSystem::SpawnEnemiesHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct DeregisterTimer>, Timer::EmitLocationParticles);
 	message_system.EnemySystemSignals[static_cast<size_t>(EnemySystemSignal::SpawnEnemies)]++;
+}
+
+void TimerSystem::PlayerSlideExpireHandler(MessageSystem& message_system) const noexcept
+{
+	message_system.PlayerSignals[static_cast<size_t>(PlayerSignal::RemoveSlide)]++;
 }

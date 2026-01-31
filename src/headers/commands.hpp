@@ -120,4 +120,18 @@ struct DamagePlayer
 	float DamageAmount;
 };
 
-using PlayerCommand = std::variant<struct DamagePlayer>;
+struct IncreasePlayerHealth
+{
+	float Amount;
+};
+
+struct SetPlayerDirection
+{
+	Vector2 Direction;
+};
+
+struct ApplySlide
+{
+	size_t Ticks;
+};
+using PlayerCommand = std::variant<struct DamagePlayer, struct IncreasePlayerHealth, struct SetPlayerDirection>;

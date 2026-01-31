@@ -28,17 +28,19 @@ class TimerSystem
 		std::array<bool, static_cast<size_t>(Timer::COUNT)> TimerRecurring;
 		std::array<bool, static_cast<size_t>(Timer::COUNT)> TimerActive;
 
-		void GreenbullExpireHandler(MessageSystem& message_system) noexcept;
-		void MilkExpireHandler(MessageSystem& message_system) noexcept;
-		void PoisonTickHandler(MessageSystem& message_system) noexcept;
-		void PoisonExpireHandler(MessageSystem& message_system) noexcept;
-		void DrunkExpireHandler(MessageSystem& message_system) noexcept;
-		void AussieExpireHandler(MessageSystem& message_system) noexcept;
-		void MagnetismExpireHandler(MessageSystem& message_system) noexcept;
-		void AuraTickHandler(MessageSystem& message_system) noexcept;
+		void GreenbullExpireHandler(MessageSystem& message_system) const noexcept;
+		void MilkExpireHandler(MessageSystem& message_system) const noexcept;
+		void PoisonTickHandler(MessageSystem& message_system) const noexcept;
+		void PoisonExpireHandler(MessageSystem& message_system) const noexcept;
+		void DrunkExpireHandler(MessageSystem& message_system) const noexcept;
+		void AussieExpireHandler(MessageSystem& message_system) const noexcept;
+		void MagnetismExpireHandler(MessageSystem& message_system) const noexcept;
+		void AuraTickHandler(MessageSystem& message_system) const noexcept;
 
-		void EmitLocationParticlesHandler(MessageSystem& message_system) noexcept;
-		void SpawnEnemiesHandler(MessageSystem& message_system)  noexcept;
+		void EmitLocationParticlesHandler(MessageSystem& message_system) const noexcept;
+		void SpawnEnemiesHandler(MessageSystem& message_system) const noexcept;
+
+		void PlayerSlideExpireHandler(MessageSystem& message_system) const noexcept;
 
 		void RegisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
 		void DeregisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
@@ -51,7 +53,7 @@ class TimerSystem
 			&UpdateTimerInterval
 		};
 
-		static constexpr std::array<void(TimerSystem::*)(MessageSystem& message_system) noexcept, static_cast<size_t>(Timer::COUNT)> TimeoutHandlers =
+		static constexpr std::array<void(TimerSystem::*)(MessageSystem& message_system) const noexcept, static_cast<size_t>(Timer::COUNT)> TimeoutHandlers =
 		{
 			&GreenbullExpireHandler,
 			&MilkExpireHandler,
@@ -62,6 +64,7 @@ class TimerSystem
 			&MagnetismExpireHandler,
 			&AuraTickHandler,
 			&EmitLocationParticlesHandler,
-			&SpawnEnemiesHandler
+			&SpawnEnemiesHandler,
+			&PlayerSlideExpireHandler
 		};
 };

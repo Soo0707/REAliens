@@ -22,6 +22,10 @@ enum class Attribute : uint32_t
 	LifeStealMultiplier,
 	SlideSpeedMultiplier,
 
+	LuckBottomLimit,
+	LuckBoundary,
+	LuckUpperLimit,
+
 	COUNT
 };
 
@@ -42,7 +46,9 @@ enum class Effect : uint32_t
 
 	Microscope = 1 << 9,
 	Earthquake = 1 << 10,
-	Invisible = 1 << 11
+	Invisible = 1 << 11,
+
+	Weakness = 1 << 12
 };
 
 constexpr Effect operator&(const Effect l, const Effect r) noexcept

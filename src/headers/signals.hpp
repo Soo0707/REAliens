@@ -15,6 +15,9 @@ enum class PlayerSignal : uint8_t
 	IncreasePlotArmour,
 	ApplySpeedBoots,
 
+	ApplySlide,
+	RemoveSlide,
+
 	COUNT
 };
 

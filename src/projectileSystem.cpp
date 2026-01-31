@@ -110,7 +110,6 @@ void ProjectileSystem::DrawLightmap() const noexcept
 					this->ProjectileColour[i], LIGHTGRAY);
 		}
 	}
-	//std::max(this->ProjectileRect[i].width, this->ProjectileRect[i].height) * 2.0f, 	}
 }
 
 void ProjectileSystem::CreateProjectile(

@@ -3,8 +3,9 @@
 #include "raylib.h"
 
 #include <string>
+#include <array>
 #include <cstddef>
-#include <unordered_map>
+#include <cstdint>
 
 #include "constants.hpp"
 
@@ -21,7 +22,7 @@ enum class State
 	GenerateGameOverStats
 };
 
-enum class CachedString
+enum class CachedString : uint8_t
 {
 	LevelText,
 	UnclaimedPowerups,
@@ -33,7 +34,8 @@ enum class CachedString
 
 	EnemiesKilled,
 	GameOverReason,
-	LevelDebuff
+	LevelDebuff,
+	COUNT
 };
 
 struct GlobalDataWrapper
@@ -46,12 +48,14 @@ struct GlobalDataWrapper
 
 	GlobalDataWrapper(const GlobalDataWrapper&&) = delete;
 	GlobalDataWrapper& operator=(const GlobalDataWrapper&&) = delete;
+	
+	void CacheString(std::string&& string, const CachedString cached_string) noexcept;
+	void Reset() noexcept;
 
-	std::unordered_map<CachedString, std::string> CachedStrings;
+	//std::unordered_map<CachedString, std::string> CachedStrings;
+	std::array<std::string, static_cast<size_t>(CachedString::COUNT)> StringCache;
 	State ActiveState = State::MainMenu;
 
-	bool Running = true;
 	unsigned int UnclaimedPowerups;
-
-	void Reset() noexcept;
+	bool Running = true;
 };

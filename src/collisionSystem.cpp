@@ -80,10 +80,14 @@ void CollisionSystem::ProjectileCollision(
 			}
 		}
 	}
-	/*
-	if (this->Effects.count(Effect::LifeSteal))
-		this->Player->IncreaseHealth( total_damage_done * this->Attributes.at(Attribute::LifeStealMultiplier) );
-		*/
+
+	if (modifier_system.EffectStatus(Effect::LifeSteal))
+	{
+		message_system.PlayerCommands.emplace_back(
+				std::in_place_type<struct IncreasePlayerHealth>,
+				total_damage_done * modifier_system.GetAttribute(Attribute::LifeStealMultiplier)
+				);
+	}
 
 	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_damage_done);
 }
@@ -145,6 +149,16 @@ void CollisionSystem::SlideAttack(
 			total_damage_done += static_cast<unsigned int>(damage_done);
 		}
 	}
+	/*
+	 TODO FIX AURA
+	if (modifier_system.EffectStatus(Effect::LifeSteal))
+	{
+		message_system.PlayerCommands(
+				std::in_place_type<struct IncreasePlayerHealth>,
+				total_damage_done * modifier_system.GetAttribute(Attribute::LifeStealMultiplier)
+				);
+	}
+	*/
 
 	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_damage_done);
 }
@@ -182,10 +196,14 @@ void CollisionSystem::Aura(
 			total_hit++;
 		}
 	}
-/*
+
 	if (modifier_system.EffectStatus(Effect::LifeSteal))
-		game_state.Player->IncreaseHealth(total_hit * aura_damage * game_state.Attributes.at(Attribute::LifeStealMultiplier));
-		*/
+	{
+		message_system.PlayerCommands.emplace_back(
+				std::in_place_type<struct IncreasePlayerHealth>,
+				total_hit * aura_damage * modifier_system.GetAttribute(Attribute::LifeStealMultiplier)
+				);
+	}
 
 	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_hit * static_cast<unsigned int>(aura_damage));
 }

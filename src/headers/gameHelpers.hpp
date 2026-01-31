@@ -4,5 +4,5 @@
 
 namespace GameHelper
 {
-	void LoopOverMap(float ground_width, float ground_height, Rectangle& m_obj) noexcept;
+	void LoopOverMap(const float ground_width, const float ground_height, Rectangle& m_obj) noexcept;
 }

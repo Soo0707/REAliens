@@ -19,16 +19,16 @@ void GameOverMenu::Draw(RenderTexture2D& canvas) const noexcept
 
 	const int x1 = mid - MeasureText("GAME OVER", 48) / 2.0f;
 
-	const int x2 = mid - MeasureText(this->GlobalData->CachedStrings.at(CachedString::Duration).c_str(), 24) / 2.0f;
+	const int x2 = mid - MeasureText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::Duration)].c_str(), 24) / 2.0f;
 
-	const int x3 = mid - MeasureText(this->GlobalData->CachedStrings.at(CachedString::EnemiesKilled).c_str(), 24) / 2.0f;
+	const int x3 = mid - MeasureText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::EnemiesKilled)].c_str(), 24) / 2.0f;
 
-	const int x5 = mid - MeasureText(this->GlobalData->CachedStrings.at(CachedString::DamagePerSecond).c_str(), 24) / 2.0f;
+	const int x5 = mid - MeasureText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::DamagePerSecond)].c_str(), 24) / 2.0f;
 
-	const int x6 = mid - MeasureText(this->GlobalData->CachedStrings.at(CachedString::LevelText).c_str(), 24) / 2.0f;
-	const int x9 = mid - MeasureText(this->GlobalData->CachedStrings.at(CachedString::AverageSpeed).c_str(), 24) / 2.0f;
+	const int x6 = mid - MeasureText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::LevelText)].c_str(), 24) / 2.0f;
+	const int x9 = mid - MeasureText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::AverageSpeed)].c_str(), 24) / 2.0f;
 
-	const int x10 = mid - MeasureText(this->GlobalData->CachedStrings.at(CachedString::GameOverReason).c_str(), 24) / 2.0f;
+	const int x10 = mid - MeasureText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::GameOverReason)].c_str(), 24) / 2.0f;
 
 	const int x11 = mid - MeasureText("[ENTER] Restart, [Esc] Quit", 21) / 2.0f;
 	/*
@@ -40,17 +40,17 @@ void GameOverMenu::Draw(RenderTexture2D& canvas) const noexcept
 
 		DrawText("GAME OVER", x1, 80, 48, VIOLET);
 
-		DrawText(this->GlobalData->CachedStrings.at(CachedString::Duration).c_str(), x2, 160, 24, GOLD);
+		DrawText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::Duration)].c_str(), x2, 160, 24, GOLD);
 
-		DrawText(this->GlobalData->CachedStrings.at(CachedString::EnemiesKilled).c_str(), x3, 204, 24, GOLD);
+		DrawText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::EnemiesKilled)].c_str(), x3, 204, 24, GOLD);
 
-		DrawText(this->GlobalData->CachedStrings.at(CachedString::DamagePerSecond).c_str(), x5, 282, 24, GOLD);
+		DrawText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::DamagePerSecond)].c_str(), x5, 282, 24, GOLD);
 
-		DrawText(this->GlobalData->CachedStrings.at(CachedString::LevelText).c_str(), x6, 326, 24, GOLD);
+		DrawText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::LevelText)].c_str(), x6, 326, 24, GOLD);
 
-		DrawText(this->GlobalData->CachedStrings.at(CachedString::AverageSpeed).c_str(), x9, 438, 24, GOLD);
+		DrawText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::AverageSpeed)].c_str(), x9, 438, 24, GOLD);
 
-		DrawText(this->GlobalData->CachedStrings.at(CachedString::GameOverReason).c_str(), x10, 482, 24, GOLD);
+		DrawText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::GameOverReason)].c_str(), x10, 482, 24, GOLD);
 
 		DrawText("[ENTER] Restart, [Esc] Quit", x11, 620, 21, LIGHTGRAY);
 	EndTextureMode();
@@ -77,7 +77,7 @@ void GameOverMenu::GenerateStats(const Game& game, const StatSystem& stat_system
 		average_speed = stat_system.GetStat(Stat::TotalDistance) / TICKS_TO_SECONDS(ticks);
 	}
 
-	this->GlobalData->CachedStrings[CachedString::DamagePerSecond] = "Damage / Second: " + std::to_string(damage_per_second);
-	this->GlobalData->CachedStrings[CachedString::EnemiesKilled] = "Enemies Killed: " + std::to_string(stat_system.GetStat(Stat::Kills));
-	this->GlobalData->CachedStrings[CachedString::AverageSpeed] = "Average Speed: " + std::to_string(average_speed) + "px/s";
+	this->GlobalData->CacheString("Damage / Second: " + std::to_string(damage_per_second), CachedString::DamagePerSecond);
+	this->GlobalData->CacheString("Enemies Killed: " + std::to_string(stat_system.GetStat(Stat::Kills)), CachedString::EnemiesKilled);
+	this->GlobalData->CacheString("Average Speed: " + std::to_string(average_speed) + "px/s", CachedString::AverageSpeed);
 }

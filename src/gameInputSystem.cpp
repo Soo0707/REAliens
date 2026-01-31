@@ -16,31 +16,36 @@ void GameInputSystem::HandleTickedInput(
 		const SettingsManager& settings
 		) noexcept
 {
+	Vector2 player_direction;
+
 	if (IsKeyDown(KEY_SPACE))
 		message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveTrapped)]++;
 
 	if (modifier_system.EffectStatus(Effect::Trapped))
-		game.Player->Direction = { 0, 0 };
+		player_direction = { 0.0f, 0.0f };
 	else
 	{
-		game.Player->Direction.x = IsKeyDown(KEY_D) - IsKeyDown(KEY_A);
-		game.Player->Direction.y = IsKeyDown(KEY_S) - IsKeyDown(KEY_W);
+		player_direction = {
+			static_cast<float>(IsKeyDown(KEY_D) - IsKeyDown(KEY_A)),
+			static_cast<float>(IsKeyDown(KEY_S) - IsKeyDown(KEY_W))
+		};
 	}
 
 	if (modifier_system.EffectStatus(Effect::Drunk))
-	{
-		game.Player->Direction.x *= -1;
-		game.Player->Direction.y *= -1;
-	}
+		player_direction = Vector2Scale(player_direction, -1.0f);
 
-	game.Player->Direction = Vector2Normalize(game.Player->Direction);
+	message_system.PlayerCommands.emplace_back(std::in_place_type<struct SetPlayerDirection>, player_direction);
 
 	const size_t ticks = game.Ticks;
 
 	if (IsKeyDown(KEY_LEFT_SHIFT) && game.CanPerform[static_cast<size_t>(Action::Slide)])
 	{
-		game.Player->Sliding = true;
-		game.Player->SlideExpire = ticks + TICK_RATE / 6;
+		message_system.PlayerSignals[static_cast<size_t>(PlayerSignal::ApplySlide)]++;
+
+		message_system.TimerSystemCommands.emplace_back(
+				std::in_place_type<struct RegisterTimer>, TICK_RATE / 6,
+				false, Timer::PlayerSlideExpire
+				);
 
 		game.CanPerform[static_cast<size_t>(Action::Slide)] = false;
 		game.LastPerformed[static_cast<size_t>(Action::Slide)] = ticks;

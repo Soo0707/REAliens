@@ -5,6 +5,7 @@
 
 #include "assetManager.hpp"
 #include "raylib.h"
+#include "raymath.h"
 #include "constants.hpp"
 
 #include "messageSystem.hpp"
@@ -38,8 +39,13 @@ void Player::ExecuteCommands(MessageSystem& message_system) noexcept
 {
 	for (auto const& command : message_system.PlayerCommands)
 	{
-		this->TakeDamage(command);
+		const size_t handler_index = command.index();
+
+		auto command_handler = this->CommandHandlers[handler_index];
+
+		(this->*command_handler)(command);
 	}
+
 	message_system.PlayerCommands.clear();
 }
 
@@ -47,9 +53,6 @@ void Player::Update(MessageSystem& message_system, const size_t ticks, const flo
 {
 	Player::SetBearing();
 	Player::Animate(ticks);
-
-	if (ticks >= this->SlideExpire)
-		this->Sliding = false;
 
 	Player::Move(message_system, slide_speed);
 }
@@ -118,18 +121,27 @@ void Player::Move(MessageSystem& message_system, const float slide_speed) noexce
 	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_SIZE / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_SIZE / 2.0f };
 }
 
-void Player::IncreaseHealth(const float addition) noexcept
-{
-	if (this->Health + addition <= this->HealthMax)
-		this->Health += addition;
-	else
-		this->Health = this->HealthMax;
-}
-
 void Player::TakeDamage(const PlayerCommand& command) noexcept
 {
 	const DamagePlayer& data = std::get<DamagePlayer>(command);
 	this->Health -= data.DamageAmount;
+}
+
+void Player::IncreaseHealth(const PlayerCommand& command) noexcept
+{
+	const IncreasePlayerHealth& data = std::get<IncreasePlayerHealth>(command);
+
+	if (this->Health + data.Amount <= this->HealthMax)
+		this->Health += data.Amount;
+	else
+		this->Health = this->HealthMax;
+}
+
+void Player::SetDirection(const PlayerCommand& command) noexcept
+{
+	const SetPlayerDirection& data = std::get<SetPlayerDirection>(command);
+
+	this->Direction = Vector2Normalize(data.Direction);
 }
 
 void Player::Reset() noexcept
@@ -139,10 +151,16 @@ void Player::Reset() noexcept
 
 	this->Health = 100;
 	this->HealthMax = 100;
+	this->Direction = { 0.0f, 0.0f };
 
-	this->Speed = 300;
+	this->Speed = 300.0f;
 	this->Sliding = false;
-	this->SlideExpire = 0;
+
+	this->Radius = 10.0f;
+	this->Bearing = Bearing::South;
+
+	this->LastAnimationUpdate = 0;
+	this->ImageIndex = 0;
 }
 
 void Player::IncreasePlotArmour(const uint16_t times) noexcept
@@ -154,4 +172,14 @@ void Player::IncreasePlotArmour(const uint16_t times) noexcept
 void Player::ApplySpeedBoots(const uint16_t times) noexcept
 {
 	this->Speed *= pow(1.2, static_cast<float>(times));
+}
+
+void Player::ApplySlide(const uint16_t times) noexcept
+{
+	this->Sliding = true;
+}
+
+void Player::RemoveSlide(const uint16_t times) noexcept
+{
+	this->Sliding = false;
 }
