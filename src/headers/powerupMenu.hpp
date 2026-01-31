@@ -21,6 +21,7 @@ enum class Powerup
 	Projectile,
 
 	Lazer,
+	Ball,
 	Greenbull,
 	Milk,
 
@@ -65,6 +66,7 @@ class PowerupMenu
 		void ApplyBuckshot() noexcept;
 		void ApplyProjectile() noexcept;
 		void ApplyLazer() noexcept;
+		void ApplyBall() noexcept;
 
 		void ApplyLifeSteal() noexcept;
 		void ApplyGreenbull() noexcept;
@@ -90,6 +92,7 @@ class PowerupMenu
 			"Projectile",
 
 			"Lazer",
+			"Ball",
 			"Greenbull",
 
 			"Milk",
@@ -108,6 +111,7 @@ class PowerupMenu
 			"+Projectile Damage, -LMB Timeout",
 
 			"+Lazer Damage, -RMB Timeout",
+			"Ball Which Explodes Into Smaller Balls",
 			"Temporary Invincibility",
 
 			"Removes and Prevents Enemy Effects",
@@ -121,20 +125,21 @@ class PowerupMenu
 
 		static inline constexpr std::array<void(PowerupMenu::*)(), static_cast<size_t>(Powerup::COUNT)> ApplyHandles = 
 		{
-			&PowerupMenu::ApplyAura,
-			&PowerupMenu::ApplyBuckshot,
-			&PowerupMenu::ApplyProjectile,
+			&ApplyAura,
+			&ApplyBuckshot,
+			&ApplyProjectile,
 
-			&PowerupMenu::ApplyLazer,
-			&PowerupMenu::ApplyGreenbull,
+			&ApplyLazer,
+			&ApplyBall,
+			&ApplyGreenbull,
 
-			&PowerupMenu::ApplyMilk,
-			&PowerupMenu::ApplyLifeSteal,
-			&PowerupMenu::ApplyPlotArmour,
+			&ApplyMilk,
+			&ApplyLifeSteal,
+			&ApplyPlotArmour,
 
-			&PowerupMenu::ApplyMagnetism,
-			&PowerupMenu::ApplySpeedBoots,
-			&PowerupMenu::ApplyBabyOil
+			&ApplyMagnetism,
+			&ApplySpeedBoots,
+			&ApplyBabyOil
 		};
 
 		bool Gamble = false;

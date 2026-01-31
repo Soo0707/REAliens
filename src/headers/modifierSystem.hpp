@@ -35,6 +35,7 @@ class ModifierSystem
 		void ApplyBuckshot() noexcept;
 		void ApplyProjectile() noexcept;
 		void ApplyLazer() noexcept;
+		void ApplyBall() noexcept;
 		void ApplyLifeSteal() noexcept;
 		void ApplyBabyOil() noexcept;
 		void ApplyAussie() noexcept;
@@ -65,6 +66,7 @@ class ModifierSystem
 			&ApplyBuckshot,
 			&ApplyProjectile,
 			&ApplyLazer,
+			&ApplyBall,
 			&ApplyLifeSteal,
 			&ApplyBabyOil,
 			&ApplyAussie,

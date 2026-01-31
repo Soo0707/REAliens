@@ -125,6 +125,7 @@ void ProjectileSystem::CreateProjectile(
 
 	this->ProjectileRotation.emplace_back(atan2(direction.y, direction.x) * TO_DEG);
 	this->ProjectileScale.emplace_back(scale);
+	this->ProjectileKillCount.emplace_back(0);
 
 	this->ProjectileRect.emplace_back(x, y, texture_width * scale, texture_height * scale);
 	this->ProjectileDirection.emplace_back(Vector2Normalize(direction));
@@ -161,6 +162,7 @@ void ProjectileSystem::RemoveProjectiles() noexcept
 			this->ProjectileSpeed[i] = this->ProjectileSpeed.back();
 			this->ProjectileRotation[i] = this->ProjectileRotation.back();
 			this->ProjectileScale[i] = this->ProjectileScale.back();
+			this->ProjectileKillCount[i] = this->ProjectileKillCount.back();
 			this->ProjectileRect[i] = this->ProjectileRect.back();
 			this->ProjectileDirection[i] = this->ProjectileDirection.back();
 			this->ProjectileColour[i] = this->ProjectileColour.back();
@@ -173,6 +175,7 @@ void ProjectileSystem::RemoveProjectiles() noexcept
 			this->ProjectileSpeed.pop_back();
 			this->ProjectileRotation.pop_back();
 			this->ProjectileScale.pop_back();
+			this->ProjectileKillCount.pop_back();
 			this->ProjectileRect.pop_back();
 			this->ProjectileDirection.pop_back();
 			this->ProjectileColour.pop_back();
@@ -216,7 +219,35 @@ void ProjectileSystem::CreateProjectileHandler(const ProjectileSystemCommand& co
 void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& command, const AssetManager& assets) noexcept
 {
 	const struct ProjectileHit& data = std::get<struct ProjectileHit>(command);
+	const size_t index = data.ProjectileIndex;
 
-	if (this->ProjectileTypes[data.ProjectileIndex] == ProjectileType::Bullet)
-		this->ProjectileKill[data.ProjectileIndex] = static_cast<uint8_t>(true);
+	switch (this->ProjectileTypes[index])
+	{
+		case ProjectileType::Ball:
+		{
+			const TextureKey ball_texture_key = this->ProjectileAttributes[static_cast<size_t>(ProjectileType::Ball)].Texture;
+			const float ball_size = assets.GetTexture(ball_texture_key).width;
+			const Rectangle ball_rect = this->ProjectileRect[index];
+			const float ball_speed = 1.25f * this->ProjectileSpeed[index];
+			const float ball_scale = 0.75f * this->ProjectileScale[index];
+
+			for (uint8_t i = 0; i < 2; i++)
+			{
+				const float up_down = (i % 2) ? 1.0f : -1.0f;
+				const Vector2 ball_direction = Vector2Rotate(this->ProjectileDirection[index], up_down * 10.0f * TO_RAD);
+
+				this->CreateProjectile(
+						ball_rect.x, ball_rect.y, ball_speed, ball_scale,
+						ball_direction, ProjectileType::Ball, ball_size, ball_size
+						);
+			}
+			break;
+		}
+		case ProjectileType::Bullet:
+			this->ProjectileKill[data.ProjectileIndex] = static_cast<uint8_t>(true);
+			break;
+	}
+
+	this->ProjectileKillCount[data.ProjectileIndex]++;
 }
+

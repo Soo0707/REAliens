@@ -10,6 +10,7 @@ enum class ProjectileType : uint8_t
 {
 	Bullet,
 	Lazer,
+	Ball,
 
 	COUNT
 };

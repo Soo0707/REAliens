@@ -56,6 +56,9 @@ void CollisionSystem::ProjectileCollision(
 			case ProjectileType::Bullet:
 				damage = modifier_system.GetAttribute(Attribute::BulletDamage);
 				break;
+			case ProjectileType::Ball:
+				damage = modifier_system.GetAttribute(Attribute::BallDamage);
+				break;
 		}
 
 		for (size_t j = 0, m = enemy_rect.size(); j < m; j++)

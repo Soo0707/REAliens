@@ -41,7 +41,8 @@ class ProjectileSystem
 		static inline constexpr std::array<ProjectileData, static_cast<size_t>(ProjectileType::COUNT)> ProjectileAttributes = 
 		{
 			(ProjectileData) { YELLOW, TextureKey::Bullet },
-			(ProjectileData) { CYAN, TextureKey::Lazer }
+			(ProjectileData) { CYAN, TextureKey::Lazer },
+			(ProjectileData) { GREEN, TextureKey::Ball }
 		};
 
 		void CreateProjectileHandler(const ProjectileSystemCommand& command, const AssetManager& assets) noexcept;
@@ -60,6 +61,8 @@ class ProjectileSystem
 
 		std::vector<float> ProjectileRotation;
 		std::vector<float> ProjectileScale;
+
+		std::vector<uint16_t> ProjectileKillCount;
 
 		std::vector<Rectangle> ProjectileRect;
 		std::vector<Vector2> ProjectileDirection;

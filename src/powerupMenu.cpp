@@ -187,6 +187,11 @@ void PowerupMenu::ApplyLazer() noexcept
 	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyLazer)]++;
 }
 
+void PowerupMenu::ApplyBall() noexcept
+{
+	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyBall)]++;
+}
+
 void PowerupMenu::ApplyLifeSteal() noexcept
 {
 	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyLifeSteal)]++;

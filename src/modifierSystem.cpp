@@ -39,12 +39,13 @@ void ModifierSystem::Reset() noexcept
 	this->SetAttribute(Attribute::LazerScale, 1.0f);
 	this->SetAttribute(Attribute::LazerSpeed, 3000.0f);
 
+	this->SetAttribute(Attribute::BallDamage, -1.0f);
+
 	this->SetAttribute(Attribute::SlideSpeedMultiplier, 2.0f);
 
 	this->SetAttribute(Attribute::LuckBottomLimit, 0.0f);
 	this->SetAttribute(Attribute::LuckUpperLimit, 99.0f);
-	//TODO: either set this to be random or find some other value
-	// also incorparate it somehow
+	//TODO: set this to be random and find a way to incorparate it
 	this->SetAttribute(Attribute::LuckBoundary, 49.0f);
 
 	this->Effects = static_cast<Effect>(0);
@@ -166,6 +167,22 @@ void ModifierSystem::ApplyLazer() noexcept
 	this->IncreaseAttribute(Attribute::LazerDamage, 10.0f);
 	this->IncreaseAttribute(Attribute::LazerScale, 0.5f);
 	this->IncreaseAttribute(Attribute::LazerSpeed, 10.0f);
+}
+
+void ModifierSystem::ApplyBall() noexcept
+{
+	if (this->GetAttribute(Attribute::BallDamage) < 0.0f)
+	{
+		this->SetAttribute(Attribute::BallSpeed, 50.0f);
+		this->SetAttribute(Attribute::BallScale, 0.5f);
+		this->SetAttribute(Attribute::BallDamage, 5.0f);
+	}
+	else
+	{
+		this->IncreaseAttribute(Attribute::BallSpeed, 25.0f);
+		this->IncreaseAttribute(Attribute::BallScale, 0.25f);
+		this->IncreaseAttribute(Attribute::BallDamage, 5.0f);
+	}
 }
 
 void ModifierSystem::ApplyLifeSteal() noexcept

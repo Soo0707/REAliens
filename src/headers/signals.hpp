@@ -30,6 +30,7 @@ enum class ModifierSystemSignal : uint8_t
 	ApplyBuckshot,
 	ApplyProjectile,
 	ApplyLazer,
+	ApplyBall,
 	ApplyLifeSteal,
 	ApplyBabyOil,
 	ApplyAussie,
