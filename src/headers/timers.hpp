@@ -19,6 +19,7 @@ enum class Timer : uint8_t
 	SpawnEnemies,
 
 	PlayerSlideExpire,
+	BallCountdown,
 
 	COUNT
 };

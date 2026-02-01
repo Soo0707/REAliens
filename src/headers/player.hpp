@@ -8,6 +8,7 @@
 #include "assetManager.hpp"
 #include "constants.hpp"
 #include "messageSystem.hpp"
+#include "modifierSystem.hpp"
 
 enum class Bearing : uint16_t
 {
@@ -23,7 +24,7 @@ class Player
 		Player(float pos_x, float pos_y, AssetManager &assets);
 		~Player() = default; 
 		
-		void PollSignals(MessageSystem& message_system) noexcept;
+		void PollSignals(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept;
 		void ExecuteCommands(MessageSystem& message_system) noexcept;
 		
 		void Move(MessageSystem& message_system, const float slide_speed) noexcept;
@@ -63,17 +64,19 @@ class Player
 			&SetDirection
 		};
 
-		void IncreasePlotArmour(const uint16_t times) noexcept;
-		void ApplySpeedBoots(const uint16_t times) noexcept;
-		void ApplySlide(const uint16_t times) noexcept;
-		void RemoveSlide(const uint16_t times) noexcept;
+		void IncreasePlotArmour(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system)noexcept;
+		void ApplySpeedBoots(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept;
+		void ApplySlide(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept;
+		void RemoveSlide(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept;
+		void SpawnBall(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept;
 
-		static constexpr std::array<void(Player::*)(const uint16_t) noexcept, static_cast<size_t>(PlayerSignal::COUNT)> SignalHandlers = 
+		static constexpr std::array<void(Player::*)(MessageSystem&, const uint16_t, const ModifierSystem&) noexcept, static_cast<size_t>(PlayerSignal::COUNT)> SignalHandlers = 
 		{
 			&IncreasePlotArmour,
 			&ApplySpeedBoots,
 			&ApplySlide,
-			&RemoveSlide
+			&RemoveSlide,
+			&SpawnBall
 		};
 
 		size_t LastAnimationUpdate;

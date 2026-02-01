@@ -190,6 +190,30 @@ void PowerupMenu::ApplyLazer() noexcept
 void PowerupMenu::ApplyBall() noexcept
 {
 	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyBall)]++;
+	const bool has_ball = this->TimerSystem->GetTimerStatus(Timer::BallCountdown);
+
+	if (!has_ball)
+	{
+		this->MessageSystem->TimerSystemCommands.emplace_back(
+				std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5),
+				true, Timer::BallCountdown
+				);
+	}
+	else
+	{
+		const int32_t original_interval = static_cast<int32_t>(this->TimerSystem->GetTimerInterval(Timer::BallCountdown));
+		uint32_t new_interval;
+		
+		if (original_interval - static_cast<int32_t>(SECONDS_TO_TICKS(5)) >= static_cast<int32_t>(TICK_RATE))
+			new_interval = original_interval - SECONDS_TO_TICKS(5);
+		else
+			new_interval = TICK_RATE;
+
+		this->MessageSystem->TimerSystemCommands.emplace_back(
+				std::in_place_type<struct UpdateTimerInterval>, new_interval,
+				Timer::BallCountdown
+				);
+	}
 }
 
 void PowerupMenu::ApplyLifeSteal() noexcept

@@ -18,6 +18,8 @@ enum class PlayerSignal : uint8_t
 	ApplySlide,
 	RemoveSlide,
 
+	SpawnBall,
+
 	COUNT
 };
 

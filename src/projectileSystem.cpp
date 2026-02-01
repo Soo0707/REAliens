@@ -241,7 +241,6 @@ void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& comma
 						ball_direction, ProjectileType::Ball, ball_size, ball_size
 						);
 			}
-			break;
 		}
 		case ProjectileType::Bullet:
 			this->ProjectileKill[data.ProjectileIndex] = static_cast<uint8_t>(true);

@@ -41,6 +41,7 @@ class TimerSystem
 		void SpawnEnemiesHandler(MessageSystem& message_system) const noexcept;
 
 		void PlayerSlideExpireHandler(MessageSystem& message_system) const noexcept;
+		void BallCountdownHandler(MessageSystem& message_system) const noexcept;
 
 		void RegisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
 		void DeregisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
@@ -53,7 +54,7 @@ class TimerSystem
 			&UpdateTimerInterval
 		};
 
-		static constexpr std::array<void(TimerSystem::*)(MessageSystem& message_system) const noexcept, static_cast<size_t>(Timer::COUNT)> TimeoutHandlers =
+		static constexpr std::array<void(TimerSystem::*)(MessageSystem&) const noexcept, static_cast<size_t>(Timer::COUNT)> TimeoutHandlers =
 		{
 			&GreenbullExpireHandler,
 			&MilkExpireHandler,
@@ -65,6 +66,7 @@ class TimerSystem
 			&AuraTickHandler,
 			&EmitLocationParticlesHandler,
 			&SpawnEnemiesHandler,
-			&PlayerSlideExpireHandler
+			&PlayerSlideExpireHandler,
+			&BallCountdownHandler
 		};
 };

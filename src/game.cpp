@@ -192,7 +192,7 @@ void Game::TickedUpdate() noexcept
 
 void Game::UpdatePlayer(const size_t ticks) noexcept
 {
-	this->Player->PollSignals(*this->MessageSystem);
+	this->Player->PollSignals(*this->MessageSystem, *this->ModifierSystem);
 	this->Player->ExecuteCommands(*this->MessageSystem);
 
 	if (this->Player->Health <= 0 && !this->Settings->Data.at(SettingKey::DisableHealthCheck))

@@ -1,6 +1,7 @@
 #include "timerSystem.hpp"
 
 #include <cstddef>
+#include <iostream>
 
 #include "timers.hpp"
 #include "signals.hpp"
@@ -150,4 +151,10 @@ void TimerSystem::SpawnEnemiesHandler(MessageSystem& message_system) const noexc
 void TimerSystem::PlayerSlideExpireHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.PlayerSignals[static_cast<size_t>(PlayerSignal::RemoveSlide)]++;
+}
+
+void TimerSystem::BallCountdownHandler(MessageSystem& message_system) const noexcept
+{
+	message_system.PlayerSignals[static_cast<size_t>(PlayerSignal::SpawnBall)]++;
+	std::cout << "called" << std::endl;
 }

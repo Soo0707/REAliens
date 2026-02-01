@@ -173,13 +173,13 @@ void ModifierSystem::ApplyBall() noexcept
 {
 	if (this->GetAttribute(Attribute::BallDamage) < 0.0f)
 	{
-		this->SetAttribute(Attribute::BallSpeed, 50.0f);
+		this->SetAttribute(Attribute::BallSpeed, 500.0f);
 		this->SetAttribute(Attribute::BallScale, 0.5f);
 		this->SetAttribute(Attribute::BallDamage, 5.0f);
 	}
 	else
 	{
-		this->IncreaseAttribute(Attribute::BallSpeed, 25.0f);
+		this->IncreaseAttribute(Attribute::BallSpeed, 100.0f);
 		this->IncreaseAttribute(Attribute::BallScale, 0.25f);
 		this->IncreaseAttribute(Attribute::BallDamage, 5.0f);
 	}

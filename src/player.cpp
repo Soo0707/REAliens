@@ -8,6 +8,8 @@
 #include "raymath.h"
 #include "constants.hpp"
 
+#include "modifierSystem.hpp"
+#include "projectileData.hpp"
 #include "messageSystem.hpp"
 #include "commands.hpp"
 #include "signals.hpp"
@@ -19,7 +21,7 @@ Player::Player(float pos_x, float pos_y, AssetManager &assets) :
 	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_SIZE / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_SIZE / 2.0f };
 }
 
-void Player::PollSignals(MessageSystem& message_system) noexcept
+void Player::PollSignals(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept
 {
 	for (size_t i = 0; i < static_cast<size_t>(PlayerSignal::COUNT); i++)
 	{
@@ -28,7 +30,7 @@ void Player::PollSignals(MessageSystem& message_system) noexcept
 		if (times > 0)
 		{
 			auto signal_handler = this->SignalHandlers[i];
-			(this->*signal_handler)(times);
+			(this->*signal_handler)(message_system, times, modifier_system);
 
 			message_system.PlayerSignals[i] = 0;
 		}
@@ -163,23 +165,39 @@ void Player::Reset() noexcept
 	this->ImageIndex = 0;
 }
 
-void Player::IncreasePlotArmour(const uint16_t times) noexcept
+void Player::IncreasePlotArmour(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept
 {
 	this->HealthMax *= pow(2.0, static_cast<float>(times));
 	this->Health = this->HealthMax;
 }
 
-void Player::ApplySpeedBoots(const uint16_t times) noexcept
+void Player::ApplySpeedBoots(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept
 {
 	this->Speed *= pow(1.2, static_cast<float>(times));
 }
 
-void Player::ApplySlide(const uint16_t times) noexcept
+void Player::ApplySlide(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept
 {
 	this->Sliding = true;
 }
 
-void Player::RemoveSlide(const uint16_t times) noexcept
+void Player::RemoveSlide(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept
 {
 	this->Sliding = false;
+}
+
+void Player::SpawnBall(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept
+{
+	Vector2 ball_direction = { 1.0f, 0.0f };
+
+	ball_direction = Vector2Rotate(ball_direction, static_cast<float>(GetRandomValue(0, 359)) * TO_RAD);
+
+	const Vector2 ball_location = this->Centre;
+	const float ball_speed = modifier_system.GetAttribute(Attribute::BallSpeed);
+	const float ball_scale = modifier_system.GetAttribute(Attribute::BallScale);
+
+	message_system.ProjectileSystemCommands.emplace_back(
+			std::in_place_type<struct CreateProjectile>, ProjectileType::Ball,
+			ball_direction, ball_location.x, ball_location.y, ball_speed, ball_scale
+			);
 }
