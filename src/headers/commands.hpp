@@ -90,7 +90,14 @@ struct UpdateTimerInterval
 	Timer Type;
 };
 
-using TimerSystemCommand = std::variant<struct RegisterTimer, struct DeregisterTimer, struct UpdateTimerInterval>;
+struct DecreaseTimerInterval
+{
+	int32_t Amount;
+	int16_t Minimum;
+	Timer Type;
+};
+
+using TimerSystemCommand = std::variant<struct RegisterTimer, struct DeregisterTimer, struct UpdateTimerInterval, struct DecreaseTimerInterval>;
 
 
 struct StatSystemCommand

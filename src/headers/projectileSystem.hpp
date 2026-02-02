@@ -9,6 +9,7 @@
 #include "messageSystem.hpp"
 #include "projectileData.hpp"
 #include "assetManager.hpp"
+#include "modifierSystem.hpp"
 
 class ProjectileSystem
 {
@@ -20,7 +21,10 @@ class ProjectileSystem
 
 		void ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept;
 
-		void UpdateProjectiles(const size_t ticks, const Rectangle update_area, MessageSystem& message_system) noexcept;
+		void UpdateProjectiles(
+				const size_t ticks, const Rectangle update_area,
+				MessageSystem& message_system, const ModifierSystem& modifier_system
+				) noexcept;
 		void Draw(const AssetManager& assets) const noexcept;
 		void DrawLightmap() const noexcept;
 
@@ -37,12 +41,15 @@ class ProjectileSystem
 		void MoveProjectiles() noexcept;
 		void RemoveProjectiles() noexcept;
 		void SpawnParticles(MessageSystem& message_system, const size_t ticks) const noexcept;
+		void EvaluateHitCount(const ModifierSystem& modifier_system) noexcept;
+
+		bool CheckIndex(const size_t index) const noexcept;
 
 		static inline constexpr std::array<ProjectileData, static_cast<size_t>(ProjectileType::COUNT)> ProjectileAttributes = 
 		{
 			(ProjectileData) { YELLOW, TextureKey::Bullet },
 			(ProjectileData) { CYAN, TextureKey::Lazer },
-			(ProjectileData) { GREEN, TextureKey::Ball }
+			(ProjectileData) { TEAL, TextureKey::Ball }
 		};
 
 		void CreateProjectileHandler(const ProjectileSystemCommand& command, const AssetManager& assets) noexcept;
@@ -62,7 +69,7 @@ class ProjectileSystem
 		std::vector<float> ProjectileRotation;
 		std::vector<float> ProjectileScale;
 
-		std::vector<uint16_t> ProjectileKillCount;
+		std::vector<uint16_t> ProjectileHitCount;
 
 		std::vector<Rectangle> ProjectileRect;
 		std::vector<Vector2> ProjectileDirection;

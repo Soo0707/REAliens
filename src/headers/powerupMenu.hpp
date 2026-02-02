@@ -110,17 +110,17 @@ class PowerupMenu
 			"Increase The Number Of Projectiles Shot",
 			"+Projectile Damage, -LMB Timeout",
 
-			"+Lazer Damage, -RMB Timeout",
-			"Ball Which Explodes Into Smaller Balls",
+			"+Lazer Damage, -RMB Timeout, +Penetration Power",
+			"Periodically Spawn Balls Which Explode Into Smaller Balls",
 			"Temporary Invincibility",
 
-			"Removes and Prevents Enemy Effects",
+			"Removes And Prevents Enemy Effects",
 			"Regain Health By Dealing Damage",
 			"Increase Max Health",
 
 			"Auto Collects XP",
 			"Increase Player Speed",
-			"Increase Slide Duration" 
+			"Increase Slide Speed" 
 		};
 
 		static inline constexpr std::array<void(PowerupMenu::*)(), static_cast<size_t>(Powerup::COUNT)> ApplyHandles = 

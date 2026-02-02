@@ -1,7 +1,6 @@
 #include "timerSystem.hpp"
 
 #include <cstddef>
-#include <iostream>
 
 #include "timers.hpp"
 #include "signals.hpp"
@@ -95,6 +94,18 @@ void TimerSystem::UpdateTimerInterval(const TimerSystemCommand& command, const s
 	this->TimerInterval[index] = data.NewInterval;
 }
 
+void TimerSystem::DecreaseTimerInterval(const TimerSystemCommand& command, const size_t ticks) noexcept
+{
+	const struct DecreaseTimerInterval& data = std::get<struct DecreaseTimerInterval>(command);
+
+	const size_t index = static_cast<size_t>(data.Type);
+	const int32_t original_interval = static_cast<int32_t>(this->TimerInterval[index]);
+
+	if (original_interval - data.Amount >= static_cast<int32_t>(data.Minimum))
+		this->TimerInterval[index] = original_interval - data.Amount;
+	else
+		this->TimerInterval[index] = static_cast<int32_t>(data.Minimum);
+}
 
 void TimerSystem::GreenbullExpireHandler(MessageSystem& message_system) const noexcept
 {
@@ -156,5 +167,4 @@ void TimerSystem::PlayerSlideExpireHandler(MessageSystem& message_system) const 
 void TimerSystem::BallCountdownHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.PlayerSignals[static_cast<size_t>(PlayerSignal::SpawnBall)]++;
-	std::cout << "called" << std::endl;
 }

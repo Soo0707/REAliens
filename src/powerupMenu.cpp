@@ -163,12 +163,10 @@ void PowerupMenu::ApplyAura() noexcept
 		this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<RegisterTimer>, SECONDS_TO_TICKS(2), true, Timer::AuraTick);
 	else
 	{
-		const size_t interval = this->TimerSystem->GetTimerInterval(Timer::AuraTick);
-
-		if (interval - 25 > TICK_RATE / 4)
-			this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, interval - 25, true, Timer::AuraTick);
-		else
-			this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, TICK_RATE / 4, true, Timer::AuraTick);
+		this->MessageSystem->TimerSystemCommands.emplace_back(
+				std::in_place_type<struct DecreaseTimerInterval>, 25,
+				TICK_RATE / 4, Timer::AuraTick
+				);
 	}
 }
 
@@ -195,23 +193,15 @@ void PowerupMenu::ApplyBall() noexcept
 	if (!has_ball)
 	{
 		this->MessageSystem->TimerSystemCommands.emplace_back(
-				std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5),
+				std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(30),
 				true, Timer::BallCountdown
 				);
 	}
 	else
 	{
-		const int32_t original_interval = static_cast<int32_t>(this->TimerSystem->GetTimerInterval(Timer::BallCountdown));
-		uint32_t new_interval;
-		
-		if (original_interval - static_cast<int32_t>(SECONDS_TO_TICKS(5)) >= static_cast<int32_t>(TICK_RATE))
-			new_interval = original_interval - SECONDS_TO_TICKS(5);
-		else
-			new_interval = TICK_RATE;
-
 		this->MessageSystem->TimerSystemCommands.emplace_back(
-				std::in_place_type<struct UpdateTimerInterval>, new_interval,
-				Timer::BallCountdown
+				std::in_place_type<struct DecreaseTimerInterval>, static_cast<int32_t>(SECONDS_TO_TICKS(5)),
+				static_cast<int16_t>(TICK_RATE), Timer::BallCountdown
 				);
 	}
 }

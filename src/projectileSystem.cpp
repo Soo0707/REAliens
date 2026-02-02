@@ -13,6 +13,8 @@
 
 #include "commands.hpp"
 #include "messageSystem.hpp"
+#include "modifiers.hpp"
+#include "modifierSystem.hpp"
 
 ProjectileSystem::ProjectileSystem()
 {
@@ -56,11 +58,15 @@ void ProjectileSystem::ExecuteCommands(MessageSystem& message_system, const Asse
 	message_system.ProjectileSystemCommands.clear();
 }
 
-void ProjectileSystem::UpdateProjectiles(const size_t ticks, const Rectangle update_area, MessageSystem& message_system) noexcept
+void ProjectileSystem::UpdateProjectiles(
+		const size_t ticks, const Rectangle update_area,
+		MessageSystem& message_system, const ModifierSystem& modifier_system
+		) noexcept
 {
 	this->VisibilityCheck(update_area);
 	this->MoveProjectiles();
 	this->SpawnParticles(message_system, ticks);
+	this->EvaluateHitCount(modifier_system);
 	this->RemoveProjectiles();
 }
 
@@ -125,7 +131,7 @@ void ProjectileSystem::CreateProjectile(
 
 	this->ProjectileRotation.emplace_back(atan2(direction.y, direction.x) * TO_DEG);
 	this->ProjectileScale.emplace_back(scale);
-	this->ProjectileKillCount.emplace_back(0);
+	this->ProjectileHitCount.emplace_back(0);
 
 	this->ProjectileRect.emplace_back(x, y, texture_width * scale, texture_height * scale);
 	this->ProjectileDirection.emplace_back(Vector2Normalize(direction));
@@ -151,6 +157,29 @@ void ProjectileSystem::MoveProjectiles() noexcept
 	}
 }
 
+void ProjectileSystem::EvaluateHitCount(const ModifierSystem& modifier_system) noexcept
+{
+	for (size_t i = 0, n = this->ProjectileHitCount.size(); i < n; i++)
+	{
+		const uint16_t hit_count = this->ProjectileHitCount[i];
+		if (hit_count == 0)
+			continue;
+
+		switch (this->ProjectileTypes[i])
+		{
+			case ProjectileType::Lazer:
+			{
+				const uint16_t max_hit_count = modifier_system.GetAttribute(Attribute::LazerMaxHit);
+				if (hit_count >= max_hit_count)
+					this->ProjectileKill[i] = static_cast<uint8_t>(true);
+				break;
+			}
+			default:
+				this->ProjectileKill[i] = static_cast<uint8_t>(true);
+		}
+	}
+}
+
 void ProjectileSystem::RemoveProjectiles() noexcept
 {
 	for (size_t i = 0; i < this->ProjectileIsVisible.size(); )
@@ -162,7 +191,7 @@ void ProjectileSystem::RemoveProjectiles() noexcept
 			this->ProjectileSpeed[i] = this->ProjectileSpeed.back();
 			this->ProjectileRotation[i] = this->ProjectileRotation.back();
 			this->ProjectileScale[i] = this->ProjectileScale.back();
-			this->ProjectileKillCount[i] = this->ProjectileKillCount.back();
+			this->ProjectileHitCount[i] = this->ProjectileHitCount.back();
 			this->ProjectileRect[i] = this->ProjectileRect.back();
 			this->ProjectileDirection[i] = this->ProjectileDirection.back();
 			this->ProjectileColour[i] = this->ProjectileColour.back();
@@ -175,7 +204,7 @@ void ProjectileSystem::RemoveProjectiles() noexcept
 			this->ProjectileSpeed.pop_back();
 			this->ProjectileRotation.pop_back();
 			this->ProjectileScale.pop_back();
-			this->ProjectileKillCount.pop_back();
+			this->ProjectileHitCount.pop_back();
 			this->ProjectileRect.pop_back();
 			this->ProjectileDirection.pop_back();
 			this->ProjectileColour.pop_back();
@@ -221,6 +250,9 @@ void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& comma
 	const struct ProjectileHit& data = std::get<struct ProjectileHit>(command);
 	const size_t index = data.ProjectileIndex;
 
+	if (!this->CheckIndex(index))
+		return;
+
 	switch (this->ProjectileTypes[index])
 	{
 		case ProjectileType::Ball:
@@ -243,10 +275,14 @@ void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& comma
 			}
 		}
 		case ProjectileType::Bullet:
-			this->ProjectileKill[data.ProjectileIndex] = static_cast<uint8_t>(true);
+			this->ProjectileKill[index] = static_cast<uint8_t>(true);
 			break;
 	}
 
-	this->ProjectileKillCount[data.ProjectileIndex]++;
+	this->ProjectileHitCount[index]++;
 }
 
+bool ProjectileSystem::CheckIndex(const size_t index) const noexcept
+{
+	return (index <= this->ProjectileKill.size() - 1);
+}

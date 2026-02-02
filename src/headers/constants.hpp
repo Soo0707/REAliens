@@ -31,3 +31,4 @@ inline constexpr unsigned int PLAYER_TEXTURE_TILE_SIZE = 50;
 }
 
 constexpr Color CYAN = { 0, 243, 255, 255 };
+constexpr Color TEAL = { 0, 250, 147, 255 };  

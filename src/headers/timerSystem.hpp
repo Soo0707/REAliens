@@ -46,12 +46,14 @@ class TimerSystem
 		void RegisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
 		void DeregisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
 		void UpdateTimerInterval(const TimerSystemCommand& command, const size_t ticks) noexcept;
+		void DecreaseTimerInterval(const TimerSystemCommand& command, const size_t ticks) noexcept;
 
-		static constexpr std::array<void(TimerSystem::*)(const TimerSystemCommand& command, const size_t ticks) noexcept, 3> CommandHandlers = 
+		static constexpr std::array<void(TimerSystem::*)(const TimerSystemCommand& command, const size_t ticks) noexcept, 4> CommandHandlers = 
 		{
 			&RegisterTimer,
 			&DeregisterTimer,
-			&UpdateTimerInterval
+			&UpdateTimerInterval,
+			&DecreaseTimerInterval
 		};
 
 		static constexpr std::array<void(TimerSystem::*)(MessageSystem&) const noexcept, static_cast<size_t>(Timer::COUNT)> TimeoutHandlers =

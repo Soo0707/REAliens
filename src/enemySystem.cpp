@@ -81,6 +81,7 @@ void EnemySystem::UpdateEnemies(
 				std::in_place_type<struct RegisterTimer>, TICK_RATE / 2,
 				true, Timer::EmitLocationParticles
 				);
+
 		message_system.TimerSystemCommands.emplace_back(
 				std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(3),
 				false, Timer::SpawnEnemies
@@ -275,15 +276,22 @@ void EnemySystem::KillEnemies(MessageSystem& message_system) noexcept
 void EnemySystem::DamageEnemyHandler(const EnemySystemCommand& command) noexcept
 {
 	const DamageEnemy& data = std::get<struct DamageEnemy>(command);
-	this->EnemyHealth[data.EnemyIndex] -= data.DamageAmount;
+	const size_t index = data.EnemyIndex;
+
+	if (this->CheckIndex(index))
+		this->EnemyHealth[index] -= data.DamageAmount;
 }
 
 void EnemySystem::EnemyLeAttackedHandler(const EnemySystemCommand& command) noexcept
 {
 	const EnemyLeAttacked& data = std::get<struct EnemyLeAttacked>(command);
+	const size_t index = data.EnemyIndex;
 
-	this->EnemyAttackComponents[data.EnemyIndex].CanLeAttack = false;
-	this->EnemyAttackComponents[data.EnemyIndex].LastLeAttack = data.Ticks;
+	if (this->CheckIndex(index))
+	{
+		this->EnemyAttackComponents[index].CanLeAttack = false;
+		this->EnemyAttackComponents[index].LastLeAttack = data.Ticks;
+	}
 }
 
 void EnemySystem::EmitParticlesFromLocations(
@@ -345,8 +353,8 @@ void EnemySystem::GenerateLocations(const size_t spawn_count, const float map_wi
 	for (size_t i = 0; i < spawn_count; i++)
 	{
 		this->FutureSpawnLocations.emplace_back(
-				static_cast<float>(GetRandomValue(0, map_width)),
-				static_cast<float>(GetRandomValue(0, map_height))
+				static_cast<float>(GetRandomValue(100, map_width - 100)),
+				static_cast<float>(GetRandomValue(100, map_height - 100))
 				);
 	}
 }
@@ -357,4 +365,9 @@ void EnemySystem::GenerateTypes(const size_t spawn_count) noexcept
 
 	for (size_t i = 0; i < spawn_count; i++)
 		this->FutureEnemyTypes.emplace_back(static_cast<EnemyType>(GetRandomValue(0, static_cast<int>(EnemyType::COUNT) - 1)));
+}
+
+bool EnemySystem::CheckIndex(const size_t index) const noexcept
+{
+	return (index <= this->EnemyHealth.size() - 1);
 }

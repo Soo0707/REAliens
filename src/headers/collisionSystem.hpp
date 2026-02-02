@@ -60,8 +60,7 @@ class CollisionSystem
 			&ApplyAussie,
 			&ApplyDrunk,
 			&ApplyNone,
-			&ApplyPoison,
-			&ApplyTrapped
+			&ApplyPoison
 		};
 		
 		void Aura(

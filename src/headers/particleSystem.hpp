@@ -27,6 +27,7 @@ class ParticleSystem
 				const float x, const float y, const float scale, const float rotation, const size_t creation,
 				const size_t expiry, const Vector2 velocity, const Color start_colour, const Color end_colour
 				) noexcept;
+
 		void RemoveParticles(const size_t ticks) noexcept;
 		void MoveAndScaleParticles(const size_t ticks) noexcept;
 

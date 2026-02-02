@@ -34,7 +34,6 @@ enum class CachedString : uint8_t
 
 	EnemiesKilled,
 	GameOverReason,
-	LevelDebuff,
 	COUNT
 };
 
@@ -52,7 +51,6 @@ struct GlobalDataWrapper
 	void CacheString(std::string&& string, const CachedString cached_string) noexcept;
 	void Reset() noexcept;
 
-	//std::unordered_map<CachedString, std::string> CachedStrings;
 	std::array<std::string, static_cast<size_t>(CachedString::COUNT)> StringCache;
 	State ActiveState = State::MainMenu;
 

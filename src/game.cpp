@@ -236,7 +236,7 @@ void Game::UpdateGameTextSystem(const size_t ticks, const Rectangle update_area)
 void Game::UpdateProjectileSystem(const size_t ticks, const Rectangle update_area) noexcept
 {
 	this->ProjectileSystem->ExecuteCommands(*this->MessageSystem, *this->Assets);
-	this->ProjectileSystem->UpdateProjectiles(ticks, update_area, *this->MessageSystem);
+	this->ProjectileSystem->UpdateProjectiles(ticks, update_area, *this->MessageSystem, *this->ModifierSystem);
 }
 
 void Game::UpdateEnemySystem(const size_t ticks, const size_t level, const Rectangle update_area) noexcept

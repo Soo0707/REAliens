@@ -12,7 +12,6 @@ enum class EnemyType : uint8_t
 	Drunkard,
 	Pleb,
 	Poison,
-	Trapper,
 	COUNT
 };
 

@@ -44,7 +44,6 @@ class EnemySystem
 			(EnemyData) { TextureKey::Drunkard, 5, 125, 50, 15,	2 },
 			(EnemyData) { TextureKey::Pleb, 5, 75,	75,	30,	2 },
 			(EnemyData) { TextureKey::Poison, 5, 62.5, 100, 30, 2 },
-			(EnemyData) { TextureKey::Trapper, 10, 0, 100, 30, 3 }
 		};
 
 		void GenerateLocations(const size_t spawn_count, const float map_width, const float map_height) noexcept;
@@ -72,7 +71,7 @@ class EnemySystem
 
 		static constexpr std::array<uint8_t, static_cast<size_t>(EnemyType::COUNT)> EnemyXpValues = 
 		{
-			1, 2, 1, 2, 2
+			1, 2, 1, 2
 		};
 
 		void CreateEnemy(const float x, const float y, const float level_scale, const EnemyType type) noexcept;
@@ -83,6 +82,8 @@ class EnemySystem
 		void EnemiesSetDirection(const Vector2 player_centre, const bool is_stinky) noexcept;
 		void AnimateEnemies(const size_t ticks) noexcept;
 		void EnemiesUpdateTimers(const size_t ticks) noexcept;
+
+		bool CheckIndex(const size_t index) const noexcept;
 
 		std::vector<float> EnemyHealth;
 		std::vector<float> EnemySpeed;

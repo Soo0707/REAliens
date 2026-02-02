@@ -15,6 +15,7 @@ enum class Attribute : uint32_t
 	LazerDamage,
 	LazerScale,
 	LazerSpeed,
+	LazerMaxHit,
 
 	BallSpeed,
 	BallScale,

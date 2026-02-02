@@ -1,4 +1,5 @@
 #include "globalDataWrapper.hpp"
+
 #include <string>
 
 void GlobalDataWrapper::Reset() noexcept
@@ -6,7 +7,6 @@ void GlobalDataWrapper::Reset() noexcept
 	this->CacheString("Level: 1", CachedString::LevelText);
 	this->CacheString("Duration: 0s", CachedString::Duration);
 	this->CacheString("", CachedString::UnclaimedPowerups);
-	this->CacheString("", CachedString::LevelDebuff);
 
 	this->UnclaimedPowerups = 0;
 }

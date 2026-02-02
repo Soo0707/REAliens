@@ -28,10 +28,10 @@ void CollisionSystem::PollSignals(
 		auto signal_handler = this->SignalHandlers[i];
 
 		if (times > 0)
+		{
 			(this->*signal_handler)(enemy_rect, player_centre, modifier_system, message_system, ticks);
-
-
-		message_system.CollisionSystemSignals[i] = 0;
+			message_system.CollisionSystemSignals[i] = 0;
+		}
 	}
 }
 
@@ -146,7 +146,7 @@ void CollisionSystem::SlideAttack(
 
 			message_system.ParticleSystemCommands.emplace_back(
 					ticks, 50, player_direction, enemy_rect[i].x, enemy_rect[i].y,
-					10, 25, 60, TICK_RATE, 512, ORANGE, RED
+					10, 25, 60, TICK_RATE, 256, ORANGE, RED
 					);
 
 			total_damage_done += static_cast<unsigned int>(damage_done);

@@ -120,8 +120,6 @@ void GameDrawSystem::DrawOverlay(
 	DrawText(global_data.StringCache[static_cast<size_t>(CachedString::Duration)].c_str(), 20, 20, 24, LIGHTGRAY);
 	DrawText(global_data.StringCache[static_cast<size_t>(CachedString::LevelText)].c_str(), 20, 50, 24, LIGHTGRAY);
 
-	DrawText(global_data.StringCache[static_cast<size_t>(CachedString::LevelDebuff)].c_str(), 20, 110, 24, GOLD);
-
 	if (global_data.UnclaimedPowerups)
 		DrawText("[TAB]", 40, 680, 15, GOLD);
 
