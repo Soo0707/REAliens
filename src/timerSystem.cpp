@@ -65,6 +65,9 @@ void TimerSystem::Reset() noexcept
 	this->TimerInterval = { 0 };
 	this->TimerRecurring = { 0 };
 	this->TimerActive = { 0 };
+
+	this->TimerInterval[static_cast<size_t>(Timer::AuraTick)] = static_cast<uint32_t>(SECONDS_TO_TICKS(2));
+	this->TimerInterval[static_cast<size_t>(Timer::BallCountdown)] = static_cast<uint32_t>(SECONDS_TO_TICKS(30));
 }
 
 void TimerSystem::RegisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept
@@ -79,9 +82,18 @@ void TimerSystem::RegisterTimer(const TimerSystemCommand& command, const size_t 
 	this->TimerActive[index] = true;
 }
 
-void TimerSystem::DeregisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept
+void TimerSystem::EnableTimer(const TimerSystemCommand& command, const size_t ticks) noexcept
 {
-	const size_t index = static_cast<size_t>(std::get<struct DeregisterTimer>(command).Type);
+	const struct EnableTimer& data = std::get<struct EnableTimer>(command);
+	const size_t index = static_cast<size_t>(data.Type);
+
+	this->TimerActive[index] = true;
+	this->TimerRecurring[index] = data.Recurring;
+}
+
+void TimerSystem::DisableTimer(const TimerSystemCommand& command, const size_t ticks) noexcept
+{
+	const size_t index = static_cast<size_t>(std::get<struct DisableTimer>(command).Type);
 
 	this->TimerActive[index] = false;
 }
@@ -101,10 +113,10 @@ void TimerSystem::DecreaseTimerInterval(const TimerSystemCommand& command, const
 	const size_t index = static_cast<size_t>(data.Type);
 	const int32_t original_interval = static_cast<int32_t>(this->TimerInterval[index]);
 
-	if (original_interval - data.Amount >= static_cast<int32_t>(data.Minimum))
+	if (original_interval - static_cast<int32_t>(data.Amount) >= static_cast<int32_t>(data.Minimum))
 		this->TimerInterval[index] = original_interval - data.Amount;
 	else
-		this->TimerInterval[index] = static_cast<int32_t>(data.Minimum);
+		this->TimerInterval[index] = data.Minimum;
 }
 
 void TimerSystem::GreenbullExpireHandler(MessageSystem& message_system) const noexcept
@@ -125,7 +137,7 @@ void TimerSystem::PoisonTickHandler(MessageSystem& message_system) const noexcep
 void TimerSystem::PoisonExpireHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemovePoison)]++;
-	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct DeregisterTimer>, Timer::PoisonTick);
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct DisableTimer>, Timer::PoisonTick);
 }
 
 void TimerSystem::DrunkExpireHandler(MessageSystem& message_system) const noexcept
@@ -155,7 +167,7 @@ void TimerSystem::EmitLocationParticlesHandler(MessageSystem& message_system) co
 
 void TimerSystem::SpawnEnemiesHandler(MessageSystem& message_system) const noexcept
 {
-	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct DeregisterTimer>, Timer::EmitLocationParticles);
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct DisableTimer>, Timer::EmitLocationParticles);
 	message_system.EnemySystemSignals[static_cast<size_t>(EnemySystemSignal::SpawnEnemies)]++;
 }
 

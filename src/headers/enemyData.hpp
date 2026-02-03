@@ -27,7 +27,6 @@ struct EnemyAnimationComponent
 	size_t LastAnimationUpdate;
 	uint8_t ImageIndex;
 	uint8_t AnimationInterval;
-	uint8_t AnimationFrames;
 };
 
 struct EnemyData
@@ -38,13 +37,4 @@ struct EnemyData
 	const float Health;
 
 	const uint8_t AnimationInterval;
-	/*
-	animation_frames = number of actual frames -1
-
-	case index = 0:
-		0 * TEXTURE_TILE_SIZE = 0, first frame
-	
-	so everything is off by 1
-	*/
-	const uint8_t AnimationFrames;
 };

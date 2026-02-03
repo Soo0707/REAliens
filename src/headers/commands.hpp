@@ -79,7 +79,13 @@ struct RegisterTimer
 	Timer Type;
 };
 
-struct DeregisterTimer
+struct EnableTimer
+{
+	bool Recurring;
+	Timer Type;
+};
+
+struct DisableTimer
 {
 	Timer Type;
 };
@@ -92,12 +98,12 @@ struct UpdateTimerInterval
 
 struct DecreaseTimerInterval
 {
-	int32_t Amount;
-	int16_t Minimum;
+	uint32_t Amount;
+	uint32_t Minimum;
 	Timer Type;
 };
 
-using TimerSystemCommand = std::variant<struct RegisterTimer, struct DeregisterTimer, struct UpdateTimerInterval, struct DecreaseTimerInterval>;
+using TimerSystemCommand = std::variant<struct RegisterTimer, struct EnableTimer, struct DisableTimer, struct UpdateTimerInterval, struct DecreaseTimerInterval>;
 
 
 struct StatSystemCommand

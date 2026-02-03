@@ -40,10 +40,10 @@ class EnemySystem
 	private:
 		static constexpr std::array<EnemyData, static_cast<size_t>(EnemyType::COUNT)> EnemyAttributes = 
 		{
-			(EnemyData) { TextureKey::Australian, 5, 87.5, 75, 30, 2 },
-			(EnemyData) { TextureKey::Drunkard, 5, 125, 50, 15,	2 },
-			(EnemyData) { TextureKey::Pleb, 5, 75,	75,	30,	2 },
-			(EnemyData) { TextureKey::Poison, 5, 62.5, 100, 30, 2 },
+			(EnemyData) { TextureKey::Australian, 5, 87.5, 75, 30 },
+			(EnemyData) { TextureKey::Drunkard, 5, 125, 50, 15 },
+			(EnemyData) { TextureKey::Pleb, 5, 75, 75, 30 },
+			(EnemyData) { TextureKey::Poison, 5, 62.5, 100, 30 },
 		};
 
 		void GenerateLocations(const size_t spawn_count, const float map_width, const float map_height) noexcept;
@@ -73,6 +73,9 @@ class EnemySystem
 		{
 			1, 2, 1, 2
 		};
+
+		// animation_frames = number of actual frames -1 since it's 0 indexed
+		static constexpr uint8_t AnimationFrames = 2;
 
 		void CreateEnemy(const float x, const float y, const float level_scale, const EnemyType type) noexcept;
 		void KillEnemies(MessageSystem& message_system) noexcept;

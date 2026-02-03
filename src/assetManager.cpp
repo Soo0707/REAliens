@@ -72,7 +72,6 @@ TextureKey AssetManager::GetTextureKeyFromString(std::string filename) const noe
 		{ "pleb.png" , TextureKey::Pleb },
 
 		{ "poison.png", TextureKey::Poison },
-		{ "trapper.png", TextureKey::Trapper },
 		{ "player.png", TextureKey::Player },
 
 		{ "milk_icon.png", TextureKey::MilkIcon },

@@ -17,7 +17,6 @@ enum class TextureKey : uint8_t
 	Drunkard,
 	Pleb,
 	Poison,
-	Trapper,
 	Player,
 	MilkIcon,
 	MagnetismIcon,

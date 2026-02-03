@@ -44,14 +44,16 @@ class TimerSystem
 		void BallCountdownHandler(MessageSystem& message_system) const noexcept;
 
 		void RegisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
-		void DeregisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
+		void EnableTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
+		void DisableTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
 		void UpdateTimerInterval(const TimerSystemCommand& command, const size_t ticks) noexcept;
 		void DecreaseTimerInterval(const TimerSystemCommand& command, const size_t ticks) noexcept;
 
-		static constexpr std::array<void(TimerSystem::*)(const TimerSystemCommand& command, const size_t ticks) noexcept, 4> CommandHandlers = 
+		static constexpr std::array<void(TimerSystem::*)(const TimerSystemCommand& command, const size_t ticks) noexcept, 5> CommandHandlers = 
 		{
 			&RegisterTimer,
-			&DeregisterTimer,
+			&EnableTimer,
+			&DisableTimer,
 			&UpdateTimerInterval,
 			&DecreaseTimerInterval
 		};

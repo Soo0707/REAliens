@@ -139,8 +139,8 @@ void PowerupMenu::ApplyMilk() noexcept
 
 	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<RegisterTimer>, SECONDS_TO_TICKS(180), false, Timer::MilkExpire);
 
-	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<DeregisterTimer>, Timer::PoisonTick);
-	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<DeregisterTimer>, Timer::PoisonExpire);
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<DisableTimer>, Timer::PoisonTick);
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<DisableTimer>, Timer::PoisonExpire);
 }
 
 void PowerupMenu::ApplyGreenbull() noexcept
@@ -160,7 +160,7 @@ void PowerupMenu::ApplyAura() noexcept
 	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyAura)]++;
 
 	if (!this->TimerSystem->GetTimerStatus(Timer::AuraTick))
-		this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<RegisterTimer>, SECONDS_TO_TICKS(2), true, Timer::AuraTick);
+		this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<EnableTimer>, true, Timer::AuraTick);
 	else
 	{
 		this->MessageSystem->TimerSystemCommands.emplace_back(
@@ -191,17 +191,12 @@ void PowerupMenu::ApplyBall() noexcept
 	const bool has_ball = this->TimerSystem->GetTimerStatus(Timer::BallCountdown);
 
 	if (!has_ball)
-	{
-		this->MessageSystem->TimerSystemCommands.emplace_back(
-				std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(30),
-				true, Timer::BallCountdown
-				);
-	}
+		this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<EnableTimer>, true, Timer::BallCountdown);
 	else
 	{
 		this->MessageSystem->TimerSystemCommands.emplace_back(
-				std::in_place_type<struct DecreaseTimerInterval>, static_cast<int32_t>(SECONDS_TO_TICKS(5)),
-				static_cast<int16_t>(TICK_RATE), Timer::BallCountdown
+				std::in_place_type<struct DecreaseTimerInterval>, SECONDS_TO_TICKS(5),
+				TICK_RATE, Timer::BallCountdown
 				);
 	}
 }

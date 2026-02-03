@@ -1,5 +1,5 @@
 #include "player.hpp"
-
+#include <iostream>
 #include <cstdint>
 #include <cmath>
 
@@ -200,4 +200,6 @@ void Player::SpawnBall(MessageSystem& message_system, const uint16_t times, cons
 			std::in_place_type<struct CreateProjectile>, ProjectileType::Ball,
 			ball_direction, ball_location.x, ball_location.y, ball_speed, ball_scale
 			);
+
+	std::cout << ball_scale << std::endl;
 }

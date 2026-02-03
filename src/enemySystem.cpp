@@ -161,7 +161,7 @@ void EnemySystem::AnimateEnemies(const size_t ticks) noexcept
 			{
 				this->EnemyAnimationComponents[i].ImageIndex++;
 				this->EnemyAnimationComponents[i].LastAnimationUpdate = ticks;
-				this->EnemyAnimationComponents[i].ImageIndex %= this->EnemyAnimationComponents[i].AnimationFrames;
+				this->EnemyAnimationComponents[i].ImageIndex %= this->AnimationFrames;
 			}
 		}
 	}
@@ -224,7 +224,7 @@ void EnemySystem::CreateEnemy(const float x, const float y, const float level_sc
 	this->EnemyRect.emplace_back(x, y, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE);
 	this->EnemyAttackComponents.emplace_back(0, this->EnemyAttributes[type_index].Damage * level_scale, true);
 	this->EnemyTextureKey.emplace_back(this->EnemyAttributes[type_index].Texture);
-	this->EnemyAnimationComponents.emplace_back(0, 0, this->EnemyAttributes[type_index].AnimationInterval, this->EnemyAttributes[type_index].AnimationFrames);
+	this->EnemyAnimationComponents.emplace_back(0, 0, this->EnemyAttributes[type_index].AnimationInterval);
 	this->EnemyTypes.emplace_back(type);
 }
 
