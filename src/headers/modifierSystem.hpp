@@ -33,7 +33,7 @@ class ModifierSystem
 		void ApplyMagnetism() noexcept;
 		void ApplyAura() noexcept;
 		void ApplyBuckshot() noexcept;
-		void ApplyProjectile() noexcept;
+		void ApplyBullet() noexcept;
 		void ApplyLazer() noexcept;
 		void ApplyBall() noexcept;
 		void ApplyLifeSteal() noexcept;
@@ -64,7 +64,7 @@ class ModifierSystem
 			&ApplyMagnetism,
 			&ApplyAura,
 			&ApplyBuckshot,
-			&ApplyProjectile,
+			&ApplyBullet,
 			&ApplyLazer,
 			&ApplyBall,
 			&ApplyLifeSteal,

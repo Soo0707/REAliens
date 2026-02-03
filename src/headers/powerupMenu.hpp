@@ -18,7 +18,7 @@ enum class Powerup
 {
 	Aura,
 	Buckshot,
-	Projectile,
+	Bullet,
 
 	Lazer,
 	Ball,
@@ -64,7 +64,7 @@ class PowerupMenu
 		void ApplyAura() noexcept;
 
 		void ApplyBuckshot() noexcept;
-		void ApplyProjectile() noexcept;
+		void ApplyBullet() noexcept;
 		void ApplyLazer() noexcept;
 		void ApplyBall() noexcept;
 
@@ -89,7 +89,7 @@ class PowerupMenu
 		{
 			"Aura",
 			"Buckshot",
-			"Projectile",
+			"Bullet",
 
 			"Lazer",
 			"Ball",
@@ -107,15 +107,15 @@ class PowerupMenu
 		static inline constexpr std::array<const char*, static_cast<size_t>(Powerup::COUNT)> PowerupDescriptions =
 		{
 			"+Aura Size, -Aura Timeout",
-			"Increase The Number Of Projectiles Shot",
-			"+Projectile Damage, -LMB Timeout",
+			"Increase The Number Of Bullets Shot",
+			"+Bullet Damage, -LMB Timeout",
 
 			"+Lazer Damage, -RMB Timeout, +Penetration Power",
 			"Periodically Spawn Balls Which Explode Into Smaller Balls",
 			"Temporary Invincibility",
 
 			"Removes And Prevents Enemy Effects",
-			"Regain Health By Dealing Damage",
+			"Regain Health By Dealing Damage With Bullet Or Lazer",
 			"Increase Max Health",
 
 			"Auto Collects XP",
@@ -127,7 +127,7 @@ class PowerupMenu
 		{
 			&ApplyAura,
 			&ApplyBuckshot,
-			&ApplyProjectile,
+			&ApplyBullet,
 
 			&ApplyLazer,
 			&ApplyBall,

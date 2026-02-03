@@ -14,7 +14,6 @@
 #include "timerSystem.hpp"
 #include "modifierSystem.hpp"
 #include "particleSystem.hpp"
-#include "gameTextSystem.hpp"
 #include "projectileSystem.hpp"
 #include "enemySystem.hpp"
 #include "statSystem.hpp"
@@ -37,10 +36,9 @@ class Game
 			std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets,
 			std::shared_ptr<SettingsManager> settings, std::shared_ptr<struct MessageSystem> message_system,
 			std::shared_ptr<class TimerSystem> timer_system, std::shared_ptr<class ModifierSystem> modifier_system,
-			std::shared_ptr<class ParticleSystem> particle_system, std::shared_ptr<class GameTextSystem> game_text_system,
-			std::shared_ptr<class ProjectileSystem> projectile_system, std::shared_ptr<class EnemySystem> enemy_system,
-			std::shared_ptr<class StatSystem> stat_system, std::shared_ptr<class XpSystem> xp_system,
-			std::shared_ptr<class CollisionSystem> collision_system
+			std::shared_ptr<class ParticleSystem> particle_system, std::shared_ptr<class ProjectileSystem> projectile_system,
+			std::shared_ptr<class EnemySystem> enemy_system, std::shared_ptr<class StatSystem> stat_system,
+			std::shared_ptr<class XpSystem> xp_system, std::shared_ptr<class CollisionSystem> collision_system
 			);
 
 		~Game();
@@ -62,7 +60,6 @@ class Game
 		const std::shared_ptr<class TimerSystem> TimerSystem;
 		const std::shared_ptr<class ModifierSystem> ModifierSystem;
 		const std::shared_ptr<class ParticleSystem> ParticleSystem;
-		const std::shared_ptr<class GameTextSystem> GameTextSystem;
 		const std::shared_ptr<class ProjectileSystem> ProjectileSystem;
 		const std::shared_ptr<class EnemySystem> EnemySystem;
 		const std::shared_ptr<class StatSystem> StatSystem;
@@ -88,7 +85,6 @@ class Game
 		void UpdateTimerSystem(const size_t ticks) noexcept;
 		void UpdateModifierSystem() noexcept;
 		void UpdateParticleSystem(const size_t ticks, const Rectangle update_area) noexcept;
-		void UpdateGameTextSystem(const size_t ticks, const Rectangle update_area) noexcept;
 		void UpdateProjectileSystem(const size_t ticks, const Rectangle update_area) noexcept;
 		void UpdateEnemySystem(const size_t ticks, const size_t level, const Rectangle update_area) noexcept;
 		void UpdateStatSystem() noexcept;

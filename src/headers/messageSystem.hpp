@@ -16,7 +16,6 @@ struct MessageSystem
 	void Reset() noexcept;
 
 	std::vector<CreateParticles> ParticleSystemCommands;
-	std::vector<CreateGameTexts> GameTextSystemCommands;
 	std::vector<ProjectileSystemCommand> ProjectileSystemCommands;
 	std::vector<XpSystemCommand> XpSystemCommands;
 	std::vector<PlayerCommand> PlayerCommands;

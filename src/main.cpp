@@ -8,7 +8,6 @@
 #include "timerSystem.hpp"
 #include "modifierSystem.hpp"
 #include "particleSystem.hpp"
-#include "gameTextSystem.hpp"
 #include "projectileSystem.hpp"
 #include "enemySystem.hpp"
 #include "statSystem.hpp"
@@ -56,7 +55,6 @@ int main(void)
 	const std::shared_ptr<TimerSystem> timer_system = std::make_shared<TimerSystem>();
 	const std::shared_ptr<ModifierSystem> modifier_system = std::make_shared<ModifierSystem>();
 	const std::shared_ptr<ParticleSystem> particle_system = std::make_shared<ParticleSystem>();
-	const std::shared_ptr<GameTextSystem> game_text_system = std::make_shared<GameTextSystem>();
 	const std::shared_ptr<ProjectileSystem> projectile_system = std::make_shared<ProjectileSystem>();
 	const std::shared_ptr<EnemySystem> enemy_system = std::make_shared<EnemySystem>();
 	const std::shared_ptr<StatSystem> stat_system = std::make_shared<StatSystem>();
@@ -65,7 +63,7 @@ int main(void)
 
 	Game game = Game(
 			global_data, assets, settings, message_system, timer_system, modifier_system,
-			particle_system, game_text_system, projectile_system, enemy_system, stat_system, xp_system, collision_system
+			particle_system, projectile_system, enemy_system, stat_system, xp_system, collision_system
 			);
 
 	PowerupMenu powerup_menu = PowerupMenu(global_data, assets, settings, message_system, timer_system);
@@ -98,7 +96,6 @@ int main(void)
 				timer_system->Reset();
 				modifier_system->Reset();
 				particle_system->Reset();
-				game_text_system->Reset();
 				projectile_system->Reset();
 				enemy_system->Reset();
 				stat_system->Reset();

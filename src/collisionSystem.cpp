@@ -67,12 +67,7 @@ void CollisionSystem::ProjectileCollision(
 			{
 				message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, j, damage);
 				message_system.ProjectileSystemCommands.emplace_back(std::in_place_type<struct ProjectileHit>, i);
-/*				
-				message_system.GameTextSystemCommands.emplace_back(
-						ticks, ticks + TICK_RATE / 4, projectile_rect[i].x, projectile_rect[i].y,
-						48.0f, damage, 128, YELLOW
-						);
-*/
+
 				message_system.ParticleSystemCommands.emplace_back(
 						ticks, damage, projectile_direction[i], projectile_rect[i].x, projectile_rect[i].y,
 						10, 30, 48, TICK_RATE / 2, 256, RED, RED
@@ -138,12 +133,7 @@ void CollisionSystem::SlideAttack(
 			const float damage_done = enemy_health[i];
 
 			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, i, damage_done);
-/*
-			message_system.GameTextSystemCommands.emplace_back(
-					ticks, ticks + TICK_RATE / 4, enemy_rect[i].x, enemy_rect[i].y,
-					64.0f, damage_done, 52, ORANGE
-					);
-*/
+
 			message_system.ParticleSystemCommands.emplace_back(
 					ticks, damage_done, player_direction, enemy_rect[i].x, enemy_rect[i].y,
 					15, 25, 60, TICK_RATE / 2, 256, ORANGE, RED
@@ -183,12 +173,7 @@ void CollisionSystem::Aura(
 		if (CheckCollisionRecs(aura, enemy_rect[i]))
 		{
 			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, i, aura_damage);
-/*
-			message_system.GameTextSystemCommands.emplace_back(
-					ticks, ticks + TICK_RATE / 4, enemy_rect[i].x, enemy_rect[i].y,
-					64.0f, aura_damage, 42, MAGENTA
-					);
-*/
+
 			const Vector2 velocity = { static_cast<float>(GetRandomValue(-192, 192)), static_cast<float>(GetRandomValue(-192, 192)) };
 
 			message_system.ParticleSystemCommands.emplace_back(

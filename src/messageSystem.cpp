@@ -3,7 +3,6 @@
 MessageSystem::MessageSystem()
 {
 	this->ParticleSystemCommands.reserve(128);
-	this->GameTextSystemCommands.reserve(128);
 	this->ProjectileSystemCommands.reserve(128);
 	this->XpSystemCommands.reserve(128);
 	this->PlayerCommands.reserve(128);
@@ -15,7 +14,6 @@ MessageSystem::MessageSystem()
 void MessageSystem::Reset() noexcept
 {
 	this->ParticleSystemCommands.clear();
-	this->GameTextSystemCommands.clear();
 	this->ProjectileSystemCommands.clear();
 	this->XpSystemCommands.clear();
 	this->PlayerCommands.clear();

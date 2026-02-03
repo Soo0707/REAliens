@@ -175,9 +175,9 @@ void PowerupMenu::ApplyBuckshot() noexcept
 	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyBuckshot)]++;
 }
 
-void PowerupMenu::ApplyProjectile() noexcept
+void PowerupMenu::ApplyBullet() noexcept
 {
-	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyProjectile)]++;
+	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyBullet)]++;
 }
 
 void PowerupMenu::ApplyLazer() noexcept

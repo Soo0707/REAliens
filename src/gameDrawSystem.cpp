@@ -61,12 +61,6 @@ void GameDrawSystem::DrawLighting(const Game& game, const ModifierSystem& modifi
 	game.ProjectileSystem->DrawLightmap();
 }
 
-void GameDrawSystem::DrawScreenLayer(const Game& game) noexcept
-{
-	const size_t ticks = game.Ticks;
-	game.GameTextSystem->Draw(ticks);
-}
-
 void GameDrawSystem::DrawOverlay(
 		const Game& game, const TimerSystem& timer_system, const ModifierSystem& modifier_system,
 		const GlobalDataWrapper& global_data, const AssetManager& assets

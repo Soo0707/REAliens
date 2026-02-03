@@ -25,20 +25,6 @@ struct CreateParticles
 	Color EndColour;
 };
 
-
-struct CreateGameTexts
-{
-	size_t Creation;
-	size_t Expiry;
-	float X;
-	float Y;
-	float Speed;
-	unsigned int Text;
-	int Size;
-	Color Colour;
-};
-
-
 struct CreateProjectile
 {
 	ProjectileType Type;

@@ -20,7 +20,6 @@
 #include "timerSystem.hpp"
 #include "modifierSystem.hpp"
 #include "particleSystem.hpp"
-#include "gameTextSystem.hpp"
 #include "projectileSystem.hpp"
 #include "enemySystem.hpp"
 #include "statSystem.hpp"
@@ -30,10 +29,9 @@ Game::Game(
 		std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets,
 		std::shared_ptr<SettingsManager> settings, std::shared_ptr<struct MessageSystem> message_system,
 		std::shared_ptr<class TimerSystem> timer_system, std::shared_ptr<class ModifierSystem> modifier_system,
-		std::shared_ptr<class ParticleSystem> particle_system, std::shared_ptr<class GameTextSystem> game_text_system,
-		std::shared_ptr<class ProjectileSystem> projectile_system, std::shared_ptr<class EnemySystem> enemy_system,
-		std::shared_ptr<class StatSystem> stat_system, std::shared_ptr<class XpSystem> xp_system,
-		std::shared_ptr<class CollisionSystem> collision_system
+		std::shared_ptr<class ParticleSystem> particle_system, std::shared_ptr<class ProjectileSystem> projectile_system,
+		std::shared_ptr<class EnemySystem> enemy_system, std::shared_ptr<class StatSystem> stat_system,
+		std::shared_ptr<class XpSystem> xp_system, std::shared_ptr<class CollisionSystem> collision_system
 		) :
 	Player(std::make_unique<class Player>(500.0f, 500.0f, *assets)),
 	GlobalData(global_data),
@@ -43,7 +41,6 @@ Game::Game(
 	TimerSystem(timer_system),
 	ModifierSystem(modifier_system),
 	ParticleSystem(particle_system),
-	GameTextSystem(game_text_system),
 	ProjectileSystem(projectile_system),
 	EnemySystem(enemy_system),
 	StatSystem(stat_system),
@@ -125,10 +122,6 @@ void Game::Draw(RenderTexture2D& canvas) const noexcept
 			);
 		EndBlendMode();
 
-		BeginMode2D(camera);
-			GameDrawSystem::DrawScreenLayer(*this);
-		EndMode2D();
-
 		GameDrawSystem::DrawOverlay(*this, *this->TimerSystem, *this->ModifierSystem, *this->GlobalData, *this->Assets);
 	EndTextureMode();
 }
@@ -178,7 +171,6 @@ void Game::TickedUpdate() noexcept
 		this->UpdateModifierSystem();
 
 		this->UpdateParticleSystem(ticks, update_area);
-		this->UpdateGameTextSystem(ticks, update_area);
 		this->UpdateProjectileSystem(ticks, update_area);
 		this->UpdateEnemySystem(ticks, this->Level, update_area);
 		this->UpdateStatSystem();
@@ -225,12 +217,6 @@ void Game::UpdateParticleSystem(const size_t ticks, const Rectangle update_area)
 {
 	this->ParticleSystem->ExecuteCommands(*this->MessageSystem, *this->Assets);
 	this->ParticleSystem->UpdateParticles(update_area, ticks);
-}
-
-void Game::UpdateGameTextSystem(const size_t ticks, const Rectangle update_area) noexcept
-{
-	this->GameTextSystem->ExecuteCommands(*this->MessageSystem);
-	this->GameTextSystem->UpdateGameText(ticks, update_area);
 }
 
 void Game::UpdateProjectileSystem(const size_t ticks, const Rectangle update_area) noexcept

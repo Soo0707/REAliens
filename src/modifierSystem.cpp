@@ -150,7 +150,7 @@ void ModifierSystem::ApplyBuckshot() noexcept
 	this->IncreaseAttribute(Attribute::Buckshot, 2.0f);
 }
 
-void ModifierSystem::ApplyProjectile() noexcept
+void ModifierSystem::ApplyBullet() noexcept
 {
 	this->DecreaseAttribute(Attribute::BulletCooldown, 25.0f, 80.0f);
 

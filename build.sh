@@ -5,7 +5,6 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  src/player.cpp\
  src/collisionSystem.cpp\
  src/enemySystem.cpp\
- src/gameTextSystem.cpp\
  src/particleSystem.cpp\
  src/projectileSystem.cpp\
  src/statSystem.cpp\
