@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <cstddef>
 #include <variant>
+#include <mutex>
+#include <atomic>
 
 #include "raylib.h"
 
@@ -23,15 +25,12 @@ void CollisionSystem::PollSignals(
 {
 	for (size_t i = 0; i < static_cast<size_t>(CollisionSystemSignal::COUNT); i++)
 	{
-		const uint16_t times = static_cast<uint16_t>(message_system.CollisionSystemSignals[i]);
+		const uint16_t times = message_system.CollisionSystemSignals[i].exchange(0);
 		
 		auto signal_handler = this->SignalHandlers[i];
 
 		if (times > 0)
-		{
 			(this->*signal_handler)(enemy_rect, player_centre, modifier_system, message_system, ticks);
-			message_system.CollisionSystemSignals[i] = 0;
-		}
 	}
 }
 
@@ -65,13 +64,23 @@ void CollisionSystem::ProjectileCollision(
 		{
 			if (CheckCollisionRecs(projectile_rect[i], enemy_rect[j]))
 			{
-				message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, j, damage);
-				message_system.ProjectileSystemCommands.emplace_back(std::in_place_type<struct ProjectileHit>, i);
+				{
+					std::lock_guard<std::mutex> lock(message_system.EnemySystemMutex);
+					message_system.EnemySystemCommandsWrite.emplace_back(std::in_place_type<struct DamageEnemy>, j, damage);
+				}
 
-				message_system.ParticleSystemCommands.emplace_back(
-						ticks, damage, projectile_direction[i], projectile_rect[i].x, projectile_rect[i].y,
-						10, 30, 48, TICK_RATE / 2, 256, RED, RED
-						);
+				{
+					std::lock_guard<std::mutex> lock(message_system.ProjectileSystemMutex);
+					message_system.ProjectileSystemCommandsWrite.emplace_back(std::in_place_type<struct ProjectileHit>, i);
+				}
+
+				{
+					std::lock_guard<std::mutex> lock(message_system.ParticleSystemMutex);
+					message_system.ParticleSystemCommandsWrite.emplace_back(
+							ticks, damage, projectile_direction[i], projectile_rect[i].x, projectile_rect[i].y,
+							10, 30, 48, TICK_RATE / 2, 256, RED, RED
+							);
+				}
 
 				total_damage_done += static_cast<unsigned int>(damage);
 				break;
@@ -81,13 +90,15 @@ void CollisionSystem::ProjectileCollision(
 
 	if (modifier_system.EffectStatus(Effect::LifeSteal))
 	{
-		message_system.PlayerCommands.emplace_back(
+		std::lock_guard<std::mutex> lock(message_system.PlayerMutex);
+		message_system.PlayerCommandsWrite.emplace_back(
 				std::in_place_type<struct IncreasePlayerHealth>,
 				total_damage_done * modifier_system.GetAttribute(Attribute::LifeStealMultiplier)
 				);
 	}
 
-	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_damage_done);
+	std::lock_guard<std::mutex> lock(message_system.StatSystemMutex);
+	message_system.StatSystemCommandsWrite.emplace_back(Stat::TotalDamage, total_damage_done);
 }
 
 void CollisionSystem::LeAttack(
@@ -111,11 +122,15 @@ void CollisionSystem::LeAttack(
 				(this->*le_attack_hook)(message_system, ticks);
 			}
 
-			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct EnemyLeAttacked>, i, ticks);
+			{
+				std::lock_guard<std::mutex> lock(message_system.EnemySystemMutex);
+				message_system.EnemySystemCommandsWrite.emplace_back(std::in_place_type<struct EnemyLeAttacked>, i, ticks);
+			}
 		}
 	}
 
-	message_system.PlayerCommands.emplace_back(std::in_place_type<struct DamagePlayer>, total_damage);
+	std::lock_guard<std::mutex> lock(message_system.PlayerMutex);
+	message_system.PlayerCommandsWrite.emplace_back(std::in_place_type<struct DamagePlayer>, total_damage);
 }
 
 void CollisionSystem::SlideAttack(
@@ -132,28 +147,25 @@ void CollisionSystem::SlideAttack(
 		{
 			const float damage_done = enemy_health[i];
 
-			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, i, damage_done);
+			{
+				std::lock_guard<std::mutex> lock(message_system.EnemySystemMutex);
+				message_system.EnemySystemCommandsWrite.emplace_back(std::in_place_type<struct DamageEnemy>, i, damage_done);
+			}
 
-			message_system.ParticleSystemCommands.emplace_back(
-					ticks, damage_done, player_direction, enemy_rect[i].x, enemy_rect[i].y,
-					15, 25, 60, TICK_RATE / 2, 256, ORANGE, RED
-					);
+			{
+				std::lock_guard<std::mutex> lock(message_system.ParticleSystemMutex);
+				message_system.ParticleSystemCommandsWrite.emplace_back(
+						ticks, damage_done, player_direction, enemy_rect[i].x, enemy_rect[i].y,
+						15, 25, 60, TICK_RATE / 2, 256, ORANGE, RED
+						);
+			}
 
 			total_damage_done += static_cast<unsigned int>(damage_done);
 		}
 	}
-	/*
-	 TODO FIX AURA
-	if (modifier_system.EffectStatus(Effect::LifeSteal))
-	{
-		message_system.PlayerCommands(
-				std::in_place_type<struct IncreasePlayerHealth>,
-				total_damage_done * modifier_system.GetAttribute(Attribute::LifeStealMultiplier)
-				);
-	}
-	*/
-
-	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_damage_done);
+	
+	std::lock_guard<std::mutex> lock(message_system.StatSystemMutex);
+	message_system.StatSystemCommandsWrite.emplace_back(Stat::TotalDamage, total_damage_done);
 }
 
 void CollisionSystem::Aura(
@@ -172,14 +184,20 @@ void CollisionSystem::Aura(
 	{
 		if (CheckCollisionRecs(aura, enemy_rect[i]))
 		{
-			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, i, aura_damage);
+			{
+				std::lock_guard<std::mutex> lock(message_system.EnemySystemMutex);
+				message_system.EnemySystemCommandsWrite.emplace_back(std::in_place_type<struct DamageEnemy>, i, aura_damage);
+			}
 
 			const Vector2 velocity = { static_cast<float>(GetRandomValue(-192, 192)), static_cast<float>(GetRandomValue(-192, 192)) };
 
-			message_system.ParticleSystemCommands.emplace_back(
-					ticks, aura_damage, velocity, enemy_rect[i].x, enemy_rect[i].y,
-					10, 20, 60, TICK_RATE / 2, 0, PURPLE, RED
-					);
+			{
+				std::lock_guard<std::mutex> lock(message_system.ParticleSystemMutex);
+				message_system.ParticleSystemCommandsWrite.emplace_back(
+						ticks, aura_damage, velocity, enemy_rect[i].x, enemy_rect[i].y,
+						10, 20, 60, TICK_RATE / 2, 0, PURPLE, RED
+						);
+			}
 
 			total_hit++;
 		}
@@ -187,13 +205,17 @@ void CollisionSystem::Aura(
 
 	if (modifier_system.EffectStatus(Effect::LifeSteal))
 	{
-		message_system.PlayerCommands.emplace_back(
+		std::lock_guard<std::mutex> lock(message_system.PlayerMutex);
+		message_system.PlayerCommandsWrite.emplace_back(
 				std::in_place_type<struct IncreasePlayerHealth>,
 				total_hit * aura_damage * modifier_system.GetAttribute(Attribute::LifeStealMultiplier)
 				);
 	}
 
-	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_hit * static_cast<unsigned int>(aura_damage));
+	{
+		std::lock_guard<std::mutex> lock(message_system.StatSystemMutex);
+		message_system.StatSystemCommandsWrite.emplace_back(Stat::TotalDamage, total_hit * static_cast<unsigned int>(aura_damage));
+	}
 }
 
 void CollisionSystem::XpCollision(
@@ -209,7 +231,9 @@ void CollisionSystem::XpCollision(
 		if (CheckCollisionRecs(player_rect, xp_rect[i]) || has_magnetism)
 		{
 			*collected_xp += xp_value[i];
-			message_system.XpSystemCommands.emplace_back(std::in_place_type<struct KillXp>, i);
+
+			std::lock_guard<std::mutex> lock(message_system.XpSystemMutex);
+			message_system.XpSystemCommandsWrite.emplace_back(std::in_place_type<struct KillXp>, i);
 		}
 	}
 }
@@ -218,15 +242,21 @@ void CollisionSystem::ApplyAussie(MessageSystem& message_system, const size_t ti
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyAussie)]++;
 
-	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(1), false, Timer::AussieExpire);
+	{
+		std::lock_guard<std::mutex> lock(message_system.TimerSystemMutex);
+		message_system.TimerSystemCommandsWrite.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(1), false, Timer::AussieExpire);
+	}
 }
 
 void CollisionSystem::ApplyPoison(MessageSystem& message_system, const size_t ticks) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyPoison)]++;
 
-	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(1), true, Timer::PoisonTick);
-	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5), false, Timer::PoisonExpire);
+	{
+		std::lock_guard<std::mutex> lock(message_system.TimerSystemMutex);
+		message_system.TimerSystemCommandsWrite.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(1), true, Timer::PoisonTick);
+		message_system.TimerSystemCommandsWrite.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5), false, Timer::PoisonExpire);
+	}
 }
 
 void CollisionSystem::ApplyTrapped(MessageSystem& message_system, const size_t ticks) const noexcept
@@ -237,7 +267,11 @@ void CollisionSystem::ApplyTrapped(MessageSystem& message_system, const size_t t
 void CollisionSystem::ApplyDrunk(MessageSystem& message_system, const size_t ticks) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyDrunk)]++;
-	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5), false, Timer::DrunkExpire);
+	
+	{
+		std::lock_guard<std::mutex> lock(message_system.TimerSystemMutex);
+		message_system.TimerSystemCommandsWrite.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5), false, Timer::DrunkExpire);
+	}
 }
 
 void CollisionSystem::ApplyNone(MessageSystem& message_system, const size_t ticks) const noexcept

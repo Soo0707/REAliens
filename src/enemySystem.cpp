@@ -3,6 +3,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <variant>
+#include <mutex>
+#include <atomic>
 
 #include "raylib.h"
 #include "raymath.h"
@@ -49,25 +51,30 @@ void EnemySystem::PollSignals(MessageSystem& message_system, const AssetManager&
 {
 	for (size_t i = 0; i < message_system.EnemySystemSignals.size(); i++)
 	{
-		if (message_system.EnemySystemSignals[i])
+		const uint16_t times = message_system.EnemySystemSignals[i].exchange(0);
+
+		if (times)
 		{
 			auto handler_function = this->SignalHandlers[i];
 			(this->*handler_function)(ticks, level, message_system);
-
-			message_system.EnemySystemSignals[i] = 0;
 		}
 	}
 }
 
 void EnemySystem::ExecuteCommands(MessageSystem& message_system) noexcept
 {
-	for (auto const& command : message_system.EnemySystemCommands)
+	{
+		std::lock_guard<std::mutex> lock(message_system.EnemySystemMutex);
+		message_system.EnemySystemCommandsRead.swap(message_system.EnemySystemCommandsWrite);
+	}
+
+	for (auto const& command : message_system.EnemySystemCommandsRead)
 	{
 		auto handler = this->CommandHandlers[command.index()];
 		(this->*handler)(command);
 	}
 
-	message_system.EnemySystemCommands.clear();
+	message_system.EnemySystemCommandsRead.clear();
 }
 
 void EnemySystem::UpdateEnemies(
@@ -77,15 +84,19 @@ void EnemySystem::UpdateEnemies(
 {
 	if (this->EnemyHealth.size() < 5 && !timer_system.GetTimerStatus(Timer::SpawnEnemies))
 	{
-		message_system.TimerSystemCommands.emplace_back(
-				std::in_place_type<struct RegisterTimer>, TICK_RATE / 2,
-				true, Timer::EmitLocationParticles
-				);
+		{
+			std::lock_guard<std::mutex> lock(message_system.TimerSystemMutex);
 
-		message_system.TimerSystemCommands.emplace_back(
-				std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(3),
-				false, Timer::SpawnEnemies
-				);
+			message_system.TimerSystemCommandsWrite.emplace_back(
+					std::in_place_type<struct RegisterTimer>, TICK_RATE / 2,
+					true, Timer::EmitLocationParticles
+					);
+
+			message_system.TimerSystemCommandsWrite.emplace_back(
+					std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(3),
+					false, Timer::SpawnEnemies
+					);
+		}
 
 		this->PrepareSpawnEnemies(level, map_width, map_height);
 	}
@@ -261,15 +272,19 @@ void EnemySystem::KillEnemies(MessageSystem& message_system) noexcept
 			this->EnemyTypes.pop_back();
 
 			const uint8_t value = this->EnemyXpValues[static_cast<size_t>(type)];
-		
-			message_system.XpSystemCommands.emplace_back(std::in_place_type<struct CreateXp>, x, y, value);
+
+			{
+				std::lock_guard<std::mutex> lock(message_system.XpSystemMutex);
+				message_system.XpSystemCommandsWrite.emplace_back(std::in_place_type<struct CreateXp>, x, y, value);
+			}
 			killed++;
 		}
 		else
 			i++;
 	}
 
-	message_system.StatSystemCommands.emplace_back(Stat::Kills, killed);
+	std::lock_guard<std::mutex> lock(message_system.StatSystemMutex);
+	message_system.StatSystemCommandsWrite.emplace_back(Stat::Kills, killed);
 }
 
 
@@ -304,7 +319,8 @@ void EnemySystem::EmitParticlesFromLocations(
 			static_cast<float>(GetRandomValue(-96, -64))
 		};
 
-		message_system.ParticleSystemCommands.emplace_back(ticks, 20, velocity, location.x, location.y, 5, 20, 120, TICK_RATE, 32, RED, MAGENTA);
+		std::lock_guard<std::mutex> lock(message_system.ParticleSystemMutex);
+		message_system.ParticleSystemCommandsWrite.emplace_back(ticks, 20, velocity, location.x, location.y, 5, 20, 120, TICK_RATE, 32, RED, MAGENTA);
 	}
 }
 

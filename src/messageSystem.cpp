@@ -2,27 +2,60 @@
 
 MessageSystem::MessageSystem()
 {
-	this->ParticleSystemCommands.reserve(128);
-	this->ProjectileSystemCommands.reserve(128);
-	this->XpSystemCommands.reserve(128);
-	this->PlayerCommands.reserve(128);
-	this->EnemySystemCommands.reserve(128);
-	this->TimerSystemCommands.reserve(16);
-	this->StatSystemCommands.reserve(16);
+	this->ParticleSystemCommandsWrite.reserve(128);
+	this->ParticleSystemCommandsRead.reserve(128);
+
+	this->ProjectileSystemCommandsWrite.reserve(128);
+	this->ProjectileSystemCommandsRead.reserve(128);
+
+	this->XpSystemCommandsWrite.reserve(128);
+	this->XpSystemCommandsRead.reserve(128);
+
+	this->PlayerCommandsWrite.reserve(128);
+	this->PlayerCommandsRead.reserve(128);
+
+	this->EnemySystemCommandsWrite.reserve(128);
+	this->EnemySystemCommandsRead.reserve(128);
+
+	this->TimerSystemCommandsWrite.reserve(16);
+	this->TimerSystemCommandsRead.reserve(16);
+
+	this->StatSystemCommandsWrite.reserve(16);
+	this->StatSystemCommandsRead.reserve(16);
 }
 
 void MessageSystem::Reset() noexcept
 {
-	this->ParticleSystemCommands.clear();
-	this->ProjectileSystemCommands.clear();
-	this->XpSystemCommands.clear();
-	this->PlayerCommands.clear();
-	this->EnemySystemCommands.clear();
-	this->TimerSystemCommands.clear();
-	this->StatSystemCommands.clear();
+	this->ParticleSystemCommandsWrite.clear();
+	this->ParticleSystemCommandsRead.clear();
 
-	this->EnemySystemSignals = { 0 };
-	this->PlayerSignals = { 0 };
-	this->ModifierSystemSignals = { 0 };
-	this->CollisionSystemSignals = { 0 };
+	this->ProjectileSystemCommandsWrite.clear();
+	this->ProjectileSystemCommandsRead.clear();
+
+	this->XpSystemCommandsWrite.clear();
+	this->XpSystemCommandsRead.clear();
+
+	this->PlayerCommandsWrite.clear();
+	this->PlayerCommandsRead.clear();
+
+	this->EnemySystemCommandsWrite.clear();
+	this->EnemySystemCommandsRead.clear();
+
+	this->TimerSystemCommandsWrite.clear();
+	this->TimerSystemCommandsRead.clear();
+
+	this->StatSystemCommandsWrite.clear();
+	this->StatSystemCommandsRead.clear();
+
+	for (auto& value : this->EnemySystemSignals)
+		value.store(0);
+
+	for (auto& value : this->PlayerSignals)
+		value.store(0);
+
+	for (auto& value : this->ModifierSystemSignals)
+		value.store(0);
+
+	for (auto& value : this->CollisionSystemSignals)
+		value.store(0);
 }

@@ -1,6 +1,7 @@
 #include "modifierSystem.hpp"
 
 #include <limits>
+#include <atomic>
 
 #include "signals.hpp"
 #include "commands.hpp"
@@ -12,14 +13,12 @@ void ModifierSystem::PollSignals(MessageSystem& message_system) noexcept
 {
 	for (size_t i = 0; i < static_cast<size_t>(ModifierSystemSignal::COUNT); i++)
 	{
-		const uint16_t times = static_cast<uint16_t>(message_system.ModifierSystemSignals[i]);
+		const uint16_t times = message_system.ModifierSystemSignals[i].exchange(0);
 		
 		auto signal_handler = this->SignalHandlers[i];
 
 		for (uint16_t i = times; i > 0; i--)
 			(this->*signal_handler)();
-
-		message_system.ModifierSystemSignals[i] = 0;
 	}
 }
 

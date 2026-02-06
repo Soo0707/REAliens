@@ -1,6 +1,7 @@
 #include "particleSystem.hpp"
 
 #include <cstddef>
+#include <mutex>
 
 #include "raylib.h"
 #include "assetManager.hpp"
@@ -8,15 +9,15 @@
 
 ParticleSystem::ParticleSystem()
 {
-	this->ParticleIsVisible.reserve(1024);
-	this->ParticleCreation.reserve(1024);
-	this->ParticleExpiry.reserve(1024);
-	this->ParticleRotation.reserve(1024);
-	this->ParticleScale.reserve(1024);
-	this->ParticleVelocity.reserve(1024);
-	this->ParticleStartColour.reserve(1024);
-	this->ParticleEndColour.reserve(1024);
-	this->ParticleRect.reserve(1024);
+	this->ParticleIsVisible.reserve(2048);
+	this->ParticleCreation.reserve(2048);
+	this->ParticleExpiry.reserve(2048);
+	this->ParticleRotation.reserve(2048);
+	this->ParticleScale.reserve(2048);
+	this->ParticleVelocity.reserve(2048);
+	this->ParticleStartColour.reserve(2048);
+	this->ParticleEndColour.reserve(2048);
+	this->ParticleRect.reserve(2048);
 }
 
 void ParticleSystem::Reset() noexcept
@@ -34,7 +35,12 @@ void ParticleSystem::Reset() noexcept
 
 void ParticleSystem::ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept
 {
-	for (auto const& command : message_system.ParticleSystemCommands)
+	{
+		std::lock_guard<std::mutex> lock(message_system.ParticleSystemMutex);
+		message_system.ParticleSystemCommandsRead.swap(message_system.ParticleSystemCommandsWrite);
+	}
+
+	for (auto const& command : message_system.ParticleSystemCommandsRead)
 	{
 		for (size_t i = 0; i < command.Number; i++)
 		{
@@ -49,8 +55,8 @@ void ParticleSystem::ExecuteCommands(MessageSystem& message_system, const AssetM
 			this->CreateParticle(command.X, command.Y, size, rotation, command.Creation, expiry, velocity, command.StartColour, command.EndColour);
 		}
 	}
-
-	message_system.ParticleSystemCommands.clear();
+	
+	message_system.ParticleSystemCommandsRead.clear();
 }
 
 void ParticleSystem::UpdateParticles(const Rectangle update_area, const size_t ticks) noexcept

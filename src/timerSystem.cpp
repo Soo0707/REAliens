@@ -1,6 +1,7 @@
 #include "timerSystem.hpp"
 
 #include <cstddef>
+#include <mutex>
 
 #include "timers.hpp"
 #include "signals.hpp"
@@ -9,7 +10,12 @@
 
 void TimerSystem::ExecuteCommands(MessageSystem& message_system, const size_t ticks) noexcept
 {
-	for (auto const& command : message_system.TimerSystemCommands)
+	{
+		std::lock_guard lock(message_system.TimerSystemMutex);
+		message_system.TimerSystemCommandsRead.swap(message_system.TimerSystemCommandsWrite);
+	}
+
+	for (auto const& command : message_system.TimerSystemCommandsRead)
 	{
 		const size_t index = command.index();
 		auto handler = this->CommandHandlers[index];
@@ -17,7 +23,7 @@ void TimerSystem::ExecuteCommands(MessageSystem& message_system, const size_t ti
 		(this->*handler)(command, ticks);
 	}
 
-	message_system.TimerSystemCommands.clear();
+	message_system.TimerSystemCommandsRead.clear();
 }
 
 void TimerSystem::UpdateTimers(MessageSystem& message_system, const size_t ticks) noexcept
@@ -131,13 +137,18 @@ void TimerSystem::MilkExpireHandler(MessageSystem& message_system) const noexcep
 
 void TimerSystem::PoisonTickHandler(MessageSystem& message_system) const noexcept
 {
-	message_system.PlayerCommands.emplace_back(std::in_place_type<struct DamagePlayer>, 2.0f);
+	std::lock_guard<std::mutex> lock(message_system.PlayerMutex);
+	message_system.PlayerCommandsWrite.emplace_back(std::in_place_type<struct DamagePlayer>, 2.0f);
 }
 
 void TimerSystem::PoisonExpireHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemovePoison)]++;
-	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct DisableTimer>, Timer::PoisonTick);
+
+	{
+		std::lock_guard<std::mutex> lock(message_system.TimerSystemMutex);
+		message_system.TimerSystemCommandsWrite.emplace_back(std::in_place_type<struct DisableTimer>, Timer::PoisonTick);
+	}
 }
 
 void TimerSystem::DrunkExpireHandler(MessageSystem& message_system) const noexcept
@@ -167,7 +178,11 @@ void TimerSystem::EmitLocationParticlesHandler(MessageSystem& message_system) co
 
 void TimerSystem::SpawnEnemiesHandler(MessageSystem& message_system) const noexcept
 {
-	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct DisableTimer>, Timer::EmitLocationParticles);
+	{
+		std::lock_guard<std::mutex> lock(message_system.TimerSystemMutex);
+		message_system.TimerSystemCommandsWrite.emplace_back(std::in_place_type<struct DisableTimer>, Timer::EmitLocationParticles);
+	}
+
 	message_system.EnemySystemSignals[static_cast<size_t>(EnemySystemSignal::SpawnEnemies)]++;
 }
 

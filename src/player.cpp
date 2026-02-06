@@ -1,6 +1,9 @@
 #include "player.hpp"
+
 #include <cstdint>
 #include <cmath>
+#include <mutex>
+#include <atomic>
 
 #include "assetManager.hpp"
 #include "raylib.h"
@@ -24,21 +27,24 @@ void Player::PollSignals(MessageSystem& message_system, const ModifierSystem& mo
 {
 	for (size_t i = 0; i < static_cast<size_t>(PlayerSignal::COUNT); i++)
 	{
-		const uint16_t times = static_cast<uint16_t>(message_system.PlayerSignals[i]);
+		const uint16_t times = message_system.PlayerSignals[i].exchange(0);
 		
-		if (times > 0)
+		if (times)
 		{
 			auto signal_handler = this->SignalHandlers[i];
 			(this->*signal_handler)(message_system, times, modifier_system);
-
-			message_system.PlayerSignals[i] = 0;
 		}
 	}
 }
 
 void Player::ExecuteCommands(MessageSystem& message_system) noexcept
 {
-	for (auto const& command : message_system.PlayerCommands)
+	{
+		std::lock_guard<std::mutex> lock(message_system.PlayerMutex);
+		message_system.PlayerCommandsRead.swap(message_system.PlayerCommandsWrite);
+	}
+
+	for (auto const& command : message_system.PlayerCommandsRead)
 	{
 		const size_t handler_index = command.index();
 
@@ -47,7 +53,7 @@ void Player::ExecuteCommands(MessageSystem& message_system) noexcept
 		(this->*command_handler)(command);
 	}
 
-	message_system.PlayerCommands.clear();
+	message_system.PlayerCommandsRead.clear();
 }
 
 void Player::Update(MessageSystem& message_system, const size_t ticks, const float slide_speed) noexcept
@@ -117,9 +123,10 @@ void Player::Move(MessageSystem& message_system, const float slide_speed) noexce
 	this->Rect.x += speed * this->Direction.x * TICK_TIME;
 	this->Rect.y += speed * this->Direction.y * TICK_TIME;
 
-	message_system.StatSystemCommands.emplace_back(Stat::TotalDistance, static_cast<uint32_t>(speed * TICK_TIME));
-
 	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_SIZE / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_SIZE / 2.0f };
+
+	std::lock_guard<std::mutex> lock(message_system.StatSystemMutex);
+	message_system.StatSystemCommandsWrite.emplace_back(Stat::TotalDistance, static_cast<uint32_t>(speed * TICK_TIME));
 }
 
 void Player::TakeDamage(const PlayerCommand& command) noexcept
@@ -195,7 +202,8 @@ void Player::SpawnBall(MessageSystem& message_system, const uint16_t times, cons
 	const float ball_speed = modifier_system.GetAttribute(Attribute::BallSpeed);
 	const float ball_scale = modifier_system.GetAttribute(Attribute::BallScale);
 
-	message_system.ProjectileSystemCommands.emplace_back(
+	std::lock_guard<std::mutex> lock(message_system.ProjectileSystemMutex);
+	message_system.ProjectileSystemCommandsWrite.emplace_back(
 			std::in_place_type<struct CreateProjectile>, ProjectileType::Ball,
 			ball_direction, ball_location.x, ball_location.y, ball_speed, ball_scale
 			);

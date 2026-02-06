@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <cmath>
+#include <mutex>
 
 #include "raylib.h"
 #include "raymath.h"
@@ -18,16 +19,16 @@
 
 ProjectileSystem::ProjectileSystem()
 {
-	this->ProjectileIsVisible.reserve(1024);
-	this->ProjectileKill.reserve(1024);
-	this->ProjectileSpeed.reserve(1024);
-	this->ProjectileRotation.reserve(1024);
-	this->ProjectileScale.reserve(1024);
-	this->ProjectileRect.reserve(1024);
-	this->ProjectileDirection.reserve(1024);
-	this->ProjectileColour.reserve(1024);
-	this->ProjectileTexture.reserve(1024);
-	this->ProjectileTypes.reserve(1024);
+	this->ProjectileIsVisible.reserve(256);
+	this->ProjectileKill.reserve(256);
+	this->ProjectileSpeed.reserve(256);
+	this->ProjectileRotation.reserve(256);
+	this->ProjectileScale.reserve(256);
+	this->ProjectileRect.reserve(256);
+	this->ProjectileDirection.reserve(256);
+	this->ProjectileColour.reserve(256);
+	this->ProjectileTexture.reserve(256);
+	this->ProjectileTypes.reserve(256);
 }
 
 void ProjectileSystem::Reset() noexcept
@@ -47,7 +48,12 @@ void ProjectileSystem::Reset() noexcept
 
 void ProjectileSystem::ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept
 {
-	for (auto const& command : message_system.ProjectileSystemCommands)
+	{
+		std::lock_guard<std::mutex> lock(message_system.ProjectileSystemMutex);
+		message_system.ProjectileSystemCommandsRead.swap(message_system.ProjectileSystemCommandsWrite);
+	}
+
+	for (auto const& command : message_system.ProjectileSystemCommandsRead)
 	{
 		const size_t handler_index = command.index();
 
@@ -55,7 +61,7 @@ void ProjectileSystem::ExecuteCommands(MessageSystem& message_system, const Asse
 		(this->*handler_function)(command, assets);
 	}
 
-	message_system.ProjectileSystemCommands.clear();
+	message_system.ProjectileSystemCommandsRead.clear();
 }
 
 void ProjectileSystem::UpdateProjectiles(
@@ -224,7 +230,8 @@ void ProjectileSystem::SpawnParticles(MessageSystem& message_system, const size_
 
 		if (spawn_particle && this->ProjectileIsVisible[i])
 		{
-			message_system.ParticleSystemCommands.emplace_back(
+			std::lock_guard<std::mutex> lock(message_system.ParticleSystemMutex);
+			message_system.ParticleSystemCommandsWrite.emplace_back(
 					ticks, 1, this->ProjectileDirection[i], this->ProjectileRect[i].x, this->ProjectileRect[i].y, 
 					5, 20, 120, TICK_RATE, 128, this->ProjectileColour[i], this->ProjectileColour[i]
 					);

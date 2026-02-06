@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <variant>
+#include <mutex>
 
 #include "raylib.h"
 #include "constants.hpp"
@@ -31,14 +32,19 @@ void XpSystem::Reset() noexcept
 
 void XpSystem::ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept
 {
-	for (auto const& command : message_system.XpSystemCommands)
+	{
+		std::lock_guard<std::mutex> lock(message_system.XpSystemMutex);
+		message_system.XpSystemCommandsRead.swap(message_system.XpSystemCommandsWrite);
+	}
+
+	for (auto const& command : message_system.XpSystemCommandsRead)
 	{
 		const size_t handler_index = command.index();
 		auto handler = this->CommandHandlers[handler_index];
 		(this->*handler)(command, assets);
 	}
 
-	message_system.XpSystemCommands.clear();
+	message_system.XpSystemCommandsRead.clear();
 }
 
 void XpSystem::UpdateXps(MessageSystem& message_system, const Rectangle update_area, const size_t ticks) noexcept
@@ -122,7 +128,8 @@ void XpSystem::EmitParticles(MessageSystem& message_system, const size_t ticks) 
 		{
 			const Vector2 velocity = { static_cast<float>(GetRandomValue(-64, 64)), static_cast<float>(GetRandomValue(-96, -32)) };
 
-			message_system.ParticleSystemCommands.emplace_back(
+			std::lock_guard<std::mutex> lock(message_system.ParticleSystemMutex);
+			message_system.ParticleSystemCommandsWrite.emplace_back(
 					ticks, 1, velocity, this->XpCentre[i].x, this->XpCentre[i].y, 
 					10, 25, 120, TICK_RATE, 0, GREEN, DARKGREEN
 					);
