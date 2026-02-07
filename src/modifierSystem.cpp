@@ -24,7 +24,8 @@ void ModifierSystem::PollSignals(MessageSystem& message_system) noexcept
 
 void ModifierSystem::Reset() noexcept
 {
-	this->Attributes = { 0 };
+	for (auto& value : this->Attributes)
+		value.store(0, std::memory_order_release);
 
 	this->SetAttribute(Attribute::BulletCooldown, 150.0f);
 	this->SetAttribute(Attribute::BulletDamage, 25.0f);
@@ -59,17 +60,17 @@ void ModifierSystem::Reset() noexcept
 
 bool ModifierSystem::EffectStatus(const Effect effect) const noexcept
 {
-	return ((this->Effects & effect) == effect);
+	return ((this->Effects.load(std::memory_order_acquire) & effect) == effect);
 }
 
 void ModifierSystem::ApplyEffect(const Effect effect) noexcept
 {
-	this->Effects |= effect;
+	this->Effects.store(this->Effects.load(std::memory_order_acquire) | effect, std::memory_order_release);
 }
 
 void ModifierSystem::RemoveEffect(const Effect effect) noexcept
 {
-	this->Effects = this->Effects & ~effect;
+	this->Effects.store(this->Effects.load(std::memory_order_acquire) & ~effect, std::memory_order_release);
 }
 
 
@@ -77,14 +78,14 @@ float ModifierSystem::GetAttribute(const Attribute attribute) const noexcept
 {
 	const size_t index = static_cast<size_t>(attribute);
 
-	return this->Attributes[index];
+	return this->Attributes[index].load(std::memory_order_acquire);
 }
 
 void ModifierSystem::SetAttribute(const Attribute attribute, const float value) noexcept
 {
 	size_t index = static_cast<size_t>(attribute);
 
-	this->Attributes[index] = value;
+	this->Attributes[index].store(value, std::memory_order_release);
 }
 
 
@@ -96,9 +97,9 @@ void ModifierSystem::IncreaseAttribute(const Attribute attribute, const float am
 	const float distance_from_max = max - this->Attributes[index];
 
 	if (amount < distance_from_max)
-		this->Attributes[index] += amount;
+		this->Attributes[index].fetch_add(amount, std::memory_order_release);
 	else
-		this->Attributes[index] = max;
+		this->Attributes[index].store(max, std::memory_order_release);
 }
 
 void ModifierSystem::DecreaseAttribute(const Attribute attribute, const float amount, const float custom_min) noexcept
@@ -109,9 +110,9 @@ void ModifierSystem::DecreaseAttribute(const Attribute attribute, const float am
 	const float new_value = this->Attributes[index] - amount;
 
 	if (new_value <= min)
-		this->Attributes[index] = min;
+		this->Attributes[index].store(min, std::memory_order_release);
 	else
-		this->Attributes[index] = new_value;
+		this->Attributes[index].store(new_value, std::memory_order_release);
 }
 
 

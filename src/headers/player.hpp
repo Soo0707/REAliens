@@ -57,7 +57,7 @@ class Player
 		void TakeDamage(const PlayerCommand& command) noexcept;
 		void SetDirection(const PlayerCommand& command) noexcept;
 
-		static constexpr std::array<void(Player::*)(const PlayerCommand&) noexcept, 4> CommandHandlers = 
+		static constexpr std::array<void(Player::*)(const PlayerCommand&) noexcept, 3> CommandHandlers = 
 		{
 			&TakeDamage,
 			&IncreaseHealth,

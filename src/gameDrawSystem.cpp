@@ -48,7 +48,7 @@ void GameDrawSystem::DrawGame(const Game& game, const ModifierSystem& modifier_s
 	game.ProjectileSystem->Draw(assets);
 	game.ParticleSystem->Draw(assets, ticks);
 
-	if(!modifier_system.EffectStatus(Effect::Invisible))
+	if (!modifier_system.EffectStatus(Effect::Invisible))
 		game.Player->Draw();
 }
 
@@ -114,8 +114,7 @@ void GameDrawSystem::DrawOverlay(
 	DrawText(global_data.StringCache[static_cast<size_t>(CachedString::Duration)].c_str(), 20, 20, 24, LIGHTGRAY);
 	DrawText(global_data.StringCache[static_cast<size_t>(CachedString::LevelText)].c_str(), 20, 50, 24, LIGHTGRAY);
 
-	if (global_data.UnclaimedPowerups)
-		DrawText("[TAB]", 40, 680, 15, GOLD);
+	DrawText("[TAB]", 1206, 620, 20, (global_data.UnclaimedPowerups) ? GOLD : GRAY);
 
 	DrawText("[LMB]", 1058, 640, 20, (game.CanPerform[static_cast<size_t>(Action::LMB)] ? YELLOW : GRAY));
 	DrawText("[RMB]", 1120, 640, 20, (game.CanPerform[static_cast<size_t>(Action::RMB)] ? CYAN : GRAY));

@@ -34,6 +34,8 @@ class XpSystem
 		void CreateXpHandler(const XpSystemCommand& command, const AssetManager& assets) noexcept;
 		void KillXpHandler(const XpSystemCommand& command, const AssetManager& assets) noexcept;
 
+		bool CheckIndex(const size_t index) const noexcept;
+
 		std::array<void(XpSystem::*)(const XpSystemCommand&, const AssetManager&), 2> CommandHandlers = {
 			&CreateXpHandler,
 			&KillXpHandler

@@ -14,11 +14,11 @@
 
 XpSystem::XpSystem()
 {
-	this->XpKill.reserve(1024);
-	this->XpIsVisible.reserve(1024);
-	this->XpValue.reserve(1024);
-	this->XpCentre.reserve(1024);
-	this->XpRect.reserve(1024);
+	this->XpKill.reserve(128);
+	this->XpIsVisible.reserve(128);
+	this->XpValue.reserve(128);
+	this->XpCentre.reserve(128);
+	this->XpRect.reserve(128);
 }
 
 void XpSystem::Reset() noexcept
@@ -149,9 +149,19 @@ void XpSystem::CreateXpHandler(const XpSystemCommand& command, const AssetManage
 void XpSystem::KillXpHandler(const XpSystemCommand& command, const AssetManager& assets) noexcept
 {
 	const struct KillXp& data = std::get<struct KillXp>(command);
-	this->XpKill[data.XpIndex] = static_cast<uint8_t>(true);
+	const size_t index = data.XpIndex;
+
+	if (!this->CheckIndex(index))
+		return;
+
+	this->XpKill[index] = static_cast<uint8_t>(true);
 }
 
+
+bool XpSystem::CheckIndex(const size_t index) const noexcept
+{
+	return (index < this->XpKill.size());
+}
 
 const std::vector<Rectangle>& XpSystem::GetXpRect() const noexcept
 {
@@ -162,3 +172,4 @@ const std::vector<uint8_t>& XpSystem::GetXpValue() const noexcept
 {
 	return this->XpValue;
 }
+

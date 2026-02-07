@@ -385,5 +385,5 @@ void EnemySystem::GenerateTypes(const size_t spawn_count) noexcept
 
 bool EnemySystem::CheckIndex(const size_t index) const noexcept
 {
-	return (index <= this->EnemyHealth.size() - 1);
+	return (index < this->EnemyHealth.size());
 }

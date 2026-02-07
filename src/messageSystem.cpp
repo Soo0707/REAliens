@@ -2,20 +2,20 @@
 
 MessageSystem::MessageSystem()
 {
-	this->ParticleSystemCommandsWrite.reserve(128);
-	this->ParticleSystemCommandsRead.reserve(128);
+	this->ParticleSystemCommandsWrite.reserve(32);
+	this->ParticleSystemCommandsRead.reserve(32);
 
-	this->ProjectileSystemCommandsWrite.reserve(128);
-	this->ProjectileSystemCommandsRead.reserve(128);
+	this->ProjectileSystemCommandsWrite.reserve(32);
+	this->ProjectileSystemCommandsRead.reserve(32);
 
-	this->XpSystemCommandsWrite.reserve(128);
-	this->XpSystemCommandsRead.reserve(128);
+	this->XpSystemCommandsWrite.reserve(32);
+	this->XpSystemCommandsRead.reserve(32);
 
-	this->PlayerCommandsWrite.reserve(128);
-	this->PlayerCommandsRead.reserve(128);
+	this->PlayerCommandsWrite.reserve(32);
+	this->PlayerCommandsRead.reserve(32);
 
-	this->EnemySystemCommandsWrite.reserve(128);
-	this->EnemySystemCommandsRead.reserve(128);
+	this->EnemySystemCommandsWrite.reserve(32);
+	this->EnemySystemCommandsRead.reserve(32);
 
 	this->TimerSystemCommandsWrite.reserve(16);
 	this->TimerSystemCommandsRead.reserve(16);
@@ -48,14 +48,14 @@ void MessageSystem::Reset() noexcept
 	this->StatSystemCommandsRead.clear();
 
 	for (auto& value : this->EnemySystemSignals)
-		value.store(0);
+		value.store(0, std::memory_order_release);
 
 	for (auto& value : this->PlayerSignals)
-		value.store(0);
+		value.store(0, std::memory_order_release);
 
 	for (auto& value : this->ModifierSystemSignals)
-		value.store(0);
+		value.store(0, std::memory_order_release);
 
 	for (auto& value : this->CollisionSystemSignals)
-		value.store(0);
+		value.store(0, std::memory_order_release);
 }

@@ -240,7 +240,7 @@ void CollisionSystem::XpCollision(
 
 void CollisionSystem::ApplyAussie(MessageSystem& message_system, const size_t ticks) const noexcept
 {
-	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyAussie)]++;
+	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyAussie)].fetch_add(1, std::memory_order_acq_rel);
 
 	{
 		std::lock_guard<std::mutex> lock(message_system.TimerSystemMutex);
@@ -250,7 +250,7 @@ void CollisionSystem::ApplyAussie(MessageSystem& message_system, const size_t ti
 
 void CollisionSystem::ApplyPoison(MessageSystem& message_system, const size_t ticks) const noexcept
 {
-	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyPoison)]++;
+	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyPoison)].fetch_add(1, std::memory_order_acq_rel);
 
 	{
 		std::lock_guard<std::mutex> lock(message_system.TimerSystemMutex);
@@ -261,12 +261,12 @@ void CollisionSystem::ApplyPoison(MessageSystem& message_system, const size_t ti
 
 void CollisionSystem::ApplyTrapped(MessageSystem& message_system, const size_t ticks) const noexcept
 {
-	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyTrapped)]++;
+	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyTrapped)].fetch_add(1, std::memory_order_acq_rel);
 }
 
 void CollisionSystem::ApplyDrunk(MessageSystem& message_system, const size_t ticks) const noexcept
 {
-	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyDrunk)]++;
+	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyDrunk)].fetch_add(1, std::memory_order_acq_rel);
 	
 	{
 		std::lock_guard<std::mutex> lock(message_system.TimerSystemMutex);

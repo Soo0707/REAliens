@@ -70,15 +70,3 @@ constexpr Effect operator~(const Effect target) noexcept
 {
 	return static_cast<Effect>(~static_cast<uint32_t>(target));
 }
-
-constexpr Effect& operator&=(Effect& l, const Effect r) noexcept
-{
-	l = l & r;
-	return l;
-}
-
-constexpr Effect& operator|=(Effect& l, const Effect r) noexcept
-{
-	l = l | r;
-	return l;
-}

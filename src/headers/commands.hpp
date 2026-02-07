@@ -25,6 +25,7 @@ struct CreateParticles
 	Color EndColour;
 };
 
+
 struct CreateProjectile
 {
 	ProjectileType Type;
@@ -76,12 +77,6 @@ struct DisableTimer
 	Timer Type;
 };
 
-struct UpdateTimerInterval
-{
-	uint32_t NewInterval;
-	Timer Type;
-};
-
 struct DecreaseTimerInterval
 {
 	uint32_t Amount;
@@ -89,7 +84,7 @@ struct DecreaseTimerInterval
 	Timer Type;
 };
 
-using TimerSystemCommand = std::variant<struct RegisterTimer, struct EnableTimer, struct DisableTimer, struct UpdateTimerInterval, struct DecreaseTimerInterval>;
+using TimerSystemCommand = std::variant<struct RegisterTimer, struct EnableTimer, struct DisableTimer, struct DecreaseTimerInterval>;
 
 
 struct StatSystemCommand
@@ -129,8 +124,4 @@ struct SetPlayerDirection
 	Vector2 Direction;
 };
 
-struct ApplySlide
-{
-	size_t Ticks;
-};
 using PlayerCommand = std::variant<struct DamagePlayer, struct IncreasePlayerHealth, struct SetPlayerDirection>;

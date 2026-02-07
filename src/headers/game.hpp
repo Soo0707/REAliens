@@ -102,7 +102,7 @@ class Game
 		void UpdateThread1() noexcept;
 		void UpdateThread2() noexcept;
 
-		std::vector<std::thread> Threads;
+		std::array<std::thread, 2> Threads;
 
 		float Accumulator = 0.0f;
 

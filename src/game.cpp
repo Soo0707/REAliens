@@ -6,8 +6,6 @@
 #include <barrier>
 #include <atomic>
 
-#include <iostream>
-
 #include "raylib.h"
 
 #include "constants.hpp"
@@ -69,10 +67,8 @@ Game::Game(
 	this->LightingLayer = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
 	this->GameLayer = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
 
-	this->Threads.emplace_back([this](){Game::UpdateThread1();});
-	this->Threads.emplace_back([this](){Game::UpdateThread2();});
-
-	std::cout << this->Threads.size() << std::endl;
+	this->Threads[0] = std::thread([this](){Game::UpdateThread1();});
+	this->Threads[1] = std::thread([this](){Game::UpdateThread2();});
 }
 
 Game::~Game()
@@ -187,7 +183,6 @@ void Game::TickedUpdate() noexcept
 
 		(void) this->PrepareWorkers.arrive();
 
-		// this thread
 		this->UpdateTimeouts(ticks);
 		this->UpdateTimerSystem(ticks);
 
@@ -380,9 +375,9 @@ void Game::LevelUp() noexcept
 		this->GlobalData->ActiveState = State::PowerupMenu;
 
 	if (this->Level % 5 == 0 && !this->Settings->Data.at(SettingKey::DisableLevelDebuffs))
-		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::InsertLevelDebuff)]++;
+		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::InsertLevelDebuff)].fetch_add(1, std::memory_order_acq_rel);
 	else
-		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveLevelDebuff)]++;
+		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveLevelDebuff)].fetch_add(1, std::memory_order_acq_rel);
 }
 
 void Game::UpdateThread1() noexcept

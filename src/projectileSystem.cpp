@@ -19,16 +19,16 @@
 
 ProjectileSystem::ProjectileSystem()
 {
-	this->ProjectileIsVisible.reserve(256);
-	this->ProjectileKill.reserve(256);
-	this->ProjectileSpeed.reserve(256);
-	this->ProjectileRotation.reserve(256);
-	this->ProjectileScale.reserve(256);
-	this->ProjectileRect.reserve(256);
-	this->ProjectileDirection.reserve(256);
-	this->ProjectileColour.reserve(256);
-	this->ProjectileTexture.reserve(256);
-	this->ProjectileTypes.reserve(256);
+	this->ProjectileIsVisible.reserve(128);
+	this->ProjectileKill.reserve(128);
+	this->ProjectileSpeed.reserve(128);
+	this->ProjectileRotation.reserve(128);
+	this->ProjectileScale.reserve(128);
+	this->ProjectileRect.reserve(128);
+	this->ProjectileDirection.reserve(128);
+	this->ProjectileColour.reserve(128);
+	this->ProjectileTexture.reserve(128);
+	this->ProjectileTypes.reserve(128);
 }
 
 void ProjectileSystem::Reset() noexcept
@@ -168,14 +168,16 @@ void ProjectileSystem::EvaluateHitCount(const ModifierSystem& modifier_system) n
 	for (size_t i = 0, n = this->ProjectileHitCount.size(); i < n; i++)
 	{
 		const uint16_t hit_count = this->ProjectileHitCount[i];
+
 		if (hit_count == 0)
 			continue;
-
+		
 		switch (this->ProjectileTypes[i])
 		{
 			case ProjectileType::Lazer:
 			{
 				const uint16_t max_hit_count = modifier_system.GetAttribute(Attribute::LazerMaxHit);
+
 				if (hit_count >= max_hit_count)
 					this->ProjectileKill[i] = static_cast<uint8_t>(true);
 				break;
@@ -267,7 +269,7 @@ void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& comma
 			const TextureKey ball_texture_key = this->ProjectileAttributes[static_cast<size_t>(ProjectileType::Ball)].Texture;
 			const float ball_size = assets.GetTexture(ball_texture_key).width;
 			const Rectangle ball_rect = this->ProjectileRect[index];
-			const float ball_speed = 1.25f * this->ProjectileSpeed[index];
+			const float ball_speed = this->ProjectileSpeed[index];
 			const float ball_scale = 0.75f * this->ProjectileScale[index];
 
 			for (uint8_t i = 0; i < 2; i++)
@@ -281,9 +283,6 @@ void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& comma
 						);
 			}
 		}
-		case ProjectileType::Bullet:
-			this->ProjectileKill[index] = static_cast<uint8_t>(true);
-			break;
 	}
 
 	this->ProjectileHitCount[index]++;
@@ -291,5 +290,5 @@ void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& comma
 
 bool ProjectileSystem::CheckIndex(const size_t index) const noexcept
 {
-	return (index <= this->ProjectileKill.size() - 1);
+	return (index < this->ProjectileKill.size());
 }
