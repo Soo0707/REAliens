@@ -2,6 +2,10 @@
 
 #include <memory>
 #include <cstdint>
+#include <vector>
+#include <thread>
+#include <atomic>
+#include <barrier>
 
 #include "raylib.h"
 
@@ -93,7 +97,16 @@ class Game
 
 		void LevelUp() noexcept;
 		void UpdateCamera() noexcept;
-		void UpdateTimeouts() noexcept;
+		void UpdateTimeouts(const size_t ticks) noexcept;
+
+		void UpdateThread1() noexcept;
+		void UpdateThread2() noexcept;
+
+		std::vector<std::thread> Threads;
 
 		float Accumulator = 0.0f;
+
+		std::atomic<bool> ExitThreads = false;
+		std::barrier<void(*)()> PrepareWorkers;
+		std::barrier<void(*)()> RestWorkers;
 };

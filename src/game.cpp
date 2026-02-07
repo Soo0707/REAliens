@@ -2,6 +2,11 @@
 
 #include <memory>
 #include <string>
+#include <thread>
+#include <barrier>
+#include <atomic>
+
+#include <iostream>
 
 #include "raylib.h"
 
@@ -45,7 +50,9 @@ Game::Game(
 	EnemySystem(enemy_system),
 	StatSystem(stat_system),
 	XpSystem(xp_system),
-	CollisionSystem(collision_system)
+	CollisionSystem(collision_system),
+	PrepareWorkers(3, [](){}),
+	RestWorkers(3, [](){})
 {
 	this->Camera = { 0 };
 	this->Camera.offset = { REFERENCE_WIDTH / 2.0f, REFERENCE_HEIGHT / 2.0f };
@@ -61,10 +68,24 @@ Game::Game(
 
 	this->LightingLayer = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
 	this->GameLayer = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
+
+	this->Threads.emplace_back([this](){Game::UpdateThread1();});
+	this->Threads.emplace_back([this](){Game::UpdateThread2();});
+
+	std::cout << this->Threads.size() << std::endl;
 }
 
 Game::~Game()
 {
+	this->ExitThreads.store(true);
+	(void) this->PrepareWorkers.arrive();
+
+	for (auto& thread : this->Threads)
+	{
+		if (thread.joinable())
+			thread.join();
+	}
+
 	UnloadRenderTexture(this->GameLayer);
 	UnloadRenderTexture(this->LightingLayer);
 }
@@ -150,6 +171,7 @@ void Game::TickedUpdate() noexcept
 	while (this->Accumulator >= TICK_TIME)
 	{
 		const size_t ticks = this->Ticks;
+		const size_t level = this->Level;
 		const Rectangle update_area = this->UpdateArea;
 
 		while (this->CollectedXp >= this->LevelUpThreshold)
@@ -161,20 +183,22 @@ void Game::TickedUpdate() noexcept
 		}
 
 		GameInputSystem::HandleTickedInput(*this, *this->MessageSystem, *this->ModifierSystem, *this->Settings);
+		this->UpdatePlayer(ticks);
 
-		this->UpdateTimeouts();
+		(void) this->PrepareWorkers.arrive();
+
+		// this thread
+		this->UpdateTimeouts(ticks);
 		this->UpdateTimerSystem(ticks);
 
 		this->UpdateCamera();
-		this->UpdatePlayer(ticks);
-
 		this->UpdateModifierSystem();
-
-		this->UpdateParticleSystem(ticks, update_area);
-		this->UpdateProjectileSystem(ticks, update_area);
-		this->UpdateEnemySystem(ticks, this->Level, update_area);
+		
 		this->UpdateStatSystem();
 		this->UpdateXpSystem(ticks, update_area);
+
+		(void) this->RestWorkers.arrive_and_wait();
+
 		this->UpdateCollisionSystem(ticks);
 
 		this->Accumulator -= TICK_TIME;
@@ -321,10 +345,8 @@ void Game::UpdateCamera() noexcept
 		this->Camera.zoom = 1.0f;
 }
 
-void Game::UpdateTimeouts() noexcept
+void Game::UpdateTimeouts(const size_t ticks) noexcept
 {
-	const size_t ticks = this->Ticks;
-
 	if (ticks - this->LastPerformed[static_cast<size_t>(Action::LMB)] >= this->ModifierSystem->GetAttribute(Attribute::BulletCooldown))
 		this->CanPerform[static_cast<size_t>(Action::LMB)] = true;
 
@@ -361,5 +383,43 @@ void Game::LevelUp() noexcept
 		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::InsertLevelDebuff)]++;
 	else
 		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveLevelDebuff)]++;
+}
+
+void Game::UpdateThread1() noexcept
+{
+	while (true)
+	{
+		(void) this->PrepareWorkers.arrive_and_wait();
+
+		if (this->ExitThreads)
+			break;
+
+		const size_t ticks = this->Ticks;
+		const Rectangle update_area = this->UpdateArea;
+
+		this->UpdateParticleSystem(ticks, update_area);
+
+		(void) this->RestWorkers.arrive_and_wait();
+	}
+}
+
+void Game::UpdateThread2() noexcept
+{
+	while(true)
+	{
+		(void) this->PrepareWorkers.arrive_and_wait();
+		
+		if (this->ExitThreads)
+			break;
+		
+		const size_t ticks = this->Ticks;
+		const size_t level = this->Level;
+		const Rectangle update_area = this->UpdateArea;
+
+		this->UpdateProjectileSystem(ticks, update_area);
+		this->UpdateEnemySystem(ticks, level, update_area);
+
+		(void) this->RestWorkers.arrive_and_wait();
+	}
 }
 
