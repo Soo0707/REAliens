@@ -2,7 +2,6 @@
 
 #include <cstddef>
 #include <array>
-#include <atomic>
 #include <limits>
 
 #include "modifiers.hpp"
@@ -56,7 +55,7 @@ class ModifierSystem
 		void InsertLevelDebuff() noexcept;
 		void RemoveLevelDebuff() noexcept;
 
-		std::array<std::atomic<float>, static_cast<size_t>(Attribute::COUNT)> Attributes;
+		std::array<float, static_cast<size_t>(Attribute::COUNT)> Attributes;
 
 		static constexpr std::array<void(ModifierSystem::*)() noexcept, static_cast<size_t>(ModifierSystemSignal::COUNT)> SignalHandlers =
 		{
@@ -94,5 +93,5 @@ class ModifierSystem
 			Effect::Invisible
 		};
 		
-		std::atomic<Effect> Effects;
+		Effect Effects;
 };

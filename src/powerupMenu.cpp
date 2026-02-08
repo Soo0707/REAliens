@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <variant>
-#include <mutex>
 #include <set>
 
 #include "raylib.h"
@@ -138,39 +137,35 @@ void PowerupMenu::ApplyMilk() noexcept
 {
 	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyMilk)]++;
 
-	std::lock_guard<std::mutex> lock(this->MessageSystem->TimerSystemMutex);
-	this->MessageSystem->TimerSystemCommandsWrite.emplace_back(std::in_place_type<RegisterTimer>, SECONDS_TO_TICKS(180), false, Timer::MilkExpire);
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<RegisterTimer>, SECONDS_TO_TICKS(180), false, Timer::MilkExpire);
 
-	this->MessageSystem->TimerSystemCommandsWrite.emplace_back(std::in_place_type<DisableTimer>, Timer::PoisonTick);
-	this->MessageSystem->TimerSystemCommandsWrite.emplace_back(std::in_place_type<DisableTimer>, Timer::PoisonExpire);
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<DisableTimer>, Timer::PoisonTick);
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<DisableTimer>, Timer::PoisonExpire);
 }
 
 void PowerupMenu::ApplyGreenbull() noexcept
 {
 	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyGreenbull)]++;
 	
-	std::lock_guard<std::mutex> lock(this->MessageSystem->TimerSystemMutex);
-	this->MessageSystem->TimerSystemCommandsWrite.emplace_back(std::in_place_type<RegisterTimer>, SECONDS_TO_TICKS(120), false, Timer::GreenbullExpire);
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<RegisterTimer>, SECONDS_TO_TICKS(120), false, Timer::GreenbullExpire);
 }
 
 void PowerupMenu::ApplyMagnetism() noexcept
 {
 	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyMagnetism)]++;
 
-	std::lock_guard<std::mutex> lock(this->MessageSystem->TimerSystemMutex);
-	this->MessageSystem->TimerSystemCommandsWrite.emplace_back(std::in_place_type<RegisterTimer>, SECONDS_TO_TICKS(240), false, Timer::MagnetismExpire);
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<RegisterTimer>, SECONDS_TO_TICKS(240), false, Timer::MagnetismExpire);
 }
 
 void PowerupMenu::ApplyAura() noexcept
 {
 	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyAura)]++;
 
-	std::lock_guard<std::mutex> lock(this->MessageSystem->TimerSystemMutex);
 	if (!this->TimerSystem->GetTimerStatus(Timer::AuraTick))
-		this->MessageSystem->TimerSystemCommandsWrite.emplace_back(std::in_place_type<EnableTimer>, true, Timer::AuraTick);
+		this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<EnableTimer>, true, Timer::AuraTick);
 	else
 	{
-		this->MessageSystem->TimerSystemCommandsWrite.emplace_back(
+		this->MessageSystem->TimerSystemCommands.emplace_back(
 				std::in_place_type<struct DecreaseTimerInterval>, 25,
 				TICK_RATE / 4, Timer::AuraTick
 				);
@@ -197,12 +192,11 @@ void PowerupMenu::ApplyBall() noexcept
 	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyBall)]++;
 	const bool has_ball = this->TimerSystem->GetTimerStatus(Timer::BallCountdown);
 
-	std::lock_guard<std::mutex> lock(this->MessageSystem->TimerSystemMutex);
 	if (!has_ball)
-		this->MessageSystem->TimerSystemCommandsWrite.emplace_back(std::in_place_type<EnableTimer>, true, Timer::BallCountdown);
+		this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<EnableTimer>, true, Timer::BallCountdown);
 	else
 	{
-		this->MessageSystem->TimerSystemCommandsWrite.emplace_back(
+		this->MessageSystem->TimerSystemCommands.emplace_back(
 				std::in_place_type<struct DecreaseTimerInterval>, SECONDS_TO_TICKS(5),
 				TICK_RATE, Timer::BallCountdown
 				);

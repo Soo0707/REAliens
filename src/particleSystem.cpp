@@ -1,7 +1,6 @@
 #include "particleSystem.hpp"
 
 #include <cstddef>
-#include <mutex>
 
 #include "raylib.h"
 #include "assetManager.hpp"
@@ -35,12 +34,7 @@ void ParticleSystem::Reset() noexcept
 
 void ParticleSystem::ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept
 {
-	{
-		std::lock_guard<std::mutex> lock(message_system.ParticleSystemMutex);
-		message_system.ParticleSystemCommandsRead.swap(message_system.ParticleSystemCommandsWrite);
-	}
-
-	for (auto const& command : message_system.ParticleSystemCommandsRead)
+	for (auto const& command : message_system.ParticleSystemCommands)
 	{
 		for (size_t i = 0; i < command.Number; i++)
 		{
@@ -56,7 +50,7 @@ void ParticleSystem::ExecuteCommands(MessageSystem& message_system, const AssetM
 		}
 	}
 	
-	message_system.ParticleSystemCommandsRead.clear();
+	message_system.ParticleSystemCommands.clear();
 }
 
 void ParticleSystem::UpdateParticles(const Rectangle update_area, const size_t ticks) noexcept

@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <cstddef>
 #include <cmath>
-#include <mutex>
 
 #include "raylib.h"
 #include "raymath.h"
@@ -48,12 +47,7 @@ void ProjectileSystem::Reset() noexcept
 
 void ProjectileSystem::ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept
 {
-	{
-		std::lock_guard<std::mutex> lock(message_system.ProjectileSystemMutex);
-		message_system.ProjectileSystemCommandsRead.swap(message_system.ProjectileSystemCommandsWrite);
-	}
-
-	for (auto const& command : message_system.ProjectileSystemCommandsRead)
+	for (auto const& command : message_system.ProjectileSystemCommands)
 	{
 		const size_t handler_index = command.index();
 
@@ -61,7 +55,7 @@ void ProjectileSystem::ExecuteCommands(MessageSystem& message_system, const Asse
 		(this->*handler_function)(command, assets);
 	}
 
-	message_system.ProjectileSystemCommandsRead.clear();
+	message_system.ProjectileSystemCommands.clear();
 }
 
 void ProjectileSystem::UpdateProjectiles(
@@ -232,8 +226,7 @@ void ProjectileSystem::SpawnParticles(MessageSystem& message_system, const size_
 
 		if (spawn_particle && this->ProjectileIsVisible[i])
 		{
-			std::lock_guard<std::mutex> lock(message_system.ParticleSystemMutex);
-			message_system.ParticleSystemCommandsWrite.emplace_back(
+			message_system.ParticleSystemCommands.emplace_back(
 					ticks, 1, this->ProjectileDirection[i], this->ProjectileRect[i].x, this->ProjectileRect[i].y, 
 					5, 20, 120, TICK_RATE, 128, this->ProjectileColour[i], this->ProjectileColour[i]
 					);

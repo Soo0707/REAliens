@@ -1,7 +1,6 @@
 #include "gameInputSystem.hpp"
 
 #include <variant>
-#include <mutex>
 
 #include "raylib.h"
 #include "raymath.h"
@@ -35,10 +34,7 @@ void GameInputSystem::HandleTickedInput(
 	if (modifier_system.EffectStatus(Effect::Drunk))
 		player_direction = Vector2Scale(player_direction, -1.0f);
 
-	{
-		std::lock_guard<std::mutex> lock(message_system.PlayerMutex);
-		message_system.PlayerCommandsWrite.emplace_back(std::in_place_type<struct SetPlayerDirection>, player_direction);
-	}
+	message_system.PlayerCommands.emplace_back(std::in_place_type<struct SetPlayerDirection>, player_direction);
 
 	const size_t ticks = game.Ticks;
 
@@ -46,13 +42,10 @@ void GameInputSystem::HandleTickedInput(
 	{
 		message_system.PlayerSignals[static_cast<size_t>(PlayerSignal::ApplySlide)]++;
 
-		{
-			std::lock_guard<std::mutex> lock(message_system.TimerSystemMutex);
-			message_system.TimerSystemCommandsWrite.emplace_back(
-					std::in_place_type<struct RegisterTimer>, TICK_RATE / 6,
-					false, Timer::PlayerSlideExpire
-					);
-		}
+		message_system.TimerSystemCommands.emplace_back(
+				std::in_place_type<struct RegisterTimer>, TICK_RATE / 6,
+				false, Timer::PlayerSlideExpire
+				);
 
 		game.CanPerform[static_cast<size_t>(Action::Slide)] = false;
 		game.LastPerformed[static_cast<size_t>(Action::Slide)] = ticks;
@@ -98,8 +91,7 @@ void GameInputSystem::HandleLeftClick(
 	{
 		if (i == 0)
 		{
-			std::lock_guard<std::mutex> lock(message_system.ProjectileSystemMutex);
-			message_system.ProjectileSystemCommandsWrite.emplace_back(
+			message_system.ProjectileSystemCommands.emplace_back(
 					std::in_place_type<struct CreateProjectile>, ProjectileType::Bullet, centre_direction,
 					player_centre.x, player_centre.y, speed, 1.0f
 					);
@@ -109,13 +101,10 @@ void GameInputSystem::HandleLeftClick(
 
 		const Vector2 direction = Vector2Rotate(centre_direction, spread_angle * i);
 
-		{
-			std::lock_guard<std::mutex> lock(message_system.ProjectileSystemMutex);
-			message_system.ProjectileSystemCommandsWrite.emplace_back(
-					std::in_place_type<struct CreateProjectile>, ProjectileType::Bullet, direction,
-					player_centre.x, player_centre.y, speed, 1.0f
-					);
-		}
+		message_system.ProjectileSystemCommands.emplace_back(
+				std::in_place_type<struct CreateProjectile>, ProjectileType::Bullet, direction,
+				player_centre.x, player_centre.y, speed, 1.0f
+				);
 	}
 }
 
@@ -131,9 +120,7 @@ void GameInputSystem::HandleRightClick(
 	const float speed = modifier_system.GetAttribute(Attribute::LazerSpeed);
 	const float scale = modifier_system.GetAttribute(Attribute::LazerScale);
 
-
-	std::lock_guard<std::mutex> lock(message_system.ProjectileSystemMutex);
-	message_system.ProjectileSystemCommandsWrite.emplace_back(
+	message_system.ProjectileSystemCommands.emplace_back(
 			std::in_place_type<struct CreateProjectile>, ProjectileType::Lazer, direction,
 			player_centre.x, player_centre.y, speed, scale
 			);

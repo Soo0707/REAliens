@@ -3,9 +3,6 @@
 #include <memory>
 #include <cstdint>
 #include <vector>
-#include <thread>
-#include <atomic>
-#include <barrier>
 
 #include "raylib.h"
 
@@ -99,14 +96,5 @@ class Game
 		void UpdateCamera() noexcept;
 		void UpdateTimeouts(const size_t ticks) noexcept;
 
-		void UpdateThread1() noexcept;
-		void UpdateThread2() noexcept;
-
-		std::array<std::thread, 2> Threads;
-
 		float Accumulator = 0.0f;
-
-		std::atomic<bool> ExitThreads = false;
-		std::barrier<void(*)()> PrepareWorkers;
-		std::barrier<void(*)()> RestWorkers;
 };

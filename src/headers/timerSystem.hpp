@@ -2,7 +2,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <atomic>
 #include <array>
 
 #include "timers.hpp"
@@ -24,10 +23,10 @@ class TimerSystem
 		size_t GetTimerInterval(const Timer timer) const noexcept;
 
 	private:
-		std::array<std::atomic<size_t>, static_cast<size_t>(Timer::COUNT)> Timers;
-		std::array<std::atomic<uint32_t>, static_cast<size_t>(Timer::COUNT)> TimerInterval;
-		std::array<std::atomic<bool>, static_cast<size_t>(Timer::COUNT)> TimerRecurring;
-		std::array<std::atomic<bool>, static_cast<size_t>(Timer::COUNT)> TimerActive;
+		std::array<size_t, static_cast<size_t>(Timer::COUNT)> Timers;
+		std::array<uint32_t, static_cast<size_t>(Timer::COUNT)> TimerInterval;
+		std::array<bool, static_cast<size_t>(Timer::COUNT)> TimerRecurring;
+		std::array<bool, static_cast<size_t>(Timer::COUNT)> TimerActive;
 
 		void GreenbullExpireHandler(MessageSystem& message_system) const noexcept;
 		void MilkExpireHandler(MessageSystem& message_system) const noexcept;

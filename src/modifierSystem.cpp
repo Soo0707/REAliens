@@ -1,7 +1,6 @@
 #include "modifierSystem.hpp"
 
 #include <limits>
-#include <atomic>
 
 #include "signals.hpp"
 #include "commands.hpp"
@@ -13,19 +12,21 @@ void ModifierSystem::PollSignals(MessageSystem& message_system) noexcept
 {
 	for (size_t i = 0; i < static_cast<size_t>(ModifierSystemSignal::COUNT); i++)
 	{
-		const uint16_t times = message_system.ModifierSystemSignals[i].exchange(0);
+		const uint16_t times = message_system.ModifierSystemSignals[i];
 		
 		auto signal_handler = this->SignalHandlers[i];
 
 		for (uint16_t i = times; i > 0; i--)
+		{
 			(this->*signal_handler)();
+			message_system.ModifierSystemSignals[i] = 0;
+		}		
 	}
 }
 
 void ModifierSystem::Reset() noexcept
 {
-	for (auto& value : this->Attributes)
-		value.store(0, std::memory_order_release);
+	this->Attributes = { 0 };
 
 	this->SetAttribute(Attribute::BulletCooldown, 150.0f);
 	this->SetAttribute(Attribute::BulletDamage, 25.0f);
@@ -57,20 +58,19 @@ void ModifierSystem::Reset() noexcept
 	this->Effects = static_cast<Effect>(0);
 }
 
-
 bool ModifierSystem::EffectStatus(const Effect effect) const noexcept
 {
-	return ((this->Effects.load(std::memory_order_acquire) & effect) == effect);
+	return ((this->Effects & effect) == effect);
 }
 
 void ModifierSystem::ApplyEffect(const Effect effect) noexcept
 {
-	this->Effects.store(this->Effects.load(std::memory_order_acquire) | effect, std::memory_order_release);
+	this->Effects = this->Effects | effect;
 }
 
 void ModifierSystem::RemoveEffect(const Effect effect) noexcept
 {
-	this->Effects.store(this->Effects.load(std::memory_order_acquire) & ~effect, std::memory_order_release);
+	this->Effects = this->Effects & ~effect;
 }
 
 
@@ -78,14 +78,14 @@ float ModifierSystem::GetAttribute(const Attribute attribute) const noexcept
 {
 	const size_t index = static_cast<size_t>(attribute);
 
-	return this->Attributes[index].load(std::memory_order_acquire);
+	return this->Attributes[index];
 }
 
 void ModifierSystem::SetAttribute(const Attribute attribute, const float value) noexcept
 {
 	size_t index = static_cast<size_t>(attribute);
 
-	this->Attributes[index].store(value, std::memory_order_release);
+	this->Attributes[index] = value;
 }
 
 
@@ -97,9 +97,9 @@ void ModifierSystem::IncreaseAttribute(const Attribute attribute, const float am
 	const float distance_from_max = max - this->Attributes[index];
 
 	if (amount < distance_from_max)
-		this->Attributes[index].fetch_add(amount, std::memory_order_release);
+		this->Attributes[index] += amount;
 	else
-		this->Attributes[index].store(max, std::memory_order_release);
+		this->Attributes[index] = max;
 }
 
 void ModifierSystem::DecreaseAttribute(const Attribute attribute, const float amount, const float custom_min) noexcept
@@ -110,9 +110,9 @@ void ModifierSystem::DecreaseAttribute(const Attribute attribute, const float am
 	const float new_value = this->Attributes[index] - amount;
 
 	if (new_value <= min)
-		this->Attributes[index].store(min, std::memory_order_release);
+		this->Attributes[index] = min;
 	else
-		this->Attributes[index].store(new_value, std::memory_order_release);
+		this->Attributes[index] = new_value;
 }
 
 
@@ -262,4 +262,3 @@ void ModifierSystem::RemoveLevelDebuff() noexcept
 	for (auto const effect : this->DebuffList)
 		this->RemoveEffect(effect);
 }
-

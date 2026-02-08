@@ -2,9 +2,6 @@
 
 #include <memory>
 #include <string>
-#include <thread>
-#include <barrier>
-#include <atomic>
 
 #include "raylib.h"
 
@@ -48,9 +45,7 @@ Game::Game(
 	EnemySystem(enemy_system),
 	StatSystem(stat_system),
 	XpSystem(xp_system),
-	CollisionSystem(collision_system),
-	PrepareWorkers(3, [](){}),
-	RestWorkers(3, [](){})
+	CollisionSystem(collision_system)
 {
 	this->Camera = { 0 };
 	this->Camera.offset = { REFERENCE_WIDTH / 2.0f, REFERENCE_HEIGHT / 2.0f };
@@ -66,22 +61,10 @@ Game::Game(
 
 	this->LightingLayer = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
 	this->GameLayer = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
-
-	this->Threads[0] = std::thread([this](){Game::UpdateThread1();});
-	this->Threads[1] = std::thread([this](){Game::UpdateThread2();});
 }
 
 Game::~Game()
 {
-	this->ExitThreads.store(true);
-	(void) this->PrepareWorkers.arrive();
-
-	for (auto& thread : this->Threads)
-	{
-		if (thread.joinable())
-			thread.join();
-	}
-
 	UnloadRenderTexture(this->GameLayer);
 	UnloadRenderTexture(this->LightingLayer);
 }
@@ -179,9 +162,6 @@ void Game::TickedUpdate() noexcept
 		}
 
 		GameInputSystem::HandleTickedInput(*this, *this->MessageSystem, *this->ModifierSystem, *this->Settings);
-		this->UpdatePlayer(ticks);
-
-		(void) this->PrepareWorkers.arrive();
 
 		this->UpdateTimeouts(ticks);
 		this->UpdateTimerSystem(ticks);
@@ -190,11 +170,15 @@ void Game::TickedUpdate() noexcept
 		this->UpdateModifierSystem();
 		
 		this->UpdateStatSystem();
-		this->UpdateXpSystem(ticks, update_area);
 
-		(void) this->RestWorkers.arrive_and_wait();
+		this->UpdatePlayer(ticks);
+		this->UpdateXpSystem(ticks, update_area);
+		this->UpdateProjectileSystem(ticks, update_area);
+		this->UpdateEnemySystem(ticks, level, update_area);
 
 		this->UpdateCollisionSystem(ticks);
+		
+		this->UpdateParticleSystem(ticks, update_area);
 
 		this->Accumulator -= TICK_TIME;
 		this->Ticks++;
@@ -375,46 +359,7 @@ void Game::LevelUp() noexcept
 		this->GlobalData->ActiveState = State::PowerupMenu;
 
 	if (this->Level % 5 == 0 && !this->Settings->Data.at(SettingKey::DisableLevelDebuffs))
-		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::InsertLevelDebuff)].fetch_add(1, std::memory_order_acq_rel);
+		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::InsertLevelDebuff)]++;
 	else
-		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveLevelDebuff)].fetch_add(1, std::memory_order_acq_rel);
+		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveLevelDebuff)]++;
 }
-
-void Game::UpdateThread1() noexcept
-{
-	while (true)
-	{
-		(void) this->PrepareWorkers.arrive_and_wait();
-
-		if (this->ExitThreads)
-			break;
-
-		const size_t ticks = this->Ticks;
-		const Rectangle update_area = this->UpdateArea;
-
-		this->UpdateParticleSystem(ticks, update_area);
-
-		(void) this->RestWorkers.arrive_and_wait();
-	}
-}
-
-void Game::UpdateThread2() noexcept
-{
-	while(true)
-	{
-		(void) this->PrepareWorkers.arrive_and_wait();
-		
-		if (this->ExitThreads)
-			break;
-		
-		const size_t ticks = this->Ticks;
-		const size_t level = this->Level;
-		const Rectangle update_area = this->UpdateArea;
-
-		this->UpdateProjectileSystem(ticks, update_area);
-		this->UpdateEnemySystem(ticks, level, update_area);
-
-		(void) this->RestWorkers.arrive_and_wait();
-	}
-}
-
