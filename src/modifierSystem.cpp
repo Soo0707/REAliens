@@ -17,10 +17,9 @@ void ModifierSystem::PollSignals(MessageSystem& message_system) noexcept
 		auto signal_handler = this->SignalHandlers[i];
 
 		for (uint16_t i = times; i > 0; i--)
-		{
 			(this->*signal_handler)();
-			message_system.ModifierSystemSignals[i] = 0;
-		}		
+
+		message_system.ModifierSystemSignals[i] = 0;
 	}
 }
 

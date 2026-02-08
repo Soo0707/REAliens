@@ -48,7 +48,6 @@ struct CreateXp
 {
 	float X;
 	float Y;
-	uint8_t Value;
 };
 
 struct KillXp

@@ -69,11 +69,6 @@ class EnemySystem
 			&EnemyLeAttackedHandler
 		};
 
-		static constexpr std::array<uint8_t, static_cast<size_t>(EnemyType::COUNT)> EnemyXpValues = 
-		{
-			1, 2, 1, 2
-		};
-
 		// animation_frames = number of actual frames -1 since it's 0 indexed
 		static constexpr uint8_t AnimationFrames = 2;
 

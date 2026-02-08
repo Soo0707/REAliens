@@ -55,8 +55,8 @@ void EnemySystem::PollSignals(MessageSystem& message_system, const AssetManager&
 		{
 			auto handler_function = this->SignalHandlers[i];
 			(this->*handler_function)(ticks, level, message_system);
-			message_system.EnemySystemSignals[i] = 0;
 		}
+		message_system.EnemySystemSignals[i] = 0;
 	}
 }
 
@@ -239,7 +239,6 @@ void EnemySystem::KillEnemies(MessageSystem& message_system) noexcept
 		{
 			const float x = this->EnemyRect[i].x;
 			const float y = this->EnemyRect[i].y;
-			const EnemyType type = this->EnemyTypes[i];
 
 			this->EnemyHealth[i] = this->EnemyHealth.back();
 			this->EnemySpeed[i] = this->EnemySpeed.back();
@@ -261,9 +260,7 @@ void EnemySystem::KillEnemies(MessageSystem& message_system) noexcept
 			this->EnemyAnimationComponents.pop_back();
 			this->EnemyTypes.pop_back();
 
-			const uint8_t value = this->EnemyXpValues[static_cast<size_t>(type)];
-
-			message_system.XpSystemCommands.emplace_back(std::in_place_type<struct CreateXp>, x, y, value);
+			message_system.XpSystemCommands.emplace_back(std::in_place_type<struct CreateXp>, x, y);
 			killed++;
 		}
 		else

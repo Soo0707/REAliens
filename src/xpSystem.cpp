@@ -15,7 +15,6 @@ XpSystem::XpSystem()
 {
 	this->XpKill.reserve(128);
 	this->XpIsVisible.reserve(128);
-	this->XpValue.reserve(128);
 	this->XpCentre.reserve(128);
 	this->XpRect.reserve(128);
 }
@@ -24,7 +23,6 @@ void XpSystem::Reset() noexcept
 {
 	this->XpKill.clear();
 	this->XpIsVisible.clear();
-	this->XpValue.clear();
 	this->XpCentre.clear();
 	this->XpRect.clear();
 }
@@ -79,11 +77,10 @@ void XpSystem::VisibilityCheck(const Rectangle update_area) noexcept
 		this->XpIsVisible[i] = static_cast<uint8_t>(CheckCollisionRecs(update_area, this->XpRect[i]));
 }
 
-void XpSystem::CreateXp(const float x, const float y, const float texture_width, const float texture_height, const uint8_t value) noexcept
+void XpSystem::CreateXp(const float x, const float y, const float texture_width, const float texture_height) noexcept
 {
 	this->XpKill.emplace_back(static_cast<bool>(false));
 	this->XpIsVisible.emplace_back(static_cast<bool>(false));
-	this->XpValue.emplace_back(value);
 	this->XpCentre.emplace_back(x + texture_width / 2.0f, y + texture_height / 2.0f);
 	this->XpRect.emplace_back(x, y, texture_width, texture_height);
 }
@@ -96,14 +93,12 @@ void XpSystem::RemoveXp() noexcept
 		{
 			this->XpKill[i] = this->XpKill.back();
 			this->XpIsVisible[i] = this->XpIsVisible.back();
-			this->XpValue[i] = this->XpValue.back();
 			this->XpCentre[i] = this->XpCentre.back();
 			this->XpRect[i] = this->XpRect.back();
 
 
 			this->XpKill.pop_back();
 			this->XpIsVisible.pop_back();
-			this->XpValue.pop_back();
 			this->XpCentre.pop_back();
 			this->XpRect.pop_back();
 		}
@@ -136,7 +131,7 @@ void XpSystem::CreateXpHandler(const XpSystemCommand& command, const AssetManage
 	const float texture_width = assets.GetTexture(TextureKey::Xp).width;
 	const float texture_height = assets.GetTexture(TextureKey::Xp).height;
 
-	this->CreateXp(data.X, data.Y, texture_width, texture_height, data.Value);
+	this->CreateXp(data.X, data.Y, texture_width, texture_height);
 }
 
 void XpSystem::KillXpHandler(const XpSystemCommand& command, const AssetManager& assets) noexcept
@@ -160,9 +155,3 @@ const std::vector<Rectangle>& XpSystem::GetXpRect() const noexcept
 {
 	return this->XpRect;
 }
-
-const std::vector<uint8_t>& XpSystem::GetXpValue() const noexcept
-{
-	return this->XpValue;
-}
-

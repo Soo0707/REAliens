@@ -129,10 +129,10 @@ void Game::Draw(RenderTexture2D& canvas) const noexcept
 void Game::Update() noexcept
 {
 	const size_t ticks = this->Ticks;
-
+	
 	if (!(ticks % TICK_RATE))
 		this->GlobalData->CacheString("Duration: " + std::to_string(TICKS_TO_SECONDS(ticks)) + "s", CachedString::Duration);
-
+		
 	if (IsKeyPressed(KEY_ESCAPE))
 		this->GlobalData->ActiveState = State::PauseMenu;
 	
@@ -163,6 +163,7 @@ void Game::TickedUpdate() noexcept
 
 		GameInputSystem::HandleTickedInput(*this, *this->MessageSystem, *this->ModifierSystem, *this->Settings);
 
+		this->UpdatePlayer(ticks);
 		this->UpdateTimeouts(ticks);
 		this->UpdateTimerSystem(ticks);
 
@@ -171,10 +172,9 @@ void Game::TickedUpdate() noexcept
 		
 		this->UpdateStatSystem();
 
-		this->UpdatePlayer(ticks);
 		this->UpdateXpSystem(ticks, update_area);
-		this->UpdateProjectileSystem(ticks, update_area);
 		this->UpdateEnemySystem(ticks, level, update_area);
+		this->UpdateProjectileSystem(ticks, update_area);
 
 		this->UpdateCollisionSystem(ticks);
 		
@@ -292,8 +292,8 @@ void Game::UpdateCollisionSystem(const size_t ticks) noexcept
 
 	this->CollisionSystem->XpCollision(
 			player_rect, this->XpSystem->GetXpRect(),
-			this->XpSystem->GetXpValue(), &this->CollectedXp,
-			*this->ModifierSystem, *this->MessageSystem
+			&this->CollectedXp, *this->ModifierSystem,
+			*this->MessageSystem
 			);
 }
 

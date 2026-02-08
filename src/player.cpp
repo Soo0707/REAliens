@@ -31,8 +31,8 @@ void Player::PollSignals(MessageSystem& message_system, const ModifierSystem& mo
 		{
 			auto signal_handler = this->SignalHandlers[i];
 			(this->*signal_handler)(message_system, times, modifier_system);
-			message_system.PlayerSignals[i] = 0;
 		}
+		message_system.PlayerSignals[i] = 0;
 	}
 }
 

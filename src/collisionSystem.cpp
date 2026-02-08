@@ -188,8 +188,8 @@ void CollisionSystem::Aura(
 
 void CollisionSystem::XpCollision(
 		const Rectangle player_rect, const std::vector<Rectangle>& xp_rect,
-		const std::vector<uint8_t>& xp_value, size_t* collected_xp,
-		const ModifierSystem& modifier_system, MessageSystem& message_system
+		size_t* collected_xp, const ModifierSystem& modifier_system,
+		MessageSystem& message_system
 		) const noexcept
 {
 	const bool has_magnetism = modifier_system.EffectStatus(Effect::Magnetism);
@@ -198,7 +198,7 @@ void CollisionSystem::XpCollision(
 	{
 		if (CheckCollisionRecs(player_rect, xp_rect[i]) || has_magnetism)
 		{
-			*collected_xp += xp_value[i];
+			*collected_xp += 1;
 
 			message_system.XpSystemCommands.emplace_back(std::in_place_type<struct KillXp>, i);
 		}

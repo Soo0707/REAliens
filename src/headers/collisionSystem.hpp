@@ -43,8 +43,8 @@ class CollisionSystem
 
 		void XpCollision(
 				const Rectangle player_rect, const std::vector<Rectangle>& xp_rect,
-				const std::vector<uint8_t>& xp_value, size_t* collected_xp,
-				const ModifierSystem& modifier_system, MessageSystem& message_system
+				size_t* collected_xp, const ModifierSystem& modifier_system,
+				MessageSystem& message_system
 				) const noexcept;
 
 	private:
