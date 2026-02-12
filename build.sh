@@ -23,8 +23,6 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  src/globalDataWrapper.cpp\
  src/settingsManager.cpp\
  -o /mnt/tmpfs/out.exe\
- -flto=auto\
- -O3\
  -std=c++20\
  -Iinclude/\
  -Isrc/headers/\
@@ -34,15 +32,11 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  -lgdi32\
  -lwinmm\
  -static\
- -march=haswell
-#-Wconversion\
-#-Wsign-conversion
- #-fopt-info-vec-missed
- #-fopt-info-vec-optimized
- #-Wall
-#-fno-exceptions
-#-Wextra\
-#-Wpedantic
+ -march=haswell\
+ -flto=auto\
+ -O3\
 
-#-mwindows\
+#-g\
+#-fno-omit-frame-pointer
+
 

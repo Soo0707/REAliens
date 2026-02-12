@@ -21,5 +21,9 @@ enum class Timer : uint8_t
 	PlayerSlideExpire,
 	BallCountdown,
 
+	LMB,
+	RMB,
+	Slide,
+
 	COUNT
 };

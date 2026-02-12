@@ -170,6 +170,8 @@ void PowerupMenu::ApplyAura() noexcept
 				TICK_RATE / 4, Timer::AuraTick
 				);
 	}
+
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct TriggerNow>, Timer::AuraTick);
 }
 
 void PowerupMenu::ApplyBuckshot() noexcept
@@ -201,6 +203,8 @@ void PowerupMenu::ApplyBall() noexcept
 				TICK_RATE, Timer::BallCountdown
 				);
 	}
+
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct TriggerNow>, Timer::BallCountdown);
 }
 
 void PowerupMenu::ApplyLifeSteal() noexcept

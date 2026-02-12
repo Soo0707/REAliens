@@ -25,4 +25,5 @@ void MessageSystem::Reset() noexcept
 	this->PlayerSignals = { 0 };
 	this->ModifierSystemSignals = { 0 };
 	this->CollisionSystemSignals = { 0 };
+	this->GameInputSignals = { 0 };
 }

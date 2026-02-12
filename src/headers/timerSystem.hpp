@@ -43,17 +43,23 @@ class TimerSystem
 		void PlayerSlideExpireHandler(MessageSystem& message_system) const noexcept;
 		void BallCountdownHandler(MessageSystem& message_system) const noexcept;
 
+		void LMBHandler(MessageSystem& message_system) const noexcept;
+		void RMBHandler(MessageSystem& message_system) const noexcept;
+		void SlideHandler(MessageSystem& message_system) const noexcept;
+
 		void RegisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
 		void EnableTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
 		void DisableTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
 		void DecreaseTimerInterval(const TimerSystemCommand& command, const size_t ticks) noexcept;
+		void TriggerNow(const TimerSystemCommand& command, const size_t ticks) noexcept;
 
-		static constexpr std::array<void(TimerSystem::*)(const TimerSystemCommand& command, const size_t ticks) noexcept, 4> CommandHandlers = 
+		static constexpr std::array<void(TimerSystem::*)(const TimerSystemCommand& command, const size_t ticks) noexcept, 5> CommandHandlers = 
 		{
 			&RegisterTimer,
 			&EnableTimer,
 			&DisableTimer,
-			&DecreaseTimerInterval
+			&DecreaseTimerInterval,
+			&TriggerNow
 		};
 
 		static constexpr std::array<void(TimerSystem::*)(MessageSystem&) const noexcept, static_cast<size_t>(Timer::COUNT)> TimeoutHandlers =
@@ -69,6 +75,9 @@ class TimerSystem
 			&EmitLocationParticlesHandler,
 			&SpawnEnemiesHandler,
 			&PlayerSlideExpireHandler,
-			&BallCountdownHandler
+			&BallCountdownHandler,
+			&LMBHandler,
+			&RMBHandler,
+			&SlideHandler
 		};
 };

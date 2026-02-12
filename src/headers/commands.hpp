@@ -83,7 +83,15 @@ struct DecreaseTimerInterval
 	Timer Type;
 };
 
-using TimerSystemCommand = std::variant<struct RegisterTimer, struct EnableTimer, struct DisableTimer, struct DecreaseTimerInterval>;
+struct TriggerNow
+{
+	Timer Type;
+};
+
+using TimerSystemCommand = std::variant<
+	struct RegisterTimer, struct EnableTimer, struct DisableTimer,
+	struct DecreaseTimerInterval, struct TriggerNow
+	>;
 
 
 struct StatSystemCommand

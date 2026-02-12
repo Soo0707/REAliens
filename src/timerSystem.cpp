@@ -70,8 +70,17 @@ void TimerSystem::Reset() noexcept
 	this->TimerActive = { 0 };
 
 	this->TimerInterval[static_cast<size_t>(Timer::AuraTick)] = static_cast<uint32_t>(SECONDS_TO_TICKS(2));
-
 	this->TimerInterval[static_cast<size_t>(Timer::BallCountdown)] = static_cast<uint32_t>(SECONDS_TO_TICKS(30));
+
+
+	this->TimerInterval[static_cast<size_t>(Timer::LMB)] = static_cast<uint32_t>(150);
+	this->TimerActive[static_cast<size_t>(Timer::LMB)] = true;
+
+	this->TimerInterval[static_cast<size_t>(Timer::RMB)] = static_cast<uint32_t>(450);
+	this->TimerActive[static_cast<size_t>(Timer::RMB)] = true;
+
+	this->TimerInterval[static_cast<size_t>(Timer::Slide)] = static_cast<uint32_t>(TICK_RATE);
+	this->TimerActive[static_cast<size_t>(Timer::Slide)] = true;
 }
 
 void TimerSystem::RegisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept
@@ -88,10 +97,12 @@ void TimerSystem::RegisterTimer(const TimerSystemCommand& command, const size_t 
 
 void TimerSystem::EnableTimer(const TimerSystemCommand& command, const size_t ticks) noexcept
 {
+	/*TODO: Implement a separate trigger now command then switch aura and ball to that*/
 	const struct EnableTimer& data = std::get<struct EnableTimer>(command);
 	const size_t index = static_cast<size_t>(data.Type);
 
 	this->TimerActive[index] = true;
+	this->Timers[index] = ticks + this->TimerInterval[index];
 	this->TimerRecurring[index] = data.Recurring;
 }
 
@@ -114,6 +125,16 @@ void TimerSystem::DecreaseTimerInterval(const TimerSystemCommand& command, const
 	else
 		this->TimerInterval[index] = data.Minimum;
 }
+
+void TimerSystem::TriggerNow(const TimerSystemCommand& command, const size_t ticks) noexcept
+{
+	const struct TriggerNow& data = std::get<struct TriggerNow>(command);
+
+	const size_t index = static_cast<size_t>(data.Type);
+
+	this->Timers[index] = ticks;
+}
+
 
 void TimerSystem::GreenbullExpireHandler(MessageSystem& message_system) const noexcept
 {
@@ -177,4 +198,19 @@ void TimerSystem::PlayerSlideExpireHandler(MessageSystem& message_system) const 
 void TimerSystem::BallCountdownHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.PlayerSignals[static_cast<size_t>(PlayerSignal::SpawnBall)]++;
+}
+
+void TimerSystem::LMBHandler(MessageSystem& message_system) const noexcept
+{
+	message_system.GameInputSignals[static_cast<size_t>(GameInputSignal::EnableLMB)]++;
+}
+
+void TimerSystem::RMBHandler(MessageSystem& message_system) const noexcept
+{
+	message_system.GameInputSignals[static_cast<size_t>(GameInputSignal::EnableRMB)]++;
+}
+
+void TimerSystem::SlideHandler(MessageSystem& message_system) const noexcept
+{
+	message_system.GameInputSignals[static_cast<size_t>(GameInputSignal::EnableSlide)]++;
 }

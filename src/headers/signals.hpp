@@ -59,3 +59,11 @@ enum class CollisionSystemSignal : uint8_t
 	AuraTick,
 	COUNT
 };
+
+enum class GameInputSignal : uint8_t
+{
+	EnableLMB,
+	EnableRMB,
+	EnableSlide,
+	COUNT
+};

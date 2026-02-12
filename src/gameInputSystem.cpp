@@ -47,8 +47,8 @@ void GameInputSystem::HandleTickedInput(
 				false, Timer::PlayerSlideExpire
 				);
 
+		message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct EnableTimer>, false, Timer::Slide);
 		game.CanPerform[static_cast<size_t>(Action::Slide)] = false;
-		game.LastPerformed[static_cast<size_t>(Action::Slide)] = ticks;
 	}
 
 	const bool auto_click = settings.Data.at(SettingKey::AutoClick);
@@ -60,16 +60,16 @@ void GameInputSystem::HandleTickedInput(
 	{
 		GameInputSystem::HandleLeftClick(message_system, modifier_system, player_centre, camera);
 
+		message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct EnableTimer>, false, Timer::LMB);
 		game.CanPerform[static_cast<size_t>(Action::LMB)] = false;
-		game.LastPerformed[static_cast<size_t>(Action::LMB)] = ticks;
 	}
 	
 	if ((IsMouseButtonDown(MOUSE_BUTTON_RIGHT) || auto_click) && game.CanPerform[static_cast<size_t>(Action::RMB)])
 	{
 		GameInputSystem::HandleRightClick(message_system, modifier_system, player_centre, camera);
 
+		message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct EnableTimer>, false, Timer::RMB);
 		game.CanPerform[static_cast<size_t>(Action::RMB)] = false;
-		game.LastPerformed[static_cast<size_t>(Action::RMB)] = ticks;
 	}
 }
 

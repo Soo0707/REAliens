@@ -77,7 +77,6 @@ void Game::Reset() noexcept
 	this->LevelUpThreshold = 5;
 
 	this->CanPerform = { 1 };
-	this->LastPerformed = { 0 };
 
 	this->Ticks = 0;
 	this->Level = 1;
@@ -161,11 +160,12 @@ void Game::TickedUpdate() noexcept
 			this->CollectedXp = distance;
 		}
 
+		this->UpdateTimerSystem(ticks);
+		this->PollSignals();
+
 		GameInputSystem::HandleTickedInput(*this, *this->MessageSystem, *this->ModifierSystem, *this->Settings);
 
 		this->UpdatePlayer(ticks);
-		this->UpdateTimeouts(ticks);
-		this->UpdateTimerSystem(ticks);
 
 		this->UpdateCamera();
 		this->UpdateModifierSystem();
@@ -324,18 +324,19 @@ void Game::UpdateCamera() noexcept
 		this->Camera.zoom = 1.0f;
 }
 
-void Game::UpdateTimeouts(const size_t ticks) noexcept
+
+void Game::PollSignals() noexcept
 {
-	if (ticks - this->LastPerformed[static_cast<size_t>(Action::LMB)] >= this->ModifierSystem->GetAttribute(Attribute::BulletCooldown))
-		this->CanPerform[static_cast<size_t>(Action::LMB)] = true;
+	for (size_t i = 0, n = static_cast<size_t>(GameInputSignal::COUNT); i < n; i++)
+	{
+		const uint16_t count = this->MessageSystem->GameInputSignals[i];
 
-	if (ticks - this->LastPerformed[static_cast<size_t>(Action::RMB)] >= this->ModifierSystem->GetAttribute(Attribute::LazerCooldown))
-		this->CanPerform[static_cast<size_t>(Action::RMB)] = true;
+		if (count)
+			this->CanPerform[i] = true;
 
-	if (ticks - this->LastPerformed[static_cast<size_t>(Action::Slide)] >= TICK_RATE)
-		this->CanPerform[static_cast<size_t>(Action::Slide)]= true;
+		this->MessageSystem->GameInputSignals[i] = 0;
+	}
 }
-
 
 void Game::LevelUp() noexcept
 {

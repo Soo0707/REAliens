@@ -73,7 +73,6 @@ class Game
 		const std::unique_ptr<class Player> Player;
 		
 		std::array<bool, static_cast<size_t>(Action::COUNT)> CanPerform;
-		std::array<size_t, static_cast<size_t>(Action::COUNT)> LastPerformed;
 
 		size_t Ticks = 0;
 
@@ -82,6 +81,7 @@ class Game
 		size_t LevelUpThreshold = 5;
 
 	private:
+		void PollSignals() noexcept;
 		void UpdatePlayer(const size_t ticks) noexcept;
 		void UpdateTimerSystem(const size_t ticks) noexcept;
 		void UpdateModifierSystem() noexcept;
