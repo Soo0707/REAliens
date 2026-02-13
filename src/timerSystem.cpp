@@ -74,6 +74,7 @@ void TimerSystem::Reset() noexcept
 
 
 	this->TimerInterval[static_cast<size_t>(Timer::LMB)] = static_cast<uint32_t>(150);
+	//this->TimerInterval[static_cast<size_t>(Timer::LMB)] = static_cast<uint32_t>(25);
 	this->TimerActive[static_cast<size_t>(Timer::LMB)] = true;
 
 	this->TimerInterval[static_cast<size_t>(Timer::RMB)] = static_cast<uint32_t>(450);

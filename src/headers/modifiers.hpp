@@ -4,14 +4,12 @@
 
 enum class Attribute : uint32_t
 {
-	BulletCooldown,
 	BulletDamage,
 	BulletSpeed,
 
 	Buckshot,
 	BuckshotSpread,
 
-	LazerCooldown,
 	LazerDamage,
 	LazerScale,
 	LazerSpeed,

@@ -27,14 +27,12 @@ void ModifierSystem::Reset() noexcept
 {
 	this->Attributes = { 0 };
 
-	this->SetAttribute(Attribute::BulletCooldown, 150.0f);
 	this->SetAttribute(Attribute::BulletDamage, 25.0f);
 	this->SetAttribute(Attribute::BulletSpeed, 1000.0f);
 
 	this->SetAttribute(Attribute::Buckshot, 3.0f);
 	this->SetAttribute(Attribute::BuckshotSpread, PI / 8);
 
-	this->SetAttribute(Attribute::LazerCooldown, 450.0f);
 	this->SetAttribute(Attribute::LazerDamage, 25.0f);
 	this->SetAttribute(Attribute::LazerScale, 1.0f);
 	this->SetAttribute(Attribute::LazerSpeed, 3000.0f);
@@ -151,16 +149,12 @@ void ModifierSystem::ApplyBuckshot() noexcept
 
 void ModifierSystem::ApplyBullet() noexcept
 {
-	this->DecreaseAttribute(Attribute::BulletCooldown, 25.0f, 80.0f);
-
 	this->IncreaseAttribute(Attribute::BulletDamage, 5.0f);
 	this->IncreaseAttribute(Attribute::BulletSpeed, 100.0f);
 }
 
 void ModifierSystem::ApplyLazer() noexcept
 {
-	this->DecreaseAttribute(Attribute::LazerCooldown, 50.0f, 60.0f);
-
 	this->IncreaseAttribute(Attribute::LazerDamage, 10.0f);
 	this->IncreaseAttribute(Attribute::LazerScale, 0.5f);
 	this->IncreaseAttribute(Attribute::LazerSpeed, 10.0f);

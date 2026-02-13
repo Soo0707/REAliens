@@ -31,6 +31,7 @@ enum class Powerup
 
 	SpeedBoots,
 	BabyOil,
+	FastHands,
 	COUNT
 };
 
@@ -75,6 +76,7 @@ class PowerupMenu
 		void ApplyPlotArmour() noexcept;
 		void ApplySpeedBoots() noexcept;
 		void ApplyBabyOil() noexcept;
+		void ApplyFastHands() noexcept;
 
 		std::vector<PowerupWrapper> SelectionList;
 
@@ -101,16 +103,17 @@ class PowerupMenu
 
 			"Magnetism",
 			"Speed Boots",
-			"Baby Oil"
+			"Baby Oil",
+			"Fast Hands"
 		};
 
 		static inline constexpr std::array<const char*, static_cast<size_t>(Powerup::COUNT)> PowerupDescriptions =
 		{
 			"+Aura Size, -Aura Timeout",
 			"Increase The Number Of Bullets Shot",
-			"+Bullet Damage, -LMB Timeout",
+			"Increase Bullet Damage",
 
-			"+Lazer Damage, -RMB Timeout, +Penetration Power",
+			"Increase Lazer Damage & Penetration Power",
 			"Periodically Spawn Balls Which Explode Into Smaller Balls",
 			"Temporary Invincibility",
 
@@ -120,7 +123,8 @@ class PowerupMenu
 
 			"Auto Collects XP",
 			"Increase Player Speed",
-			"Increase Slide Speed" 
+			"Increase Slide Speed",
+			"Decrease LMB & RMB Timeout"
 		};
 
 		static inline constexpr std::array<void(PowerupMenu::*)(), static_cast<size_t>(Powerup::COUNT)> ApplyHandles = 
@@ -139,7 +143,8 @@ class PowerupMenu
 
 			&ApplyMagnetism,
 			&ApplySpeedBoots,
-			&ApplyBabyOil
+			&ApplyBabyOil,
+			&ApplyFastHands
 		};
 
 		bool Gamble = false;

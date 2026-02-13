@@ -200,7 +200,7 @@ void PowerupMenu::ApplyBall() noexcept
 	{
 		this->MessageSystem->TimerSystemCommands.emplace_back(
 				std::in_place_type<struct DecreaseTimerInterval>, SECONDS_TO_TICKS(5),
-				TICK_RATE, Timer::BallCountdown
+				TICK_RATE / 2, Timer::BallCountdown
 				);
 	}
 
@@ -225,4 +225,10 @@ void PowerupMenu::ApplySpeedBoots() noexcept
 void PowerupMenu::ApplyBabyOil() noexcept
 {
 	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyBabyOil)]++;
+}
+
+void PowerupMenu::ApplyFastHands() noexcept
+{
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct DecreaseTimerInterval>, 25, 25, Timer::LMB);
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct DecreaseTimerInterval>, 50, 25, Timer::RMB);
 }

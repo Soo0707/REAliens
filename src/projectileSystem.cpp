@@ -265,6 +265,9 @@ void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& comma
 			const float ball_speed = this->ProjectileSpeed[index];
 			const float ball_scale = 0.75f * this->ProjectileScale[index];
 
+			if (ball_scale <= 0.4f)
+				break;
+
 			for (uint8_t i = 0; i < 2; i++)
 			{
 				const float up_down = (i % 2) ? 1.0f : -1.0f;
