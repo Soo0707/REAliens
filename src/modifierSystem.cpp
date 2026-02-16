@@ -42,8 +42,8 @@ void ModifierSystem::Reset() noexcept
 	this->SetAttribute(Attribute::BallScale, 0.5f);
 	this->SetAttribute(Attribute::BallDamage, 5.0f);
 
-	this->IncreaseAttribute(Attribute::AuraSize, 50.0f, static_cast<float>(REFERENCE_HEIGHT));
-	this->IncreaseAttribute(Attribute::AuraDamage, 5.0f);
+	this->SetAttribute(Attribute::AuraSize, 100.0f);
+	this->SetAttribute(Attribute::AuraDamage, 25.0f);
 
 	this->SetAttribute(Attribute::SlideSpeedMultiplier, 2.0f);
 
@@ -136,8 +136,8 @@ void ModifierSystem::ApplyMagnetism() noexcept
 
 void ModifierSystem::ApplyAura() noexcept
 {
-	this->SetAttribute(Attribute::AuraSize, 100.0f);
-	this->SetAttribute(Attribute::AuraDamage, 5.0f);
+	this->IncreaseAttribute(Attribute::AuraSize, 75.0f, static_cast<float>(REFERENCE_HEIGHT));
+	this->IncreaseAttribute(Attribute::AuraDamage, 15.0f);
 }
 
 void ModifierSystem::ApplyBuckshot() noexcept
@@ -149,22 +149,22 @@ void ModifierSystem::ApplyBuckshot() noexcept
 
 void ModifierSystem::ApplyBullet() noexcept
 {
-	this->IncreaseAttribute(Attribute::BulletDamage, 5.0f);
+	this->IncreaseAttribute(Attribute::BulletDamage, 50.0f);
 	this->IncreaseAttribute(Attribute::BulletSpeed, 100.0f);
 }
 
 void ModifierSystem::ApplyLazer() noexcept
 {
-	this->IncreaseAttribute(Attribute::LazerDamage, 10.0f);
+	this->IncreaseAttribute(Attribute::LazerDamage, 25.0f);
 	this->IncreaseAttribute(Attribute::LazerScale, 0.5f);
-	this->IncreaseAttribute(Attribute::LazerSpeed, 10.0f);
-	this->IncreaseAttribute(Attribute::LazerMaxHit, 5.0f);
+	this->IncreaseAttribute(Attribute::LazerSpeed, 75.0f);
+	this->IncreaseAttribute(Attribute::LazerMaxHit, 10.0f);
 }
 
 void ModifierSystem::ApplyBall() noexcept
 {
 	this->IncreaseAttribute(Attribute::BallSpeed, 100.0f);
-	this->IncreaseAttribute(Attribute::BallScale, 0.25f);
+	this->IncreaseAttribute(Attribute::BallScale, 0.5f);
 	this->IncreaseAttribute(Attribute::BallDamage, 5.0f);
 }
 
@@ -174,7 +174,7 @@ void ModifierSystem::ApplyLifeSteal() noexcept
 		this->IncreaseAttribute(Attribute::LifeStealMultiplier, 0.2f);
 	else
 	{
-		this->SetAttribute(Attribute::LifeStealMultiplier, 0.1f);
+		this->SetAttribute(Attribute::LifeStealMultiplier, 0.4f);
 		this->ApplyEffect(Effect::LifeSteal);
 	}
 }

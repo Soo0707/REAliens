@@ -229,6 +229,6 @@ void PowerupMenu::ApplyBabyOil() noexcept
 
 void PowerupMenu::ApplyFastHands() noexcept
 {
-	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct DecreaseTimerInterval>, 25, 25, Timer::LMB);
-	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct DecreaseTimerInterval>, 50, 25, Timer::RMB);
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct DecreaseTimerInterval>, 50, 25, Timer::LMB);
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct DecreaseTimerInterval>, 75, 25, Timer::RMB);
 }
