@@ -1,17 +1,49 @@
 #include "settingsManager.hpp"
 
+#include <unordered_map>
 #include <filesystem>
 #include <fstream>
 #include <string>
 
 SettingsManager::SettingsManager()
 {
-	std::string config_file_path = "config.txt";
+	this->Reset();
+	this->ReadConfig();
+}
 
-	if (!std::filesystem::exists(config_file_path))
+SettingKey SettingsManager::GetSettingKeyFromString(const std::string& key) const noexcept
+{
+	static const std::unordered_map<std::string, SettingKey> lookup =
+	{
+		{ "POWERUP_MENU_STEALS_FOCUS", SettingKey::PowerupMenuInterrupt },
+		{ "AUTO_CLICK", SettingKey::AutoClick },
+		{ "DISABLE_HEALTH_CHECK", SettingKey::DisableHealthCheck },
+
+		{ "UNLIMITED_POWERUPS", SettingKey::UnlimitedPowerups },
+		{ "TARGET_FRAMERATE", SettingKey::TargetFramerate },
+
+		{ "DISABLE_LEVEL_DEBUFFS", SettingKey::DisableLevelDebuffs }
+	};
+
+	return lookup.count(key) ? lookup.at(key) : SettingKey::None;
+}
+
+int SettingsManager::Get(const SettingKey setting) const noexcept
+{
+	return this->Data[static_cast<size_t>(setting)];
+}
+
+void SettingsManager::Set(const SettingKey setting, const int value) noexcept
+{
+	this->Data[static_cast<size_t>(setting)] = value;
+}
+
+void SettingsManager::ReadConfig()
+{
+	if (!std::filesystem::exists("config.txt"))
 		return;
 
-	std::ifstream config_file(config_file_path);
+	std::ifstream config_file("config.txt");
 
 	if (!config_file.is_open())
 		return;
@@ -23,12 +55,12 @@ SettingsManager::SettingsManager()
 
 	while (std::getline(config_file, line))
 	{
-		size_t comment = line.find("#");
+		const size_t comment = line.find("#");
 
 		if (comment != std::string::npos)
 			continue;
 
-		size_t delimiter_location = line.find("=");
+		const size_t delimiter_location = line.find("=");
 
 		if (delimiter_location == std::string::npos)
 			continue;
@@ -50,23 +82,13 @@ SettingsManager::SettingsManager()
 		SettingKey key = SettingsManager::GetSettingKeyFromString(str_key);
 
 		if (key != SettingKey::None)
-			this->Data[key] = static_cast<unsigned int>(value);
+			this->Set(key, value);
 	}
 }
 
-SettingKey SettingsManager::GetSettingKeyFromString(const std::string& key) const noexcept
+void SettingsManager::Reset() noexcept
 {
-	static const std::unordered_map<std::string, SettingKey> lookup =
-	{
-		{ "POWERUP_MENU_STEALS_FOCUS", SettingKey::PowerupMenuInterrupt },
-		{ "AUTO_CLICK", SettingKey::AutoClick },
-		{ "DISABLE_HEALTH_CHECK", SettingKey::DisableHealthCheck },
+	this->Data = { 0 };
 
-		{ "UNLIMITED_POWERUPS", SettingKey::UnlimitedPowerups },
-		{ "TARGET_FRAMERATE", SettingKey::TargetFramerate },
-
-		{ "DISABLE_LEVEL_DEBUFFS", SettingKey::DisableLevelDebuffs }
-	};
-
-	return lookup.count(key) ? lookup.at(key) : SettingKey::None;
+	this->Set(SettingKey::PowerupMenuInterrupt, 1);
 }

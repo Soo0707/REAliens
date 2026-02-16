@@ -51,7 +51,7 @@ void GameInputSystem::HandleTickedInput(
 		game.CanPerform[static_cast<size_t>(Action::Slide)] = false;
 	}
 
-	const bool auto_click = settings.Data.at(SettingKey::AutoClick);
+	const bool auto_click = settings.Get(SettingKey::AutoClick);
 
 	const Vector2 player_centre = game.Player->Centre;
 	const Camera2D camera = game.Camera;

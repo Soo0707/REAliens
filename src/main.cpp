@@ -44,8 +44,8 @@ int main(void)
 
 	unsigned int target_refresh_rate;
 
-	if (settings->Data.at(SettingKey::TargetFramerate) != 0)
-		target_refresh_rate = settings->Data.at(SettingKey::TargetFramerate);
+	if (settings->Get(SettingKey::TargetFramerate) != 0)
+		target_refresh_rate = settings->Get(SettingKey::TargetFramerate);
 	else
 		target_refresh_rate = 4 * GetMonitorRefreshRate(GetCurrentMonitor());
 

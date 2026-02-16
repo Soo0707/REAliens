@@ -120,13 +120,13 @@ void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
 
 	PowerupMenu::GenerateList();
 
-	if (!this->Settings->Data.at(SettingKey::UnlimitedPowerups))
+	if (!this->Settings->Get(SettingKey::UnlimitedPowerups))
 	{
 		this->GlobalData->UnclaimedPowerups--;
 		this->GlobalData->CacheString("Unclaimed Powerups: " + std::to_string(this->GlobalData->UnclaimedPowerups), CachedString::UnclaimedPowerups);
 	}
 
-	if (this->GlobalData->UnclaimedPowerups == 0 && !this->Settings->Data.at(SettingKey::UnlimitedPowerups))
+	if (this->GlobalData->UnclaimedPowerups == 0 && !this->Settings->Get(SettingKey::UnlimitedPowerups))
 	{
 		this->GlobalData->ActiveState = State::Game;
 		this->Gamble = false;

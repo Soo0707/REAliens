@@ -114,7 +114,7 @@ class PowerupMenu
 			"Increase Bullet Damage",
 
 			"Increase Lazer Damage & Penetration Power",
-			"Periodically Spawn Balls Which Explode Into Smaller Balls",
+			"Periodically Spawn A Ball",
 			"Temporary Invincibility",
 
 			"Removes And Prevents Enemy Effects",

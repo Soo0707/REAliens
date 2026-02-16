@@ -136,7 +136,7 @@ void CollisionSystem::SlideAttack(
 
 			message_system.ParticleSystemCommands.emplace_back(
 					ticks, damage_done, player_direction, enemy_rect[i].x, enemy_rect[i].y,
-					15, 25, 60, TICK_RATE / 2, 256, ORANGE, RED
+					15, 25, 60, TICK_RATE / 2, 512, ORANGE, RED
 					);
 
 			total_damage_done += static_cast<unsigned int>(damage_done);
@@ -168,7 +168,7 @@ void CollisionSystem::Aura(
 
 			message_system.ParticleSystemCommands.emplace_back(
 					ticks, aura_damage, velocity, enemy_rect[i].x, enemy_rect[i].y,
-					10, 20, 60, TICK_RATE / 2, 0, PURPLE, RED
+					15, 30, 60, TICK_RATE / 2, 256, PURPLE, RED
 					);
 
 			total_hit++;

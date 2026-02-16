@@ -1,11 +1,13 @@
 #pragma once
 
-#include <unordered_map>
 #include <cstddef>
+#include <cstdint>
 #include <string>
+#include <array>
 
-enum class SettingKey : size_t
+enum class SettingKey : uint8_t
 {
+	None,
 	AutoClick,
 	DisableHealthCheck,
 	PowerupMenuInterrupt,
@@ -14,7 +16,7 @@ enum class SettingKey : size_t
 	TargetFramerate,
 	DisableLevelDebuffs,
 
-	None
+	COUNT
 };
 
 class SettingsManager
@@ -23,19 +25,14 @@ class SettingsManager
 		SettingsManager();
 		~SettingsManager() = default;
 
-		std::unordered_map<SettingKey, unsigned int> Data =
-		{
-			{ SettingKey::PowerupMenuInterrupt, 1 },
-			{ SettingKey::AutoClick, 0 },
-			{ SettingKey::DisableHealthCheck, 0 },
-
-			{ SettingKey::TargetFramerate, 0 },
-			{ SettingKey::UnlimitedPowerups, 0 },
-
-			{ SettingKey::DisableLevelDebuffs, 0 }
-		};
+		int Get(const SettingKey setting) const noexcept;
 
 	private:
 		SettingKey GetSettingKeyFromString(const std::string& key) const noexcept;
+		void Set(const SettingKey setting, const int value) noexcept;
+		void Reset() noexcept;
+		void ReadConfig();
+
+		std::array<int, static_cast<size_t>(SettingKey::COUNT)> Data;
 };
 

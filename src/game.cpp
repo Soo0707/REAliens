@@ -135,7 +135,7 @@ void Game::Update() noexcept
 	if (IsKeyPressed(KEY_ESCAPE))
 		this->GlobalData->ActiveState = State::PauseMenu;
 	
-	if (IsKeyPressed(KEY_TAB) && (this->GlobalData->UnclaimedPowerups > 0 || this->Settings->Data.at(SettingKey::UnlimitedPowerups)))
+	if (IsKeyPressed(KEY_TAB) && (this->GlobalData->UnclaimedPowerups > 0 || this->Settings->Get(SettingKey::UnlimitedPowerups)))
 		this->GlobalData->ActiveState = State::PowerupMenu;
 }
 
@@ -190,7 +190,7 @@ void Game::UpdatePlayer(const size_t ticks) noexcept
 	this->Player->PollSignals(*this->MessageSystem, *this->ModifierSystem);
 	this->Player->ExecuteCommands(*this->MessageSystem);
 
-	if (this->Player->Health <= 0 && !this->Settings->Data.at(SettingKey::DisableHealthCheck))
+	if (this->Player->Health <= 0 && !this->Settings->Get(SettingKey::DisableHealthCheck))
 	{
 		this->GlobalData->CacheString("Reason: Player Died", CachedString::GameOverReason);
 		this->GlobalData->ActiveState = State::GenerateGameOverStats;
@@ -340,7 +340,7 @@ void Game::PollSignals() noexcept
 
 void Game::LevelUp() noexcept
 {
-	if (!this->Settings->Data.at(SettingKey::UnlimitedPowerups))
+	if (!this->Settings->Get(SettingKey::UnlimitedPowerups))
 	{
 		this->GlobalData->UnclaimedPowerups++;
 
@@ -356,10 +356,10 @@ void Game::LevelUp() noexcept
 	this->CollectedXp = 0;
 	this->LevelUpThreshold += 5;
 	
-	if (this->Settings->Data.at(SettingKey::PowerupMenuInterrupt))
+	if (this->Settings->Get(SettingKey::PowerupMenuInterrupt))
 		this->GlobalData->ActiveState = State::PowerupMenu;
 
-	if (this->Level % 5 == 0 && !this->Settings->Data.at(SettingKey::DisableLevelDebuffs))
+	if (this->Level % 5 == 0 && !this->Settings->Get(SettingKey::DisableLevelDebuffs))
 		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::InsertLevelDebuff)]++;
 	else
 		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveLevelDebuff)]++;
