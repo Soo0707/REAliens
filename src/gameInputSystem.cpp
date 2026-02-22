@@ -16,23 +16,13 @@ void GameInputSystem::HandleTickedInput(
 		const SettingsManager& settings
 		) noexcept
 {
-	Vector2 player_direction;
-
 	if (IsKeyDown(KEY_SPACE))
 		message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveTrapped)]++;
 
-	if (modifier_system.EffectStatus(Effect::Trapped))
-		player_direction = { 0.0f, 0.0f };
-	else
-	{
-		player_direction = {
+	const Vector2 player_direction = {
 			static_cast<float>(IsKeyDown(KEY_D) - IsKeyDown(KEY_A)),
 			static_cast<float>(IsKeyDown(KEY_S) - IsKeyDown(KEY_W))
 		};
-	}
-
-	if (modifier_system.EffectStatus(Effect::Drunk))
-		player_direction = Vector2Scale(player_direction, -1.0f);
 
 	message_system.PlayerCommands.emplace_back(std::in_place_type<struct SetPlayerDirection>, player_direction);
 

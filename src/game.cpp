@@ -33,7 +33,7 @@ Game::Game(
 		std::shared_ptr<class EnemySystem> enemy_system, std::shared_ptr<class StatSystem> stat_system,
 		std::shared_ptr<class XpSystem> xp_system, std::shared_ptr<class CollisionSystem> collision_system
 		) :
-	Player(std::make_unique<class Player>(500.0f, 500.0f, *assets)),
+	Player(std::make_unique<class Player>()),
 	GlobalData(global_data),
 	Assets(assets),
 	Settings(settings),
@@ -188,7 +188,7 @@ void Game::TickedUpdate() noexcept
 void Game::UpdatePlayer(const size_t ticks) noexcept
 {
 	this->Player->PollSignals(*this->MessageSystem, *this->ModifierSystem);
-	this->Player->ExecuteCommands(*this->MessageSystem);
+	this->Player->ExecuteCommands(*this->MessageSystem, *this->ModifierSystem);
 
 	if (this->Player->Health <= 0 && !this->Settings->Get(SettingKey::DisableHealthCheck))
 	{

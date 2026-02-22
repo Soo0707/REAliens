@@ -21,17 +21,17 @@ enum class Bearing : uint16_t
 class Player
 {
 	public:
-		Player(float pos_x, float pos_y, AssetManager &assets);
+		Player();
 		~Player() = default; 
 		
 		void PollSignals(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept;
-		void ExecuteCommands(MessageSystem& message_system) noexcept;
+		void ExecuteCommands(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept;
 		
 		void Move(MessageSystem& message_system, const float slide_speed) noexcept;
 		void Update(MessageSystem& message_system, const size_t ticks, const float slide_speed) noexcept;
 		void Animate(const size_t ticks) noexcept;
 
-		void Draw() const noexcept;
+		void Draw(const AssetManager& assets) const noexcept;
 		void DrawLightmap() const noexcept;
 
 		void Reset() noexcept;
@@ -49,15 +49,13 @@ class Player
 		bool Sliding;
 
 	private:
-		Texture2D Image;
-
 		Bearing Bearing;
 
-		void IncreaseHealth(const PlayerCommand& command) noexcept;
-		void TakeDamage(const PlayerCommand& command) noexcept;
-		void SetDirection(const PlayerCommand& command) noexcept;
+		void IncreaseHealth(const PlayerCommand& command, const ModifierSystem& modifier_system) noexcept;
+		void TakeDamage(const PlayerCommand& command, const ModifierSystem& modifier_system) noexcept;
+		void SetDirection(const PlayerCommand& command, const ModifierSystem& modifier_system) noexcept;
 
-		static constexpr std::array<void(Player::*)(const PlayerCommand&) noexcept, 3> CommandHandlers = 
+		static constexpr std::array<void(Player::*)(const PlayerCommand&, const ModifierSystem&) noexcept, 3> CommandHandlers = 
 		{
 			&TakeDamage,
 			&IncreaseHealth,

@@ -3,22 +3,20 @@
 #include <cstdint>
 #include <cmath>
 
-#include "assetManager.hpp"
 #include "raylib.h"
 #include "raymath.h"
 #include "constants.hpp"
 
+#include "assetManager.hpp"
 #include "modifierSystem.hpp"
 #include "projectileData.hpp"
 #include "messageSystem.hpp"
 #include "commands.hpp"
 #include "signals.hpp"
 
-Player::Player(float pos_x, float pos_y, AssetManager &assets) :
-	Image(assets.GetTexture(TextureKey::Player))
+Player::Player()
 {
-	this->Rect = { pos_x, pos_y, PLAYER_TEXTURE_TILE_SIZE, PLAYER_TEXTURE_TILE_SIZE };
-	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_SIZE / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_SIZE / 2.0f };
+	this->Reset();
 }
 
 void Player::PollSignals(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept
@@ -36,7 +34,7 @@ void Player::PollSignals(MessageSystem& message_system, const ModifierSystem& mo
 	}
 }
 
-void Player::ExecuteCommands(MessageSystem& message_system) noexcept
+void Player::ExecuteCommands(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept
 {
 	for (auto const& command : message_system.PlayerCommands)
 	{
@@ -44,7 +42,7 @@ void Player::ExecuteCommands(MessageSystem& message_system) noexcept
 
 		auto command_handler = this->CommandHandlers[handler_index];
 
-		(this->*command_handler)(command);
+		(this->*command_handler)(command, modifier_system);
 	}
 
 	message_system.PlayerCommands.clear();
@@ -58,10 +56,10 @@ void Player::Update(MessageSystem& message_system, const size_t ticks, const flo
 	Player::Move(message_system, slide_speed);
 }
 
-void Player::Draw() const noexcept
+void Player::Draw(const AssetManager& assets) const noexcept
 {
 	DrawTextureRec(
-			this->Image,
+			assets.GetTexture(TextureKey::Player),
 			(Rectangle) { 
 				static_cast<float>(this->ImageIndex * PLAYER_TEXTURE_TILE_SIZE),
 				static_cast<float>(this->Bearing),
@@ -122,36 +120,12 @@ void Player::Move(MessageSystem& message_system, const float slide_speed) noexce
 	message_system.StatSystemCommands.emplace_back(Stat::TotalDistance, static_cast<uint32_t>(speed * TICK_TIME));
 }
 
-void Player::TakeDamage(const PlayerCommand& command) noexcept
-{
-	const DamagePlayer& data = std::get<DamagePlayer>(command);
-	this->Health -= data.DamageAmount;
-}
-
-void Player::IncreaseHealth(const PlayerCommand& command) noexcept
-{
-	const IncreasePlayerHealth& data = std::get<IncreasePlayerHealth>(command);
-
-	if (this->Health + data.Amount <= this->HealthMax)
-		this->Health += data.Amount;
-	else
-		this->Health = this->HealthMax;
-}
-
-void Player::SetDirection(const PlayerCommand& command) noexcept
-{
-	const SetPlayerDirection& data = std::get<SetPlayerDirection>(command);
-
-	this->Direction = Vector2Normalize(data.Direction);
-}
-
 void Player::Reset() noexcept
 {
-	this->Rect.x = 500;
-	this->Rect.y = 500;
+	this->Rect = { 500.0f, 500.0f, PLAYER_TEXTURE_TILE_SIZE, PLAYER_TEXTURE_TILE_SIZE };
 
-	this->Health = 100;
-	this->HealthMax = 100;
+	this->Health = 100.0f;
+	this->HealthMax = 100.0f;
 	this->Direction = { 0.0f, 0.0f };
 
 	this->Speed = 300.0f;
@@ -163,6 +137,41 @@ void Player::Reset() noexcept
 	this->LastAnimationUpdate = 0;
 	this->ImageIndex = 0;
 }
+
+void Player::TakeDamage(const PlayerCommand& command, const ModifierSystem& modifier_system) noexcept
+{
+	const DamagePlayer& data = std::get<DamagePlayer>(command);
+	this->Health -= data.DamageAmount;
+}
+
+void Player::IncreaseHealth(const PlayerCommand& command, const ModifierSystem& modifier_system) noexcept
+{
+	const IncreasePlayerHealth& data = std::get<IncreasePlayerHealth>(command);
+
+	if (this->Health + data.Amount <= this->HealthMax)
+		this->Health += data.Amount;
+	else
+		this->Health = this->HealthMax;
+}
+
+void Player::SetDirection(const PlayerCommand& command, const ModifierSystem& modifier_system) noexcept
+{
+	const SetPlayerDirection& data = std::get<SetPlayerDirection>(command);
+
+	Vector2 direction = data.Direction;
+
+	if (modifier_system.EffectStatus(Effect::Trapped))
+	{
+		direction = { 0.0f, 0.0f };
+		return;
+	}
+
+	if (modifier_system.EffectStatus(Effect::Drunk))
+		direction = Vector2Scale(direction, -1.0f);
+
+	this->Direction = Vector2Normalize(direction);
+}
+
 
 void Player::IncreasePlotArmour(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept
 {

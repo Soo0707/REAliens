@@ -49,7 +49,7 @@ void GameDrawSystem::DrawGame(const Game& game, const ModifierSystem& modifier_s
 	game.ParticleSystem->Draw(assets, ticks);
 
 	if (!modifier_system.EffectStatus(Effect::Invisible))
-		game.Player->Draw();
+		game.Player->Draw(assets);
 }
 
 void GameDrawSystem::DrawLighting(const Game& game, const ModifierSystem& modifier_system) noexcept
