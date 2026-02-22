@@ -35,7 +35,7 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  -march=sandybridge\
  -mtune=haswell\
  -flto=auto\
- -O3\
+ -O3
 
 #-g\
 #-fno-omit-frame-pointer
