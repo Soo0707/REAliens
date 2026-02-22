@@ -169,6 +169,9 @@ void Player::SetDirection(const PlayerCommand& command, const ModifierSystem& mo
 	if (modifier_system.EffectStatus(Effect::Drunk))
 		direction = Vector2Scale(direction, -1.0f);
 
+	if (modifier_system.EffectStatus(Effect::DiddySlide) && direction.x == 0.0f && direction.y == 0.0f)
+		direction = this->Direction;
+
 	this->Direction = Vector2Normalize(direction);
 }
 

@@ -86,11 +86,12 @@ class ModifierSystem
 			&RemoveLevelDebuff
 		};
 
-		static constexpr std::array<Effect, 4> DebuffList = { 
+		static constexpr std::array<Effect, 5> DebuffList = { 
 			Effect::Microscope,
 			Effect::Earthquake,
 			Effect::Stinky,
-			Effect::Invisible
+			Effect::Invisible,
+			Effect::DiddySlide
 		};
 		
 		Effect Effects;

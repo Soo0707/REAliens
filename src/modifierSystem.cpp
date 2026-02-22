@@ -243,7 +243,7 @@ void ModifierSystem::RemoveDrunk() noexcept
 
 void ModifierSystem::InsertLevelDebuff() noexcept
 {
-	const int index = GetRandomValue(0, this->DebuffList.size() - 1);
+	const size_t index = GetRandomValue(0, this->DebuffList.size() - 1);
 
 	const Effect random_effect = this->DebuffList[index];
 
