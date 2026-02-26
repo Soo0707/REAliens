@@ -33,7 +33,6 @@ enum class CachedString : uint8_t
 	AverageSpeed,
 
 	EnemiesKilled,
-	GameOverReason,
 	COUNT
 };
 

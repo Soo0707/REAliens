@@ -28,8 +28,6 @@ void GameOverMenu::Draw(RenderTexture2D& canvas) const noexcept
 	const int x6 = mid - MeasureText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::LevelText)].c_str(), 24) / 2.0f;
 	const int x9 = mid - MeasureText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::AverageSpeed)].c_str(), 24) / 2.0f;
 
-	const int x10 = mid - MeasureText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::GameOverReason)].c_str(), 24) / 2.0f;
-
 	const int x11 = mid - MeasureText("[ENTER] Restart, [Esc] Quit", 21) / 2.0f;
 	/*
 	 24px + 10px padding per element vertically except at beginning of new section
@@ -49,8 +47,6 @@ void GameOverMenu::Draw(RenderTexture2D& canvas) const noexcept
 		DrawText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::LevelText)].c_str(), x6, 326, 24, GOLD);
 
 		DrawText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::AverageSpeed)].c_str(), x9, 438, 24, GOLD);
-
-		DrawText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::GameOverReason)].c_str(), x10, 482, 24, GOLD);
 
 		DrawText("[ENTER] Restart, [Esc] Quit", x11, 620, 21, LIGHTGRAY);
 	EndTextureMode();

@@ -76,7 +76,7 @@ void Game::Reset() noexcept
 	this->CollectedXp = 0;
 	this->LevelUpThreshold = 5;
 
-	this->CanPerform = { 1 };
+	this->CanPerform = { 0 };
 
 	this->Ticks = 0;
 	this->Level = 1;
