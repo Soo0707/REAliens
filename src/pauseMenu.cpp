@@ -35,8 +35,5 @@ void PauseMenu::HandleInput() noexcept
 		this->GlobalData->ActiveState = State::MainMenu;
 
 	if (IsKeyPressed(KEY_P))
-	{
-		this->GlobalData->CacheString("Reason: Session Terminated", CachedString::GameOverReason);
 		this->GlobalData->ActiveState = State::GenerateGameOverStats;
-	}
 }

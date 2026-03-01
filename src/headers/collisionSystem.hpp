@@ -15,7 +15,7 @@
 class CollisionSystem
 {
 	public:
-		CollisionSystem() = default;
+		CollisionSystem(const float map_width, const float map_height);
 		~CollisionSystem() = default;
 
 		void PollSignals(
@@ -47,6 +47,8 @@ class CollisionSystem
 				MessageSystem& message_system
 				) const noexcept;
 
+		void UpdateEnemyGrid(const std::vector<Rectangle>& enemy_rect) noexcept;
+
 	private:
 		void ApplyAussie(MessageSystem& message_system,	const size_t ticks) const noexcept;
 		void ApplyDrunk(MessageSystem& message_system, const size_t ticks) const noexcept;
@@ -70,9 +72,14 @@ class CollisionSystem
 
 		using SignalHandler = void(CollisionSystem::*)(const std::vector<Rectangle>&, const Vector2, const ModifierSystem&, MessageSystem&, const size_t) const noexcept;
 
+		size_t GetMortonCode(const float x, const float y) const noexcept;
+		inline uint16_t SeparateBits(uint16_t bits) const noexcept;
+
 		static constexpr std::array<SignalHandler, static_cast<size_t>(CollisionSystemSignal::COUNT)> SignalHandlers =
 		{
 			&Aura
 		};
+
+		std::vector<int16_t> EnemyGrid;
 };
 

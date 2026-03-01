@@ -110,10 +110,10 @@ void EnemySystem::Draw(const AssetManager& assets) const noexcept
 			const Texture2D texture = assets.GetTexture(this->EnemyTextureKey[i]);
 
 			const Rectangle source_rect = {
-				static_cast<float>(this->EnemyAnimationComponents[i].ImageIndex) * TEXTURE_TILE_SIZE,
+				static_cast<float>(this->EnemyAnimationComponents[i].ImageIndex) * ENEMY_TEXTURE_TILE_SIZE,
 				0.0f,
-				TEXTURE_TILE_SIZE,
-				TEXTURE_TILE_SIZE
+				ENEMY_TEXTURE_TILE_SIZE,
+				ENEMY_TEXTURE_TILE_SIZE
 			};
 
 			DrawTexturePro(
@@ -222,7 +222,7 @@ void EnemySystem::CreateEnemy(const float x, const float y, const float level_sc
 	this->EnemySpeed.emplace_back(this->EnemyAttributes[type_index].Speed);
 	this->EnemyIsVisible.emplace_back(false);
 	this->EnemyDirection.emplace_back(0.0f, 0.0f);
-	this->EnemyRect.emplace_back(x, y, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE);
+	this->EnemyRect.emplace_back(x, y, ENEMY_TEXTURE_TILE_SIZE, ENEMY_TEXTURE_TILE_SIZE);
 	this->EnemyAttackComponents.emplace_back(0, this->EnemyAttributes[type_index].Damage * level_scale, true);
 	this->EnemyTextureKey.emplace_back(this->EnemyAttributes[type_index].Texture);
 	this->EnemyAnimationComponents.emplace_back(0, 0, this->EnemyAttributes[type_index].AnimationInterval);

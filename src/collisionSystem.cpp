@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <variant>
+#include <algorithm>
 
 #include "raylib.h"
 
@@ -15,6 +16,18 @@
 #include "enemyData.hpp"
 #include "projectileData.hpp"
 #include "constants.hpp"
+
+CollisionSystem::CollisionSystem(const float map_width, const float map_height)
+{
+	const size_t largest_dimension = std::max(
+			static_cast<size_t>(map_width / TEXTURE_TILE_SIZE),
+			static_cast<size_t>(map_height / TEXTURE_TILE_SIZE)
+			);
+
+	const size_t grid_size = largest_dimension * largest_dimension;
+
+	this->EnemyGrid.resize(grid_size, -1);
+}
 
 void CollisionSystem::PollSignals(
 		MessageSystem& message_system, const std::vector<Rectangle>& enemy_rect, const Vector2 player_centre,
@@ -34,6 +47,24 @@ void CollisionSystem::PollSignals(
 	}
 }
 
+void CollisionSystem::UpdateEnemyGrid(const std::vector<Rectangle>& enemy_rect) noexcept
+{
+	const size_t grid_size = this->EnemyGrid.size();
+
+	for (size_t i = 0, n = this->EnemyGrid.size(); i < n; i++)
+		this->EnemyGrid[i] = -1;
+
+	for (size_t i = 0, n = enemy_rect.size(); i < n; i++)
+	{
+		const float x = enemy_rect[i].x + enemy_rect[i].width / 2.0f;
+		const float y = enemy_rect[i].y + enemy_rect[i].height / 2.0f;
+
+		const size_t index = this->GetMortonCode(x, y);
+		
+		if (index < grid_size)
+			this->EnemyGrid[index] = i;
+	}
+}
 
 void CollisionSystem::ProjectileCollision(
 		const std::vector<Rectangle>& projectile_rect, const std::vector<ProjectileType>& projectile_types,
@@ -41,6 +72,9 @@ void CollisionSystem::ProjectileCollision(
 		MessageSystem& message_system, const ModifierSystem& modifier_system, const size_t ticks
 		) const noexcept
 {
+	// TODO: unfuck this mess, then unfuck the asset manager map call in main
+	const size_t grid_size = this->EnemyGrid.size();
+
 	unsigned int total_damage_done = 0;
 
 	for (size_t i = 0, n = projectile_rect.size(); i < n; i++)
@@ -59,7 +93,29 @@ void CollisionSystem::ProjectileCollision(
 				damage = modifier_system.GetAttribute(Attribute::BallDamage);
 				break;
 		}
+		
+		const float x = projectile_rect[i].x + projectile_rect[i].width / 2.0f;
+		const float y = projectile_rect[i].y + projectile_rect[i].height / 2.0f;
 
+		const size_t index = this->GetMortonCode(x, y);
+
+		if (index < grid_size && this->EnemyGrid[index] >= 0)
+		{
+			const size_t enemy_index = this->EnemyGrid[index];
+
+			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, enemy_index, damage);
+
+			message_system.ProjectileSystemCommands.emplace_back(std::in_place_type<struct ProjectileHit>, i);
+
+			message_system.ParticleSystemCommands.emplace_back(
+					ticks, damage, projectile_direction[i], x, y,
+					10, 30, 48, TICK_RATE / 2, 256, RED, RED
+					);
+
+			total_damage_done += static_cast<unsigned int>(damage);
+		}
+
+/*
 		for (size_t j = 0, m = enemy_rect.size(); j < m; j++)
 		{
 			if (CheckCollisionRecs(projectile_rect[i], enemy_rect[j]))
@@ -77,6 +133,7 @@ void CollisionSystem::ProjectileCollision(
 				break;
 			}
 		}
+		*/
 	}
 
 	if (modifier_system.EffectStatus(Effect::LifeSteal))
@@ -235,3 +292,42 @@ void CollisionSystem::ApplyDrunk(MessageSystem& message_system, const size_t tic
 void CollisionSystem::ApplyNone(MessageSystem& message_system, const size_t ticks) const noexcept
 {}
 
+inline uint16_t CollisionSystem::SeparateBits(uint16_t bits) const noexcept
+{
+	/*
+	note: the process below can be done with a single pdep intrinsic
+	for haswell and newer but the target is sandybridge and newer
+	0000 0000 ABCD EFGH << 4
+	0000 ABCD EFGH 0000 |
+	0000 ABCD IJKL EFGH & (0000 1111 0000 1111)
+	0000 ABCD 0000 EFGH
+
+	0000 ABCD 0000 EFGH << 2
+	00AB CD00 00EF GH00 |
+	00AB IJCD 00EF KLGH & (0011 0011 0011 0011)
+	00AB 00CD 00EF 00GH
+
+	00AB 00CD 00EF 00GH << 1
+	0AB0 0CD0 0EF0 0GH0 |
+	0AIB 0CJD 0EKF 0GLH & (0101 0101 0101 0101)
+	0A0B 0C0D 0E0F 0G0H
+	*/
+
+	bits = (bits | (bits << 4)) & 0x0f0f;
+	bits = (bits | (bits << 2)) & 0x3333;
+	bits = (bits | (bits << 1)) & 0x5555;
+
+	return bits;
+}
+
+size_t CollisionSystem::GetMortonCode(const float x, const float y) const noexcept
+{
+
+	uint16_t x_tile = static_cast<uint16_t>(x / TEXTURE_TILE_SIZE);
+	uint16_t y_tile = static_cast<uint16_t>(y / TEXTURE_TILE_SIZE);
+
+	x_tile = this->SeparateBits(x_tile);
+	y_tile = this->SeparateBits(y_tile);
+
+	return static_cast<size_t>(x_tile | (y_tile << 1));
+}

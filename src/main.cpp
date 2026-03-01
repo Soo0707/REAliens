@@ -59,7 +59,8 @@ int main(void)
 	const std::shared_ptr<EnemySystem> enemy_system = std::make_shared<EnemySystem>();
 	const std::shared_ptr<StatSystem> stat_system = std::make_shared<StatSystem>();
 	const std::shared_ptr<XpSystem> xp_system = std::make_shared<XpSystem>();
-	const std::shared_ptr<CollisionSystem> collision_system = std::make_shared<CollisionSystem>();
+
+	const std::shared_ptr<CollisionSystem> collision_system = std::make_shared<CollisionSystem>(assets->Ground.width, assets->Ground.height);
 
 	Game game = Game(
 			global_data, assets, settings, message_system, timer_system, modifier_system,

@@ -191,10 +191,7 @@ void Game::UpdatePlayer(const size_t ticks) noexcept
 	this->Player->ExecuteCommands(*this->MessageSystem, *this->ModifierSystem);
 
 	if (this->Player->Health <= 0 && !this->Settings->Get(SettingKey::DisableHealthCheck))
-	{
-		this->GlobalData->CacheString("Reason: Player Died", CachedString::GameOverReason);
 		this->GlobalData->ActiveState = State::GenerateGameOverStats;
-	}
 
 	const float slide_speed = this->ModifierSystem->GetAttribute(Attribute::SlideSpeedMultiplier);
 	this->Player->Update(*this->MessageSystem, ticks, slide_speed);
@@ -267,12 +264,14 @@ void Game::UpdateCollisionSystem(const size_t ticks) noexcept
 			*this->ModifierSystem, ticks
 			);
 
+	this->CollisionSystem->UpdateEnemyGrid(this->EnemySystem->GetEnemyRect());
+
 	this->CollisionSystem->ProjectileCollision(
 			this->ProjectileSystem->GetProjectileRect(), this->ProjectileSystem->GetProjectileType(),
 			this->ProjectileSystem->GetProjectileDirection(), this->EnemySystem->GetEnemyRect(),
 			*this->MessageSystem, *this->ModifierSystem, ticks
 			);
-
+/*
 	if (is_sliding)
 	{
 		this->CollisionSystem->SlideAttack(
@@ -295,6 +294,7 @@ void Game::UpdateCollisionSystem(const size_t ticks) noexcept
 			&this->CollectedXp, *this->ModifierSystem,
 			*this->MessageSystem
 			);
+			*/
 }
 
 void Game::UpdateCamera() noexcept
