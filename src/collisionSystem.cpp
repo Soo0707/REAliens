@@ -17,16 +17,21 @@
 #include "projectileData.hpp"
 #include "constants.hpp"
 
-CollisionSystem::CollisionSystem(const float map_width, const float map_height)
+CollisionSystem::CollisionSystem(const float map_width, const float map_height) :
+	GridSize(
+			std::max(
+				static_cast<size_t>(map_width / TILE_SIZE),
+				static_cast<size_t>(map_height / TILE_SIZE)
+			)
+			* 
+			std::max(
+				static_cast<size_t>(map_width / TILE_SIZE),
+				static_cast<size_t>(map_height / TILE_SIZE)
+			)
+			)
+
 {
-	const size_t largest_dimension = std::max(
-			static_cast<size_t>(map_width / TEXTURE_TILE_SIZE),
-			static_cast<size_t>(map_height / TEXTURE_TILE_SIZE)
-			);
-
-	const size_t grid_size = largest_dimension * largest_dimension;
-
-	this->EnemyGrid.resize(grid_size, -1);
+	this->EnemyGrid.resize(this->GridSize, -1);
 }
 
 void CollisionSystem::PollSignals(
@@ -41,7 +46,7 @@ void CollisionSystem::PollSignals(
 		auto signal_handler = this->SignalHandlers[i];
 
 		if (times > 0)
-			(this->*signal_handler)(enemy_rect, player_centre, modifier_system, message_system, ticks);
+			(this->*signal_handler)(player_centre, modifier_system, message_system, ticks);
 
 		message_system.CollisionSystemSignals[i] = 0;
 	}
@@ -49,9 +54,7 @@ void CollisionSystem::PollSignals(
 
 void CollisionSystem::UpdateEnemyGrid(const std::vector<Rectangle>& enemy_rect) noexcept
 {
-	const size_t grid_size = this->EnemyGrid.size();
-
-	for (size_t i = 0, n = this->EnemyGrid.size(); i < n; i++)
+	for (size_t i = 0, n = this->GridSize; i < n; i++)
 		this->EnemyGrid[i] = -1;
 
 	for (size_t i = 0, n = enemy_rect.size(); i < n; i++)
@@ -61,20 +64,17 @@ void CollisionSystem::UpdateEnemyGrid(const std::vector<Rectangle>& enemy_rect) 
 
 		const size_t index = this->GetMortonCode(x, y);
 		
-		if (index < grid_size)
+		if (index < this->GridSize)
 			this->EnemyGrid[index] = i;
 	}
 }
 
 void CollisionSystem::ProjectileCollision(
 		const std::vector<Rectangle>& projectile_rect, const std::vector<ProjectileType>& projectile_types,
-		const std::vector<Vector2>& projectile_direction, const std::vector<Rectangle>& enemy_rect,
-		MessageSystem& message_system, const ModifierSystem& modifier_system, const size_t ticks
+		const std::vector<Vector2>& projectile_direction, MessageSystem& message_system,
+		const ModifierSystem& modifier_system, const size_t ticks
 		) const noexcept
 {
-	// TODO: unfuck this mess, then unfuck the asset manager map call in main
-	const size_t grid_size = this->EnemyGrid.size();
-
 	unsigned int total_damage_done = 0;
 
 	for (size_t i = 0, n = projectile_rect.size(); i < n; i++)
@@ -99,7 +99,7 @@ void CollisionSystem::ProjectileCollision(
 
 		const size_t index = this->GetMortonCode(x, y);
 
-		if (index < grid_size && this->EnemyGrid[index] >= 0)
+		if (index < this->GridSize && this->EnemyGrid[index] >= 0)
 		{
 			const size_t enemy_index = this->EnemyGrid[index];
 
@@ -114,26 +114,6 @@ void CollisionSystem::ProjectileCollision(
 
 			total_damage_done += static_cast<unsigned int>(damage);
 		}
-
-/*
-		for (size_t j = 0, m = enemy_rect.size(); j < m; j++)
-		{
-			if (CheckCollisionRecs(projectile_rect[i], enemy_rect[j]))
-			{
-				message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, j, damage);
-
-				message_system.ProjectileSystemCommands.emplace_back(std::in_place_type<struct ProjectileHit>, i);
-
-				message_system.ParticleSystemCommands.emplace_back(
-						ticks, damage, projectile_direction[i], projectile_rect[i].x, projectile_rect[i].y,
-						10, 30, 48, TICK_RATE / 2, 256, RED, RED
-						);
-
-				total_damage_done += static_cast<unsigned int>(damage);
-				break;
-			}
-		}
-		*/
 	}
 
 	if (modifier_system.EffectStatus(Effect::LifeSteal))
@@ -148,27 +128,31 @@ void CollisionSystem::ProjectileCollision(
 }
 
 void CollisionSystem::LeAttack(
-		const std::vector<Rectangle>& enemy_rect, const std::vector<EnemyAttackComponent>& enemy_attack_components,
-		const std::vector<EnemyType>& enemy_type, const Vector2 player_centre, const float player_radius,
-		MessageSystem& message_system, const ModifierSystem& modifier_system, const size_t ticks
+		const std::vector<EnemyAttackComponent>& enemy_attack_components, const std::vector<EnemyType>& enemy_type,
+		const Vector2 player_centre, MessageSystem& message_system,
+		const ModifierSystem& modifier_system, const size_t ticks
 		) const noexcept
 {
 	const bool has_milk = modifier_system.EffectStatus(Effect::Milk);
 	float total_damage = 0.0f;
 
-	for (size_t i = 0, n = enemy_attack_components.size(); i < n; i++)
+	const size_t index = this->GetMortonCode(player_centre.x, player_centre.y);
+
+	if (index < this->GridSize && this->EnemyGrid[index] >= 0)
 	{
-		if (enemy_attack_components[i].CanLeAttack && CheckCollisionCircleRec(player_centre, player_radius, enemy_rect[i]))
+		const size_t enemy_index = this->EnemyGrid[index];
+
+		if (enemy_attack_components[enemy_index].CanLeAttack)
 		{
-			total_damage += enemy_attack_components[i].Damage;
+			total_damage += enemy_attack_components[enemy_index].Damage;
 			
 			if (!has_milk)
 			{
-				auto le_attack_hook = CollisionSystem::LeAttackHooks[static_cast<size_t>(enemy_type[i])];
+				auto le_attack_hook = CollisionSystem::LeAttackHooks[static_cast<size_t>(enemy_type[enemy_index])];
 				(this->*le_attack_hook)(message_system, ticks);
 			}
 
-			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct EnemyLeAttacked>, i, ticks);
+			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct EnemyLeAttacked>, enemy_index, ticks);
 		}
 	}
 
@@ -176,35 +160,36 @@ void CollisionSystem::LeAttack(
 }
 
 void CollisionSystem::SlideAttack(
-		const std::vector<Rectangle>& enemy_rect, const Vector2 player_centre, const float player_radius,
-		const Vector2 player_direction,	const std::vector<float>& enemy_health, MessageSystem& message_system,
+		const Vector2 player_centre, const Vector2 player_direction,
+		const std::vector<float>& enemy_health, MessageSystem& message_system,
 		const size_t ticks
 		) const noexcept
 {
 	unsigned int total_damage_done = 0.0f;
 
-	for (size_t i = 0, n = enemy_rect.size(); i < n; i++)
+	const size_t index = this->GetMortonCode(player_centre.x, player_centre.y);
+
+	if (index < this->GridSize && this->EnemyGrid[index] >= 0)
 	{
-		if (CheckCollisionCircleRec(player_centre, player_radius, enemy_rect[i]))
-		{
-			const float damage_done = enemy_health[i];
+		const size_t enemy_index = this->EnemyGrid[index];
 
-			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, i, damage_done);
+		const float damage_done = enemy_health[enemy_index];
 
-			message_system.ParticleSystemCommands.emplace_back(
-					ticks, damage_done, player_direction, enemy_rect[i].x, enemy_rect[i].y,
-					15, 25, 60, TICK_RATE / 2, 512, ORANGE, RED
-					);
+		message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, enemy_index, damage_done);
 
-			total_damage_done += static_cast<unsigned int>(damage_done);
-		}
+		message_system.ParticleSystemCommands.emplace_back(
+				ticks, damage_done, player_direction, player_centre.x, player_centre.y,
+				15, 25, 60, TICK_RATE / 2, 512, ORANGE, RED
+				);
+
+		total_damage_done += static_cast<unsigned int>(damage_done);
 	}
-	
+
 	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_damage_done);
 }
 
 void CollisionSystem::Aura(
-		const std::vector<Rectangle>& enemy_rect, const Vector2 player_centre, const ModifierSystem& modifier_system,
+		const Vector2 player_centre, const ModifierSystem& modifier_system,
 		MessageSystem& message_system, const size_t ticks
 		) const noexcept
 {
@@ -215,29 +200,32 @@ void CollisionSystem::Aura(
 
 	const Rectangle aura = { player_centre.x - aura_size / 2.0f, player_centre.y - aura_size / 2.0f, aura_size, aura_size };
 
-	for (size_t i = 0, n = enemy_rect.size(); i < n; i++)
+	for (size_t i = 0, n = static_cast<size_t>(aura.width / TILE_SIZE); i < n; i++)
 	{
-		if (CheckCollisionRecs(aura, enemy_rect[i]))
+		for (size_t j = 0, m = static_cast<size_t>(aura.height / TILE_SIZE); j < m; j++)
 		{
-			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, i, aura_damage);
+			const float x = aura.x + static_cast<float>(i * TILE_SIZE);
+			const float y = aura.y + static_cast<float>(j * TILE_SIZE);
 
-			const Vector2 velocity = { static_cast<float>(GetRandomValue(-192, 192)), static_cast<float>(GetRandomValue(-192, 192)) };
+			const size_t index = this->GetMortonCode(x, y);
 
-			message_system.ParticleSystemCommands.emplace_back(
-					ticks, aura_damage, velocity, enemy_rect[i].x, enemy_rect[i].y,
-					15, 30, 60, TICK_RATE / 2, 256, PURPLE, RED
-					);
+			if (index < this->GridSize && this->EnemyGrid[index] >= 0)
+			{
+				message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, this->EnemyGrid[index], aura_damage);
 
-			total_hit++;
+				const Vector2 velocity = {
+					static_cast<float>(GetRandomValue(-192, 192)),
+					static_cast<float>(GetRandomValue(-192, 192))
+				};
+
+				message_system.ParticleSystemCommands.emplace_back(
+						ticks, aura_damage, velocity, x, y,
+						15, 30, 60, TICK_RATE / 2, 256, PURPLE, RED
+						);
+
+				total_hit++;
+			}
 		}
-	}
-
-	if (modifier_system.EffectStatus(Effect::LifeSteal))
-	{
-		message_system.PlayerCommands.emplace_back(
-				std::in_place_type<struct IncreasePlayerHealth>,
-				total_hit * aura_damage * modifier_system.GetAttribute(Attribute::LifeStealMultiplier)
-				);
 	}
 
 	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_hit * static_cast<unsigned int>(aura_damage));
@@ -292,6 +280,8 @@ void CollisionSystem::ApplyDrunk(MessageSystem& message_system, const size_t tic
 void CollisionSystem::ApplyNone(MessageSystem& message_system, const size_t ticks) const noexcept
 {}
 
+
+
 inline uint16_t CollisionSystem::SeparateBits(uint16_t bits) const noexcept
 {
 	/*
@@ -313,18 +303,17 @@ inline uint16_t CollisionSystem::SeparateBits(uint16_t bits) const noexcept
 	0A0B 0C0D 0E0F 0G0H
 	*/
 
-	bits = (bits | (bits << 4)) & 0x0f0f;
+	bits = (bits | (bits << 4)) & 0x0F0F;
 	bits = (bits | (bits << 2)) & 0x3333;
 	bits = (bits | (bits << 1)) & 0x5555;
 
 	return bits;
 }
 
-size_t CollisionSystem::GetMortonCode(const float x, const float y) const noexcept
+inline size_t CollisionSystem::GetMortonCode(const float x, const float y) const noexcept
 {
-
-	uint16_t x_tile = static_cast<uint16_t>(x / TEXTURE_TILE_SIZE);
-	uint16_t y_tile = static_cast<uint16_t>(y / TEXTURE_TILE_SIZE);
+	uint16_t x_tile = static_cast<uint16_t>(x / TILE_SIZE);
+	uint16_t y_tile = static_cast<uint16_t>(y / TILE_SIZE);
 
 	x_tile = this->SeparateBits(x_tile);
 	y_tile = this->SeparateBits(y_tile);

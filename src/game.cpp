@@ -259,36 +259,36 @@ void Game::UpdateCollisionSystem(const size_t ticks) noexcept
 	const bool has_greenbull = this->ModifierSystem->EffectStatus(Effect::Greenbull);
 	const bool is_sliding = this->Player->Sliding;
 
+	this->CollisionSystem->UpdateEnemyGrid(this->EnemySystem->GetEnemyRect());
+
 	this->CollisionSystem->PollSignals(
 			*this->MessageSystem, this->EnemySystem->GetEnemyRect(), player_centre,
 			*this->ModifierSystem, ticks
 			);
 
-	this->CollisionSystem->UpdateEnemyGrid(this->EnemySystem->GetEnemyRect());
 
 	this->CollisionSystem->ProjectileCollision(
 			this->ProjectileSystem->GetProjectileRect(), this->ProjectileSystem->GetProjectileType(),
-			this->ProjectileSystem->GetProjectileDirection(), this->EnemySystem->GetEnemyRect(),
-			*this->MessageSystem, *this->ModifierSystem, ticks
+			this->ProjectileSystem->GetProjectileDirection(), *this->MessageSystem, *this->ModifierSystem,
+			ticks
 			);
-/*
+
 	if (is_sliding)
 	{
 		this->CollisionSystem->SlideAttack(
-				this->EnemySystem->GetEnemyRect(), player_centre, player_radius,
-				player_direction, this->EnemySystem->GetEnemyHealth(), *this->MessageSystem, ticks
+				player_centre, player_direction, this->EnemySystem->GetEnemyHealth(),
+				*this->MessageSystem, ticks
 				);
 	}
 
 	if (!has_greenbull && !is_sliding)
 	{
 		this->CollisionSystem->LeAttack(
-				this->EnemySystem->GetEnemyRect(), this->EnemySystem->GetEnemyAttackComponents(),
-				this->EnemySystem->GetEnemyType(), player_centre, player_radius,
-				*this->MessageSystem, *this->ModifierSystem, ticks
+				this->EnemySystem->GetEnemyAttackComponents(), this->EnemySystem->GetEnemyType(),
+				player_centre, *this->MessageSystem, *this->ModifierSystem, ticks
 				);
 	}
-
+/*
 	this->CollisionSystem->XpCollision(
 			player_rect, this->XpSystem->GetXpRect(),
 			&this->CollectedXp, *this->ModifierSystem,

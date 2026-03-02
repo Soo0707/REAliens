@@ -174,8 +174,8 @@ void EnemySystem::EnemiesSetDirection(const Vector2 player_centre, const bool is
 	{
 		if (this->EnemyIsVisible[i])
 		{
-			this->EnemyDirection[i].x = player_centre.x - this->EnemyRect[i].x;
-			this->EnemyDirection[i].y = player_centre.y - this->EnemyRect[i].y;
+			this->EnemyDirection[i].x = player_centre.x - (this->EnemyRect[i].x + this->EnemyRect[i].width / 2.0f);
+			this->EnemyDirection[i].y = player_centre.y - (this->EnemyRect[i].y + this->EnemyRect[i].height / 2.0f);
 
 			if (is_stinky)
 				this->EnemyDirection[i] = Vector2Scale(this->EnemyDirection[i], -1.0f);

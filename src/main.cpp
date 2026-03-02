@@ -60,6 +60,7 @@ int main(void)
 	const std::shared_ptr<StatSystem> stat_system = std::make_shared<StatSystem>();
 	const std::shared_ptr<XpSystem> xp_system = std::make_shared<XpSystem>();
 
+	// TODO: this is ugly
 	const std::shared_ptr<CollisionSystem> collision_system = std::make_shared<CollisionSystem>(assets->Ground.width, assets->Ground.height);
 
 	Game game = Game(
