@@ -32,6 +32,15 @@ void ParticleSystem::Reset() noexcept
 	this->ParticleRect.clear();
 }
 
+void ParticleSystem::Update(MessageSystem& message_system, const AssetManager& assets, const Rectangle& update_area, const size_t ticks) noexcept
+{
+	this->ExecuteCommands(message_system, assets);
+
+	this->VisibilityCheck(update_area);
+	this->MoveAndScaleParticles(ticks);
+	this->RemoveParticles(ticks);
+}
+
 void ParticleSystem::ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept
 {
 	for (auto const& command : message_system.ParticleSystemCommands)
@@ -51,13 +60,6 @@ void ParticleSystem::ExecuteCommands(MessageSystem& message_system, const AssetM
 	}
 	
 	message_system.ParticleSystemCommands.clear();
-}
-
-void ParticleSystem::UpdateParticles(const Rectangle update_area, const size_t ticks) noexcept
-{
-	this->VisibilityCheck(update_area);
-	this->MoveAndScaleParticles(ticks);
-	this->RemoveParticles(ticks);
 }
 
 void ParticleSystem::Draw(const AssetManager& assets, const size_t ticks) const noexcept
@@ -81,7 +83,7 @@ void ParticleSystem::Draw(const AssetManager& assets, const size_t ticks) const 
 	}
 }
 
-void ParticleSystem::VisibilityCheck(const Rectangle update_area) noexcept
+void ParticleSystem::VisibilityCheck(const Rectangle& update_area) noexcept
 {
 	for (size_t i = 0, n = this->ParticleRect.size(); i < n; i++)
 		this->ParticleIsVisible[i] = static_cast<uint8_t>(CheckCollisionRecs(update_area, this->ParticleRect[i]));

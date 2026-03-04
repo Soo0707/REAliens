@@ -19,6 +19,15 @@ XpSystem::XpSystem()
 	this->XpRect.reserve(128);
 }
 
+void XpSystem::Update(MessageSystem& message_system, const AssetManager& assets, const Rectangle& update_area, const size_t ticks) noexcept
+{
+	this->ExecuteCommands(message_system, assets);
+
+	this->VisibilityCheck(update_area);
+	this->EmitParticles(message_system, ticks);
+	this->RemoveXp();
+}
+
 void XpSystem::Reset() noexcept
 {
 	this->XpKill.clear();
@@ -37,13 +46,6 @@ void XpSystem::ExecuteCommands(MessageSystem& message_system, const AssetManager
 	}
 
 	message_system.XpSystemCommands.clear();
-}
-
-void XpSystem::UpdateXps(MessageSystem& message_system, const Rectangle update_area, const size_t ticks) noexcept
-{
-	this->VisibilityCheck(update_area);
-	this->EmitParticles(message_system, ticks);
-	this->RemoveXp();
 }
 
 void XpSystem::Draw(const AssetManager& assets) const noexcept
@@ -71,7 +73,7 @@ void XpSystem::DrawLightmap() const noexcept
 	}
 }
 
-void XpSystem::VisibilityCheck(const Rectangle update_area) noexcept
+void XpSystem::VisibilityCheck(const Rectangle& update_area) noexcept
 {
 	for (size_t i = 0, n = this->XpIsVisible.size(); i < n; i++)
 		this->XpIsVisible[i] = static_cast<uint8_t>(CheckCollisionRecs(update_area, this->XpRect[i]));

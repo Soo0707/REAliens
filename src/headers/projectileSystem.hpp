@@ -21,10 +21,11 @@ class ProjectileSystem
 
 		void ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept;
 
-		void UpdateProjectiles(
-				const size_t ticks, const Rectangle update_area,
-				MessageSystem& message_system, const ModifierSystem& modifier_system
+		void Update(
+				MessageSystem& message_system, const AssetManager& assets, const ModifierSystem& modifier_system,
+				const Rectangle& update_area, const size_t ticks
 				) noexcept;
+
 		void Draw(const AssetManager& assets) const noexcept;
 		void DrawLightmap() const noexcept;
 
@@ -37,7 +38,8 @@ class ProjectileSystem
 				const float x, const float y, const float speed, const float scale, const Vector2 direction,
 				const ProjectileType type, const float texture_width, const float texture_height
 				) noexcept;
-		void VisibilityCheck(const Rectangle update_area) noexcept;
+
+		void VisibilityCheck(const Rectangle& update_area) noexcept;
 		void MoveProjectiles() noexcept;
 		void RemoveProjectiles() noexcept;
 		void SpawnParticles(MessageSystem& message_system, const size_t ticks) const noexcept;

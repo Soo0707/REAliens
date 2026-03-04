@@ -13,10 +13,32 @@
 #include "messageSystem.hpp"
 #include "commands.hpp"
 #include "signals.hpp"
+#include "settingsManager.hpp"
 
 Player::Player()
 {
 	this->Reset();
+}
+
+void Player::Update(
+		MessageSystem& message_system, const ModifierSystem& modifier_system,
+		const SettingsManager& settings, const float map_width, const float map_height,
+		const size_t ticks
+		) noexcept
+{
+	this->PollSignals(message_system, modifier_system);
+	this->ExecuteCommands(message_system, modifier_system);
+
+	if (this->Health <= 0 && settings.Get(SettingKey::DisableHealthCheck))
+	{
+		//TODO: EMIT SIGNAL TO GAME STATE
+		//this->GlobalData->ActiveState = State::GenerateGameOverStats;
+	}
+
+	this->SetBearing();
+	this->Animate(ticks);
+	
+	this->Move(message_system, modifier_system, map_width, map_height);
 }
 
 void Player::PollSignals(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept
@@ -46,14 +68,6 @@ void Player::ExecuteCommands(MessageSystem& message_system, const ModifierSystem
 	}
 
 	message_system.PlayerCommands.clear();
-}
-
-void Player::Update(MessageSystem& message_system, const size_t ticks, const float slide_speed) noexcept
-{
-	Player::SetBearing();
-	Player::Animate(ticks);
-
-	Player::Move(message_system, slide_speed);
 }
 
 void Player::Draw(const AssetManager& assets) const noexcept
@@ -105,15 +119,25 @@ void Player::SetBearing() noexcept
 		this->Bearing = Bearing::North;
 }
 
-void Player::Move(MessageSystem& message_system, const float slide_speed) noexcept
+void Player::Move(MessageSystem& message_system, const ModifierSystem& modifier_system, const float map_width, const float map_height) noexcept
 {
 	float speed = this->Speed;
-
+	
 	if (this->Sliding)
-		speed *= slide_speed;
+		speed *= modifier_system.GetAttribute(Attribute::SlideSpeedMultiplier);
 
 	this->Rect.x += speed * this->Direction.x * TICK_TIME;
 	this->Rect.y += speed * this->Direction.y * TICK_TIME;
+
+	if (this->Rect.x < 0.0f)
+		this->Rect.x = map_width - this->Rect.width;
+	else if (this->Rect.x + this->Rect.width > map_width)
+		this->Rect.x = 0.0f;
+
+	if (this->Rect.y < 0.0f)
+		this->Rect.y = map_height - this->Rect.height;
+	else if (this->Rect.y + this->Rect.height > map_height)
+		this->Rect.y = 0.0f;
 
 	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_SIZE / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_SIZE / 2.0f };
 
@@ -131,12 +155,12 @@ void Player::Reset() noexcept
 	this->Speed = 300.0f;
 	this->Sliding = false;
 
-	this->Radius = 10.0f;
 	this->Bearing = Bearing::South;
 
 	this->LastAnimationUpdate = 0;
 	this->ImageIndex = 0;
 }
+
 
 void Player::TakeDamage(const PlayerCommand& command, const ModifierSystem& modifier_system) noexcept
 {

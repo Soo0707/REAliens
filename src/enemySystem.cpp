@@ -6,14 +6,17 @@
 
 #include "raylib.h"
 #include "raymath.h"
+
 #include "enemyData.hpp"
-#include "gameHelpers.hpp"
 #include "assetManager.hpp"
 
 #include "signals.hpp"
 #include "commands.hpp"
 #include "messageSystem.hpp"
 #include "timerSystem.hpp"
+#include "timers.hpp"
+#include "modifierSystem.hpp"
+#include "modifiers.hpp"
 
 EnemySystem::EnemySystem()
 {
@@ -71,11 +74,18 @@ void EnemySystem::ExecuteCommands(MessageSystem& message_system) noexcept
 	message_system.EnemySystemCommands.clear();
 }
 
-void EnemySystem::UpdateEnemies(
-		const size_t ticks, const Rectangle update_area, const Vector2 player_centre, const float map_width, const float map_height,
-		const bool is_stinky, const size_t level, MessageSystem& message_system, const TimerSystem& timer_system
+void EnemySystem::Update(
+		MessageSystem& message_system, const AssetManager& assets, const ModifierSystem& modifier_system,
+		const TimerSystem& timer_system, const Rectangle& update_area,
+		const Vector2 player_centre, const size_t ticks, const size_t level
 		) noexcept
 {
+	this->PollSignals(message_system, assets, level, ticks);
+	this->ExecuteCommands(message_system);
+	
+	const float map_width = assets.Ground.width;
+	const float map_height = assets.Ground.height;
+
 	if (this->EnemyHealth.size() < 5 && !timer_system.GetTimerStatus(Timer::SpawnEnemies))
 	{
 		message_system.TimerSystemCommands.emplace_back(
@@ -93,12 +103,17 @@ void EnemySystem::UpdateEnemies(
 
 	this->VisibilityCheck(update_area);
 
+	const bool is_stinky = modifier_system.EffectStatus(Effect::Stinky);
+
 	this->EnemiesSetDirection(player_centre, is_stinky);
+
 	this->MoveEnemies(map_width, map_height);
+	
 	this->AnimateEnemies(ticks);
 	this->EnemiesUpdateTimers(ticks);
 
 	this->KillEnemies(message_system);
+
 }
 
 void EnemySystem::Draw(const AssetManager& assets) const noexcept
@@ -128,7 +143,7 @@ void EnemySystem::Draw(const AssetManager& assets) const noexcept
 	}
 }
 
-void EnemySystem::VisibilityCheck(const Rectangle update_area) noexcept
+void EnemySystem::VisibilityCheck(const Rectangle& update_area) noexcept
 {
 	for (size_t i = 0, n = this->EnemyIsVisible.size(); i < n; i++)
 		this->EnemyIsVisible[i] = static_cast<uint8_t>(CheckCollisionRecs(update_area, this->EnemyRect[i]));
@@ -141,7 +156,15 @@ void EnemySystem::MoveEnemies(const float map_width, const float map_height) noe
 		this->EnemyRect[i].x += this->EnemySpeed[i] * this->EnemyDirection[i].x * TICK_TIME;
 		this->EnemyRect[i].y += this->EnemySpeed[i] * this->EnemyDirection[i].y * TICK_TIME;
 
-		GameHelper::LoopOverMap(map_width, map_height, this->EnemyRect[i]);
+		if (this->EnemyRect[i].x < 0.0f)
+			this->EnemyRect[i].x = map_width - this->EnemyRect[i].width;
+		else if (this->EnemyRect[i].x + this->EnemyRect[i].width > map_width)
+			this->EnemyRect[i].x = 0.0f;
+
+		if (this->EnemyRect[i].y < 0.0f)
+			this->EnemyRect[i].y = map_height - this->EnemyRect[i].height;
+		else if (this->EnemyRect[i].y + this->EnemyRect[i].height > map_height)
+			this->EnemyRect[i].y = 0.0f;
 	}
 }
 

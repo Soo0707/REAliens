@@ -5,6 +5,11 @@
 #include "messageSystem.hpp"
 #include "commands.hpp"
 
+void StatSystem::Update(MessageSystem& message_system) noexcept
+{
+	this->ExecuteCommands(message_system);
+}
+
 void StatSystem::ExecuteCommands(MessageSystem& message_system) noexcept
 {
 	for (auto& command : message_system.StatSystemCommands)

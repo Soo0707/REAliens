@@ -67,3 +67,10 @@ enum class GameInputSignal : uint8_t
 	EnableSlide,
 	COUNT
 };
+
+enum class GameSignal : uint8_t
+{
+	PlayerDied,
+	LevelUp,
+	COUNT
+};

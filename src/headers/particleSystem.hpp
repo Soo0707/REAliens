@@ -13,16 +13,18 @@ class ParticleSystem
 	public:
 		ParticleSystem();
 		~ParticleSystem() = default;
+		
+		void Update(MessageSystem& message_system, const AssetManager& assets, const Rectangle& update_area, const size_t ticks) noexcept;
 
 		void Reset() noexcept;
 
 		void ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept;
-		void UpdateParticles(const Rectangle update_area, const size_t ticks) noexcept;
 		
 		void Draw(const AssetManager& assets, const size_t ticks) const noexcept;
 
 	private:
-		void VisibilityCheck(const Rectangle update_area) noexcept;
+		void VisibilityCheck(const Rectangle& update_area) noexcept;
+
 		void CreateParticle(
 				const float x, const float y, const float scale, const float rotation, const size_t creation,
 				const size_t expiry, const Vector2 velocity, const Color start_colour, const Color end_colour

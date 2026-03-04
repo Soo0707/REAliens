@@ -5,6 +5,7 @@
 #include <cstddef>
 
 #include "raylib.h"
+#include "player.hpp"
 #include "enemyData.hpp"
 #include "projectileData.hpp"
 
@@ -18,8 +19,16 @@ class CollisionSystem
 		CollisionSystem(const float map_width, const float map_height);
 		~CollisionSystem() = default;
 
+		void Update(
+				MessageSystem& message_system, const ModifierSystem& modifier_system, const std::vector<Rectangle>& enemy_rect,
+				const std::vector<float>& enemy_health, const std::vector<EnemyAttackComponent>& enemy_attack_components,
+				const std::vector<EnemyType>& enemy_type, const std::vector<Rectangle>& projectile_rect,
+				const std::vector<ProjectileType>& projectile_type, const std::vector<Vector2>& projectile_direction,
+				const std::vector<Rectangle>& xp_rect, const Player& player, const size_t ticks
+				) noexcept;
+
 		void PollSignals(
-				MessageSystem& message_system, const std::vector<Rectangle>& enemy_rect, const Vector2 player_centre,
+				MessageSystem& message_system, const Vector2 player_centre,
 				const ModifierSystem& modifier_system, const size_t ticks
 				) const noexcept;
 
@@ -42,7 +51,7 @@ class CollisionSystem
 				) const noexcept;
 
 		void XpCollision(
-				const Rectangle player_rect, const std::vector<Rectangle>& xp_rect,
+				const Rectangle& player_rect, const std::vector<Rectangle>& xp_rect,
 				size_t* collected_xp, const ModifierSystem& modifier_system,
 				MessageSystem& message_system
 				) const noexcept;

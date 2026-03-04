@@ -7,6 +7,13 @@
 #include "commands.hpp"
 #include "messageSystem.hpp"
 
+void TimerSystem::Update(MessageSystem& message_system, const size_t ticks) noexcept
+{
+	this->ExecuteCommands(message_system, ticks);
+	
+	this->UpdateTimers(message_system, ticks);
+}
+
 void TimerSystem::ExecuteCommands(MessageSystem& message_system, const size_t ticks) noexcept
 {
 	for (auto const& command : message_system.TimerSystemCommands)

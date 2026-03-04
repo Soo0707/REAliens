@@ -12,6 +12,8 @@ class TimerSystem
 	public:
 		TimerSystem() = default;
 		~TimerSystem() = default;
+		
+		void Update(MessageSystem& message_system, const size_t ticks) noexcept;
 
 		void ExecuteCommands(MessageSystem& message_system, const size_t ticks) noexcept;
 		void UpdateTimers(MessageSystem& message_system, const size_t ticks) noexcept;

@@ -12,6 +12,7 @@
 #include "messageSystem.hpp"
 #include "timerSystem.hpp"
 #include "assetManager.hpp"
+#include "modifierSystem.hpp"
 
 class EnemySystem
 {
@@ -24,9 +25,10 @@ class EnemySystem
 		void PollSignals(MessageSystem& message_system, const AssetManager& assets, const size_t level, const size_t ticks) noexcept;
 		void ExecuteCommands(MessageSystem& message_system) noexcept;
 
-		void UpdateEnemies(
-				const size_t ticks, const Rectangle update_area, const Vector2 player_centre, const float map_width, const float map_height,
-				const bool is_stinky, const size_t level, MessageSystem& message_system, const TimerSystem& timer_system
+		void Update(
+				MessageSystem& message_system, const AssetManager& assets, const ModifierSystem& modifier_system,
+				const TimerSystem& timer_system, const Rectangle& update_area,
+				const Vector2 player_centre, const size_t ticks, const size_t level
 				) noexcept;
 
 		void Draw(const AssetManager& assets) const noexcept;
@@ -75,7 +77,7 @@ class EnemySystem
 		void CreateEnemy(const float x, const float y, const float level_scale, const EnemyType type) noexcept;
 		void KillEnemies(MessageSystem& message_system) noexcept;
 
-		void VisibilityCheck(const Rectangle update_area) noexcept;
+		void VisibilityCheck(const Rectangle& update_area) noexcept;
 		void MoveEnemies(const float map_width, const float map_height) noexcept;
 		void EnemiesSetDirection(const Vector2 player_centre, const bool is_stinky) noexcept;
 		void AnimateEnemies(const size_t ticks) noexcept;

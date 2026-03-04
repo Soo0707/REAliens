@@ -152,6 +152,9 @@ void Game::TickedUpdate() noexcept
 		const size_t level = this->Level;
 		const Rectangle update_area = this->UpdateArea;
 
+		const float map_width = this->Assets->Ground.width;
+		const float map_height = this->Assets->Ground.height;
+
 		while (this->CollectedXp >= this->LevelUpThreshold)
 		{
 			const size_t distance = this->CollectedXp - this->LevelUpThreshold;
@@ -159,142 +162,45 @@ void Game::TickedUpdate() noexcept
 			this->LevelUp();
 			this->CollectedXp = distance;
 		}
-
-		this->UpdateTimerSystem(ticks);
+		
+		this->TimerSystem->Update(*this->MessageSystem, ticks);
 		this->PollSignals();
 
 		GameInputSystem::HandleTickedInput(*this, *this->MessageSystem, *this->ModifierSystem, *this->Settings);
 
-		this->UpdatePlayer(ticks);
+		this->Player->Update(
+				*this->MessageSystem, *this->ModifierSystem, *this->Settings,
+				map_width, map_height, ticks
+				);
+
 
 		this->UpdateCamera();
-		this->UpdateModifierSystem();
+		this->ModifierSystem->Update(*this->MessageSystem);
 		
-		this->UpdateStatSystem();
+		this->StatSystem->Update(*this->MessageSystem);
 
-		this->UpdateXpSystem(ticks, update_area);
-		this->UpdateEnemySystem(ticks, level, update_area);
-		this->UpdateProjectileSystem(ticks, update_area);
+		this->XpSystem->Update(*this->MessageSystem, *this->Assets, update_area, ticks);
 
-		this->UpdateCollisionSystem(ticks);
+		this->EnemySystem->Update(
+				*this->MessageSystem, *this->Assets, *this->ModifierSystem,
+				*this->TimerSystem, update_area, this->Player->Centre, ticks, level
+				);
+
+		this->ProjectileSystem->Update(*this->MessageSystem, *this->Assets, *this->ModifierSystem, update_area, ticks);
 		
-		this->UpdateParticleSystem(ticks, update_area);
+		this->CollisionSystem->Update(
+				*this->MessageSystem, *this->ModifierSystem, this->EnemySystem->GetEnemyRect(),
+				this->EnemySystem->GetEnemyHealth(), this->EnemySystem->GetEnemyAttackComponents(),
+				this->EnemySystem->GetEnemyType(), this->ProjectileSystem->GetProjectileRect(),
+				this->ProjectileSystem->GetProjectileType(), this->ProjectileSystem->GetProjectileDirection(),
+				this->XpSystem->GetXpRect(), *this->Player, ticks
+		);
 
+		this->ParticleSystem->Update(*this->MessageSystem, *this->Assets, update_area, ticks);
+		
 		this->Accumulator -= TICK_TIME;
 		this->Ticks++;
 	} 
-}
-
-void Game::UpdatePlayer(const size_t ticks) noexcept
-{
-	this->Player->PollSignals(*this->MessageSystem, *this->ModifierSystem);
-	this->Player->ExecuteCommands(*this->MessageSystem, *this->ModifierSystem);
-
-	if (this->Player->Health <= 0 && !this->Settings->Get(SettingKey::DisableHealthCheck))
-		this->GlobalData->ActiveState = State::GenerateGameOverStats;
-
-	const float slide_speed = this->ModifierSystem->GetAttribute(Attribute::SlideSpeedMultiplier);
-	this->Player->Update(*this->MessageSystem, ticks, slide_speed);
-
-	const float ground_width = this->Assets->Ground.width;
-	const float ground_height = this->Assets->Ground.height;
-
-	GameHelper::LoopOverMap(ground_width, ground_height, this->Player->Rect);
-}
-
-void Game::UpdateTimerSystem(const size_t ticks) noexcept
-{
-	this->TimerSystem->ExecuteCommands(*this->MessageSystem, ticks);
-	this->TimerSystem->UpdateTimers(*this->MessageSystem, ticks);
-}
-
-void Game::UpdateModifierSystem() noexcept
-{
-	this->ModifierSystem->PollSignals(*this->MessageSystem);
-}
-
-void Game::UpdateParticleSystem(const size_t ticks, const Rectangle update_area) noexcept
-{
-	this->ParticleSystem->ExecuteCommands(*this->MessageSystem, *this->Assets);
-	this->ParticleSystem->UpdateParticles(update_area, ticks);
-}
-
-void Game::UpdateProjectileSystem(const size_t ticks, const Rectangle update_area) noexcept
-{
-	this->ProjectileSystem->ExecuteCommands(*this->MessageSystem, *this->Assets);
-	this->ProjectileSystem->UpdateProjectiles(ticks, update_area, *this->MessageSystem, *this->ModifierSystem);
-}
-
-void Game::UpdateEnemySystem(const size_t ticks, const size_t level, const Rectangle update_area) noexcept
-{
-	this->EnemySystem->PollSignals(*this->MessageSystem, *this->Assets, level, ticks);
-	this->EnemySystem->ExecuteCommands(*this->MessageSystem);
-
-	const Vector2 player_centre = this->Player->Centre;
-	const float map_width = this->Assets->Ground.width;
-	const float map_height = this->Assets->Ground.height;
-	const bool is_stinky = this->ModifierSystem->EffectStatus(Effect::Stinky);
-
-	this->EnemySystem->UpdateEnemies(ticks, update_area, player_centre, map_width, map_height, is_stinky, level, *this->MessageSystem, *this->TimerSystem);
-}
-
-void Game::UpdateStatSystem() noexcept
-{
-	this->StatSystem->ExecuteCommands(*this->MessageSystem);
-}
-
-void Game::UpdateXpSystem(const size_t ticks, const Rectangle update_area) noexcept
-{
-	this->XpSystem->ExecuteCommands(*this->MessageSystem, *this->Assets);
-	this->XpSystem->UpdateXps(*this->MessageSystem, update_area, ticks);
-}
-
-void Game::UpdateCollisionSystem(const size_t ticks) noexcept
-{
-	const Rectangle player_rect = this->Player->Rect;
-	const Vector2 player_centre = this->Player->Centre;
-	const Vector2 player_direction = this->Player->Direction;
-	const float player_radius = this->Player->Radius;
-
-	const bool has_greenbull = this->ModifierSystem->EffectStatus(Effect::Greenbull);
-	const bool is_sliding = this->Player->Sliding;
-
-	this->CollisionSystem->UpdateEnemyGrid(this->EnemySystem->GetEnemyRect());
-
-	this->CollisionSystem->PollSignals(
-			*this->MessageSystem, this->EnemySystem->GetEnemyRect(), player_centre,
-			*this->ModifierSystem, ticks
-			);
-
-
-	this->CollisionSystem->ProjectileCollision(
-			this->ProjectileSystem->GetProjectileRect(), this->ProjectileSystem->GetProjectileType(),
-			this->ProjectileSystem->GetProjectileDirection(), *this->MessageSystem, *this->ModifierSystem,
-			ticks
-			);
-
-	if (is_sliding)
-	{
-		this->CollisionSystem->SlideAttack(
-				player_centre, player_direction, this->EnemySystem->GetEnemyHealth(),
-				*this->MessageSystem, ticks
-				);
-	}
-
-	if (!has_greenbull && !is_sliding)
-	{
-		this->CollisionSystem->LeAttack(
-				this->EnemySystem->GetEnemyAttackComponents(), this->EnemySystem->GetEnemyType(),
-				player_centre, *this->MessageSystem, *this->ModifierSystem, ticks
-				);
-	}
-/*
-	this->CollisionSystem->XpCollision(
-			player_rect, this->XpSystem->GetXpRect(),
-			&this->CollectedXp, *this->ModifierSystem,
-			*this->MessageSystem
-			);
-			*/
 }
 
 void Game::UpdateCamera() noexcept

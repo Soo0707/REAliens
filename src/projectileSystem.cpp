@@ -6,6 +6,7 @@
 
 #include "raylib.h"
 #include "raymath.h"
+
 #include "constants.hpp"
 #include "assetManager.hpp"
 
@@ -44,6 +45,19 @@ void ProjectileSystem::Reset() noexcept
 	this->ProjectileTypes.clear();
 }
 
+void ProjectileSystem::Update(
+		MessageSystem& message_system, const AssetManager& assets, const ModifierSystem& modifier_system,
+		const Rectangle& update_area, const size_t ticks
+		) noexcept
+{
+	this->ExecuteCommands(message_system, assets);
+
+	this->VisibilityCheck(update_area);
+	this->MoveProjectiles();
+	this->SpawnParticles(message_system, ticks);
+	this->EvaluateHitCount(modifier_system);
+	this->RemoveProjectiles();
+}
 
 void ProjectileSystem::ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept
 {
@@ -56,18 +70,6 @@ void ProjectileSystem::ExecuteCommands(MessageSystem& message_system, const Asse
 	}
 
 	message_system.ProjectileSystemCommands.clear();
-}
-
-void ProjectileSystem::UpdateProjectiles(
-		const size_t ticks, const Rectangle update_area,
-		MessageSystem& message_system, const ModifierSystem& modifier_system
-		) noexcept
-{
-	this->VisibilityCheck(update_area);
-	this->MoveProjectiles();
-	this->SpawnParticles(message_system, ticks);
-	this->EvaluateHitCount(modifier_system);
-	this->RemoveProjectiles();
 }
 
 const std::vector<Rectangle>& ProjectileSystem::GetProjectileRect() const noexcept
@@ -142,7 +144,7 @@ void ProjectileSystem::CreateProjectile(
 	this->ProjectileTypes.emplace_back(type);
 }
 
-void ProjectileSystem::VisibilityCheck(const Rectangle update_area) noexcept
+void ProjectileSystem::VisibilityCheck(const Rectangle& update_area) noexcept
 {
 	for (size_t i = 0, n = this->ProjectileRect.size(); i < n; i++)
 		this->ProjectileIsVisible[i] = static_cast<uint8_t>(CheckCollisionRecs(update_area, this->ProjectileRect[i]));

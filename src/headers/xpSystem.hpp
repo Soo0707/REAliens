@@ -14,10 +14,11 @@ class XpSystem
 		XpSystem();
 		~XpSystem() = default;
 
+		void Update(MessageSystem& message_system, const AssetManager& assets, const Rectangle& update_area, const size_t ticks) noexcept;
+
 		void Reset() noexcept;
 
 		void ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept;
-		void UpdateXps(MessageSystem& message_system, const Rectangle update_area, const size_t ticks) noexcept;
 
 		void Draw(const AssetManager& assets) const noexcept;
 		void DrawLightmap() const noexcept;
@@ -25,7 +26,7 @@ class XpSystem
 		const std::vector<Rectangle>& GetXpRect() const noexcept;
 
 	private:
-		void VisibilityCheck(const Rectangle update_area) noexcept;
+		void VisibilityCheck(const Rectangle& update_area) noexcept;
 		void CreateXp(const float x, const float y, const float texture_width, const float texture_height) noexcept;
 		void RemoveXp() noexcept;
 		void EmitParticles(MessageSystem& message_system, const size_t ticks) noexcept;

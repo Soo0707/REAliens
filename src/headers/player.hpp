@@ -5,10 +5,11 @@
 #include <array>
 
 #include "raylib.h"
-#include "assetManager.hpp"
 #include "constants.hpp"
 #include "messageSystem.hpp"
 #include "modifierSystem.hpp"
+#include "settingsManager.hpp"
+#include "assetManager.hpp"
 
 enum class Bearing : uint16_t
 {
@@ -27,8 +28,13 @@ class Player
 		void PollSignals(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept;
 		void ExecuteCommands(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept;
 		
-		void Move(MessageSystem& message_system, const float slide_speed) noexcept;
-		void Update(MessageSystem& message_system, const size_t ticks, const float slide_speed) noexcept;
+		void Update(
+				MessageSystem& message_system, const ModifierSystem& modifier_system,
+				const SettingsManager& settings, const float map_width, const float map_height,
+				const size_t ticks
+				) noexcept;
+
+		void Move(MessageSystem& message_system, const ModifierSystem& modifier_system, const float map_width, const float map_height) noexcept;
 		void Animate(const size_t ticks) noexcept;
 
 		void Draw(const AssetManager& assets) const noexcept;
@@ -43,14 +49,11 @@ class Player
 		Rectangle Rect;
 
 		Vector2 Centre;
-		float Radius;
 
 		float Speed;
 		bool Sliding;
 
 	private:
-		Bearing Bearing;
-
 		void IncreaseHealth(const PlayerCommand& command, const ModifierSystem& modifier_system) noexcept;
 		void TakeDamage(const PlayerCommand& command, const ModifierSystem& modifier_system) noexcept;
 		void SetDirection(const PlayerCommand& command, const ModifierSystem& modifier_system) noexcept;
@@ -78,6 +81,9 @@ class Player
 		};
 
 		size_t LastAnimationUpdate;
+		
+		Bearing Bearing;
+		
 		uint8_t ImageIndex;
 		static constexpr uint8_t AnimationFrames = 2;
 		static constexpr uint8_t AnimationInterval = 20;

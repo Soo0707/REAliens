@@ -12,6 +12,8 @@ class StatSystem
 		StatSystem() = default;
 		~StatSystem() = default;
 
+		void Update(MessageSystem& message_system) noexcept;
+
 		void ExecuteCommands(MessageSystem& message_system) noexcept;
 		size_t GetStat(const Stat) const noexcept;
 

@@ -16,6 +16,7 @@
 #include "enemyData.hpp"
 #include "projectileData.hpp"
 #include "constants.hpp"
+#include "player.hpp"
 
 CollisionSystem::CollisionSystem(const float map_width, const float map_height) :
 	GridSize(
@@ -34,8 +35,48 @@ CollisionSystem::CollisionSystem(const float map_width, const float map_height) 
 	this->EnemyGrid.resize(this->GridSize, -1);
 }
 
+//TODO: clean up this monstrosity
+void CollisionSystem::Update(
+		MessageSystem& message_system, const ModifierSystem& modifier_system, const std::vector<Rectangle>& enemy_rect,
+		const std::vector<float>& enemy_health, const std::vector<EnemyAttackComponent>& enemy_attack_components,
+		const std::vector<EnemyType>& enemy_type, const std::vector<Rectangle>& projectile_rect,
+		const std::vector<ProjectileType>& projectile_type, const std::vector<Vector2>& projectile_direction,
+		const std::vector<Rectangle>& xp_rect, const Player& player, const size_t ticks
+		) noexcept
+{
+	const Rectangle player_rect = player.Rect;
+	const Vector2 player_centre = player.Centre;
+	const Vector2 player_direction = player.Direction;
+
+	this->UpdateEnemyGrid(enemy_rect);
+
+	this->PollSignals(message_system, player_centre, modifier_system, ticks);
+
+	this->ProjectileCollision(
+			projectile_rect, projectile_type, projectile_direction,
+			message_system, modifier_system, ticks
+			);
+
+	const bool is_sliding = player.Sliding;
+
+	if (is_sliding)
+		this->SlideAttack(player_centre, player_direction, enemy_health, message_system, ticks);
+
+	const bool has_greenbull = modifier_system.EffectStatus(Effect::Greenbull);
+
+	if (!has_greenbull && !is_sliding)
+		this->LeAttack(enemy_attack_components, enemy_type, player_centre, message_system, modifier_system, ticks);
+/*
+	this->XpCollision(
+			player_rect, this->XpSystem->GetXpRect(),
+			&this->CollectedXp, *this->ModifierSystem,
+			*this->MessageSystem
+			);
+			*/
+}
+
 void CollisionSystem::PollSignals(
-		MessageSystem& message_system, const std::vector<Rectangle>& enemy_rect, const Vector2 player_centre,
+		MessageSystem& message_system, const Vector2 player_centre,
 		const ModifierSystem& modifier_system, const size_t ticks
 		) const noexcept
 {
@@ -232,7 +273,7 @@ void CollisionSystem::Aura(
 }
 
 void CollisionSystem::XpCollision(
-		const Rectangle player_rect, const std::vector<Rectangle>& xp_rect,
+		const Rectangle& player_rect, const std::vector<Rectangle>& xp_rect,
 		size_t* collected_xp, const ModifierSystem& modifier_system,
 		MessageSystem& message_system
 		) const noexcept
@@ -243,7 +284,8 @@ void CollisionSystem::XpCollision(
 	{
 		if (CheckCollisionRecs(player_rect, xp_rect[i]) || has_magnetism)
 		{
-			*collected_xp += 1;
+
+			// TODO: send command/signal instead of *collected_xp += 1;
 
 			message_system.XpSystemCommands.emplace_back(std::in_place_type<struct KillXp>, i);
 		}

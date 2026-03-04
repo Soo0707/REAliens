@@ -8,6 +8,11 @@
 #include "modifiers.hpp"
 #include "messageSystem.hpp"
 
+void ModifierSystem::Update(MessageSystem& message_system) noexcept
+{
+	this->PollSignals(message_system);
+}
+
 void ModifierSystem::PollSignals(MessageSystem& message_system) noexcept
 {
 	for (size_t i = 0; i < static_cast<size_t>(ModifierSystemSignal::COUNT); i++)
