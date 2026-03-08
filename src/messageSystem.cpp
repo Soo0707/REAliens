@@ -9,6 +9,7 @@ MessageSystem::MessageSystem()
 	this->EnemySystemCommands.reserve(32);
 	this->TimerSystemCommands.reserve(16);
 	this->StatSystemCommands.reserve(16);
+	this->StateManagerCommands.reserve(8);
 }
 
 void MessageSystem::Reset() noexcept
@@ -20,10 +21,11 @@ void MessageSystem::Reset() noexcept
 	this->EnemySystemCommands.clear();
 	this->TimerSystemCommands.clear();
 	this->StatSystemCommands.clear();
+	this->StateManagerCommands.clear();
 
 	this->EnemySystemSignals = { 0 };
 	this->PlayerSignals = { 0 };
 	this->ModifierSystemSignals = { 0 };
 	this->CollisionSystemSignals = { 0 };
-	this->GameInputSignals = { 0 };
+	this->GameSignals = { 0 };
 }

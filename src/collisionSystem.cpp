@@ -32,6 +32,11 @@ CollisionSystem::CollisionSystem(const float map_width, const float map_height) 
 			)
 
 {
+	this->Reset();
+}
+
+void CollisionSystem::Reset()
+{
 	this->EnemyGrid.resize(this->GridSize, -1);
 }
 

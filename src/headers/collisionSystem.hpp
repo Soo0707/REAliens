@@ -19,6 +19,8 @@ class CollisionSystem
 		CollisionSystem(const float map_width, const float map_height);
 		~CollisionSystem() = default;
 
+		void Reset();
+
 		void Update(
 				MessageSystem& message_system, const ModifierSystem& modifier_system, const std::vector<Rectangle>& enemy_rect,
 				const std::vector<float>& enemy_health, const std::vector<EnemyAttackComponent>& enemy_attack_components,

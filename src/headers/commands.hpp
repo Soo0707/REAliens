@@ -6,6 +6,7 @@
 #include "raylib.h"
 
 #include "stats.hpp"
+#include "states.hpp"
 #include "timers.hpp"
 #include "projectileData.hpp"
 
@@ -132,3 +133,11 @@ struct SetPlayerDirection
 };
 
 using PlayerCommand = std::variant<struct DamagePlayer, struct IncreasePlayerHealth, struct SetPlayerDirection>;
+
+
+struct SetState
+{
+	State NextState;
+};
+
+using StateManagerCommand = std::variant<struct SetState>;

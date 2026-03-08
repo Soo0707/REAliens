@@ -60,16 +60,11 @@ enum class CollisionSystemSignal : uint8_t
 	COUNT
 };
 
-enum class GameInputSignal : uint8_t
+enum class GameSignal : uint8_t
 {
 	EnableLMB,
 	EnableRMB,
 	EnableSlide,
-	COUNT
-};
-
-enum class GameSignal : uint8_t
-{
 	PlayerDied,
 	LevelUp,
 	COUNT

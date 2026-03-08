@@ -22,10 +22,11 @@ struct MessageSystem
 	std::vector<EnemySystemCommand> EnemySystemCommands;
 	std::vector<TimerSystemCommand> TimerSystemCommands;
 	std::vector<StatSystemCommand> StatSystemCommands;
+	std::vector<StateManagerCommand> StateManagerCommands;
 
 	std::array<uint16_t, static_cast<size_t>(EnemySystemSignal::COUNT)> EnemySystemSignals;
 	std::array<uint16_t, static_cast<size_t>(PlayerSignal::COUNT)> PlayerSignals;
 	std::array<uint16_t, static_cast<size_t>(ModifierSystemSignal::COUNT)> ModifierSystemSignals;
 	std::array<uint16_t, static_cast<size_t>(CollisionSystemSignal::COUNT)> CollisionSystemSignals;
-	std::array<uint16_t, static_cast<size_t>(GameInputSignal::COUNT)> GameInputSignals;
+	std::array<uint16_t, static_cast<size_t>(GameSignal::COUNT)> GameSignals;
 };

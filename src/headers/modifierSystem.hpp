@@ -20,6 +20,10 @@ class ModifierSystem
 		bool EffectStatus(const Effect effect) const noexcept;
 		float GetAttribute(const Attribute attribute) const noexcept;
 
+		size_t GetLevel() const noexcept;
+		size_t GetCollectedXp() const noexcept;
+		size_t GetLevelUpThreshold() const noexcept;
+
 		void Reset() noexcept;
 
 	private:
@@ -95,6 +99,11 @@ class ModifierSystem
 			Effect::Invisible,
 			Effect::DiddySlide
 		};
+		
+		size_t Level;
+		size_t CollectedXp;
+		size_t UnclaimedPowerups;
+		size_t LevelUpThreshold;
 		
 		Effect Effects;
 };

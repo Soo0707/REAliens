@@ -1,5 +1,7 @@
 #include "raylib.h"
 
+#include <cstddef>
+
 #include "globalDataWrapper.hpp"
 #include "assetManager.hpp"
 #include "settingsManager.hpp"
@@ -15,10 +17,12 @@
 #include "collisionSystem.hpp"
 
 #include "game.hpp"
+#include "systemsResetState.hpp"
 #include "powerupMenu.hpp"
 #include "gameOverMenu.hpp"
 #include "pauseMenu.hpp"
 #include "mainMenu.hpp"
+#include "stateManager.hpp"
 
 #include "constants.hpp"
 
@@ -31,8 +35,8 @@ int main(void)
 	Image window_icon = LoadImage("assets/icon.png");
 	SetWindowIcon(window_icon);
 
-	RenderTexture2D virtual_canvas = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
-	SetTextureFilter(virtual_canvas.texture, TEXTURE_FILTER_POINT);
+	RenderTexture2D canvas = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
+	SetTextureFilter(canvas.texture, TEXTURE_FILTER_POINT);
 
 	SetWindowMinSize(REFERENCE_WIDTH, REFERENCE_HEIGHT);
 
@@ -51,6 +55,7 @@ int main(void)
 
 	SetTargetFPS(target_refresh_rate);
 
+	// systems
 	const std::shared_ptr<MessageSystem> message_system = std::make_shared<MessageSystem>();
 	const std::shared_ptr<TimerSystem> timer_system = std::make_shared<TimerSystem>();
 	const std::shared_ptr<ModifierSystem> modifier_system = std::make_shared<ModifierSystem>();
@@ -59,87 +64,55 @@ int main(void)
 	const std::shared_ptr<EnemySystem> enemy_system = std::make_shared<EnemySystem>();
 	const std::shared_ptr<StatSystem> stat_system = std::make_shared<StatSystem>();
 	const std::shared_ptr<XpSystem> xp_system = std::make_shared<XpSystem>();
-
-	// TODO: this is ugly
 	const std::shared_ptr<CollisionSystem> collision_system = std::make_shared<CollisionSystem>(assets->Ground.width, assets->Ground.height);
 
-	Game game = Game(
+	// states
+	const std::shared_ptr<Game> game_state = std::make_shared<Game>(
 			global_data, assets, settings, message_system, timer_system, modifier_system,
 			particle_system, projectile_system, enemy_system, stat_system, xp_system, collision_system
 			);
 
-	PowerupMenu powerup_menu = PowerupMenu(global_data, assets, settings, message_system, timer_system);
-	GameOverMenu game_over = GameOverMenu(global_data, assets);
-	PauseMenu pause = PauseMenu(global_data, assets);
-	MainMenu main_menu = MainMenu(global_data, assets);
+	const std::shared_ptr<SystemsResetState> systems_reset_state = std::make_shared<SystemsResetState>(
+			message_system, timer_system, modifier_system, particle_system, projectile_system, enemy_system,
+			stat_system, xp_system, collision_system
+			);
 
-	State prev_state = global_data->ActiveState;
+	const std::shared_ptr<PowerupMenu> powerup_menu_state = std::make_shared<PowerupMenu>(
+			global_data, assets, settings, message_system, timer_system
+			);
 
-	while (!WindowShouldClose() && global_data->Running)
+	const std::shared_ptr<GameOverMenu> game_over_menu_state = std::make_shared<GameOverMenu>(global_data, assets);
+	const std::shared_ptr<PauseMenu> pause_menu_state = std::make_shared<PauseMenu>(global_data, assets);
+	const std::shared_ptr<MainMenu> main_menu_state = std::make_shared<MainMenu>(global_data, assets);
+
+	StateManager state_manager = StateManager(
+		game_state, systems_reset_state, powerup_menu_state, game_over_menu_state,
+		pause_menu_state, main_menu_state
+		);
+
+	float accumulator = 0.0f;
+
+	while (!WindowShouldClose() && !state_manager.Terminate)
 	{
-		if (global_data->ActiveState != prev_state)
-		{
-			(global_data->ActiveState == State::Game) ? SetTargetFPS(target_refresh_rate) : SetTargetFPS(15);
-			prev_state = global_data->ActiveState;
-		}
+		accumulator += GetFrameTime();
 
-		if (IsKeyPressed(KEY_F11))
-		{
-			ToggleBorderlessWindowed();
-			EnableCursor();
-		}
+		if (accumulator >= MAX_TICK_TIME)
+			accumulator = MAX_TICK_TIME;
 
-		SetMouseScale(REFERENCE_WIDTH / static_cast<float>(GetScreenWidth()), REFERENCE_HEIGHT / static_cast<float>(GetScreenHeight()));
-
-		switch (global_data->ActiveState)
+		while (accumulator >= TICK_TIME)
 		{
-			case State::GameReset:
-				message_system->Reset();
-				timer_system->Reset();
-				modifier_system->Reset();
-				particle_system->Reset();
-				projectile_system->Reset();
-				enemy_system->Reset();
-				stat_system->Reset();
-				xp_system->Reset();
-				game.Reset();
-				global_data->Reset();
-				global_data->ActiveState = State::Game;
-				break;
-			case State::MainMenu:
-				main_menu.HandleInput();
-				main_menu.Draw(virtual_canvas);
-				break;
-			case State::Game:
-				game.Update();
-				game.TickedUpdate();
-				game.Draw(virtual_canvas);
-				break;
-			case State::PowerupMenu:
-				powerup_menu.HandleInput();
-				powerup_menu.Draw(virtual_canvas);
-				break;
-			case State::GameOverMenu:
-				game_over.HandleInput();
-				game_over.Draw(virtual_canvas);
-				break;
-			case State::PauseMenu:
-				pause.HandleInput();
-				pause.Draw(virtual_canvas);
-				break;
-			case State::GenerateGameOverStats:
-				game_over.GenerateStats(game, *stat_system);
-				global_data->ActiveState = State::GameOverMenu;
-				break;
+			state_manager.Update(message_system, canvas);
+
+			accumulator -= TICK_TIME;
 		}
 
 		BeginDrawing();
 			ClearBackground(BLACK);
 			DrawTexturePro(
-					virtual_canvas.texture,
-					(Rectangle) { 0, 0, REFERENCE_WIDTH, -static_cast<float>(REFERENCE_HEIGHT) },
-					(Rectangle) { 0, 0, static_cast<float>(GetScreenWidth()), static_cast<float>(GetScreenHeight()) },
-					(Vector2) { 0, 0 },
+					canvas.texture,
+					{ 0.0f, 0.0f, REFERENCE_WIDTH, -static_cast<float>(REFERENCE_HEIGHT) },
+					{ 0.0f, 0.0f, static_cast<float>(GetScreenWidth()), static_cast<float>(GetScreenHeight()) },
+					{ 0.0f, 0.0f },
 					0.0f,
 					WHITE
 					);

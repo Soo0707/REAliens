@@ -10,7 +10,6 @@
 #include "globalDataWrapper.hpp"
 #include "gameInputSystem.hpp"
 #include "gameDrawSystem.hpp"
-#include "gameHelpers.hpp"
 
 #include "settingsManager.hpp"
 #include "assetManager.hpp"
@@ -154,7 +153,7 @@ void Game::TickedUpdate() noexcept
 
 		const float map_width = this->Assets->Ground.width;
 		const float map_height = this->Assets->Ground.height;
-
+/*
 		while (this->CollectedXp >= this->LevelUpThreshold)
 		{
 			const size_t distance = this->CollectedXp - this->LevelUpThreshold;
@@ -162,7 +161,7 @@ void Game::TickedUpdate() noexcept
 			this->LevelUp();
 			this->CollectedXp = distance;
 		}
-		
+*/		
 		this->TimerSystem->Update(*this->MessageSystem, ticks);
 		this->PollSignals();
 
@@ -172,7 +171,6 @@ void Game::TickedUpdate() noexcept
 				*this->MessageSystem, *this->ModifierSystem, *this->Settings,
 				map_width, map_height, ticks
 				);
-
 
 		this->UpdateCamera();
 		this->ModifierSystem->Update(*this->MessageSystem);
@@ -235,15 +233,15 @@ void Game::PollSignals() noexcept
 {
 	for (size_t i = 0, n = static_cast<size_t>(GameInputSignal::COUNT); i < n; i++)
 	{
-		const uint16_t count = this->MessageSystem->GameInputSignals[i];
+		const uint16_t count = this->MessageSystem->GameSignals[i];
 
 		if (count)
 			this->CanPerform[i] = true;
 
-		this->MessageSystem->GameInputSignals[i] = 0;
+		this->MessageSystem->GameSignals[i] = 0;
 	}
 }
-
+/*
 void Game::LevelUp() noexcept
 {
 	if (!this->Settings->Get(SettingKey::UnlimitedPowerups))
@@ -270,3 +268,4 @@ void Game::LevelUp() noexcept
 	else
 		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveLevelDebuff)]++;
 }
+*/

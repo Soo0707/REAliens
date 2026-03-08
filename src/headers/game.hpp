@@ -66,26 +66,25 @@ class Game
 		const std::shared_ptr<class StatSystem> StatSystem;
 		const std::shared_ptr<class XpSystem> XpSystem;
 		const std::shared_ptr<class CollisionSystem> CollisionSystem;
+		const std::unique_ptr<class Player> Player;
 
 		Camera2D Camera;
 		Rectangle UpdateArea;
 
-		const std::unique_ptr<class Player> Player;
-		
 		std::array<bool, static_cast<size_t>(Action::COUNT)> CanPerform;
 
+/*
 		size_t Ticks = 0;
-
+ * TODO: move to modifierSystem
 		size_t Level = 1;
 		size_t CollectedXp = 0;
 		size_t LevelUpThreshold = 5;
-
+*/
 	private:
 		void PollSignals() noexcept;
 
-		void LevelUp() noexcept;
+		//void LevelUp() noexcept;
 		void UpdateCamera() noexcept;
-		void UpdateTimeouts(const size_t ticks) noexcept;
 
 		float Accumulator = 0.0f;
 };

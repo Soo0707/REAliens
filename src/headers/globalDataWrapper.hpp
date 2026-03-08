@@ -9,19 +9,6 @@
 
 #include "constants.hpp"
 
-enum class State
-{
-	Game,
-	GameReset,
-	PowerupMenu,
-
-	PauseMenu,
-	MainMenu,
-	GameOverMenu,
-
-	GenerateGameOverStats
-};
-
 enum class CachedString : uint8_t
 {
 	LevelText,

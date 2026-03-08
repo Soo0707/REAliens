@@ -11,6 +11,14 @@
 void ModifierSystem::Update(MessageSystem& message_system) noexcept
 {
 	this->PollSignals(message_system);
+
+	while (this->CollectedXp >= this->LevelUpThreshold)
+	{
+		const size_t distance = this->CollectedXp - this->LevelUpThreshold;
+
+		this->LevelUp();
+		this->CollectedXp = distance;
+	}
 }
 
 void ModifierSystem::PollSignals(MessageSystem& message_system) noexcept
@@ -54,10 +62,14 @@ void ModifierSystem::Reset() noexcept
 
 	this->SetAttribute(Attribute::LuckBottomLimit, 0.0f);
 	this->SetAttribute(Attribute::LuckUpperLimit, 99.0f);
+	
 	//TODO: set this to be random and find a way to incorparate it
 	this->SetAttribute(Attribute::LuckBoundary, 49.0f);
 
 	this->Effects = static_cast<Effect>(0);
+	this->Level = 0;
+	this->CollectedXp = 0;
+	this->LevelUpThreshold = 5;
 }
 
 bool ModifierSystem::EffectStatus(const Effect effect) const noexcept
@@ -73,6 +85,54 @@ void ModifierSystem::ApplyEffect(const Effect effect) noexcept
 void ModifierSystem::RemoveEffect(const Effect effect) noexcept
 {
 	this->Effects = this->Effects & ~effect;
+}
+
+size_t ModifierSystem::GetLevel() const noexcept
+{
+	return this->Level;
+}
+
+size_t ModifierSystem::GetCollectedXp() const noexcept
+{
+	return this->CollectedXp;
+}
+
+size_t ModifierSystem::GetLevelUpThreshold() const noexcept
+{
+	return this->LevelUpThreshold;
+}
+
+size_t ModifierSystem::GetUnclaimedPowerups() const noexcept
+{
+	return this->UnclaimedPowerups;
+}
+
+size_t ModifierSystem::LevelUp(MessageSystem& message_system, const SettingsManager& settings) noexcept
+{
+	if (!settings.Get(SettingKey::UnlimitedPowerups))
+	{
+		this->UnclaimedPowerups++;
+/*
+		this->GlobalData->CacheString(
+				"Unclaimed Poweurps: " + std::to_string(this->GlobalData->UnclaimedPowerups),
+				CachedString::UnclaimedPowerups
+				);
+				*/
+	}
+
+	this->Level++;
+	//this->GlobalData->CacheString("Level: " + std::to_string(this->Level), CachedString::LevelText);
+
+	this->CollectedXp = 0;
+	this->LevelUpThreshold += 5;
+	
+	if (settings.Get(SettingKey::PowerupMenuInterrupt))
+		this->GlobalData->ActiveState = State::PowerupMenu;
+
+	if (this->Level % 5 == 0 && !settings.Get(SettingKey::DisableLevelDebuffs))
+		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::InsertLevelDebuff)]++;
+	else
+		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveLevelDebuff)]++;
 }
 
 
