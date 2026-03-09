@@ -38,8 +38,4 @@ struct GlobalDataWrapper
 	void Reset() noexcept;
 
 	std::array<std::string, static_cast<size_t>(CachedString::COUNT)> StringCache;
-	State ActiveState = State::MainMenu;
-
-	unsigned int UnclaimedPowerups;
-	bool Running = true;
 };

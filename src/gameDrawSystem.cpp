@@ -1,5 +1,7 @@
 #include "gameDrawSystem.hpp"
 
+#include <cstddef>
+
 #include "raylib.h"
 
 #include "constants.hpp"
@@ -13,10 +15,8 @@
 #include "timers.hpp"
 #include "timerSystem.hpp"
 
-void GameDrawSystem::DrawGame(const Game& game, const ModifierSystem& modifier_system, const AssetManager& assets) noexcept
+void GameDrawSystem::DrawGame(const Game& game, const ModifierSystem& modifier_system, const AssetManager& assets, const size_t ticks) noexcept
 {
-	const size_t ticks = game.Ticks;
-
 	const float ground_width = assets.Ground.width;
 	const float ground_height = assets.Ground.height;
 	const Rectangle update_area = game.UpdateArea;
@@ -63,7 +63,7 @@ void GameDrawSystem::DrawLighting(const Game& game, const ModifierSystem& modifi
 
 void GameDrawSystem::DrawOverlay(
 		const Game& game, const TimerSystem& timer_system, const ModifierSystem& modifier_system,
-		const GlobalDataWrapper& global_data, const AssetManager& assets
+		const GlobalDataWrapper& global_data, const AssetManager& assets, const size_t ticks
 		) noexcept
 {
 	DrawTexture(assets.GetTexture(TextureKey::HealthBarBackground), 1060, 20, WHITE);
@@ -83,7 +83,7 @@ void GameDrawSystem::DrawOverlay(
 
 	DrawTexture(assets.GetTexture(TextureKey::XpBarBackground), 100, 680, WHITE);
 
-	const float xp_percentage = static_cast<float>(game.CollectedXp) / static_cast<float>(game.LevelUpThreshold);
+	const float xp_percentage = static_cast<float>(modifier_system.GetCollectedXp()) / static_cast<float>(modifier_system.GetLevelUpThreshold());
 
 	DrawTexturePro(
 			assets.GetTexture(TextureKey::WhitePixel),
@@ -93,8 +93,6 @@ void GameDrawSystem::DrawOverlay(
 			0.0f,
 			CYAN
 			);
-
-	const size_t ticks = game.Ticks;
 
 	if (modifier_system.EffectStatus(Effect::Greenbull))
 		GameDrawSystem::DrawGreenbull(timer_system, assets, ticks);
@@ -114,7 +112,7 @@ void GameDrawSystem::DrawOverlay(
 	DrawText(global_data.StringCache[static_cast<size_t>(CachedString::Duration)].c_str(), 20, 20, 24, LIGHTGRAY);
 	DrawText(global_data.StringCache[static_cast<size_t>(CachedString::LevelText)].c_str(), 20, 50, 24, LIGHTGRAY);
 
-	DrawText("[TAB]", 1206, 620, 20, (global_data.UnclaimedPowerups) ? GOLD : GRAY);
+	DrawText("[TAB]", 1206, 620, 20, (modifier_system.GetUnclaimedPowerups()) ? GOLD : GRAY);
 
 	DrawText("[LMB]", 1058, 640, 20, (game.CanPerform[static_cast<size_t>(Action::LMB)] ? YELLOW : GRAY));
 	DrawText("[RMB]", 1120, 640, 20, (game.CanPerform[static_cast<size_t>(Action::RMB)] ? CYAN : GRAY));

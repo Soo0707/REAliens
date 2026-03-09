@@ -113,7 +113,6 @@ void EnemySystem::Update(
 	this->EnemiesUpdateTimers(ticks);
 
 	this->KillEnemies(message_system);
-
 }
 
 void EnemySystem::Draw(const AssetManager& assets) const noexcept

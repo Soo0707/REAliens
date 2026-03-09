@@ -140,4 +140,9 @@ struct SetState
 	State NextState;
 };
 
-using StateManagerCommand = std::variant<struct SetState>;
+struct SetTerminate
+{
+	bool Terminate;
+};
+
+using StateManagerCommand = std::variant<struct SetState, struct SetTerminate>;

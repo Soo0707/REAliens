@@ -1,14 +1,16 @@
 #include "modifierSystem.hpp"
 
 #include <limits>
+#include <variant>
 
 #include "signals.hpp"
 #include "commands.hpp"
 #include "constants.hpp"
 #include "modifiers.hpp"
+#include "settingsManager.hpp"
 #include "messageSystem.hpp"
 
-void ModifierSystem::Update(MessageSystem& message_system) noexcept
+void ModifierSystem::Update(MessageSystem& message_system, const SettingsManager& settings) noexcept
 {
 	this->PollSignals(message_system);
 
@@ -16,7 +18,7 @@ void ModifierSystem::Update(MessageSystem& message_system) noexcept
 	{
 		const size_t distance = this->CollectedXp - this->LevelUpThreshold;
 
-		this->LevelUp();
+		this->LevelUp(message_system, settings);
 		this->CollectedXp = distance;
 	}
 }
@@ -67,7 +69,8 @@ void ModifierSystem::Reset() noexcept
 	this->SetAttribute(Attribute::LuckBoundary, 49.0f);
 
 	this->Effects = static_cast<Effect>(0);
-	this->Level = 0;
+	
+	this->Level = 1;
 	this->CollectedXp = 0;
 	this->LevelUpThreshold = 5;
 }
@@ -107,7 +110,12 @@ size_t ModifierSystem::GetUnclaimedPowerups() const noexcept
 	return this->UnclaimedPowerups;
 }
 
-size_t ModifierSystem::LevelUp(MessageSystem& message_system, const SettingsManager& settings) noexcept
+void ModifierSystem::DecrementUnclaimedPowerups() noexcept
+{
+	this->UnclaimedPowerups--;
+}
+
+void ModifierSystem::LevelUp(MessageSystem& message_system, const SettingsManager& settings) noexcept
 {
 	if (!settings.Get(SettingKey::UnlimitedPowerups))
 	{
@@ -127,12 +135,12 @@ size_t ModifierSystem::LevelUp(MessageSystem& message_system, const SettingsMana
 	this->LevelUpThreshold += 5;
 	
 	if (settings.Get(SettingKey::PowerupMenuInterrupt))
-		this->GlobalData->ActiveState = State::PowerupMenu;
+		message_system.StateManagerCommands.emplace_back(std::in_place_type<SetState>, State::PowerupMenu);
 
 	if (this->Level % 5 == 0 && !settings.Get(SettingKey::DisableLevelDebuffs))
-		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::InsertLevelDebuff)]++;
+		message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::InsertLevelDebuff)]++;
 	else
-		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveLevelDebuff)]++;
+		message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveLevelDebuff)]++;
 }
 
 

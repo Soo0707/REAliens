@@ -1,17 +1,24 @@
 #include "mainMenu.hpp"
 
 #include <memory>
+#include <variant>
 
 #include "raylib.h"
+
 #include "globalDataWrapper.hpp"
 #include "assetManager.hpp"
+#include "messageSystem.hpp"
 
-MainMenu::MainMenu(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets) :
+MainMenu::MainMenu(
+		std::shared_ptr<struct GlobalDataWrapper> global_data, std::shared_ptr<class AssetManager> assets,
+		std::shared_ptr<struct MessageSystem> message_system
+		) :
 	GlobalData(global_data),
-	Assets(assets)
+	Assets(assets),
+	MessageSystem(message_system)
 {}
 
-void MainMenu::Draw(RenderTexture2D& canvas) const noexcept
+void MainMenu::Draw(const RenderTexture2D& canvas) const noexcept
 {
 	BeginTextureMode(canvas);
 		ClearBackground(BLACK);
@@ -25,8 +32,8 @@ void MainMenu::Draw(RenderTexture2D& canvas) const noexcept
 void MainMenu::HandleInput() noexcept
 {
 	if (IsKeyPressed(KEY_SPACE))
-		this->GlobalData->ActiveState = State::GameReset;
+		this->MessageSystem->StateManagerCommands.emplace_back(std::in_place_type<SetState>, State::SystemsReset);
 
 	if (IsKeyPressed(KEY_ESCAPE))
-		this->GlobalData->Running = false;
+		this->MessageSystem->StateManagerCommands.emplace_back(std::in_place_type<SetTerminate>, true);
 }

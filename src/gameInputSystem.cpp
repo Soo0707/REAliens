@@ -1,6 +1,7 @@
 #include "gameInputSystem.hpp"
 
 #include <variant>
+#include <cstddef>
 
 #include "raylib.h"
 #include "raymath.h"
@@ -25,8 +26,6 @@ void GameInputSystem::HandleTickedInput(
 		};
 
 	message_system.PlayerCommands.emplace_back(std::in_place_type<struct SetPlayerDirection>, player_direction);
-
-	const size_t ticks = game.Ticks;
 
 	if (IsKeyDown(KEY_LEFT_SHIFT) && game.CanPerform[static_cast<size_t>(Action::Slide)])
 	{

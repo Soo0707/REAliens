@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 #include "game.hpp"
 #include "assetManager.hpp"
 #include "globalDataWrapper.hpp"
@@ -8,11 +10,11 @@
 
 namespace GameDrawSystem
 {
-	void DrawGame(const Game& game, const ModifierSystem& modifier_system, const AssetManager& assets) noexcept;
+	void DrawGame(const Game& game, const ModifierSystem& modifier_system, const AssetManager& assets, const size_t ticks) noexcept;
 	void DrawLighting(const Game& game, const ModifierSystem& modifier_system) noexcept;
 	void DrawOverlay(
 			const Game& game, const TimerSystem& timer_system, const ModifierSystem& modifier_system,
-			const GlobalDataWrapper& global_data, const AssetManager& assets
+			const GlobalDataWrapper& global_data, const AssetManager& assets, const size_t ticks
 			) noexcept;
 
 	void DrawGreenbull(const TimerSystem& timer_system, const AssetManager& assets, const size_t ticks) noexcept;

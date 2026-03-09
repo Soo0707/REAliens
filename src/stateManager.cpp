@@ -27,7 +27,7 @@ StateManager::StateManager(
 	Terminate(false),
 	ActiveState(State::MainMenu),
 	GameState(game_state),
-	ResetState(reset_state),
+	SystemsResetState(systems_reset_state),
 	PowerupMenuState(powerup_menu_state),
 	GameOverMenuState(game_over_menu_state),
 	PauseMenuState(pause_menu_state),
@@ -51,7 +51,7 @@ void StateManager::Update(MessageSystem& message_system, const RenderTexture2D& 
 	auto hook = this->StateHooks[static_cast<size_t>(this->ActiveState)];
 	(this->*hook)(message_system, canvas);
 
-	this->Ticks += this->TickIncrement
+	this->Ticks += this->TickIncrement;
 }
 
 void StateManager::PollGlobalInput() const noexcept
@@ -74,9 +74,9 @@ void StateManager::RunGame(MessageSystem& message_system, const RenderTexture2D&
 {
 	this->TickIncrement = 1;
 
-	this->GameState->Update();
-	this->GameState->TickedUpdate();
-	this->GameState->Draw(canvas);
+	this->GameState->HandleInput();
+	this->GameState->Update(this->Ticks);
+	this->GameState->Draw(this->Ticks, canvas);
 }
 
 void StateManager::RunSystemsReset(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept
@@ -87,7 +87,7 @@ void StateManager::RunSystemsReset(MessageSystem& message_system, const RenderTe
 	this->GameState->Reset();
 	this->Reset();
 	
-	message_system.StateManagerCommands.emplace_back(std::in_place_type<struct StateManagerCommand>, State::Game);
+	message_system.StateManagerCommands.emplace_back(std::in_place_type<SetState>, State::Game);
 }
 
 void StateManager::RunPowerupMenu(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept
@@ -121,20 +121,21 @@ void StateManager::RunMainMenu(MessageSystem& message_system, const RenderTextur
 	this->MainMenuState->HandleInput();
 	this->MainMenuState->Draw(canvas);
 }
-/*
-void StateManager::RunGenerateGameOverStats() noexcept
+
+void StateManager::RunGenerateGameOverStats(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept
 {
 	this->TickIncrement = 0;
-	game_over.GenerateStats(game, *stat_system);
-	global_data->ActiveState = State::GameOverMenu;
+
+	this->GameOverMenuState->GenerateStats(this->Ticks);
+	message_system.StateManagerCommands.emplace_back(std::in_place_type<SetState>, State::GameOverMenu);
 }
-*/
+
 
 
 // commands
 void StateManager::ExecuteCommands(MessageSystem& message_system) noexcept
 {
-	for (auto const& command : message_system.StateSystemCommands)
+	for (auto const& command : message_system.StateManagerCommands)
 	{
 		auto handler = this->CommandHandlers[command.index()];
 
@@ -142,8 +143,14 @@ void StateManager::ExecuteCommands(MessageSystem& message_system) noexcept
 	}
 }
 
-void StateManager::SetStateHandler(const StateSystemCommand& command) noexcept
+void StateManager::SetStateHandler(const StateManagerCommand& command) noexcept
 {
 	const SetState& data = std::get<struct SetState>(command);
 	this->ActiveState = data.NextState;
+}
+
+void StateManager::SetTerminateHandler(const StateManagerCommand& command) noexcept
+{
+	const SetTerminate& data = std::get<struct SetTerminate>(command);
+	this->Terminate = data.Terminate;
 }

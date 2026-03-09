@@ -78,12 +78,12 @@ int main(void)
 			);
 
 	const std::shared_ptr<PowerupMenu> powerup_menu_state = std::make_shared<PowerupMenu>(
-			global_data, assets, settings, message_system, timer_system
+			global_data, assets, settings, message_system, modifier_system, timer_system
 			);
 
-	const std::shared_ptr<GameOverMenu> game_over_menu_state = std::make_shared<GameOverMenu>(global_data, assets);
-	const std::shared_ptr<PauseMenu> pause_menu_state = std::make_shared<PauseMenu>(global_data, assets);
-	const std::shared_ptr<MainMenu> main_menu_state = std::make_shared<MainMenu>(global_data, assets);
+	const std::shared_ptr<GameOverMenu> game_over_menu_state = std::make_shared<GameOverMenu>(global_data, assets, stat_system, message_system);
+	const std::shared_ptr<PauseMenu> pause_menu_state = std::make_shared<PauseMenu>(global_data, assets, message_system);
+	const std::shared_ptr<MainMenu> main_menu_state = std::make_shared<MainMenu>(global_data, assets, message_system);
 
 	StateManager state_manager = StateManager(
 		game_state, systems_reset_state, powerup_menu_state, game_over_menu_state,
@@ -101,7 +101,7 @@ int main(void)
 
 		while (accumulator >= TICK_TIME)
 		{
-			state_manager.Update(message_system, canvas);
+			state_manager.Update(*message_system, canvas);
 
 			accumulator -= TICK_TIME;
 		}
@@ -121,7 +121,7 @@ int main(void)
 
 	UnloadImage(window_icon);
 
-	UnloadRenderTexture(virtual_canvas);
+	UnloadRenderTexture(canvas);
 	CloseWindow();
 
 	return 0;

@@ -5,6 +5,7 @@
 #include <limits>
 
 #include "modifiers.hpp"
+#include "settingsManager.hpp"
 #include "messageSystem.hpp"
 
 class ModifierSystem
@@ -13,7 +14,7 @@ class ModifierSystem
 		ModifierSystem() = default;
 		~ModifierSystem() = default;
 
-		void Update(MessageSystem& message_system) noexcept;
+		void Update(MessageSystem& message_system, const SettingsManager& settings) noexcept;
 
 		void PollSignals(MessageSystem& message_system) noexcept;
 
@@ -23,10 +24,14 @@ class ModifierSystem
 		size_t GetLevel() const noexcept;
 		size_t GetCollectedXp() const noexcept;
 		size_t GetLevelUpThreshold() const noexcept;
+		size_t GetUnclaimedPowerups() const noexcept;
+		void DecrementUnclaimedPowerups() noexcept;
 
 		void Reset() noexcept;
 
 	private:
+		void LevelUp(MessageSystem& message_system, const SettingsManager& settings) noexcept;
+
 		void ApplyEffect(const Effect effect) noexcept;
 		void RemoveEffect(const Effect effect) noexcept;
 

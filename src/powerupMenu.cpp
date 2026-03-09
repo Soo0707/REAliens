@@ -12,25 +12,28 @@
 #include "settingsManager.hpp"
 #include "assetManager.hpp"
 
+#include "modifierSystem.hpp"
 #include "messageSystem.hpp"
 #include "commands.hpp"
+#include "states.hpp"
 #include "timerSystem.hpp"
 
 PowerupMenu::PowerupMenu(
 		std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets, 
 		std::shared_ptr<SettingsManager> settings, std::shared_ptr<struct MessageSystem> message_system,
-		std::shared_ptr<class TimerSystem> timer_system
+		std::shared_ptr<class ModifierSystem> modifier_system, std::shared_ptr<class TimerSystem> timer_system
 		):
 	GlobalData(global_data),
 	Settings(settings),
 	Assets(assets),
 	MessageSystem(message_system),
+	ModifierSystem(modifier_system),
 	TimerSystem(timer_system)
 {
 	PowerupMenu::GenerateList();
 }
 
-void PowerupMenu::Draw(RenderTexture2D& canvas) const noexcept
+void PowerupMenu::Draw(const RenderTexture2D& canvas) const noexcept
 {
 	static constexpr float mid = REFERENCE_WIDTH / 2.0f;
 
@@ -103,7 +106,7 @@ void PowerupMenu::HandleInput() noexcept
 	if (IsKeyPressed(KEY_TAB))
 	{
 		this->Gamble = false;
-		this->GlobalData->ActiveState = State::Game;
+		this->MessageSystem->StateManagerCommands.emplace_back(std::in_place_type<struct SetState>, State::Game);
 	}
 
 	if (IsKeyPressed(KEY_ENTER) && this->Gamble == false)
@@ -122,14 +125,18 @@ void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
 
 	if (!this->Settings->Get(SettingKey::UnlimitedPowerups))
 	{
-		this->GlobalData->UnclaimedPowerups--;
-		this->GlobalData->CacheString("Unclaimed Powerups: " + std::to_string(this->GlobalData->UnclaimedPowerups), CachedString::UnclaimedPowerups);
+		this->ModifierSystem->DecrementUnclaimedPowerups();
+
+		this->GlobalData->CacheString(
+				"Unclaimed Powerups: " + std::to_string(this->ModifierSystem->GetUnclaimedPowerups()),
+				CachedString::UnclaimedPowerups
+				);
 	}
 
-	if (this->GlobalData->UnclaimedPowerups == 0 && !this->Settings->Get(SettingKey::UnlimitedPowerups))
+	if (this->ModifierSystem->GetUnclaimedPowerups() == 0 && !this->Settings->Get(SettingKey::UnlimitedPowerups))
 	{
-		this->GlobalData->ActiveState = State::Game;
 		this->Gamble = false;
+		this->MessageSystem->StateManagerCommands.emplace_back(std::in_place_type<struct SetState>, State::Game);
 	}
 }
 

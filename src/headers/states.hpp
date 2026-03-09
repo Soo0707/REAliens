@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstdint>
 
 enum class State : uint8_t
@@ -8,7 +10,6 @@ enum class State : uint8_t
 	GameOverMenu,
 	PauseMenu,
 	MainMenu,
-
 	GenerateGameOverStats,
 	COUNT
 };

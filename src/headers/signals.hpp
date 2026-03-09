@@ -66,6 +66,5 @@ enum class GameSignal : uint8_t
 	EnableRMB,
 	EnableSlide,
 	PlayerDied,
-	LevelUp,
 	COUNT
 };

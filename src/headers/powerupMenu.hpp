@@ -11,6 +11,7 @@
 #include "settingsManager.hpp"
 #include "assetManager.hpp"
 
+#include "modifierSystem.hpp"
 #include "messageSystem.hpp"
 #include "timerSystem.hpp"
 
@@ -48,12 +49,12 @@ class PowerupMenu
 		PowerupMenu(
 				std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets,
 				std::shared_ptr<SettingsManager> settings, std::shared_ptr<struct MessageSystem> message_system,
-				std::shared_ptr<class TimerSystem> timer_system
+				std::shared_ptr<class ModifierSystem> modifier_system, std::shared_ptr<class TimerSystem> timer_system
 				);
 
 		~PowerupMenu() = default;
 
-		void Draw(RenderTexture2D& canvas) const noexcept;
+		void Draw(const RenderTexture2D& canvas) const noexcept;
 		void HandleInput() noexcept;
 
 	private:
@@ -85,6 +86,7 @@ class PowerupMenu
 		const std::shared_ptr<AssetManager> Assets;
 
 		const std::shared_ptr<struct MessageSystem> MessageSystem;
+		const std::shared_ptr<class ModifierSystem> ModifierSystem;
 		const std::shared_ptr<class TimerSystem> TimerSystem;
 
 		static inline constexpr std::array<std::string, static_cast<size_t>(Powerup::COUNT)> PowerupNames =

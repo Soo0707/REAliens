@@ -1,19 +1,29 @@
 #include "gameOverMenu.hpp"
 
+#include <memory>
+
 #include "raylib.h"
 
 #include "stats.hpp"
 #include "statSystem.hpp"
 #include "globalDataWrapper.hpp"
 #include "assetManager.hpp"
+#include "states.hpp"
+#include "commands.hpp"
+#include "messageSystem.hpp"
 #include "constants.hpp"
 
-GameOverMenu::GameOverMenu(std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets) :
+GameOverMenu::GameOverMenu(
+		std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets,
+		std::shared_ptr<class StatSystem> stat_system, std::shared_ptr<struct MessageSystem> message_system
+		) :
 	GlobalData(global_data),
-	Assets(assets)
+	Assets(assets),
+	StatSystem(stat_system),
+	MessageSystem(message_system)
 {}
 
-void GameOverMenu::Draw(RenderTexture2D& canvas) const noexcept
+void GameOverMenu::Draw(const RenderTexture2D& canvas) const noexcept
 {
 	const float mid = 1280 / 2.0f;
 
@@ -52,28 +62,27 @@ void GameOverMenu::Draw(RenderTexture2D& canvas) const noexcept
 	EndTextureMode();
 }
 
-void GameOverMenu::HandleInput() noexcept
+void GameOverMenu::HandleInput() const noexcept
 {
 	if (IsKeyPressed(KEY_ENTER))
-		this->GlobalData->ActiveState = State::GameReset;
+		this->MessageSystem->StateManagerCommands.emplace_back(std::in_place_type<SetState>, State::SystemsReset);
 
 	if (IsKeyPressed(KEY_ESCAPE))
-		this->GlobalData->Running = false;
+		this->MessageSystem->StateManagerCommands.emplace_back(std::in_place_type<SetTerminate>, true);
 }
 
-void GameOverMenu::GenerateStats(const Game& game, const StatSystem& stat_system) noexcept
+void GameOverMenu::GenerateStats(const size_t ticks) noexcept
 {
-	const size_t ticks = game.Ticks;
 	size_t damage_per_second = 0;
 	size_t average_speed = 0;
 
 	if (TICKS_TO_SECONDS(ticks) != 0)
 	{
-		damage_per_second = stat_system.GetStat(Stat::TotalDamage) / TICKS_TO_SECONDS(ticks);
-		average_speed = stat_system.GetStat(Stat::TotalDistance) / TICKS_TO_SECONDS(ticks);
+		damage_per_second = this->StatSystem->GetStat(Stat::TotalDamage) / TICKS_TO_SECONDS(ticks);
+		average_speed = this->StatSystem->GetStat(Stat::TotalDistance) / TICKS_TO_SECONDS(ticks);
 	}
 
 	this->GlobalData->CacheString("Damage / Second: " + std::to_string(damage_per_second), CachedString::DamagePerSecond);
-	this->GlobalData->CacheString("Enemies Killed: " + std::to_string(stat_system.GetStat(Stat::Kills)), CachedString::EnemiesKilled);
+	this->GlobalData->CacheString("Enemies Killed: " + std::to_string(this->StatSystem->GetStat(Stat::Kills)), CachedString::EnemiesKilled);
 	this->GlobalData->CacheString("Average Speed: " + std::to_string(average_speed) + "px/s", CachedString::AverageSpeed);
 }

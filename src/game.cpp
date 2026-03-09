@@ -24,6 +24,7 @@
 #include "statSystem.hpp"
 #include "xpSystem.hpp"
 
+//TODO: inject player as well
 Game::Game(
 		std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets,
 		std::shared_ptr<SettingsManager> settings, std::shared_ptr<struct MessageSystem> message_system,
@@ -72,16 +73,10 @@ void Game::Reset() noexcept
 {
 	this->Player->Reset();
 
-	this->CollectedXp = 0;
-	this->LevelUpThreshold = 5;
-
 	this->CanPerform = { 0 };
-
-	this->Ticks = 0;
-	this->Level = 1;
 }
 
-void Game::Draw(RenderTexture2D& canvas) const noexcept
+void Game::Draw(const size_t ticks, const RenderTexture2D& canvas) const noexcept
 {
 	const Camera2D camera = this->Camera;
 
@@ -89,7 +84,7 @@ void Game::Draw(RenderTexture2D& canvas) const noexcept
 		ClearBackground(BLACK);
 
 		BeginMode2D(camera);
-			GameDrawSystem::DrawGame(*this, *this->ModifierSystem, *this->Assets);
+			GameDrawSystem::DrawGame(*this, *this->ModifierSystem, *this->Assets, ticks);
 		EndMode2D();
 	EndTextureMode();
 
@@ -120,86 +115,67 @@ void Game::Draw(RenderTexture2D& canvas) const noexcept
 			);
 		EndBlendMode();
 
-		GameDrawSystem::DrawOverlay(*this, *this->TimerSystem, *this->ModifierSystem, *this->GlobalData, *this->Assets);
+		GameDrawSystem::DrawOverlay(*this, *this->TimerSystem, *this->ModifierSystem, *this->GlobalData, *this->Assets, ticks);
 	EndTextureMode();
 }
 
-void Game::Update() noexcept
+void Game::HandleInput() noexcept
 {
-	const size_t ticks = this->Ticks;
+	if (IsKeyPressed(KEY_ESCAPE))
+		this->MessageSystem->StateManagerCommands.emplace_back(std::in_place_type<struct SetState>, State::PauseMenu);
 	
+	if (IsKeyPressed(KEY_TAB) && (this->ModifierSystem->GetUnclaimedPowerups() > 0 || this->Settings->Get(SettingKey::UnlimitedPowerups)))
+		this->MessageSystem->StateManagerCommands.emplace_back(std::in_place_type<struct SetState>, State::PowerupMenu);
+
+	GameInputSystem::HandleTickedInput(*this, *this->MessageSystem, *this->ModifierSystem, *this->Settings);
+}
+
+void Game::Update(const size_t ticks) noexcept
+{
+	const size_t level = this->ModifierSystem->GetLevel();
+	const Rectangle update_area = this->UpdateArea;
+
+	const float map_width = this->Assets->Ground.width;
+	const float map_height = this->Assets->Ground.height;
+
+	//TODO: make this not suck
 	if (!(ticks % TICK_RATE))
 		this->GlobalData->CacheString("Duration: " + std::to_string(TICKS_TO_SECONDS(ticks)) + "s", CachedString::Duration);
-		
-	if (IsKeyPressed(KEY_ESCAPE))
-		this->GlobalData->ActiveState = State::PauseMenu;
+
+	this->TimerSystem->Update(*this->MessageSystem, ticks);
+	this->PollSignals();
+
+	this->Player->Update(
+			*this->MessageSystem, *this->ModifierSystem, *this->Settings,
+			map_width, map_height, ticks
+			);
+
+	this->UpdateCamera();
+	this->ModifierSystem->Update(*this->MessageSystem, *this->Settings);
 	
-	if (IsKeyPressed(KEY_TAB) && (this->GlobalData->UnclaimedPowerups > 0 || this->Settings->Get(SettingKey::UnlimitedPowerups)))
-		this->GlobalData->ActiveState = State::PowerupMenu;
+	this->StatSystem->Update(*this->MessageSystem);
+
+	this->XpSystem->Update(*this->MessageSystem, *this->Assets, update_area, ticks);
+
+	this->EnemySystem->Update(
+			*this->MessageSystem, *this->Assets, *this->ModifierSystem,
+			*this->TimerSystem, update_area, this->Player->Centre, ticks, level
+			);
+
+	this->ProjectileSystem->Update(*this->MessageSystem, *this->Assets, *this->ModifierSystem, update_area, ticks);
+	
+	this->CollisionSystem->Update(
+			*this->MessageSystem, *this->ModifierSystem, this->EnemySystem->GetEnemyRect(),
+			this->EnemySystem->GetEnemyHealth(), this->EnemySystem->GetEnemyAttackComponents(),
+			this->EnemySystem->GetEnemyType(), this->ProjectileSystem->GetProjectileRect(),
+			this->ProjectileSystem->GetProjectileType(), this->ProjectileSystem->GetProjectileDirection(),
+			this->XpSystem->GetXpRect(), *this->Player, ticks
+	);
+
+	this->ParticleSystem->Update(*this->MessageSystem, *this->Assets, update_area, ticks);
 }
 
-void Game::TickedUpdate() noexcept
-{
-	this->Accumulator += GetFrameTime();
 
-	if (this->Accumulator >= MAX_TICK_TIME)
-		this->Accumulator = MAX_TICK_TIME;
-
-	while (this->Accumulator >= TICK_TIME)
-	{
-		const size_t ticks = this->Ticks;
-		const size_t level = this->Level;
-		const Rectangle update_area = this->UpdateArea;
-
-		const float map_width = this->Assets->Ground.width;
-		const float map_height = this->Assets->Ground.height;
-/*
-		while (this->CollectedXp >= this->LevelUpThreshold)
-		{
-			const size_t distance = this->CollectedXp - this->LevelUpThreshold;
-
-			this->LevelUp();
-			this->CollectedXp = distance;
-		}
-*/		
-		this->TimerSystem->Update(*this->MessageSystem, ticks);
-		this->PollSignals();
-
-		GameInputSystem::HandleTickedInput(*this, *this->MessageSystem, *this->ModifierSystem, *this->Settings);
-
-		this->Player->Update(
-				*this->MessageSystem, *this->ModifierSystem, *this->Settings,
-				map_width, map_height, ticks
-				);
-
-		this->UpdateCamera();
-		this->ModifierSystem->Update(*this->MessageSystem);
-		
-		this->StatSystem->Update(*this->MessageSystem);
-
-		this->XpSystem->Update(*this->MessageSystem, *this->Assets, update_area, ticks);
-
-		this->EnemySystem->Update(
-				*this->MessageSystem, *this->Assets, *this->ModifierSystem,
-				*this->TimerSystem, update_area, this->Player->Centre, ticks, level
-				);
-
-		this->ProjectileSystem->Update(*this->MessageSystem, *this->Assets, *this->ModifierSystem, update_area, ticks);
-		
-		this->CollisionSystem->Update(
-				*this->MessageSystem, *this->ModifierSystem, this->EnemySystem->GetEnemyRect(),
-				this->EnemySystem->GetEnemyHealth(), this->EnemySystem->GetEnemyAttackComponents(),
-				this->EnemySystem->GetEnemyType(), this->ProjectileSystem->GetProjectileRect(),
-				this->ProjectileSystem->GetProjectileType(), this->ProjectileSystem->GetProjectileDirection(),
-				this->XpSystem->GetXpRect(), *this->Player, ticks
-		);
-
-		this->ParticleSystem->Update(*this->MessageSystem, *this->Assets, update_area, ticks);
-		
-		this->Accumulator -= TICK_TIME;
-		this->Ticks++;
-	} 
-}
 
 void Game::UpdateCamera() noexcept
 {
@@ -217,6 +193,7 @@ void Game::UpdateCamera() noexcept
 		this->Camera.offset.y -= shake_offset;
 	}
 
+	// TODO: this can easily be branchless
 	if (this->ModifierSystem->EffectStatus(Effect::Aussie))
 		this->Camera.rotation = 180.0f;
 	else
@@ -231,7 +208,7 @@ void Game::UpdateCamera() noexcept
 
 void Game::PollSignals() noexcept
 {
-	for (size_t i = 0, n = static_cast<size_t>(GameInputSignal::COUNT); i < n; i++)
+	for (size_t i = 0, n = static_cast<size_t>(GameSignal::COUNT); i < n; i++)
 	{
 		const uint16_t count = this->MessageSystem->GameSignals[i];
 
@@ -241,31 +218,3 @@ void Game::PollSignals() noexcept
 		this->MessageSystem->GameSignals[i] = 0;
 	}
 }
-/*
-void Game::LevelUp() noexcept
-{
-	if (!this->Settings->Get(SettingKey::UnlimitedPowerups))
-	{
-		this->GlobalData->UnclaimedPowerups++;
-
-		this->GlobalData->CacheString(
-				"Unclaimed Poweurps: " + std::to_string(this->GlobalData->UnclaimedPowerups),
-				CachedString::UnclaimedPowerups
-				);
-	}
-
-	this->Level++;
-	this->GlobalData->CacheString("Level: " + std::to_string(this->Level), CachedString::LevelText);
-
-	this->CollectedXp = 0;
-	this->LevelUpThreshold += 5;
-	
-	if (this->Settings->Get(SettingKey::PowerupMenuInterrupt))
-		this->GlobalData->ActiveState = State::PowerupMenu;
-
-	if (this->Level % 5 == 0 && !this->Settings->Get(SettingKey::DisableLevelDebuffs))
-		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::InsertLevelDebuff)]++;
-	else
-		this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveLevelDebuff)]++;
-}
-*/

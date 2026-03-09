@@ -44,9 +44,9 @@ class Game
 
 		~Game();
 
-		void Draw(RenderTexture2D& canvas) const noexcept;
-		void TickedUpdate() noexcept;
-		void Update() noexcept;
+		void Draw(const size_t ticks, const RenderTexture2D& canvas) const noexcept;
+		void HandleInput() noexcept;
+		void Update(const size_t ticks) noexcept;
 
 		void Reset() noexcept;
 
@@ -73,17 +73,9 @@ class Game
 
 		std::array<bool, static_cast<size_t>(Action::COUNT)> CanPerform;
 
-/*
-		size_t Ticks = 0;
- * TODO: move to modifierSystem
-		size_t Level = 1;
-		size_t CollectedXp = 0;
-		size_t LevelUpThreshold = 5;
-*/
 	private:
 		void PollSignals() noexcept;
 
-		//void LevelUp() noexcept;
 		void UpdateCamera() noexcept;
 
 		float Accumulator = 0.0f;

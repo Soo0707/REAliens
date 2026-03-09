@@ -210,15 +210,15 @@ void TimerSystem::BallCountdownHandler(MessageSystem& message_system) const noex
 
 void TimerSystem::LMBHandler(MessageSystem& message_system) const noexcept
 {
-	message_system.GameInputSignals[static_cast<size_t>(GameInputSignal::EnableLMB)]++;
+	message_system.GameSignals[static_cast<size_t>(GameSignal::EnableLMB)]++;
 }
 
 void TimerSystem::RMBHandler(MessageSystem& message_system) const noexcept
 {
-	message_system.GameInputSignals[static_cast<size_t>(GameInputSignal::EnableRMB)]++;
+	message_system.GameSignals[static_cast<size_t>(GameSignal::EnableRMB)]++;
 }
 
 void TimerSystem::SlideHandler(MessageSystem& message_system) const noexcept
 {
-	message_system.GameInputSignals[static_cast<size_t>(GameInputSignal::EnableSlide)]++;
+	message_system.GameSignals[static_cast<size_t>(GameSignal::EnableSlide)]++;
 }
