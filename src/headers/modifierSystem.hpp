@@ -66,6 +66,8 @@ class ModifierSystem
 		void InsertLevelDebuff() noexcept;
 		void RemoveLevelDebuff() noexcept;
 
+		void IncrementCollectedXp() noexcept;
+
 		std::array<float, static_cast<size_t>(Attribute::COUNT)> Attributes;
 
 		static constexpr std::array<void(ModifierSystem::*)() noexcept, static_cast<size_t>(ModifierSystemSignal::COUNT)> SignalHandlers =
@@ -94,7 +96,9 @@ class ModifierSystem
 			&RemoveDrunk,
 
 			&InsertLevelDebuff,
-			&RemoveLevelDebuff
+			&RemoveLevelDebuff,
+
+			&IncrementCollectedXp
 		};
 
 		static constexpr std::array<Effect, 5> DebuffList = { 

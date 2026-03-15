@@ -75,7 +75,7 @@ class EnemySystem
 		static constexpr uint8_t AnimationFrames = 2;
 
 		void CreateEnemy(const float x, const float y, const float level_scale, const EnemyType type) noexcept;
-		void KillEnemies(MessageSystem& message_system) noexcept;
+		void KillEnemies(MessageSystem& message_system, const bool has_magnetism) noexcept;
 
 		void VisibilityCheck(const Rectangle& update_area) noexcept;
 		void MoveEnemies(const float map_width, const float map_height) noexcept;

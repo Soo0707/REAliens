@@ -38,6 +38,7 @@ CollisionSystem::CollisionSystem(const float map_width, const float map_height) 
 void CollisionSystem::Reset()
 {
 	this->EnemyGrid.resize(this->GridSize, -1);
+	this->ItemGrid.resize(this->GridSize, -1);
 }
 
 //TODO: clean up this monstrosity
@@ -49,11 +50,11 @@ void CollisionSystem::Update(
 		const std::vector<Rectangle>& xp_rect, const Player& player, const size_t ticks
 		) noexcept
 {
-	const Rectangle player_rect = player.Rect;
 	const Vector2 player_centre = player.Centre;
 	const Vector2 player_direction = player.Direction;
 
 	this->UpdateEnemyGrid(enemy_rect);
+	this->UpdateItemGrid(xp_rect);
 
 	this->PollSignals(message_system, player_centre, modifier_system, ticks);
 
@@ -71,13 +72,8 @@ void CollisionSystem::Update(
 
 	if (!has_greenbull && !is_sliding)
 		this->LeAttack(enemy_attack_components, enemy_type, player_centre, message_system, modifier_system, ticks);
-/*
-	this->XpCollision(
-			player_rect, this->XpSystem->GetXpRect(),
-			&this->CollectedXp, *this->ModifierSystem,
-			*this->MessageSystem
-			);
-			*/
+	
+	this->ItemCollision(player_centre, message_system);
 }
 
 void CollisionSystem::PollSignals(
@@ -112,6 +108,23 @@ void CollisionSystem::UpdateEnemyGrid(const std::vector<Rectangle>& enemy_rect) 
 		
 		if (index < this->GridSize)
 			this->EnemyGrid[index] = i;
+	}
+}
+
+void CollisionSystem::UpdateItemGrid(const std::vector<Rectangle>& item_rect) noexcept
+{
+	for (size_t i = 0, n = this->GridSize; i < n; i++)
+		this->ItemGrid[i] = -1;
+
+	for (size_t i = 0, n = item_rect.size(); i < n; i++)
+	{
+		const float x = item_rect[i].x + item_rect[i].width / 2.0f;
+		const float y = item_rect[i].y + item_rect[i].height / 2.0f;
+
+		const size_t index = this->GetMortonCode(x, y);
+		
+		if (index < this->GridSize)
+			this->ItemGrid[index] = i;
 	}
 }
 
@@ -277,23 +290,17 @@ void CollisionSystem::Aura(
 	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_hit * static_cast<unsigned int>(aura_damage));
 }
 
-void CollisionSystem::XpCollision(
-		const Rectangle& player_rect, const std::vector<Rectangle>& xp_rect,
-		size_t* collected_xp, const ModifierSystem& modifier_system,
-		MessageSystem& message_system
-		) const noexcept
+void CollisionSystem::ItemCollision(const Vector2& player_centre, MessageSystem& message_system) const noexcept
 {
-	const bool has_magnetism = modifier_system.EffectStatus(Effect::Magnetism);
+	const size_t index = this->GetMortonCode(player_centre.x, player_centre.y);
 
-	for (size_t i = 0, n = xp_rect.size(); i < n; i++)
+	if (index < this->GridSize && this->ItemGrid[index] != -1)
 	{
-		if (CheckCollisionRecs(player_rect, xp_rect[i]) || has_magnetism)
-		{
+		const size_t item_index = this->ItemGrid[index];
 
-			// TODO: send command/signal instead of *collected_xp += 1;
+		message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::IncrementCollectedXp)]++;
 
-			message_system.XpSystemCommands.emplace_back(std::in_place_type<struct KillXp>, i);
-		}
+		message_system.XpSystemCommands.emplace_back(std::in_place_type<struct KillXp>, item_index);
 	}
 }
 

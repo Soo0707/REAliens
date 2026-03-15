@@ -328,3 +328,8 @@ void ModifierSystem::RemoveLevelDebuff() noexcept
 	for (auto const effect : this->DebuffList)
 		this->RemoveEffect(effect);
 }
+
+void ModifierSystem::IncrementCollectedXp() noexcept
+{
+	this->CollectedXp++;
+}

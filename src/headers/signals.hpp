@@ -51,6 +51,8 @@ enum class ModifierSystemSignal : uint8_t
 	InsertLevelDebuff,
 	RemoveLevelDebuff,
 
+	IncrementCollectedXp,
+
 	COUNT
 };
 

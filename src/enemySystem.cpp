@@ -112,7 +112,9 @@ void EnemySystem::Update(
 	this->AnimateEnemies(ticks);
 	this->EnemiesUpdateTimers(ticks);
 
-	this->KillEnemies(message_system);
+	const bool has_magnetism = modifier_system.EffectStatus(Effect::Magnetism);
+
+	this->KillEnemies(message_system, has_magnetism);
 }
 
 void EnemySystem::Draw(const AssetManager& assets) const noexcept
@@ -251,7 +253,7 @@ void EnemySystem::CreateEnemy(const float x, const float y, const float level_sc
 	this->EnemyTypes.emplace_back(type);
 }
 
-void EnemySystem::KillEnemies(MessageSystem& message_system) noexcept
+void EnemySystem::KillEnemies(MessageSystem& message_system, const bool has_magnetism) noexcept
 {
 	uint32_t killed = 0;
 
@@ -282,7 +284,11 @@ void EnemySystem::KillEnemies(MessageSystem& message_system) noexcept
 			this->EnemyAnimationComponents.pop_back();
 			this->EnemyTypes.pop_back();
 
-			message_system.XpSystemCommands.emplace_back(std::in_place_type<struct CreateXp>, x, y);
+			if (has_magnetism)
+				message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::IncrementCollectedXp)]++;
+			else
+				message_system.XpSystemCommands.emplace_back(std::in_place_type<struct CreateXp>, x, y);
+
 			killed++;
 		}
 		else

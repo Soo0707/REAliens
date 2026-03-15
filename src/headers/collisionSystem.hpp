@@ -52,13 +52,10 @@ class CollisionSystem
 				const size_t ticks
 				) const noexcept;
 
-		void XpCollision(
-				const Rectangle& player_rect, const std::vector<Rectangle>& xp_rect,
-				size_t* collected_xp, const ModifierSystem& modifier_system,
-				MessageSystem& message_system
-				) const noexcept;
+		void ItemCollision(const Vector2& player_centre, MessageSystem& message_system) const noexcept;
 
 		void UpdateEnemyGrid(const std::vector<Rectangle>& enemy_rect) noexcept;
+		void UpdateItemGrid(const std::vector<Rectangle>& item_rect) noexcept;
 
 	private:
 		size_t GetMortonCode(const float x, const float y) const noexcept;
@@ -92,6 +89,7 @@ class CollisionSystem
 		};
 
 		std::vector<int16_t> EnemyGrid;
+		std::vector<int16_t> ItemGrid;
 		const size_t GridSize;
 };
 
