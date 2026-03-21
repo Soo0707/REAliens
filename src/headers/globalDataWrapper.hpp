@@ -21,12 +21,9 @@ enum class CachedString : uint8_t
 {
 	LevelText,
 	UnclaimedPowerups,
-
 	Duration,
 	DamagePerSecond,
-
 	AverageSpeed,
-
 	EnemiesKilled,
 	COUNT
 };

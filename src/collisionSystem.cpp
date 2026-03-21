@@ -201,8 +201,6 @@ void CollisionSystem::LeAttack(
 		) const noexcept
 {
 	const bool has_milk = modifier_system.EffectStatus(Effect::Milk);
-	float total_damage = 0.0f;
-
 	const size_t index = this->GetMortonCode(player_centre.x, player_centre.y);
 
 	if (index < this->GridSize && this->EnemyGrid[index] >= 0)
@@ -211,8 +209,8 @@ void CollisionSystem::LeAttack(
 
 		if (enemy_attack_components[enemy_index].CanLeAttack)
 		{
-			total_damage += enemy_attack_components[enemy_index].Damage;
-			
+			const float damage = enemy_attack_components[enemy_index].Damage;
+
 			if (!has_milk)
 			{
 				auto le_attack_hook = CollisionSystem::LeAttackHooks[static_cast<size_t>(enemy_type[enemy_index])];
@@ -220,10 +218,10 @@ void CollisionSystem::LeAttack(
 			}
 
 			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct EnemyLeAttacked>, enemy_index, ticks);
+			message_system.PlayerCommands.emplace_back(std::in_place_type<struct DamagePlayer>, damage);
+			message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, damage);
 		}
 	}
-
-	message_system.PlayerCommands.emplace_back(std::in_place_type<struct DamagePlayer>, total_damage);
 }
 
 void CollisionSystem::SlideAttack(

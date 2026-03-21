@@ -201,11 +201,7 @@ void Game::UpdateCamera() noexcept
 		this->Camera.offset.y -= shake_offset;
 	}
 
-	// TODO: this can easily be branchless
-	if (this->ModifierSystem->EffectStatus(Effect::Aussie))
-		this->Camera.rotation = 180.0f;
-	else
-		this->Camera.rotation = 0.0f;
+	this->Camera.rotation = this->ModifierSystem->EffectStatus(Effect::Aussie) * 180.0f;
 
 	if (this->ModifierSystem->EffectStatus(Effect::Microscope))
 		this->Camera.zoom = 2.0f;

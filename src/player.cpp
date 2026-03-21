@@ -37,10 +37,12 @@ void Player::Update(
 	this->PollSignals(message_system, modifier_system);
 	this->ExecuteCommands(message_system, modifier_system);
 
-	if (this->Health <= 0 && settings.Get(SettingKey::DisableHealthCheck))
+	if (this->Health <= 0.0f && !settings.Get(SettingKey::DisableHealthCheck))
 	{
-		//TODO: EMIT SIGNAL TO GAME STATE
-		//this->GlobalData->ActiveState = State::GenerateGameOverStats;
+		message_system.StateManagerCommands.emplace_back(
+				std::in_place_type<struct SetState>,
+				State::GenerateGameOverStats
+				);	
 	}
 
 	this->SetBearing();
