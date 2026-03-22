@@ -19,10 +19,12 @@
 #include "commands.hpp"
 #include "messageSystem.hpp"
 #include "modifierSystem.hpp"
+#include "player.hpp"
+#include "cameraSystem.hpp"
 
 void GameInputSystem::HandleTickedInput(
-		Game& game, MessageSystem& message_system, const ModifierSystem& modifier_system,
-		const SettingsManager& settings
+		Game& game, MessageSystem& message_system, const CameraSystem& camera_system, const Player& player,
+		const ModifierSystem& modifier_system, const SettingsManager& settings
 		) noexcept
 {
 	if (IsKeyDown(KEY_SPACE))
@@ -50,8 +52,8 @@ void GameInputSystem::HandleTickedInput(
 
 	const bool auto_click = settings.Get(SettingKey::AutoClick);
 
-	const Vector2 player_centre = game.Player->Centre;
-	const Camera2D camera = game.Camera;
+	const Vector2 player_centre = player.Centre;
+	const Camera2D camera = camera_system.GetCamera();
 
 	if ((IsMouseButtonDown(MOUSE_BUTTON_LEFT) || auto_click) && game.CanPerform[static_cast<size_t>(Action::LMB)])
 	{

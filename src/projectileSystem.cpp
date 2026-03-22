@@ -32,6 +32,7 @@ ProjectileSystem::ProjectileSystem()
 	this->ProjectileSpeed.reserve(128);
 	this->ProjectileRotation.reserve(128);
 	this->ProjectileScale.reserve(128);
+	this->ProjectileHitCount.reserve(128);
 	this->ProjectileRect.reserve(128);
 	this->ProjectileDirection.reserve(128);
 	this->ProjectileColour.reserve(128);
@@ -45,6 +46,7 @@ void ProjectileSystem::Reset() noexcept
 	this->ProjectileKill.clear();
 	this->ProjectileSpeed.clear();
 	this->ProjectileRotation.clear();
+	this->ProjectileHitCount.clear();
 	this->ProjectileScale.clear();
 	this->ProjectileRect.clear();
 	this->ProjectileDirection.clear();

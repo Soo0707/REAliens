@@ -29,6 +29,7 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  src/settingsManager.cpp\
  src/stateManager.cpp\
  src/systemsResetState.cpp\
+ src/cameraSystem.cpp\
  -o /mnt/tmpfs/out.exe\
  -std=c++20\
  -Iinclude/\

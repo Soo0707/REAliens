@@ -28,6 +28,7 @@
 #include "statSystem.hpp"
 #include "xpSystem.hpp"
 #include "collisionSystem.hpp"
+#include "cameraSystem.hpp"
 
 enum class Action : uint8_t
 {
@@ -48,7 +49,7 @@ class Game
 			std::shared_ptr<class ParticleSystem> particle_system, std::shared_ptr<class ProjectileSystem> projectile_system,
 			std::shared_ptr<class EnemySystem> enemy_system, std::shared_ptr<class StatSystem> stat_system,
 			std::shared_ptr<class XpSystem> xp_system, std::shared_ptr<class CollisionSystem> collision_system,
-			std::shared_ptr<class Player> player
+			std::shared_ptr<class CameraSystem> camera_system, std::shared_ptr<class Player> player
 			);
 
 		~Game();
@@ -75,17 +76,16 @@ class Game
 		const std::shared_ptr<class StatSystem> StatSystem;
 		const std::shared_ptr<class XpSystem> XpSystem;
 		const std::shared_ptr<class CollisionSystem> CollisionSystem;
+		const std::shared_ptr<class CameraSystem> CameraSystem;
 		const std::shared_ptr<class Player> Player;
-
+/*
 		Camera2D Camera;
 		Rectangle UpdateArea;
-
+*/
 		std::array<bool, static_cast<size_t>(Action::COUNT)> CanPerform;
 
 	private:
 		void PollSignals() noexcept;
 
-		void UpdateCamera() noexcept;
-
-		float Accumulator = 0.0f;
+		//void UpdateCamera() noexcept;
 };

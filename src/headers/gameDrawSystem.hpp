@@ -15,10 +15,15 @@
 #include "stringCache.hpp"
 #include "modifierSystem.hpp"
 #include "timerSystem.hpp"
+#include "cameraSystem.hpp"
 
 namespace GameDrawSystem
 {
-	void DrawGame(const Game& game, const ModifierSystem& modifier_system, const AssetManager& assets, const size_t ticks) noexcept;
+	void DrawGame(
+			const Game& game, const CameraSystem& camera_system, const ModifierSystem& modifier_system,
+			const AssetManager& assets, const size_t ticks
+			) noexcept;
+
 	void DrawLighting(const Game& game, const ModifierSystem& modifier_system) noexcept;
 	void DrawOverlay(
 			const Game& game, const TimerSystem& timer_system, const ModifierSystem& modifier_system,

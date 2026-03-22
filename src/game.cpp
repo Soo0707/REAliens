@@ -31,8 +31,8 @@
 #include "enemySystem.hpp"
 #include "statSystem.hpp"
 #include "xpSystem.hpp"
+#include "cameraSystem.hpp"
 
-//TODO: separate camera into its own system
 Game::Game(
 		std::shared_ptr<struct StringCache> string_cache, std::shared_ptr<class AssetManager> assets,
 		std::shared_ptr<class SettingsManager> settings, std::shared_ptr<struct MessageSystem> message_system,
@@ -40,7 +40,7 @@ Game::Game(
 		std::shared_ptr<class ParticleSystem> particle_system, std::shared_ptr<class ProjectileSystem> projectile_system,
 		std::shared_ptr<class EnemySystem> enemy_system, std::shared_ptr<class StatSystem> stat_system,
 		std::shared_ptr<class XpSystem> xp_system, std::shared_ptr<class CollisionSystem> collision_system,
-		std::shared_ptr<class Player> player
+		std::shared_ptr<class CameraSystem> camera_system, std::shared_ptr<class Player> player
 		) :
 	StringCache(string_cache),
 	Assets(assets),
@@ -54,20 +54,9 @@ Game::Game(
 	StatSystem(stat_system),
 	XpSystem(xp_system),
 	CollisionSystem(collision_system),
+	CameraSystem(camera_system),
 	Player(player)
 {
-	this->Camera = { 0 };
-	this->Camera.offset = { REFERENCE_WIDTH / 2.0f, REFERENCE_HEIGHT / 2.0f };
-	this->Camera.rotation = 0.0f;
-    this->Camera.zoom = 1.0f;
-
-	this->UpdateArea = {
-		this->Player->Centre.x - (REFERENCE_WIDTH / 2.0f),
-		this->Player->Centre.y - (REFERENCE_HEIGHT / 2.0f),
-		static_cast<float>(REFERENCE_WIDTH),
-		static_cast<float>(REFERENCE_HEIGHT)
-	};
-
 	this->LightingLayer = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
 	this->GameLayer = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
 }
@@ -85,13 +74,13 @@ void Game::Reset() noexcept
 
 void Game::Draw(const size_t ticks, const RenderTexture2D& canvas) const noexcept
 {
-	const Camera2D camera = this->Camera;
+	const Camera2D camera = this->CameraSystem->GetCamera();
 
 	BeginTextureMode(this->GameLayer);
 		ClearBackground(BLACK);
 
 		BeginMode2D(camera);
-			GameDrawSystem::DrawGame(*this, *this->ModifierSystem, *this->Assets, ticks);
+			GameDrawSystem::DrawGame(*this, *this->CameraSystem, *this->ModifierSystem, *this->Assets, ticks);
 		EndMode2D();
 	EndTextureMode();
 
@@ -134,13 +123,16 @@ void Game::HandleInput() noexcept
 	if (IsKeyPressed(KEY_TAB) && (this->ModifierSystem->GetUnclaimedPowerups() > 0 || this->Settings->Get(SettingKey::UnlimitedPowerups)))
 		this->MessageSystem->StateManagerCommands.emplace_back(std::in_place_type<struct SetState>, State::PowerupMenu);
 
-	GameInputSystem::HandleTickedInput(*this, *this->MessageSystem, *this->ModifierSystem, *this->Settings);
+	GameInputSystem::HandleTickedInput(
+			*this, *this->MessageSystem, *this->CameraSystem, *this->Player,
+			*this->ModifierSystem, *this->Settings
+			);
 }
 
 void Game::Update(const size_t ticks) noexcept
 {
 	const size_t level = this->ModifierSystem->GetLevel();
-	const Rectangle update_area = this->UpdateArea;
+	const Rectangle update_area = this->CameraSystem->GetUpdateArea();
 
 	const float map_width = this->Assets->Ground.width;
 	const float map_height = this->Assets->Ground.height;
@@ -157,7 +149,7 @@ void Game::Update(const size_t ticks) noexcept
 			map_width, map_height, ticks
 			);
 
-	this->UpdateCamera();
+	this->CameraSystem->Update(this->Player->Centre, *this->ModifierSystem);
 	this->ModifierSystem->Update(*this->MessageSystem, *this->StringCache, *this->Settings);
 	
 	this->StatSystem->Update(*this->MessageSystem);
@@ -181,33 +173,6 @@ void Game::Update(const size_t ticks) noexcept
 
 	this->ParticleSystem->Update(*this->MessageSystem, *this->Assets, update_area, ticks);
 }
-
-
-
-void Game::UpdateCamera() noexcept
-{
-	this->UpdateArea.x = this->Player->Centre.x - REFERENCE_WIDTH / 2.0f;
-	this->UpdateArea.y =  this->Player->Centre.y - REFERENCE_HEIGHT / 2.0f;
-	
-	this->Camera.target = this->Player->Centre;
-	this->Camera.offset = { REFERENCE_WIDTH / 2.0f, REFERENCE_HEIGHT / 2.0f };
-
-	if (this->ModifierSystem->EffectStatus(Effect::Earthquake))
-	{
-		const float shake_offset = static_cast<float>(GetRandomValue(-6, 6));
-
-		this->Camera.offset.x += shake_offset;
-		this->Camera.offset.y -= shake_offset;
-	}
-
-	this->Camera.rotation = this->ModifierSystem->EffectStatus(Effect::Aussie) * 180.0f;
-
-	if (this->ModifierSystem->EffectStatus(Effect::Microscope))
-		this->Camera.zoom = 2.0f;
-	else
-		this->Camera.zoom = 1.0f;
-}
-
 
 void Game::PollSignals() noexcept
 {

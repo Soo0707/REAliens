@@ -22,12 +22,16 @@
 #include "modifierSystem.hpp"
 #include "timers.hpp"
 #include "timerSystem.hpp"
+#include "cameraSystem.hpp"
 
-void GameDrawSystem::DrawGame(const Game& game, const ModifierSystem& modifier_system, const AssetManager& assets, const size_t ticks) noexcept
+void GameDrawSystem::DrawGame(
+		const Game& game, const CameraSystem& camera_system, const ModifierSystem& modifier_system,
+		const AssetManager& assets, const size_t ticks
+		) noexcept
 {
 	const float ground_width = assets.Ground.width;
 	const float ground_height = assets.Ground.height;
-	const Rectangle update_area = game.UpdateArea;
+	const Rectangle update_area = camera_system.GetUpdateArea();
 
 	Rectangle viewport = update_area;
 
