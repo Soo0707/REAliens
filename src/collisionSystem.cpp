@@ -230,8 +230,6 @@ void CollisionSystem::SlideAttack(
 		const size_t ticks
 		) const noexcept
 {
-	unsigned int total_damage_done = 0.0f;
-
 	const size_t index = this->GetMortonCode(player_centre.x, player_centre.y);
 
 	if (index < this->GridSize && this->EnemyGrid[index] >= 0)
@@ -247,10 +245,8 @@ void CollisionSystem::SlideAttack(
 				15, 25, 60, TICK_RATE / 2, 512, ORANGE, RED
 				);
 
-		total_damage_done += static_cast<unsigned int>(damage_done);
+		message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, static_cast<unsigned int>(damage_done));
 	}
-
-	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_damage_done);
 }
 
 void CollisionSystem::Aura(

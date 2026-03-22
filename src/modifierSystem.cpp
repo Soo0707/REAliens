@@ -145,9 +145,9 @@ void ModifierSystem::LevelUp(MessageSystem& message_system, StringCache& string_
 		message_system.StateManagerCommands.emplace_back(std::in_place_type<SetState>, State::PowerupMenu);
 
 	if (this->Level % 5 == 0 && !settings.Get(SettingKey::DisableLevelDebuffs))
-		message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::InsertLevelDebuff)]++;
+		this->InsertLevelDebuff();
 	else
-		message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveLevelDebuff)]++;
+		this->RemoveLevelDebuff();
 }
 
 

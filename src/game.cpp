@@ -120,7 +120,7 @@ void Game::HandleInput() noexcept
 	if (IsKeyPressed(KEY_ESCAPE))
 		this->MessageSystem->StateManagerCommands.emplace_back(std::in_place_type<struct SetState>, State::PauseMenu);
 	
-	if (IsKeyPressed(KEY_TAB) && (this->ModifierSystem->GetUnclaimedPowerups() > 0 || this->Settings->Get(SettingKey::UnlimitedPowerups)))
+	if (IsKeyPressed(KEY_TAB) && (this->ModifierSystem->GetUnclaimedPowerups() || this->Settings->Get(SettingKey::UnlimitedPowerups)))
 		this->MessageSystem->StateManagerCommands.emplace_back(std::in_place_type<struct SetState>, State::PowerupMenu);
 
 	GameInputSystem::HandleTickedInput(
@@ -137,12 +137,8 @@ void Game::Update(const size_t ticks) noexcept
 	const float map_width = this->Assets->Ground.width;
 	const float map_height = this->Assets->Ground.height;
 
-	//TODO: make this not suck
-	if (!(ticks % TICK_RATE))
-		this->StringCache->CacheString("Duration: " + std::to_string(TICKS_TO_SECONDS(ticks)) + "s", GameString::Duration);
-
 	this->TimerSystem->Update(*this->MessageSystem, ticks);
-	this->PollSignals();
+	this->PollSignals(ticks);
 
 	this->Player->Update(
 			*this->MessageSystem, *this->ModifierSystem, *this->Settings,
@@ -174,15 +170,38 @@ void Game::Update(const size_t ticks) noexcept
 	this->ParticleSystem->Update(*this->MessageSystem, *this->Assets, update_area, ticks);
 }
 
-void Game::PollSignals() noexcept
+void Game::PollSignals(const size_t ticks) noexcept
 {
 	for (size_t i = 0, n = static_cast<size_t>(GameSignal::COUNT); i < n; i++)
 	{
 		const uint16_t count = this->MessageSystem->GameSignals[i];
 
 		if (count)
-			this->CanPerform[i] = true;
+		{
+			auto handler = this->SignalHandlers[i];
+			(this->*handler)(ticks);
+		}
 
 		this->MessageSystem->GameSignals[i] = 0;
 	}
+}
+
+void Game::EnableLMB(const size_t ticks) noexcept
+{
+	this->CanPerform[static_cast<size_t>(Action::LMB)] = true;
+}
+
+void Game::EnableRMB(const size_t ticks) noexcept
+{
+	this->CanPerform[static_cast<size_t>(Action::RMB)] = true;
+}
+
+void Game::EnableSlide(const size_t ticks) noexcept
+{
+	this->CanPerform[static_cast<size_t>(Action::Slide)] = true;
+}
+
+void Game::UpdateDuration(const size_t ticks) noexcept
+{
+	this->StringCache->CacheString("Duration: " + std::to_string(TICKS_TO_SECONDS(ticks)) + "s", GameString::Duration);
 }

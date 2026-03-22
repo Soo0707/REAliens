@@ -10,7 +10,7 @@
 
 #include <memory>
 #include <cstdint>
-#include <vector>
+#include <array>
 
 #include "raylib.h"
 
@@ -29,13 +29,13 @@
 #include "xpSystem.hpp"
 #include "collisionSystem.hpp"
 #include "cameraSystem.hpp"
+#include "signals.hpp"
 
 enum class Action : uint8_t
 {
 	LMB,
 	RMB,
 	Slide,
-
 	COUNT
 };
 
@@ -78,14 +78,21 @@ class Game
 		const std::shared_ptr<class CollisionSystem> CollisionSystem;
 		const std::shared_ptr<class CameraSystem> CameraSystem;
 		const std::shared_ptr<class Player> Player;
-/*
-		Camera2D Camera;
-		Rectangle UpdateArea;
-*/
+		
 		std::array<bool, static_cast<size_t>(Action::COUNT)> CanPerform;
 
 	private:
-		void PollSignals() noexcept;
+		void EnableLMB(const size_t ticks) noexcept;
+		void EnableRMB(const size_t ticks) noexcept;
+		void EnableSlide(const size_t ticks) noexcept;
+		void UpdateDuration(const size_t ticks) noexcept;
 
-		//void UpdateCamera() noexcept;
+		std::array<void(Game::*)(const size_t ticks) noexcept, static_cast<size_t>(GameSignal::COUNT)> SignalHandlers = {
+			&EnableLMB,
+			&EnableRMB,
+			&EnableSlide,
+			&UpdateDuration
+		};
+		
+		void PollSignals(const size_t ticks) noexcept;
 };

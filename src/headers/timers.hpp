@@ -32,6 +32,7 @@ enum class Timer : uint8_t
 	LMB,
 	RMB,
 	Slide,
+	UpdateDuration,
 
 	COUNT
 };

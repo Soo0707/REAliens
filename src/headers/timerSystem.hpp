@@ -56,6 +56,7 @@ class TimerSystem
 		void LMBHandler(MessageSystem& message_system) const noexcept;
 		void RMBHandler(MessageSystem& message_system) const noexcept;
 		void SlideHandler(MessageSystem& message_system) const noexcept;
+		void UpdateDurationHandler(MessageSystem& message_system) const noexcept;
 
 		void RegisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
 		void EnableTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
@@ -88,6 +89,7 @@ class TimerSystem
 			&BallCountdownHandler,
 			&LMBHandler,
 			&RMBHandler,
-			&SlideHandler
+			&SlideHandler,
+			&UpdateDurationHandler
 		};
 };

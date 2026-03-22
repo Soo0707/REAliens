@@ -87,9 +87,7 @@ void TimerSystem::Reset() noexcept
 	this->TimerInterval[static_cast<size_t>(Timer::AuraTick)] = static_cast<uint32_t>(SECONDS_TO_TICKS(2));
 	this->TimerInterval[static_cast<size_t>(Timer::BallCountdown)] = static_cast<uint32_t>(SECONDS_TO_TICKS(30));
 
-
 	this->TimerInterval[static_cast<size_t>(Timer::LMB)] = static_cast<uint32_t>(150);
-	//this->TimerInterval[static_cast<size_t>(Timer::LMB)] = static_cast<uint32_t>(25);
 	this->TimerActive[static_cast<size_t>(Timer::LMB)] = true;
 
 	this->TimerInterval[static_cast<size_t>(Timer::RMB)] = static_cast<uint32_t>(450);
@@ -97,6 +95,10 @@ void TimerSystem::Reset() noexcept
 
 	this->TimerInterval[static_cast<size_t>(Timer::Slide)] = static_cast<uint32_t>(TICK_RATE);
 	this->TimerActive[static_cast<size_t>(Timer::Slide)] = true;
+
+	this->TimerInterval[static_cast<size_t>(Timer::UpdateDuration)] = static_cast<uint32_t>(TICK_RATE);
+	this->TimerActive[static_cast<size_t>(Timer::UpdateDuration)] = true;
+	this->TimerRecurring[static_cast<size_t>(Timer::UpdateDuration)] = true;
 }
 
 void TimerSystem::RegisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept
@@ -113,7 +115,6 @@ void TimerSystem::RegisterTimer(const TimerSystemCommand& command, const size_t 
 
 void TimerSystem::EnableTimer(const TimerSystemCommand& command, const size_t ticks) noexcept
 {
-	/*TODO: Implement a separate trigger now command then switch aura and ball to that*/
 	const struct EnableTimer& data = std::get<struct EnableTimer>(command);
 	const size_t index = static_cast<size_t>(data.Type);
 
@@ -229,4 +230,9 @@ void TimerSystem::RMBHandler(MessageSystem& message_system) const noexcept
 void TimerSystem::SlideHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.GameSignals[static_cast<size_t>(GameSignal::EnableSlide)]++;
+}
+
+void TimerSystem::UpdateDurationHandler(MessageSystem& message_system) const noexcept
+{
+	message_system.GameSignals[static_cast<size_t>(GameSignal::UpdateDuration)]++;
 }

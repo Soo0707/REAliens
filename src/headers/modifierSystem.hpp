@@ -104,9 +104,6 @@ class ModifierSystem
 			&RemoveTrapped,
 			&RemoveDrunk,
 
-			&InsertLevelDebuff,
-			&RemoveLevelDebuff,
-
 			&IncrementCollectedXp
 		};
 

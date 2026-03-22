@@ -122,7 +122,7 @@ void GameDrawSystem::DrawOverlay(
 		DrawText("[Space] to untrap.", 533, 620, 24, WHITE);
 
 	DrawText(string_cache.Data[static_cast<size_t>(GameString::Duration)].c_str(), 20, 20, 24, LIGHTGRAY);
-	DrawText(string_cache.Data[static_cast<size_t>(GameString::LevelText)].c_str(), 20, 50, 24, LIGHTGRAY);
+	DrawText(string_cache.Data[static_cast<size_t>(GameString::LevelText)].c_str(), 20, 50, 24, (modifier_system.GetLevel() % 5) ? LIGHTGRAY : GOLD);
 
 	DrawText("[TAB]", 1206, 620, 20, (modifier_system.GetUnclaimedPowerups()) ? GOLD : GRAY);
 

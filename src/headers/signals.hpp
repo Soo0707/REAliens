@@ -56,9 +56,6 @@ enum class ModifierSystemSignal : uint8_t
 	RemoveTrapped,
 	RemoveDrunk,
 
-	InsertLevelDebuff,
-	RemoveLevelDebuff,
-
 	IncrementCollectedXp,
 
 	COUNT
@@ -75,6 +72,6 @@ enum class GameSignal : uint8_t
 	EnableLMB,
 	EnableRMB,
 	EnableSlide,
-	PlayerDied,
+	UpdateDuration,
 	COUNT
 };
