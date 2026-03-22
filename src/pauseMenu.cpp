@@ -13,16 +13,14 @@
 
 #include "raylib.h"
 
-#include "globalDataWrapper.hpp"
 #include "assetManager.hpp"
 #include "messageSystem.hpp"
 #include "states.hpp"
 
 PauseMenu::PauseMenu(
-		std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets,
+		std::shared_ptr<class AssetManager> assets, 
 		std::shared_ptr<struct MessageSystem> message_system
 		) :
-	GlobalData(global_data),
 	Assets(assets),
 	MessageSystem(message_system)
 {}

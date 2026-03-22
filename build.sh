@@ -25,7 +25,7 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  src/gameDrawSystem.cpp\
  src/gameInputSystem.cpp\
  src/mainMenu.cpp\
- src/globalDataWrapper.cpp\
+ src/stringCache.cpp\
  src/settingsManager.cpp\
  src/stateManager.cpp\
  src/systemsResetState.cpp\

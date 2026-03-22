@@ -16,7 +16,7 @@
 
 #include "assetManager.hpp"
 #include "settingsManager.hpp"
-#include "globalDataWrapper.hpp"
+#include "stringCache.hpp"
 
 #include "player.hpp"
 #include "messageSystem.hpp"
@@ -42,12 +42,13 @@ class Game
 {
 	public:
 		Game(
-			std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets,
-			std::shared_ptr<SettingsManager> settings, std::shared_ptr<struct MessageSystem> message_system,
+			std::shared_ptr<struct StringCache> string_cache, std::shared_ptr<class AssetManager> assets,
+			std::shared_ptr<class SettingsManager> settings, std::shared_ptr<struct MessageSystem> message_system,
 			std::shared_ptr<class TimerSystem> timer_system, std::shared_ptr<class ModifierSystem> modifier_system,
 			std::shared_ptr<class ParticleSystem> particle_system, std::shared_ptr<class ProjectileSystem> projectile_system,
 			std::shared_ptr<class EnemySystem> enemy_system, std::shared_ptr<class StatSystem> stat_system,
-			std::shared_ptr<class XpSystem> xp_system, std::shared_ptr<class CollisionSystem> collision_system
+			std::shared_ptr<class XpSystem> xp_system, std::shared_ptr<class CollisionSystem> collision_system,
+			std::shared_ptr<class Player> player
 			);
 
 		~Game();
@@ -61,9 +62,9 @@ class Game
 		RenderTexture2D LightingLayer;
 		RenderTexture2D GameLayer;
 
-		const std::shared_ptr<GlobalDataWrapper> GlobalData;
-		const std::shared_ptr<AssetManager> Assets;
-		const std::shared_ptr<SettingsManager> Settings;
+		const std::shared_ptr<struct StringCache> StringCache;
+		const std::shared_ptr<class AssetManager> Assets;
+		const std::shared_ptr<class SettingsManager> Settings;
 
 		const std::shared_ptr<struct MessageSystem> MessageSystem;
 		const std::shared_ptr<class TimerSystem> TimerSystem;
@@ -74,7 +75,7 @@ class Game
 		const std::shared_ptr<class StatSystem> StatSystem;
 		const std::shared_ptr<class XpSystem> XpSystem;
 		const std::shared_ptr<class CollisionSystem> CollisionSystem;
-		const std::unique_ptr<class Player> Player;
+		const std::shared_ptr<class Player> Player;
 
 		Camera2D Camera;
 		Rectangle UpdateArea;

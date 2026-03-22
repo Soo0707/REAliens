@@ -16,7 +16,7 @@
 
 #include "constants.hpp"
 
-#include "globalDataWrapper.hpp"
+#include "stringCache.hpp"
 #include "settingsManager.hpp"
 #include "assetManager.hpp"
 
@@ -27,11 +27,11 @@
 #include "timerSystem.hpp"
 
 PowerupMenu::PowerupMenu(
-		std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets, 
-		std::shared_ptr<SettingsManager> settings, std::shared_ptr<struct MessageSystem> message_system,
+		std::shared_ptr<struct StringCache> string_cache, std::shared_ptr<class AssetManager> assets, 
+		std::shared_ptr<class SettingsManager> settings, std::shared_ptr<struct MessageSystem> message_system,
 		std::shared_ptr<class ModifierSystem> modifier_system, std::shared_ptr<class TimerSystem> timer_system
 		):
-	GlobalData(global_data),
+	StringCache(string_cache),
 	Settings(settings),
 	Assets(assets),
 	MessageSystem(message_system),
@@ -69,7 +69,7 @@ void PowerupMenu::Draw(const RenderTexture2D& canvas) const noexcept
 
 		DrawText("[TAB] Toggle Powerup Menu, [Enter] LET'S GO GAMBLING!!!", 326, 580, 21, LIGHTGRAY);
 
-		DrawText(this->GlobalData->StringCache[static_cast<size_t>(CachedString::UnclaimedPowerups)].c_str(), 50, 670, 21, LIGHTGRAY);
+		DrawText(this->StringCache->Data[static_cast<size_t>(GameString::UnclaimedPowerups)].c_str(), 50, 670, 21, LIGHTGRAY);
 	EndTextureMode();
 }
 
@@ -92,7 +92,7 @@ void PowerupMenu::GenerateList() noexcept
 	
 	for (auto const &powerup : powerup_set)
 	{
-		int i = this->SelectionList.size();
+		const int i = this->SelectionList.size();
 
 		this->SelectionList.emplace_back(
 				powerup,
@@ -117,10 +117,8 @@ void PowerupMenu::HandleInput() noexcept
 		this->MessageSystem->StateManagerCommands.emplace_back(std::in_place_type<struct SetState>, State::Game);
 	}
 
-	if (IsKeyPressed(KEY_ENTER) && this->Gamble == false)
-		this->Gamble = true;
-	else if (IsKeyPressed(KEY_ENTER) && this->Gamble == true)
-		this->Gamble = false;
+	if (IsKeyPressed(KEY_ENTER))
+		this->Gamble = !this->Gamble;
 }
 
 void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
@@ -133,11 +131,12 @@ void PowerupMenu::ApplyPowerup(Powerup powerup) noexcept
 
 	if (!this->Settings->Get(SettingKey::UnlimitedPowerups))
 	{
+		const size_t unclaimed_powerups = this->ModifierSystem->GetUnclaimedPowerups();
 		this->ModifierSystem->DecrementUnclaimedPowerups();
 
-		this->GlobalData->CacheString(
-				"Unclaimed Powerups: " + std::to_string(this->ModifierSystem->GetUnclaimedPowerups()),
-				CachedString::UnclaimedPowerups
+		this->StringCache->CacheString(
+				"Unclaimed Powerups: " + std::to_string(unclaimed_powerups - 1),
+				GameString::UnclaimedPowerups
 				);
 	}
 

@@ -12,7 +12,7 @@
 
 #include "raylib.h"
 
-#include "globalDataWrapper.hpp"
+#include "stringCache.hpp"
 #include "assetManager.hpp"
 #include "statSystem.hpp"
 #include "messageSystem.hpp"
@@ -21,7 +21,7 @@ class GameOverMenu
 {
 	public:
 		GameOverMenu(
-				std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets,
+				std::shared_ptr<struct StringCache> string_cache, std::shared_ptr<class AssetManager> assets,
 				std::shared_ptr<class StatSystem> stat_system, std::shared_ptr<struct MessageSystem> message_system
 				);
 
@@ -33,7 +33,7 @@ class GameOverMenu
 		void GenerateStats(const size_t ticks) noexcept;
 
 	private:
-		const std::shared_ptr<class GlobalDataWrapper> GlobalData;
+		const std::shared_ptr<struct StringCache> StringCache;
 		const std::shared_ptr<class AssetManager> Assets;
 		const std::shared_ptr<class StatSystem> StatSystem;
 		const std::shared_ptr<struct MessageSystem> MessageSystem;

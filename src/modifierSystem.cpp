@@ -11,6 +11,7 @@
 #include <limits>
 #include <variant>
 
+#include "stringCache.hpp"
 #include "signals.hpp"
 #include "commands.hpp"
 #include "constants.hpp"
@@ -18,7 +19,7 @@
 #include "settingsManager.hpp"
 #include "messageSystem.hpp"
 
-void ModifierSystem::Update(MessageSystem& message_system, const SettingsManager& settings) noexcept
+void ModifierSystem::Update(MessageSystem& message_system, StringCache& string_cache, const SettingsManager& settings) noexcept
 {
 	this->PollSignals(message_system);
 
@@ -26,7 +27,7 @@ void ModifierSystem::Update(MessageSystem& message_system, const SettingsManager
 	{
 		const size_t distance = this->CollectedXp - this->LevelUpThreshold;
 
-		this->LevelUp(message_system, settings);
+		this->LevelUp(message_system, string_cache, settings);
 		this->CollectedXp = distance;
 	}
 }
@@ -123,21 +124,19 @@ void ModifierSystem::DecrementUnclaimedPowerups() noexcept
 	this->UnclaimedPowerups--;
 }
 
-void ModifierSystem::LevelUp(MessageSystem& message_system, const SettingsManager& settings) noexcept
+void ModifierSystem::LevelUp(MessageSystem& message_system, StringCache& string_cache, const SettingsManager& settings) noexcept
 {
 	if (!settings.Get(SettingKey::UnlimitedPowerups))
 	{
 		this->UnclaimedPowerups++;
-/*
-		this->GlobalData->CacheString(
-				"Unclaimed Poweurps: " + std::to_string(this->GlobalData->UnclaimedPowerups),
-				CachedString::UnclaimedPowerups
+		string_cache.CacheString(
+				"Unclaimed Poweurps: " + std::to_string(this->UnclaimedPowerups),
+				GameString::UnclaimedPowerups
 				);
-				*/
 	}
 
 	this->Level++;
-	//this->GlobalData->CacheString("Level: " + std::to_string(this->Level), CachedString::LevelText);
+	string_cache.CacheString("Level: " + std::to_string(this->Level), GameString::LevelText);
 
 	this->CollectedXp = 0;
 	this->LevelUpThreshold += 5;

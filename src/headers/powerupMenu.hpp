@@ -12,10 +12,11 @@
 #include <array>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 #include "raylib.h"
 
-#include "globalDataWrapper.hpp"
+#include "stringCache.hpp"
 #include "settingsManager.hpp"
 #include "assetManager.hpp"
 
@@ -23,7 +24,7 @@
 #include "messageSystem.hpp"
 #include "timerSystem.hpp"
 
-enum class Powerup
+enum class Powerup : uint8_t
 {
 	Aura,
 	Buckshot,
@@ -55,8 +56,8 @@ class PowerupMenu
 {
 	public:
 		PowerupMenu(
-				std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets,
-				std::shared_ptr<SettingsManager> settings, std::shared_ptr<struct MessageSystem> message_system,
+				std::shared_ptr<struct StringCache> string_cache, std::shared_ptr<class AssetManager> assets,
+				std::shared_ptr<class SettingsManager> settings, std::shared_ptr<struct MessageSystem> message_system,
 				std::shared_ptr<class ModifierSystem> modifier_system, std::shared_ptr<class TimerSystem> timer_system
 				);
 
@@ -89,9 +90,9 @@ class PowerupMenu
 
 		std::vector<PowerupWrapper> SelectionList;
 
-		const std::shared_ptr<GlobalDataWrapper> GlobalData;
-		const std::shared_ptr<SettingsManager> Settings;
-		const std::shared_ptr<AssetManager> Assets;
+		const std::shared_ptr<struct StringCache> StringCache;
+		const std::shared_ptr<class SettingsManager> Settings;
+		const std::shared_ptr<class AssetManager> Assets;
 
 		const std::shared_ptr<struct MessageSystem> MessageSystem;
 		const std::shared_ptr<class ModifierSystem> ModifierSystem;

@@ -17,7 +17,7 @@
 
 #include "constants.hpp"
 
-enum class CachedString : uint8_t
+enum class GameString : uint8_t
 {
 	LevelText,
 	UnclaimedPowerups,
@@ -28,19 +28,19 @@ enum class CachedString : uint8_t
 	COUNT
 };
 
-struct GlobalDataWrapper
+struct StringCache
 {
-	GlobalDataWrapper() = default;
-	~GlobalDataWrapper() = default;
+	StringCache() = default;
+	~StringCache() = default;
 
-	GlobalDataWrapper(const GlobalDataWrapper&) = delete;
-	GlobalDataWrapper& operator=(const GlobalDataWrapper&) = delete;
+	StringCache(const StringCache&) = delete;
+	StringCache& operator=(const StringCache&) = delete;
 
-	GlobalDataWrapper(const GlobalDataWrapper&&) = delete;
-	GlobalDataWrapper& operator=(const GlobalDataWrapper&&) = delete;
+	StringCache(const StringCache&&) = delete;
+	StringCache& operator=(const StringCache&&) = delete;
 	
-	void CacheString(std::string&& string, const CachedString cached_string) noexcept;
+	void CacheString(std::string&& string, const GameString game_string) noexcept;
 	void Reset() noexcept;
 
-	std::array<std::string, static_cast<size_t>(CachedString::COUNT)> StringCache;
+	std::array<std::string, static_cast<size_t>(GameString::COUNT)> Data;
 };

@@ -15,6 +15,7 @@
 #include "modifiers.hpp"
 #include "settingsManager.hpp"
 #include "messageSystem.hpp"
+#include "stringCache.hpp"
 
 class ModifierSystem
 {
@@ -22,7 +23,7 @@ class ModifierSystem
 		ModifierSystem() = default;
 		~ModifierSystem() = default;
 
-		void Update(MessageSystem& message_system, const SettingsManager& settings) noexcept;
+		void Update(MessageSystem& message_system, StringCache& string_cache, const SettingsManager& settings) noexcept;
 
 		void PollSignals(MessageSystem& message_system) noexcept;
 
@@ -38,7 +39,7 @@ class ModifierSystem
 		void Reset() noexcept;
 
 	private:
-		void LevelUp(MessageSystem& message_system, const SettingsManager& settings) noexcept;
+		void LevelUp(MessageSystem& message_system, StringCache& string_cache, const SettingsManager& settings) noexcept;
 
 		void ApplyEffect(const Effect effect) noexcept;
 		void RemoveEffect(const Effect effect) noexcept;

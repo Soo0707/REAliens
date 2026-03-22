@@ -6,20 +6,20 @@
  * You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "globalDataWrapper.hpp"
+#include "stringCache.hpp"
 
 #include <string>
 
-void GlobalDataWrapper::Reset() noexcept
+void StringCache::Reset() noexcept
 {
-	this->CacheString("Level: 1", CachedString::LevelText);
-	this->CacheString("Duration: 0s", CachedString::Duration);
-	this->CacheString("", CachedString::UnclaimedPowerups);
+	this->CacheString("Level: 1", GameString::LevelText);
+	this->CacheString("Duration: 0s", GameString::Duration);
+	this->CacheString("", GameString::UnclaimedPowerups);
 }
 
-void GlobalDataWrapper::CacheString(std::string&& string, const CachedString cached_string) noexcept
+void StringCache::CacheString(std::string&& string, const GameString game_string) noexcept
 {
-	const size_t index = static_cast<size_t>(cached_string);
+	const size_t index = static_cast<size_t>(game_string);
 
-	this->StringCache[index] = std::move(string);
+	this->Data[index] = std::move(string);
 }

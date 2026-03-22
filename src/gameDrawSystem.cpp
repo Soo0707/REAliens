@@ -15,7 +15,7 @@
 #include "constants.hpp"
 
 #include "game.hpp"
-#include "globalDataWrapper.hpp"
+#include "stringCache.hpp"
 #include "assetManager.hpp"
 
 #include "modifiers.hpp"
@@ -71,7 +71,7 @@ void GameDrawSystem::DrawLighting(const Game& game, const ModifierSystem& modifi
 
 void GameDrawSystem::DrawOverlay(
 		const Game& game, const TimerSystem& timer_system, const ModifierSystem& modifier_system,
-		const GlobalDataWrapper& global_data, const AssetManager& assets, const size_t ticks
+		const StringCache& string_cache, const AssetManager& assets, const size_t ticks
 		) noexcept
 {
 	DrawTexture(assets.GetTexture(TextureKey::HealthBarBackground), 1060, 20, WHITE);
@@ -117,8 +117,8 @@ void GameDrawSystem::DrawOverlay(
 	if (modifier_system.EffectStatus(Effect::Trapped))
 		DrawText("[Space] to untrap.", 533, 620, 24, WHITE);
 
-	DrawText(global_data.StringCache[static_cast<size_t>(CachedString::Duration)].c_str(), 20, 20, 24, LIGHTGRAY);
-	DrawText(global_data.StringCache[static_cast<size_t>(CachedString::LevelText)].c_str(), 20, 50, 24, LIGHTGRAY);
+	DrawText(string_cache.Data[static_cast<size_t>(GameString::Duration)].c_str(), 20, 20, 24, LIGHTGRAY);
+	DrawText(string_cache.Data[static_cast<size_t>(GameString::LevelText)].c_str(), 20, 50, 24, LIGHTGRAY);
 
 	DrawText("[TAB]", 1206, 620, 20, (modifier_system.GetUnclaimedPowerups()) ? GOLD : GRAY);
 

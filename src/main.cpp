@@ -10,7 +10,7 @@
 
 #include <cstddef>
 
-#include "globalDataWrapper.hpp"
+#include "stringCache.hpp"
 #include "assetManager.hpp"
 #include "settingsManager.hpp"
 
@@ -23,6 +23,7 @@
 #include "statSystem.hpp"
 #include "xpSystem.hpp"
 #include "collisionSystem.hpp"
+#include "player.hpp"
 
 #include "game.hpp"
 #include "systemsResetState.hpp"
@@ -52,7 +53,6 @@ int main(void)
 
 	const std::shared_ptr<AssetManager> assets = std::make_shared<AssetManager>();
 	const std::shared_ptr<SettingsManager> settings = std::make_shared<SettingsManager>();
-	const std::shared_ptr<GlobalDataWrapper> global_data = std::make_shared<GlobalDataWrapper>();
 
 	unsigned int target_refresh_rate;
 
@@ -73,25 +73,28 @@ int main(void)
 	const std::shared_ptr<StatSystem> stat_system = std::make_shared<StatSystem>();
 	const std::shared_ptr<XpSystem> xp_system = std::make_shared<XpSystem>();
 	const std::shared_ptr<CollisionSystem> collision_system = std::make_shared<CollisionSystem>(assets->Ground.width, assets->Ground.height);
+	const std::shared_ptr<Player> player = std::make_shared<Player>();
+	const std::shared_ptr<StringCache> string_cache = std::make_shared<StringCache>();
 
 	// states
 	const std::shared_ptr<Game> game_state = std::make_shared<Game>(
-			global_data, assets, settings, message_system, timer_system, modifier_system,
-			particle_system, projectile_system, enemy_system, stat_system, xp_system, collision_system
+			string_cache, assets, settings, message_system, timer_system, modifier_system,
+			particle_system, projectile_system, enemy_system, stat_system, xp_system, collision_system,
+			player
 			);
 
 	const std::shared_ptr<SystemsResetState> systems_reset_state = std::make_shared<SystemsResetState>(
 			message_system, timer_system, modifier_system, particle_system, projectile_system, enemy_system,
-			stat_system, xp_system, collision_system
+			stat_system, xp_system, collision_system, player, string_cache
 			);
 
 	const std::shared_ptr<PowerupMenu> powerup_menu_state = std::make_shared<PowerupMenu>(
-			global_data, assets, settings, message_system, modifier_system, timer_system
+			string_cache, assets, settings, message_system, modifier_system, timer_system
 			);
 
-	const std::shared_ptr<GameOverMenu> game_over_menu_state = std::make_shared<GameOverMenu>(global_data, assets, stat_system, message_system);
-	const std::shared_ptr<PauseMenu> pause_menu_state = std::make_shared<PauseMenu>(global_data, assets, message_system);
-	const std::shared_ptr<MainMenu> main_menu_state = std::make_shared<MainMenu>(global_data, assets, message_system);
+	const std::shared_ptr<GameOverMenu> game_over_menu_state = std::make_shared<GameOverMenu>(string_cache, assets, stat_system, message_system);
+	const std::shared_ptr<PauseMenu> pause_menu_state = std::make_shared<PauseMenu>(assets, message_system);
+	const std::shared_ptr<MainMenu> main_menu_state = std::make_shared<MainMenu>(assets, message_system);
 
 	StateManager state_manager = StateManager(
 		game_state, systems_reset_state, powerup_menu_state, game_over_menu_state,

@@ -12,7 +12,7 @@
 
 #include "game.hpp"
 #include "assetManager.hpp"
-#include "globalDataWrapper.hpp"
+#include "stringCache.hpp"
 #include "modifierSystem.hpp"
 #include "timerSystem.hpp"
 
@@ -22,7 +22,7 @@ namespace GameDrawSystem
 	void DrawLighting(const Game& game, const ModifierSystem& modifier_system) noexcept;
 	void DrawOverlay(
 			const Game& game, const TimerSystem& timer_system, const ModifierSystem& modifier_system,
-			const GlobalDataWrapper& global_data, const AssetManager& assets, const size_t ticks
+			const StringCache& string_cache, const AssetManager& assets, const size_t ticks
 			) noexcept;
 
 	void DrawGreenbull(const TimerSystem& timer_system, const AssetManager& assets, const size_t ticks) noexcept;

@@ -19,13 +19,16 @@
 #include "statSystem.hpp"
 #include "xpSystem.hpp"
 #include "collisionSystem.hpp"
+#include "player.hpp"
+#include "stringCache.hpp"
 
 SystemsResetState::SystemsResetState(
 		std::shared_ptr<struct MessageSystem> message_system, std::shared_ptr<class TimerSystem> timer_system,
 		std::shared_ptr<class ModifierSystem> modifier_system, std::shared_ptr<class ParticleSystem> particle_system,
 		std::shared_ptr<class ProjectileSystem> projectile_system, std::shared_ptr<class EnemySystem> enemy_system,
 		std::shared_ptr<class StatSystem> stat_system, std::shared_ptr<class XpSystem> xp_system,
-		std::shared_ptr<class CollisionSystem> collision_system
+		std::shared_ptr<class CollisionSystem> collision_system, std::shared_ptr<class Player> player,
+		std::shared_ptr<struct StringCache> string_cache
 		) :
 	MessageSystem(message_system),
 	TimerSystem(timer_system),
@@ -35,7 +38,9 @@ SystemsResetState::SystemsResetState(
 	EnemySystem(enemy_system),
 	StatSystem(stat_system),
 	XpSystem(xp_system),
-	CollisionSystem(collision_system)
+	CollisionSystem(collision_system),
+	Player(player),
+	StringCache(string_cache)
 {}
 
 void SystemsResetState::Reset()
@@ -49,6 +54,8 @@ void SystemsResetState::Reset()
 	this->StatSystem->Reset();
 	this->XpSystem->Reset();
 	this->CollisionSystem->Reset();
+	this->Player->Reset();
+	this->StringCache->Reset();
 
 	//game.Reset();
 }

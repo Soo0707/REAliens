@@ -15,13 +15,13 @@
 
 #include "constants.hpp"
 
-#include "globalDataWrapper.hpp"
 #include "gameInputSystem.hpp"
 #include "gameDrawSystem.hpp"
 
 #include "settingsManager.hpp"
 #include "assetManager.hpp"
 
+#include "stringCache.hpp"
 #include "player.hpp"
 #include "messageSystem.hpp"
 #include "timerSystem.hpp"
@@ -32,17 +32,17 @@
 #include "statSystem.hpp"
 #include "xpSystem.hpp"
 
-//TODO: inject player as well
+//TODO: separate camera into its own system
 Game::Game(
-		std::shared_ptr<GlobalDataWrapper> global_data, std::shared_ptr<AssetManager> assets,
-		std::shared_ptr<SettingsManager> settings, std::shared_ptr<struct MessageSystem> message_system,
+		std::shared_ptr<struct StringCache> string_cache, std::shared_ptr<class AssetManager> assets,
+		std::shared_ptr<class SettingsManager> settings, std::shared_ptr<struct MessageSystem> message_system,
 		std::shared_ptr<class TimerSystem> timer_system, std::shared_ptr<class ModifierSystem> modifier_system,
 		std::shared_ptr<class ParticleSystem> particle_system, std::shared_ptr<class ProjectileSystem> projectile_system,
 		std::shared_ptr<class EnemySystem> enemy_system, std::shared_ptr<class StatSystem> stat_system,
-		std::shared_ptr<class XpSystem> xp_system, std::shared_ptr<class CollisionSystem> collision_system
+		std::shared_ptr<class XpSystem> xp_system, std::shared_ptr<class CollisionSystem> collision_system,
+		std::shared_ptr<class Player> player
 		) :
-	Player(std::make_unique<class Player>()),
-	GlobalData(global_data),
+	StringCache(string_cache),
 	Assets(assets),
 	Settings(settings),
 	MessageSystem(message_system),
@@ -53,7 +53,8 @@ Game::Game(
 	EnemySystem(enemy_system),
 	StatSystem(stat_system),
 	XpSystem(xp_system),
-	CollisionSystem(collision_system)
+	CollisionSystem(collision_system),
+	Player(player)
 {
 	this->Camera = { 0 };
 	this->Camera.offset = { REFERENCE_WIDTH / 2.0f, REFERENCE_HEIGHT / 2.0f };
@@ -79,8 +80,6 @@ Game::~Game()
 
 void Game::Reset() noexcept
 {
-	this->Player->Reset();
-
 	this->CanPerform = { 0 };
 }
 
@@ -123,7 +122,7 @@ void Game::Draw(const size_t ticks, const RenderTexture2D& canvas) const noexcep
 			);
 		EndBlendMode();
 
-		GameDrawSystem::DrawOverlay(*this, *this->TimerSystem, *this->ModifierSystem, *this->GlobalData, *this->Assets, ticks);
+		GameDrawSystem::DrawOverlay(*this, *this->TimerSystem, *this->ModifierSystem, *this->StringCache, *this->Assets, ticks);
 	EndTextureMode();
 }
 
@@ -148,7 +147,7 @@ void Game::Update(const size_t ticks) noexcept
 
 	//TODO: make this not suck
 	if (!(ticks % TICK_RATE))
-		this->GlobalData->CacheString("Duration: " + std::to_string(TICKS_TO_SECONDS(ticks)) + "s", CachedString::Duration);
+		this->StringCache->CacheString("Duration: " + std::to_string(TICKS_TO_SECONDS(ticks)) + "s", GameString::Duration);
 
 	this->TimerSystem->Update(*this->MessageSystem, ticks);
 	this->PollSignals();
@@ -159,7 +158,7 @@ void Game::Update(const size_t ticks) noexcept
 			);
 
 	this->UpdateCamera();
-	this->ModifierSystem->Update(*this->MessageSystem, *this->Settings);
+	this->ModifierSystem->Update(*this->MessageSystem, *this->StringCache, *this->Settings);
 	
 	this->StatSystem->Update(*this->MessageSystem);
 
