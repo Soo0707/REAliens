@@ -21,7 +21,7 @@
 #include "projectileSystem.hpp"
 #include "enemySystem.hpp"
 #include "statSystem.hpp"
-#include "xpSystem.hpp"
+#include "itemSystem.hpp"
 #include "collisionSystem.hpp"
 #include "cameraSystem.hpp"
 #include "player.hpp"
@@ -72,7 +72,7 @@ int main(void)
 	const std::shared_ptr<ProjectileSystem> projectile_system = std::make_shared<ProjectileSystem>();
 	const std::shared_ptr<EnemySystem> enemy_system = std::make_shared<EnemySystem>();
 	const std::shared_ptr<StatSystem> stat_system = std::make_shared<StatSystem>();
-	const std::shared_ptr<XpSystem> xp_system = std::make_shared<XpSystem>();
+	const std::shared_ptr<ItemSystem> xp_system = std::make_shared<ItemSystem>();
 	const std::shared_ptr<CollisionSystem> collision_system = std::make_shared<CollisionSystem>(assets->Ground.width, assets->Ground.height);
 	const std::shared_ptr<CameraSystem> camera_system = std::make_shared<CameraSystem>();
 	const std::shared_ptr<Player> player = std::make_shared<Player>();

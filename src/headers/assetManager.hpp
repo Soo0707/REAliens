@@ -20,6 +20,8 @@ enum class TextureKey : uint8_t
 	Lazer,
 	Bullet,
 	Xp,
+	Turret,
+	Glue,
 	Ball,
 	Australian,
 	Drunkard,

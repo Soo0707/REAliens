@@ -17,6 +17,7 @@
 #include "states.hpp"
 #include "timers.hpp"
 #include "projectileData.hpp"
+#include "itemData.hpp"
 
 struct CreateParticles
 {
@@ -53,18 +54,19 @@ struct ProjectileHit
 using ProjectileSystemCommand = std::variant<struct CreateProjectile, struct ProjectileHit>;
 
 
-struct CreateXp
+struct CreateItem
 {
 	float X;
 	float Y;
+	Item Type;
 };
 
-struct KillXp
+struct CollidedWithItem
 {
-	size_t XpIndex;
+	size_t ItemIndex;
 };
 
-using XpSystemCommand = std::variant<struct CreateXp, struct KillXp>;
+using ItemSystemCommand = std::variant<struct CreateItem, struct CollidedWithItem>;
 
 
 struct RegisterTimer

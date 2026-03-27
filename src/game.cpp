@@ -30,7 +30,7 @@
 #include "projectileSystem.hpp"
 #include "enemySystem.hpp"
 #include "statSystem.hpp"
-#include "xpSystem.hpp"
+#include "itemSystem.hpp"
 #include "cameraSystem.hpp"
 
 Game::Game(
@@ -39,7 +39,7 @@ Game::Game(
 		std::shared_ptr<class TimerSystem> timer_system, std::shared_ptr<class ModifierSystem> modifier_system,
 		std::shared_ptr<class ParticleSystem> particle_system, std::shared_ptr<class ProjectileSystem> projectile_system,
 		std::shared_ptr<class EnemySystem> enemy_system, std::shared_ptr<class StatSystem> stat_system,
-		std::shared_ptr<class XpSystem> xp_system, std::shared_ptr<class CollisionSystem> collision_system,
+		std::shared_ptr<class ItemSystem> item_system, std::shared_ptr<class CollisionSystem> collision_system,
 		std::shared_ptr<class CameraSystem> camera_system, std::shared_ptr<class Player> player
 		) :
 	StringCache(string_cache),
@@ -52,7 +52,7 @@ Game::Game(
 	ProjectileSystem(projectile_system),
 	EnemySystem(enemy_system),
 	StatSystem(stat_system),
-	XpSystem(xp_system),
+	ItemSystem(item_system),
 	CollisionSystem(collision_system),
 	CameraSystem(camera_system),
 	Player(player)
@@ -150,7 +150,7 @@ void Game::Update(const size_t ticks) noexcept
 	
 	this->StatSystem->Update(*this->MessageSystem);
 
-	this->XpSystem->Update(*this->MessageSystem, *this->Assets, update_area, ticks);
+	this->ItemSystem->Update(*this->MessageSystem, *this->ModifierSystem, *this->Assets, update_area, ticks);
 
 	this->EnemySystem->Update(
 			*this->MessageSystem, *this->Assets, *this->ModifierSystem,
@@ -164,7 +164,7 @@ void Game::Update(const size_t ticks) noexcept
 			this->EnemySystem->GetEnemyHealth(), this->EnemySystem->GetEnemyAttackComponents(),
 			this->EnemySystem->GetEnemyType(), this->ProjectileSystem->GetProjectileRect(),
 			this->ProjectileSystem->GetProjectileType(), this->ProjectileSystem->GetProjectileDirection(),
-			this->XpSystem->GetXpRect(), *this->Player, ticks
+			this->ItemSystem->GetItemCentre(), *this->Player, ticks
 	);
 
 	this->ParticleSystem->Update(*this->MessageSystem, *this->Assets, update_area, ticks);

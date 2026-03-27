@@ -26,7 +26,7 @@
 #include "projectileSystem.hpp"
 #include "enemySystem.hpp"
 #include "statSystem.hpp"
-#include "xpSystem.hpp"
+#include "itemSystem.hpp"
 #include "collisionSystem.hpp"
 #include "cameraSystem.hpp"
 #include "signals.hpp"
@@ -48,7 +48,7 @@ class Game
 			std::shared_ptr<class TimerSystem> timer_system, std::shared_ptr<class ModifierSystem> modifier_system,
 			std::shared_ptr<class ParticleSystem> particle_system, std::shared_ptr<class ProjectileSystem> projectile_system,
 			std::shared_ptr<class EnemySystem> enemy_system, std::shared_ptr<class StatSystem> stat_system,
-			std::shared_ptr<class XpSystem> xp_system, std::shared_ptr<class CollisionSystem> collision_system,
+			std::shared_ptr<class ItemSystem> item_system, std::shared_ptr<class CollisionSystem> collision_system,
 			std::shared_ptr<class CameraSystem> camera_system, std::shared_ptr<class Player> player
 			);
 
@@ -74,7 +74,7 @@ class Game
 		const std::shared_ptr<class ProjectileSystem> ProjectileSystem;
 		const std::shared_ptr<class EnemySystem> EnemySystem;
 		const std::shared_ptr<class StatSystem> StatSystem;
-		const std::shared_ptr<class XpSystem> XpSystem;
+		const std::shared_ptr<class ItemSystem> ItemSystem;
 		const std::shared_ptr<class CollisionSystem> CollisionSystem;
 		const std::shared_ptr<class CameraSystem> CameraSystem;
 		const std::shared_ptr<class Player> Player;

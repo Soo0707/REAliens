@@ -11,6 +11,7 @@
 #include <vector>
 #include <array>
 #include <cstddef>
+#include <limits>
 
 #include "raylib.h"
 #include "player.hpp"
@@ -34,7 +35,7 @@ class CollisionSystem
 				const std::vector<float>& enemy_health, const std::vector<EnemyAttackComponent>& enemy_attack_components,
 				const std::vector<EnemyType>& enemy_type, const std::vector<Rectangle>& projectile_rect,
 				const std::vector<ProjectileType>& projectile_type, const std::vector<Vector2>& projectile_direction,
-				const std::vector<Rectangle>& xp_rect, const Player& player, const size_t ticks
+				const std::vector<Vector2>& item_rect, const Player& player, const size_t ticks
 				) noexcept;
 
 		void PollSignals(
@@ -60,10 +61,10 @@ class CollisionSystem
 				const size_t ticks
 				) const noexcept;
 
-		void ItemCollision(const Vector2& player_centre, MessageSystem& message_system) const noexcept;
+		void ItemCollision(const Vector2 player_centre, MessageSystem& message_system) const noexcept;
 
 		void UpdateEnemyGrid(const std::vector<Rectangle>& enemy_rect) noexcept;
-		void UpdateItemGrid(const std::vector<Rectangle>& item_rect) noexcept;
+		void UpdateItemGrid(const std::vector<Vector2>& item_centre) noexcept;
 
 	private:
 		size_t GetMortonCode(const float x, const float y) const noexcept;
@@ -96,8 +97,9 @@ class CollisionSystem
 			&Aura
 		};
 
-		std::vector<int16_t> EnemyGrid;
-		std::vector<int16_t> ItemGrid;
+		std::vector<size_t> EnemyGrid;
+		std::vector<size_t> ItemGrid;
 		const size_t GridSize;
+		static constexpr size_t EmptyCell = std::numeric_limits<size_t>::max();
 };
 

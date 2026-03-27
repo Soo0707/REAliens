@@ -25,7 +25,7 @@ struct MessageSystem
 
 	std::vector<CreateParticles> ParticleSystemCommands;
 	std::vector<ProjectileSystemCommand> ProjectileSystemCommands;
-	std::vector<XpSystemCommand> XpSystemCommands;
+	std::vector<ItemSystemCommand> ItemSystemCommands;
 	std::vector<PlayerCommand> PlayerCommands;
 	std::vector<EnemySystemCommand> EnemySystemCommands;
 	std::vector<TimerSystemCommand> TimerSystemCommands;

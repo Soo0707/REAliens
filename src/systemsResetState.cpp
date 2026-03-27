@@ -17,7 +17,7 @@
 #include "projectileSystem.hpp"
 #include "enemySystem.hpp"
 #include "statSystem.hpp"
-#include "xpSystem.hpp"
+#include "itemSystem.hpp"
 #include "collisionSystem.hpp"
 #include "player.hpp"
 #include "cameraSystem.hpp"
@@ -27,7 +27,7 @@ SystemsResetState::SystemsResetState(
 		std::shared_ptr<struct MessageSystem> message_system, std::shared_ptr<class TimerSystem> timer_system,
 		std::shared_ptr<class ModifierSystem> modifier_system, std::shared_ptr<class ParticleSystem> particle_system,
 		std::shared_ptr<class ProjectileSystem> projectile_system, std::shared_ptr<class EnemySystem> enemy_system,
-		std::shared_ptr<class StatSystem> stat_system, std::shared_ptr<class XpSystem> xp_system,
+		std::shared_ptr<class StatSystem> stat_system, std::shared_ptr<class ItemSystem> item_system,
 		std::shared_ptr<class CollisionSystem> collision_system, std::shared_ptr<class Player> player,
 		std::shared_ptr<class CameraSystem> camera_system, std::shared_ptr<struct StringCache> string_cache
 		) :
@@ -38,7 +38,7 @@ SystemsResetState::SystemsResetState(
 	ProjectileSystem(projectile_system),
 	EnemySystem(enemy_system),
 	StatSystem(stat_system),
-	XpSystem(xp_system),
+	ItemSystem(item_system),
 	CollisionSystem(collision_system),
 	Player(player),
 	CameraSystem(camera_system),
@@ -54,7 +54,7 @@ void SystemsResetState::Reset()
 	this->ProjectileSystem->Reset();
 	this->EnemySystem->Reset();
 	this->StatSystem->Reset();
-	this->XpSystem->Reset();
+	this->ItemSystem->Reset();
 	this->CollisionSystem->Reset();
 	this->Player->Reset();
 	this->CameraSystem->Reset(this->Player->Centre);

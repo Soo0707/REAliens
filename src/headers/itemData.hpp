@@ -5,26 +5,24 @@
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-
 #pragma once
 
 #include <cstdint>
 
 #include "raylib.h"
-#include "constants.hpp"
 #include "assetManager.hpp"
 
-enum class ProjectileType : uint8_t
+enum class Item : uint8_t
 {
-	Bullet,
-	Lazer,
-	Ball,
-
+	Xp,
+	Turret,
+	Glue,
 	COUNT
 };
 
-struct ProjectileData
+struct ItemData
 {
 	const Color Colour;
 	const TextureKey Texture;
+	const bool EmitParticles;
 };

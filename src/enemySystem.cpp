@@ -25,7 +25,9 @@
 #include "timers.hpp"
 #include "modifierSystem.hpp"
 #include "modifiers.hpp"
+#include "itemData.hpp"
 
+//TODO: check limits since collision system uses 16bit integers for indices
 EnemySystem::EnemySystem()
 {
 	this->EnemyHealth.reserve(1024);
@@ -295,7 +297,7 @@ void EnemySystem::KillEnemies(MessageSystem& message_system, const bool has_magn
 			if (has_magnetism)
 				message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::IncrementCollectedXp)]++;
 			else
-				message_system.XpSystemCommands.emplace_back(std::in_place_type<struct CreateXp>, x, y);
+				message_system.ItemSystemCommands.emplace_back(std::in_place_type<struct CreateItem>, x, y, Item::Xp);
 
 			killed++;
 		}

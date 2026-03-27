@@ -45,8 +45,8 @@ CollisionSystem::CollisionSystem(const float map_width, const float map_height) 
 
 void CollisionSystem::Reset()
 {
-	this->EnemyGrid.resize(this->GridSize, -1);
-	this->ItemGrid.resize(this->GridSize, -1);
+	this->EnemyGrid.resize(this->GridSize, this->EmptyCell);
+	this->ItemGrid.resize(this->GridSize, this->EmptyCell);
 }
 
 //TODO: clean up this monstrosity
@@ -55,14 +55,14 @@ void CollisionSystem::Update(
 		const std::vector<float>& enemy_health, const std::vector<EnemyAttackComponent>& enemy_attack_components,
 		const std::vector<EnemyType>& enemy_type, const std::vector<Rectangle>& projectile_rect,
 		const std::vector<ProjectileType>& projectile_type, const std::vector<Vector2>& projectile_direction,
-		const std::vector<Rectangle>& xp_rect, const Player& player, const size_t ticks
+		const std::vector<Vector2>& item_rect, const Player& player, const size_t ticks
 		) noexcept
 {
 	const Vector2 player_centre = player.Centre;
 	const Vector2 player_direction = player.Direction;
 
 	this->UpdateEnemyGrid(enemy_rect);
-	this->UpdateItemGrid(xp_rect);
+	this->UpdateItemGrid(item_rect);
 
 	this->PollSignals(message_system, player_centre, modifier_system, ticks);
 
@@ -105,7 +105,7 @@ void CollisionSystem::PollSignals(
 void CollisionSystem::UpdateEnemyGrid(const std::vector<Rectangle>& enemy_rect) noexcept
 {
 	for (size_t i = 0, n = this->GridSize; i < n; i++)
-		this->EnemyGrid[i] = -1;
+		this->EnemyGrid[i] = this->EmptyCell;
 
 	for (size_t i = 0, n = enemy_rect.size(); i < n; i++)
 	{
@@ -119,17 +119,14 @@ void CollisionSystem::UpdateEnemyGrid(const std::vector<Rectangle>& enemy_rect) 
 	}
 }
 
-void CollisionSystem::UpdateItemGrid(const std::vector<Rectangle>& item_rect) noexcept
+void CollisionSystem::UpdateItemGrid(const std::vector<Vector2>& item_centre) noexcept
 {
 	for (size_t i = 0, n = this->GridSize; i < n; i++)
-		this->ItemGrid[i] = -1;
+		this->ItemGrid[i] = this->EmptyCell;
 
-	for (size_t i = 0, n = item_rect.size(); i < n; i++)
+	for (size_t i = 0, n = item_centre.size(); i < n; i++)
 	{
-		const float x = item_rect[i].x + item_rect[i].width / 2.0f;
-		const float y = item_rect[i].y + item_rect[i].height / 2.0f;
-
-		const size_t index = this->GetMortonCode(x, y);
+		const size_t index = this->GetMortonCode(item_centre[i].x, item_centre[i].y);
 		
 		if (index < this->GridSize)
 			this->ItemGrid[index] = i;
@@ -166,7 +163,7 @@ void CollisionSystem::ProjectileCollision(
 
 		const size_t index = this->GetMortonCode(x, y);
 
-		if (index < this->GridSize && this->EnemyGrid[index] >= 0)
+		if (index < this->GridSize && this->EnemyGrid[index] != this->EmptyCell)
 		{
 			const size_t enemy_index = this->EnemyGrid[index];
 
@@ -203,7 +200,7 @@ void CollisionSystem::LeAttack(
 	const bool has_milk = modifier_system.EffectStatus(Effect::Milk);
 	const size_t index = this->GetMortonCode(player_centre.x, player_centre.y);
 
-	if (index < this->GridSize && this->EnemyGrid[index] >= 0)
+	if (index < this->GridSize && this->EnemyGrid[index] != this->EmptyCell)
 	{
 		const size_t enemy_index = this->EnemyGrid[index];
 
@@ -232,7 +229,7 @@ void CollisionSystem::SlideAttack(
 {
 	const size_t index = this->GetMortonCode(player_centre.x, player_centre.y);
 
-	if (index < this->GridSize && this->EnemyGrid[index] >= 0)
+	if (index < this->GridSize && this->EnemyGrid[index] != this->EmptyCell)
 	{
 		const size_t enemy_index = this->EnemyGrid[index];
 
@@ -270,7 +267,7 @@ void CollisionSystem::Aura(
 
 			const size_t index = this->GetMortonCode(x, y);
 
-			if (index < this->GridSize && this->EnemyGrid[index] >= 0)
+			if (index < this->GridSize && this->EnemyGrid[index] != this->EmptyCell)
 			{
 				message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, this->EnemyGrid[index], aura_damage);
 
@@ -292,17 +289,15 @@ void CollisionSystem::Aura(
 	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_hit * static_cast<unsigned int>(aura_damage));
 }
 
-void CollisionSystem::ItemCollision(const Vector2& player_centre, MessageSystem& message_system) const noexcept
+void CollisionSystem::ItemCollision(const Vector2 player_centre, MessageSystem& message_system) const noexcept
 {
 	const size_t index = this->GetMortonCode(player_centre.x, player_centre.y);
 
-	if (index < this->GridSize && this->ItemGrid[index] != -1)
+	if (index < this->GridSize && this->ItemGrid[index] != this->EmptyCell)
 	{
 		const size_t item_index = this->ItemGrid[index];
 
-		message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::IncrementCollectedXp)]++;
-
-		message_system.XpSystemCommands.emplace_back(std::in_place_type<struct KillXp>, item_index);
+		message_system.ItemSystemCommands.emplace_back(std::in_place_type<struct CollidedWithItem>, item_index);
 	}
 }
 

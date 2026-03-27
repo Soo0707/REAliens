@@ -15,7 +15,7 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  src/projectileSystem.cpp\
  src/statSystem.cpp\
  src/timerSystem.cpp\
- src/xpSystem.cpp\
+ src/itemSystem.cpp\
  src/modifierSystem.cpp\
  src/messageSystem.cpp\
  src/assetManager.cpp\
