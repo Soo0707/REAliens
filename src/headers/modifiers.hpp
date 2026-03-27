@@ -10,7 +10,7 @@
 
 #include <cstdint>
 
-enum class Attribute : uint32_t
+enum class Attribute : uint8_t
 {
 	BulletDamage,
 	BulletSpeed,
@@ -33,9 +33,7 @@ enum class Attribute : uint32_t
 	LifeStealMultiplier,
 	SlideSpeedMultiplier,
 
-	LuckBottomLimit,
 	LuckBoundary,
-	LuckUpperLimit,
 
 	COUNT
 };

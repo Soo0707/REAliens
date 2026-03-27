@@ -206,14 +206,17 @@ void ItemSystem::DoNothingUpdateHook(MessageSystem& message_system, const size_t
 
 void ItemSystem::TurretUpdateHook(MessageSystem& message_system, const size_t item_index, const ModifierSystem& modifier_system) const noexcept
 {
-	const Vector2 direction = Vector2Rotate({ 1.0f, 0.0f }, static_cast<float>(GetRandomValue(0, 360) * TO_RAD));
-	const Vector2 item_centre = this->ItemCentre[item_index];
-	const float speed = modifier_system.GetAttribute(Attribute::BulletSpeed);
+	if (GetRandomValue(1, 100) < 2)
+	{
+		const Vector2 direction = Vector2Rotate({ 1.0f, 0.0f }, static_cast<float>(GetRandomValue(0, 360) * TO_RAD));
+		const Vector2 item_centre = this->ItemCentre[item_index];
+		const float speed = modifier_system.GetAttribute(Attribute::BulletSpeed);
 
-	message_system.ProjectileSystemCommands.emplace_back(
-		std::in_place_type<CreateProjectile>, ProjectileType::Bullet, direction,
-		item_centre.x, item_centre.y, speed, 1.0f
-		);
+		message_system.ProjectileSystemCommands.emplace_back(
+			std::in_place_type<CreateProjectile>, ProjectileType::Bullet, direction,
+			item_centre.x, item_centre.y, speed, 1.0f
+			);
+	}
 }
 
 void ItemSystem::DoNothingOnCollisionHook(MessageSystem& message_system, const size_t item_index) noexcept

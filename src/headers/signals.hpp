@@ -43,6 +43,7 @@ enum class ModifierSystemSignal : uint8_t
 	ApplyBall,
 	ApplyLifeSteal,
 	ApplyBabyOil,
+	ApplyLuck,
 	ApplyAussie,
 	ApplyPoison,
 	ApplyTrapped,

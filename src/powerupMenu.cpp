@@ -241,6 +241,11 @@ void PowerupMenu::ApplyBabyOil() noexcept
 	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyBabyOil)]++;
 }
 
+void PowerupMenu::ApplyLuck() noexcept
+{
+	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyLuck)]++;
+}
+
 void PowerupMenu::ApplyFastHands() noexcept
 {
 	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct DecreaseTimerInterval>, 50, 25, Timer::LMB);

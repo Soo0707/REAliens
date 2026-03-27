@@ -41,6 +41,7 @@ enum class Powerup : uint8_t
 
 	SpeedBoots,
 	BabyOil,
+	Luck,
 	FastHands,
 	COUNT
 };
@@ -86,6 +87,7 @@ class PowerupMenu
 		void ApplyPlotArmour() noexcept;
 		void ApplySpeedBoots() noexcept;
 		void ApplyBabyOil() noexcept;
+		void ApplyLuck() noexcept;
 		void ApplyFastHands() noexcept;
 
 		std::vector<PowerupWrapper> SelectionList;
@@ -115,6 +117,7 @@ class PowerupMenu
 			"Magnetism",
 			"Speed Boots",
 			"Baby Oil",
+			"Luck",
 			"Fast Hands"
 		};
 
@@ -135,6 +138,7 @@ class PowerupMenu
 			"Auto Collects XP",
 			"Increase Player Speed",
 			"Increase Slide Speed",
+			"Increase Luck For Luck Based Events",
 			"Decrease LMB & RMB Timeout"
 		};
 
@@ -155,6 +159,7 @@ class PowerupMenu
 			&ApplyMagnetism,
 			&ApplySpeedBoots,
 			&ApplyBabyOil,
+			&ApplyLuck,
 			&ApplyFastHands
 		};
 

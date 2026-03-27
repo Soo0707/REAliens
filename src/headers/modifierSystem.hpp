@@ -28,6 +28,7 @@ class ModifierSystem
 		void PollSignals(MessageSystem& message_system) noexcept;
 
 		bool EffectStatus(const Effect effect) const noexcept;
+		bool IsLucky() const noexcept;
 		float GetAttribute(const Attribute attribute) const noexcept;
 
 		size_t GetLevel() const noexcept;
@@ -58,6 +59,7 @@ class ModifierSystem
 		void ApplyBall() noexcept;
 		void ApplyLifeSteal() noexcept;
 		void ApplyBabyOil() noexcept;
+		void ApplyLuck() noexcept;
 		void ApplyAussie() noexcept;
 		void ApplyPoison() noexcept;
 		void ApplyTrapped() noexcept;
@@ -91,6 +93,7 @@ class ModifierSystem
 			&ApplyBall,
 			&ApplyLifeSteal,
 			&ApplyBabyOil,
+			&ApplyLuck,
 			&ApplyAussie,
 			&ApplyPoison,
 			&ApplyTrapped,
