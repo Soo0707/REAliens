@@ -50,43 +50,57 @@ class ItemSystem
 			(ItemData) { WHITE, TextureKey::Turret, false },
 			(ItemData) { LIGHTGRAY, TextureKey::Glue, false },
 		};
+		
+		void DoNothingHook(MessageSystem& message_system, const size_t item_index, const ModifierSystem& modifier_system) const noexcept;
+		void DoNothingHook(MessageSystem& message_system, const size_t item_index) noexcept;
+		void DoNothingHook(MessageSystem& message_system, const size_t item_index, const size_t enemy_index) noexcept;
 
 
 		void TurretUpdateHook(MessageSystem& message_system, const size_t item_index, const ModifierSystem& modifier_system) const noexcept;
-		void DoNothingUpdateHook(MessageSystem& message_system, const size_t item_index, const ModifierSystem& modifier_system) const noexcept;
 
 		using UpdateHook = void(ItemSystem::*)(MessageSystem&, const size_t, const ModifierSystem&) const noexcept;
 
 		static constexpr std::array<UpdateHook, static_cast<size_t>(Item::COUNT)> UpdateHooks = {
-			&DoNothingUpdateHook,
+			&DoNothingHook,
 			&TurretUpdateHook,
-			&DoNothingUpdateHook
+			&DoNothingHook
 		};
 
 
-		void XpOnCollisionHook(MessageSystem& message_system, const size_t item_index) noexcept;
-		void GlueCollisionHook(MessageSystem& message_system, const size_t item_index) noexcept;
-		void DoNothingOnCollisionHook(MessageSystem& message_system, const size_t item_index) noexcept;
+		void XpCollisionHook(MessageSystem& message_system, const size_t item_index) noexcept;
 
-		using OnCollisionHook = void(ItemSystem::*)(MessageSystem&, const size_t) noexcept; 
+		using CollisionHook = void(ItemSystem::*)(MessageSystem&, const size_t) noexcept; 
 
-		static constexpr std::array<OnCollisionHook, static_cast<size_t>(Item::COUNT)> OnCollisionHooks = {
-			&XpOnCollisionHook,
-			&DoNothingOnCollisionHook,
-			&DoNothingOnCollisionHook
+		static constexpr std::array<CollisionHook, static_cast<size_t>(Item::COUNT)> CollisionHooks = {
+			&XpCollisionHook,
+			&DoNothingHook,
+			&DoNothingHook
+		};
+
+
+		void GlueEnemyItemCollisionHook(MessageSystem& message_system, const size_t item_index, const size_t enemy_index) noexcept;
+
+		using EnemyItemCollisionHook = void(ItemSystem::*)(MessageSystem&, const size_t, const size_t) noexcept;
+
+		static constexpr std::array<EnemyItemCollisionHook, static_cast<size_t>(Item::COUNT)> EnemyItemCollisionHooks = {
+			&DoNothingHook,
+			&DoNothingHook,
+			&GlueEnemyItemCollisionHook
 		};
 
 
 		void CreateItemHandler(MessageSystem& message_system, const ItemSystemCommand& command, const AssetManager& assets) noexcept;
 		void CollidedWithItemHandler(MessageSystem& message_system, const ItemSystemCommand& command, const AssetManager& assets) noexcept;
+		void EnemyItemCollisionHandler(MessageSystem& message_system, const ItemSystemCommand& command, const AssetManager& assets) noexcept;
 
 		bool CheckIndex(const size_t index) const noexcept;
 
 		using CommandHandler = void(ItemSystem::*)(MessageSystem&, const ItemSystemCommand&, const AssetManager&) noexcept;
 
-		static constexpr std::array<CommandHandler, 2> CommandHandlers = {
+		static constexpr std::array<CommandHandler, 3> CommandHandlers = {
 			&CreateItemHandler,
-			&CollidedWithItemHandler
+			&CollidedWithItemHandler,
+			&EnemyItemCollisionHandler
 		};
 		
 		std::vector<Item> ItemType;

@@ -66,7 +66,13 @@ struct CollidedWithItem
 	size_t ItemIndex;
 };
 
-using ItemSystemCommand = std::variant<struct CreateItem, struct CollidedWithItem>;
+struct EnemyItemCollision
+{
+	size_t ItemIndex;
+	size_t EnemyIndex;
+};
+
+using ItemSystemCommand = std::variant<struct CreateItem, struct CollidedWithItem, struct EnemyItemCollision>;
 
 
 struct RegisterTimer
@@ -124,7 +130,12 @@ struct EnemyLeAttacked
 	size_t Ticks;
 };
 
-using EnemySystemCommand = std::variant<struct DamageEnemy, struct EnemyLeAttacked>;
+struct EnemyGotGlued
+{
+	size_t EnemyIndex;
+};
+
+using EnemySystemCommand = std::variant<struct DamageEnemy, struct EnemyLeAttacked, struct EnemyGotGlued>;
 
 
 struct DamagePlayer

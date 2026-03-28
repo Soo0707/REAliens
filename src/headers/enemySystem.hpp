@@ -72,11 +72,13 @@ class EnemySystem
 
 		void DamageEnemyHandler(const EnemySystemCommand& command) noexcept;
 		void EnemyLeAttackedHandler(const EnemySystemCommand& command) noexcept;
+		void EnemyGotGluedHandler(const EnemySystemCommand& command) noexcept;
 
-		static constexpr std::array<void(EnemySystem::*)(const EnemySystemCommand&) noexcept, 2> CommandHandlers = 
+		static constexpr std::array<void(EnemySystem::*)(const EnemySystemCommand&) noexcept, 3> CommandHandlers = 
 		{
 			&DamageEnemyHandler,
-			&EnemyLeAttackedHandler
+			&EnemyLeAttackedHandler,
+			&EnemyGotGluedHandler
 		};
 
 		// animation_frames = number of actual frames -1 since it's 0 indexed

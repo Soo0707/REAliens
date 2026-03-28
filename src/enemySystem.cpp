@@ -330,6 +330,15 @@ void EnemySystem::EnemyLeAttackedHandler(const EnemySystemCommand& command) noex
 	}
 }
 
+void EnemySystem::EnemyGotGluedHandler(const EnemySystemCommand& command) noexcept
+{
+	const EnemyGotGlued& data = std::get<struct EnemyGotGlued>(command);
+	const size_t index = data.EnemyIndex;
+	
+	if (this->CheckIndex(index))
+		this->EnemySpeed[index] = 0.0f;
+}
+
 void EnemySystem::EmitParticlesFromLocations(
 		const size_t ticks, const size_t level, MessageSystem& message_system) noexcept
 {

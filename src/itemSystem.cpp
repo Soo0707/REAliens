@@ -179,16 +179,32 @@ void ItemSystem::CollidedWithItemHandler(MessageSystem& message_system, const It
 {
 	const struct CollidedWithItem& data = std::get<struct CollidedWithItem>(command);
 	const size_t index = data.ItemIndex;
-	const size_t type_index = static_cast<size_t>(this->ItemType[index]);
-
+	
 	if (!this->CheckIndex(index))
 		return;
+	
+	const size_t type_index = static_cast<size_t>(this->ItemType[index]);
 
-	auto hook = this->OnCollisionHooks[type_index];
+	auto hook = this->CollisionHooks[type_index];
 
 	(this->*hook)(message_system, index);
 }
 
+void ItemSystem::EnemyItemCollisionHandler(MessageSystem& message_system, const ItemSystemCommand& command, const AssetManager& assets) noexcept
+{
+	const struct EnemyItemCollision& data = std::get<struct EnemyItemCollision>(command);
+	const size_t index = data.ItemIndex;
+	const size_t enemy_index = data.EnemyIndex;
+
+	if (!this->CheckIndex(index))
+		return;
+
+	const size_t type_index = static_cast<size_t>(this->ItemType[index]);
+
+	auto hook = this->EnemyItemCollisionHooks[type_index];
+
+	(this->*hook)(message_system, index, enemy_index);
+}
 
 bool ItemSystem::CheckIndex(const size_t index) const noexcept
 {
@@ -199,10 +215,6 @@ const std::vector<Vector2>& ItemSystem::GetItemCentre() const noexcept
 {
 	return this->ItemCentre;
 }
-
-
-void ItemSystem::DoNothingUpdateHook(MessageSystem& message_system, const size_t item_index, const ModifierSystem& modifier_system) const noexcept
-{}
 
 void ItemSystem::TurretUpdateHook(MessageSystem& message_system, const size_t item_index, const ModifierSystem& modifier_system) const noexcept
 {
@@ -219,16 +231,26 @@ void ItemSystem::TurretUpdateHook(MessageSystem& message_system, const size_t it
 	}
 }
 
-void ItemSystem::DoNothingOnCollisionHook(MessageSystem& message_system, const size_t item_index) noexcept
-{}
 
-void ItemSystem::GlueCollisionHook(MessageSystem& message_system, const size_t item_index) noexcept
-{
-
-}
-
-void ItemSystem::XpOnCollisionHook(MessageSystem& message_system, const size_t item_index) noexcept
+void ItemSystem::XpCollisionHook(MessageSystem& message_system, const size_t item_index) noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::IncrementCollectedXp)]++;
 	this->ItemKill[item_index] = static_cast<uint8_t>(true);
 }
+
+
+void ItemSystem::GlueEnemyItemCollisionHook(MessageSystem& message_system, const size_t item_index, const size_t enemy_index) noexcept
+{
+	message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct EnemyGotGlued>, enemy_index);
+	this->ItemKill[item_index] = static_cast<uint8_t>(true);
+}
+
+
+void ItemSystem::DoNothingHook(MessageSystem& message_system, const size_t item_index, const ModifierSystem& modifier_system) const noexcept
+{}
+
+void ItemSystem::DoNothingHook(MessageSystem& message_system, const size_t item_index) noexcept
+{}
+
+void ItemSystem::DoNothingHook(MessageSystem& message_system, const size_t item_index, const size_t enemy_index) noexcept
+{}
