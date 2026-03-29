@@ -31,13 +31,14 @@ class CollisionSystem
 		void Reset();
 
 		void Update(
-				MessageSystem& message_system, const ModifierSystem& modifier_system, const std::vector<Rectangle>& enemy_rect,
+				MessageSystem& message_system, const ModifierSystem& modifier_system, const std::vector<Vector2>& enemy_centre,
 				const std::vector<float>& enemy_health, const std::vector<EnemyAttackComponent>& enemy_attack_components,
 				const std::vector<EnemyType>& enemy_type, const std::vector<Rectangle>& projectile_rect,
 				const std::vector<ProjectileType>& projectile_type, const std::vector<Vector2>& projectile_direction,
-				const std::vector<Vector2>& item_rect, const Player& player, const size_t ticks
+				const std::vector<Vector2>& item_centre, const Player& player, const size_t ticks
 				) noexcept;
 
+	private:
 		void PollSignals(
 				MessageSystem& message_system, const Vector2 player_centre,
 				const ModifierSystem& modifier_system, const size_t ticks
@@ -62,17 +63,16 @@ class CollisionSystem
 				) const noexcept;
 
 		void ItemCollision(const Vector2 player_centre, MessageSystem& message_system) const noexcept;
+		void EnemyItemCollision(MessageSystem& message_system, const std::vector<Vector2>& enemy_centre) const noexcept;
 
-		void UpdateEnemyGrid(const std::vector<Rectangle>& enemy_rect) noexcept;
+		void UpdateEnemyGrid(const std::vector<Vector2>& enemy_centre) noexcept;
 		void UpdateItemGrid(const std::vector<Vector2>& item_centre) noexcept;
 
-	private:
 		size_t GetMortonCode(const float x, const float y) const noexcept;
 		inline uint16_t SeparateBits(uint16_t bits) const noexcept;
 
 		void ApplyAussie(MessageSystem& message_system,	const size_t ticks) const noexcept;
 		void ApplyDrunk(MessageSystem& message_system, const size_t ticks) const noexcept;
-		void ApplyNone(MessageSystem& message_system, const size_t ticks) const noexcept;
 		void ApplyPoison(MessageSystem& message_system, const size_t ticks) const noexcept;
 		void ApplyTrapped(MessageSystem& message_system, const size_t ticks) const noexcept;
 
@@ -81,7 +81,7 @@ class CollisionSystem
 		{
 			&ApplyAussie,
 			&ApplyDrunk,
-			&ApplyNone,
+			nullptr,
 			&ApplyPoison
 		};
 		
@@ -99,6 +99,7 @@ class CollisionSystem
 
 		std::vector<size_t> EnemyGrid;
 		std::vector<size_t> ItemGrid;
+
 		const size_t GridSize;
 		static constexpr size_t EmptyCell = std::numeric_limits<size_t>::max();
 };

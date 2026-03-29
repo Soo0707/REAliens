@@ -50,20 +50,15 @@ class ItemSystem
 			(ItemData) { WHITE, TextureKey::Turret, false },
 			(ItemData) { LIGHTGRAY, TextureKey::Glue, false },
 		};
-		
-		void DoNothingHook(MessageSystem& message_system, const size_t item_index, const ModifierSystem& modifier_system) const noexcept;
-		void DoNothingHook(MessageSystem& message_system, const size_t item_index) noexcept;
-		void DoNothingHook(MessageSystem& message_system, const size_t item_index, const size_t enemy_index) noexcept;
-
 
 		void TurretUpdateHook(MessageSystem& message_system, const size_t item_index, const ModifierSystem& modifier_system) const noexcept;
 
 		using UpdateHook = void(ItemSystem::*)(MessageSystem&, const size_t, const ModifierSystem&) const noexcept;
 
 		static constexpr std::array<UpdateHook, static_cast<size_t>(Item::COUNT)> UpdateHooks = {
-			&DoNothingHook,
+			nullptr,
 			&TurretUpdateHook,
-			&DoNothingHook
+			nullptr
 		};
 
 
@@ -73,8 +68,8 @@ class ItemSystem
 
 		static constexpr std::array<CollisionHook, static_cast<size_t>(Item::COUNT)> CollisionHooks = {
 			&XpCollisionHook,
-			&DoNothingHook,
-			&DoNothingHook
+			nullptr,
+			nullptr
 		};
 
 
@@ -83,8 +78,8 @@ class ItemSystem
 		using EnemyItemCollisionHook = void(ItemSystem::*)(MessageSystem&, const size_t, const size_t) noexcept;
 
 		static constexpr std::array<EnemyItemCollisionHook, static_cast<size_t>(Item::COUNT)> EnemyItemCollisionHooks = {
-			&DoNothingHook,
-			&DoNothingHook,
+			nullptr,
+			nullptr,
 			&GlueEnemyItemCollisionHook
 		};
 

@@ -113,7 +113,9 @@ void ItemSystem::RunUpdateHooks(MessageSystem& message_system, const ModifierSys
 		const size_t type_index = static_cast<size_t>(this->ItemType[i]);
 
 		auto hook = this->UpdateHooks[type_index];
-		(this->*hook)(message_system, i, modifier_system);
+
+		if (hook)
+			(this->*hook)(message_system, i, modifier_system);
 	}
 }
 
@@ -187,7 +189,8 @@ void ItemSystem::CollidedWithItemHandler(MessageSystem& message_system, const It
 
 	auto hook = this->CollisionHooks[type_index];
 
-	(this->*hook)(message_system, index);
+	if (hook)
+		(this->*hook)(message_system, index);
 }
 
 void ItemSystem::EnemyItemCollisionHandler(MessageSystem& message_system, const ItemSystemCommand& command, const AssetManager& assets) noexcept
@@ -203,7 +206,8 @@ void ItemSystem::EnemyItemCollisionHandler(MessageSystem& message_system, const 
 
 	auto hook = this->EnemyItemCollisionHooks[type_index];
 
-	(this->*hook)(message_system, index, enemy_index);
+	if (hook)
+		(this->*hook)(message_system, index, enemy_index);
 }
 
 bool ItemSystem::CheckIndex(const size_t index) const noexcept
@@ -244,13 +248,3 @@ void ItemSystem::GlueEnemyItemCollisionHook(MessageSystem& message_system, const
 	message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct EnemyGotGlued>, enemy_index);
 	this->ItemKill[item_index] = static_cast<uint8_t>(true);
 }
-
-
-void ItemSystem::DoNothingHook(MessageSystem& message_system, const size_t item_index, const ModifierSystem& modifier_system) const noexcept
-{}
-
-void ItemSystem::DoNothingHook(MessageSystem& message_system, const size_t item_index) noexcept
-{}
-
-void ItemSystem::DoNothingHook(MessageSystem& message_system, const size_t item_index, const size_t enemy_index) noexcept
-{}

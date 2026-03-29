@@ -51,18 +51,18 @@ void CollisionSystem::Reset()
 
 //TODO: clean up this monstrosity
 void CollisionSystem::Update(
-		MessageSystem& message_system, const ModifierSystem& modifier_system, const std::vector<Rectangle>& enemy_rect,
+		MessageSystem& message_system, const ModifierSystem& modifier_system, const std::vector<Vector2>& enemy_centre,
 		const std::vector<float>& enemy_health, const std::vector<EnemyAttackComponent>& enemy_attack_components,
 		const std::vector<EnemyType>& enemy_type, const std::vector<Rectangle>& projectile_rect,
 		const std::vector<ProjectileType>& projectile_type, const std::vector<Vector2>& projectile_direction,
-		const std::vector<Vector2>& item_rect, const Player& player, const size_t ticks
+		const std::vector<Vector2>& item_centre, const Player& player, const size_t ticks
 		) noexcept
 {
 	const Vector2 player_centre = player.Centre;
 	const Vector2 player_direction = player.Direction;
 
-	this->UpdateEnemyGrid(enemy_rect);
-	this->UpdateItemGrid(item_rect);
+	this->UpdateEnemyGrid(enemy_centre);
+	this->UpdateItemGrid(item_centre);
 
 	this->PollSignals(message_system, player_centre, modifier_system, ticks);
 
@@ -77,6 +77,8 @@ void CollisionSystem::Update(
 		this->SlideAttack(player_centre, player_direction, enemy_health, message_system, ticks);
 
 	const bool has_greenbull = modifier_system.EffectStatus(Effect::Greenbull);
+
+	this->EnemyItemCollision(message_system, enemy_centre);
 
 	if (!has_greenbull && !is_sliding)
 		this->LeAttack(enemy_attack_components, enemy_type, player_centre, message_system, modifier_system, ticks);
@@ -102,17 +104,14 @@ void CollisionSystem::PollSignals(
 	}
 }
 
-void CollisionSystem::UpdateEnemyGrid(const std::vector<Rectangle>& enemy_rect) noexcept
+void CollisionSystem::UpdateEnemyGrid(const std::vector<Vector2>& enemy_centre) noexcept
 {
 	for (size_t i = 0, n = this->GridSize; i < n; i++)
 		this->EnemyGrid[i] = this->EmptyCell;
 
-	for (size_t i = 0, n = enemy_rect.size(); i < n; i++)
+	for (size_t i = 0, n = enemy_centre.size(); i < n; i++)
 	{
-		const float x = enemy_rect[i].x + enemy_rect[i].width / 2.0f;
-		const float y = enemy_rect[i].y + enemy_rect[i].height / 2.0f;
-
-		const size_t index = this->GetMortonCode(x, y);
+		const size_t index = this->GetMortonCode(enemy_centre[i].x, enemy_centre[i].y);
 		
 		if (index < this->GridSize)
 			this->EnemyGrid[index] = i;
@@ -211,7 +210,9 @@ void CollisionSystem::LeAttack(
 			if (!has_milk)
 			{
 				auto le_attack_hook = CollisionSystem::LeAttackHooks[static_cast<size_t>(enemy_type[enemy_index])];
-				(this->*le_attack_hook)(message_system, ticks);
+
+				if (le_attack_hook)
+					(this->*le_attack_hook)(message_system, ticks);
 			}
 
 			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct EnemyLeAttacked>, enemy_index, ticks);
@@ -301,6 +302,21 @@ void CollisionSystem::ItemCollision(const Vector2 player_centre, MessageSystem& 
 	}
 }
 
+void CollisionSystem::EnemyItemCollision(MessageSystem& message_system, const std::vector<Vector2>& enemy_centre) const noexcept
+{
+	for (size_t i = 0, n = enemy_centre.size(); i < n; i++)
+	{
+		const size_t index = this->GetMortonCode(enemy_centre[i].x, enemy_centre[i].y);
+
+		if (index < this->GridSize && this->ItemGrid[index] != this->EmptyCell)
+		{
+			const size_t item_index = this->ItemGrid[index];
+
+			message_system.ItemSystemCommands.emplace_back(std::in_place_type<struct EnemyItemCollision>, item_index, i);
+		}
+	}
+}
+
 void CollisionSystem::ApplyAussie(MessageSystem& message_system, const size_t ticks) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyAussie)]++;
@@ -327,9 +343,6 @@ void CollisionSystem::ApplyDrunk(MessageSystem& message_system, const size_t tic
 	
 	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5), false, Timer::DrunkExpire);
 }
-
-void CollisionSystem::ApplyNone(MessageSystem& message_system, const size_t ticks) const noexcept
-{}
 
 
 

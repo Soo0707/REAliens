@@ -35,6 +35,7 @@ EnemySystem::EnemySystem()
 	this->EnemyIsVisible.reserve(1024);
 	this->EnemyDirection.reserve(1024);
 	this->EnemyRect.reserve(1024);
+	this->EnemyCentre.reserve(1024);
 	this->EnemyAttackComponents.reserve(1024);
 	this->EnemyTextureKey.reserve(1024);
 	this->EnemyAnimationComponents.reserve(1024);
@@ -48,6 +49,7 @@ void EnemySystem::Reset() noexcept
 	this->EnemyIsVisible.clear();
 	this->EnemyDirection.clear();
 	this->EnemyRect.clear();
+	this->EnemyCentre.clear();
 	this->EnemyAttackComponents.clear();
 	this->EnemyTextureKey.clear();
 	this->EnemyAnimationComponents.clear();
@@ -176,6 +178,9 @@ void EnemySystem::MoveEnemies(const float map_width, const float map_height) noe
 			this->EnemyRect[i].y = map_height - this->EnemyRect[i].height;
 		else if (this->EnemyRect[i].y + this->EnemyRect[i].height > map_height)
 			this->EnemyRect[i].y = 0.0f;
+
+		this->EnemyCentre[i].x = this->EnemyRect[i].x + this->EnemyRect[i].width / 2.0f;
+		this->EnemyCentre[i].y = this->EnemyRect[i].y + this->EnemyRect[i].height / 2.0f;
 	}
 }
 
@@ -208,8 +213,8 @@ void EnemySystem::EnemiesSetDirection(const Vector2 player_centre, const bool is
 	{
 		if (this->EnemyIsVisible[i])
 		{
-			this->EnemyDirection[i].x = player_centre.x - (this->EnemyRect[i].x + this->EnemyRect[i].width / 2.0f);
-			this->EnemyDirection[i].y = player_centre.y - (this->EnemyRect[i].y + this->EnemyRect[i].height / 2.0f);
+			this->EnemyDirection[i].x = player_centre.x - this->EnemyCentre[i].x;
+			this->EnemyDirection[i].y = player_centre.y - this->EnemyCentre[i].y;
 
 			if (is_stinky)
 				this->EnemyDirection[i] = Vector2Scale(this->EnemyDirection[i], -1.0f);
@@ -228,9 +233,9 @@ void EnemySystem::EnemiesUpdateTimers(const size_t ticks) noexcept
 	}
 }
 
-const std::vector<Rectangle>& EnemySystem::GetEnemyRect() const noexcept
+const std::vector<Vector2>& EnemySystem::GetEnemyCentre() const noexcept
 {
-	return this->EnemyRect;
+	return this->EnemyCentre;
 }
 
 const std::vector<EnemyAttackComponent>& EnemySystem::GetEnemyAttackComponents() const noexcept
@@ -257,6 +262,10 @@ void EnemySystem::CreateEnemy(const float x, const float y, const float level_sc
 	this->EnemyIsVisible.emplace_back(false);
 	this->EnemyDirection.emplace_back(0.0f, 0.0f);
 	this->EnemyRect.emplace_back(x, y, ENEMY_TEXTURE_TILE_SIZE, ENEMY_TEXTURE_TILE_SIZE);
+	this->EnemyCentre.emplace_back(
+			x + static_cast<float>(ENEMY_TEXTURE_TILE_SIZE) / 2.0f,
+			y + static_cast<float>(ENEMY_TEXTURE_TILE_SIZE) / 2.0f
+			);
 	this->EnemyAttackComponents.emplace_back(0, this->EnemyAttributes[type_index].Damage * level_scale, true);
 	this->EnemyTextureKey.emplace_back(this->EnemyAttributes[type_index].Texture);
 	this->EnemyAnimationComponents.emplace_back(0, 0, this->EnemyAttributes[type_index].AnimationInterval);
@@ -279,6 +288,7 @@ void EnemySystem::KillEnemies(MessageSystem& message_system, const bool has_magn
 			this->EnemyIsVisible[i] = this->EnemyIsVisible.back();
 			this->EnemyDirection[i] = this->EnemyDirection.back();
 			this->EnemyRect[i] = this->EnemyRect.back();
+			this->EnemyCentre[i] = this->EnemyCentre.back();
 			this->EnemyAttackComponents[i] = this->EnemyAttackComponents.back();
 			this->EnemyTextureKey[i] = this->EnemyTextureKey.back();
 			this->EnemyAnimationComponents[i] = this->EnemyAnimationComponents.back();
@@ -289,6 +299,7 @@ void EnemySystem::KillEnemies(MessageSystem& message_system, const bool has_magn
 			this->EnemyIsVisible.pop_back();
 			this->EnemyDirection.pop_back();
 			this->EnemyRect.pop_back();
+			this->EnemyCentre.pop_back();
 			this->EnemyAttackComponents.pop_back();
 			this->EnemyTextureKey.pop_back();
 			this->EnemyAnimationComponents.pop_back();
@@ -366,6 +377,7 @@ void EnemySystem::SpawnEnemies(
 	this->EnemyIsVisible.reserve(new_size);
 	this->EnemyDirection.reserve(new_size);
 	this->EnemyRect.reserve(new_size);
+	this->EnemyCentre.reserve(new_size);
 	this->EnemyAttackComponents.reserve(new_size);
 	this->EnemyTextureKey.reserve(new_size);
 	this->EnemyAnimationComponents.reserve(new_size);

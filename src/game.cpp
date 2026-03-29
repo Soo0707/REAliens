@@ -160,7 +160,7 @@ void Game::Update(const size_t ticks) noexcept
 	this->ProjectileSystem->Update(*this->MessageSystem, *this->Assets, *this->ModifierSystem, update_area, ticks);
 	
 	this->CollisionSystem->Update(
-			*this->MessageSystem, *this->ModifierSystem, this->EnemySystem->GetEnemyRect(),
+			*this->MessageSystem, *this->ModifierSystem, this->EnemySystem->GetEnemyCentre(),
 			this->EnemySystem->GetEnemyHealth(), this->EnemySystem->GetEnemyAttackComponents(),
 			this->EnemySystem->GetEnemyType(), this->ProjectileSystem->GetProjectileRect(),
 			this->ProjectileSystem->GetProjectileType(), this->ProjectileSystem->GetProjectileDirection(),

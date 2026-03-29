@@ -41,7 +41,7 @@ class EnemySystem
 
 		void Draw(const AssetManager& assets) const noexcept;
 
-		const std::vector<Rectangle>& GetEnemyRect() const noexcept;
+		const std::vector<Vector2>& GetEnemyCentre() const noexcept;
 		const std::vector<EnemyAttackComponent>& GetEnemyAttackComponents() const noexcept;
 
 		const std::vector<EnemyType>& GetEnemyType() const noexcept;
@@ -101,6 +101,7 @@ class EnemySystem
 		std::vector<uint8_t> EnemyIsVisible;
 		std::vector<Vector2> EnemyDirection;
 		std::vector<Rectangle> EnemyRect;
+		std::vector<Vector2> EnemyCentre; // TODO: has not been implemented
 		std::vector<EnemyType> EnemyTypes;
 		std::vector<EnemyAttackComponent> EnemyAttackComponents;
 		std::vector<TextureKey> EnemyTextureKey;
