@@ -6,7 +6,7 @@
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-x86_64-w64-mingw32-g++ src/main.cpp\
+g++ src/main.cpp\
  src/game.cpp\
  src/player.cpp\
  src/collisionSystem.cpp\
@@ -30,23 +30,19 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  src/stateManager.cpp\
  src/systemsResetState.cpp\
  src/cameraSystem.cpp\
- -o /mnt/tmpfs/out.exe\
+ -o /mnt/tmpfs/out\
  -std=c++20\
- -Iinclude\
+ -Iinclude/\
  -Isrc/headers/\
- -Llib/windows/\
+ -Llib/linux/\
  -lraylib\
- -lopengl32\
- -lgdi32\
- -lwinmm\
- -static\
- -march=sandybridge\
- -mtune=haswell\
- -flto=auto\
- -O3
-
-#-g\
-#-fno-omit-frame-pointer
-
+ -lGL\
+ -lX11\
+ -O0\
+ -g\
+ -Wno-changes-meaning\
+ -fno-omit-frame-pointer\
+ -fsanitize=address\
+ -fsanitize=undefined
 
 

@@ -63,21 +63,21 @@ class StateManager
 		void RunGenerateGameOverStats(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept;
 
 		static constexpr std::array<void(StateManager::*)(MessageSystem&, const RenderTexture2D&), static_cast<size_t>(State::COUNT)> StateHooks = {
-			&RunGame,
-			&RunSystemsReset,
-			&RunPowerupMenu,
-			&RunGameOverMenu,
-			&RunPauseMenu,
-			&RunMainMenu,
-			&RunGenerateGameOverStats
+			&StateManager::RunGame,
+			&StateManager::RunSystemsReset,
+			&StateManager::RunPowerupMenu,
+			&StateManager::RunGameOverMenu,
+			&StateManager::RunPauseMenu,
+			&StateManager::RunMainMenu,
+			&StateManager::RunGenerateGameOverStats
 		};
 
 		void SetStateHandler(const StateManagerCommand& command) noexcept;
 		void SetTerminateHandler(const StateManagerCommand& command) noexcept;
 
 		static constexpr std::array<void(StateManager::*)(const StateManagerCommand&), 2> CommandHandlers = {
-			&SetStateHandler,
-			&SetTerminateHandler
+			&StateManager::SetStateHandler,
+			&StateManager::SetTerminateHandler
 		};
 
 		uint8_t TickIncrement;

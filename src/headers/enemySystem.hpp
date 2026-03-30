@@ -66,8 +66,8 @@ class EnemySystem
 
 		static constexpr std::array<void(EnemySystem::*)(const size_t, const size_t, MessageSystem&) noexcept, static_cast<size_t>(EnemySystemSignal::COUNT)> SignalHandlers =
 		{
-			&EmitParticlesFromLocations,
-			&SpawnEnemies
+			&EnemySystem::EmitParticlesFromLocations,
+			&EnemySystem::SpawnEnemies
 		};
 
 		void DamageEnemyHandler(const EnemySystemCommand& command) noexcept;
@@ -76,9 +76,9 @@ class EnemySystem
 
 		static constexpr std::array<void(EnemySystem::*)(const EnemySystemCommand&) noexcept, 3> CommandHandlers = 
 		{
-			&DamageEnemyHandler,
-			&EnemyLeAttackedHandler,
-			&EnemyGotGluedHandler
+			&EnemySystem::DamageEnemyHandler,
+			&EnemySystem::EnemyLeAttackedHandler,
+			&EnemySystem::EnemyGotGluedHandler
 		};
 
 		// animation_frames = number of actual frames -1 since it's 0 indexed
@@ -101,7 +101,7 @@ class EnemySystem
 		std::vector<uint8_t> EnemyIsVisible;
 		std::vector<Vector2> EnemyDirection;
 		std::vector<Rectangle> EnemyRect;
-		std::vector<Vector2> EnemyCentre; // TODO: has not been implemented
+		std::vector<Vector2> EnemyCentre;
 		std::vector<EnemyType> EnemyTypes;
 		std::vector<EnemyAttackComponent> EnemyAttackComponents;
 		std::vector<TextureKey> EnemyTextureKey;

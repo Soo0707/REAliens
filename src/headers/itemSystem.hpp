@@ -57,7 +57,7 @@ class ItemSystem
 
 		static constexpr std::array<UpdateHook, static_cast<size_t>(Item::COUNT)> UpdateHooks = {
 			nullptr,
-			&TurretUpdateHook,
+			&ItemSystem::TurretUpdateHook,
 			nullptr
 		};
 
@@ -67,7 +67,7 @@ class ItemSystem
 		using CollisionHook = void(ItemSystem::*)(MessageSystem&, const size_t) noexcept; 
 
 		static constexpr std::array<CollisionHook, static_cast<size_t>(Item::COUNT)> CollisionHooks = {
-			&XpCollisionHook,
+			&ItemSystem::XpCollisionHook,
 			nullptr,
 			nullptr
 		};
@@ -80,7 +80,7 @@ class ItemSystem
 		static constexpr std::array<EnemyItemCollisionHook, static_cast<size_t>(Item::COUNT)> EnemyItemCollisionHooks = {
 			nullptr,
 			nullptr,
-			&GlueEnemyItemCollisionHook
+			&ItemSystem::GlueEnemyItemCollisionHook
 		};
 
 
@@ -93,9 +93,9 @@ class ItemSystem
 		using CommandHandler = void(ItemSystem::*)(MessageSystem&, const ItemSystemCommand&, const AssetManager&) noexcept;
 
 		static constexpr std::array<CommandHandler, 3> CommandHandlers = {
-			&CreateItemHandler,
-			&CollidedWithItemHandler,
-			&EnemyItemCollisionHandler
+			&ItemSystem::CreateItemHandler,
+			&ItemSystem::CollidedWithItemHandler,
+			&ItemSystem::EnemyItemCollisionHandler
 		};
 		
 		std::vector<Item> ItemType;

@@ -68,9 +68,9 @@ class Player
 
 		static constexpr std::array<void(Player::*)(const PlayerCommand&, const ModifierSystem&) noexcept, 3> CommandHandlers = 
 		{
-			&TakeDamage,
-			&IncreaseHealth,
-			&SetDirection
+			&Player::TakeDamage,
+			&Player::IncreaseHealth,
+			&Player::SetDirection
 		};
 
 		void IncreasePlotArmour(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system)noexcept;
@@ -78,14 +78,16 @@ class Player
 		void ApplySlide(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept;
 		void RemoveSlide(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept;
 		void SpawnBall(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept;
+		void DripGlue(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept;
 
 		static constexpr std::array<void(Player::*)(MessageSystem&, const uint16_t, const ModifierSystem&) noexcept, static_cast<size_t>(PlayerSignal::COUNT)> SignalHandlers = 
 		{
-			&IncreasePlotArmour,
-			&ApplySpeedBoots,
-			&ApplySlide,
-			&RemoveSlide,
-			&SpawnBall
+			&Player::IncreasePlotArmour,
+			&Player::ApplySpeedBoots,
+			&Player::ApplySlide,
+			&Player::RemoveSlide,
+			&Player::SpawnBall,
+			&Player::DripGlue
 		};
 
 		size_t LastAnimationUpdate;

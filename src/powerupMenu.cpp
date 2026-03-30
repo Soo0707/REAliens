@@ -251,3 +251,14 @@ void PowerupMenu::ApplyFastHands() noexcept
 	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct DecreaseTimerInterval>, 50, 25, Timer::LMB);
 	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct DecreaseTimerInterval>, 75, 25, Timer::RMB);
 }
+
+void PowerupMenu::ApplyDrippyGlue() noexcept
+{
+	if (!this->TimerSystem->GetTimerStatus(Timer::GlueCountdown))
+		this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct EnableTimer>, true, Timer::GlueCountdown);
+	else
+		this->MessageSystem->TimerSystemCommands.emplace_back(
+				std::in_place_type<struct DecreaseTimerInterval>,
+				SECONDS_TO_TICKS(5), TICK_RATE / 3, Timer::GlueCountdown
+				);
+}

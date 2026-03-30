@@ -88,10 +88,10 @@ class Game
 		void UpdateDuration(const size_t ticks) noexcept;
 
 		std::array<void(Game::*)(const size_t ticks) noexcept, static_cast<size_t>(GameSignal::COUNT)> SignalHandlers = {
-			&EnableLMB,
-			&EnableRMB,
-			&EnableSlide,
-			&UpdateDuration
+			&Game::EnableLMB,
+			&Game::EnableRMB,
+			&Game::EnableSlide,
+			&Game::UpdateDuration
 		};
 		
 		void PollSignals(const size_t ticks) noexcept;

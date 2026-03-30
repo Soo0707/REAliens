@@ -86,6 +86,7 @@ void TimerSystem::Reset() noexcept
 
 	this->TimerInterval[static_cast<size_t>(Timer::AuraTick)] = static_cast<uint32_t>(SECONDS_TO_TICKS(2));
 	this->TimerInterval[static_cast<size_t>(Timer::BallCountdown)] = static_cast<uint32_t>(SECONDS_TO_TICKS(30));
+	this->TimerInterval[static_cast<size_t>(Timer::GlueCountdown)] = static_cast<uint32_t>(SECONDS_TO_TICKS(15));
 
 	this->TimerInterval[static_cast<size_t>(Timer::LMB)] = static_cast<uint32_t>(150);
 	this->TimerActive[static_cast<size_t>(Timer::LMB)] = true;
@@ -235,4 +236,9 @@ void TimerSystem::SlideHandler(MessageSystem& message_system) const noexcept
 void TimerSystem::UpdateDurationHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.GameSignals[static_cast<size_t>(GameSignal::UpdateDuration)]++;
+}
+
+void TimerSystem::GlueCountdownHandler(MessageSystem& message_system) const noexcept
+{
+	message_system.PlayerSignals[static_cast<size_t>(PlayerSignal::DripGlue)]++;
 }

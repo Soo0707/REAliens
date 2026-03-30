@@ -67,8 +67,8 @@ class ProjectileSystem
 
 		static inline constexpr std::array<void(ProjectileSystem::*)(const ProjectileSystemCommand&, const AssetManager&) noexcept, 2> CommandHandlers = 
 		{
-			&CreateProjectileHandler,
-			&ProjectileHitHandler
+			&ProjectileSystem::CreateProjectileHandler,
+			&ProjectileSystem::ProjectileHitHandler
 		};
 
 		std::vector<uint8_t> ProjectileIsVisible;

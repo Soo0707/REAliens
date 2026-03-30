@@ -27,7 +27,6 @@
 #include "modifiers.hpp"
 #include "itemData.hpp"
 
-//TODO: check limits since collision system uses 16bit integers for indices
 EnemySystem::EnemySystem()
 {
 	this->EnemyHealth.reserve(1024);
@@ -36,10 +35,10 @@ EnemySystem::EnemySystem()
 	this->EnemyDirection.reserve(1024);
 	this->EnemyRect.reserve(1024);
 	this->EnemyCentre.reserve(1024);
+	this->EnemyTypes.reserve(1024);
 	this->EnemyAttackComponents.reserve(1024);
 	this->EnemyTextureKey.reserve(1024);
 	this->EnemyAnimationComponents.reserve(1024);
-	this->EnemyTypes.reserve(1024);
 }
 
 void EnemySystem::Reset() noexcept
@@ -50,11 +49,10 @@ void EnemySystem::Reset() noexcept
 	this->EnemyDirection.clear();
 	this->EnemyRect.clear();
 	this->EnemyCentre.clear();
+	this->EnemyTypes.clear();
 	this->EnemyAttackComponents.clear();
 	this->EnemyTextureKey.clear();
 	this->EnemyAnimationComponents.clear();
-	this->EnemyTypes.clear();
-
 
 	this->FutureEnemyTypes.clear();
 	this->FutureSpawnLocations.clear();
@@ -98,7 +96,7 @@ void EnemySystem::Update(
 	const float map_width = assets.Ground.width;
 	const float map_height = assets.Ground.height;
 
-	if (this->EnemyHealth.size() < 5 && !timer_system.GetTimerStatus(Timer::SpawnEnemies))
+	if (this->EnemyHealth.size() < 15 && !timer_system.GetTimerStatus(Timer::SpawnEnemies))
 	{
 		message_system.TimerSystemCommands.emplace_back(
 				std::in_place_type<struct RegisterTimer>, TICK_RATE / 2,
@@ -266,10 +264,10 @@ void EnemySystem::CreateEnemy(const float x, const float y, const float level_sc
 			x + static_cast<float>(ENEMY_TEXTURE_TILE_SIZE) / 2.0f,
 			y + static_cast<float>(ENEMY_TEXTURE_TILE_SIZE) / 2.0f
 			);
+	this->EnemyTypes.emplace_back(type);
 	this->EnemyAttackComponents.emplace_back(0, this->EnemyAttributes[type_index].Damage * level_scale, true);
 	this->EnemyTextureKey.emplace_back(this->EnemyAttributes[type_index].Texture);
 	this->EnemyAnimationComponents.emplace_back(0, 0, this->EnemyAttributes[type_index].AnimationInterval);
-	this->EnemyTypes.emplace_back(type);
 }
 
 void EnemySystem::KillEnemies(MessageSystem& message_system, const bool has_magnetism) noexcept
@@ -289,10 +287,10 @@ void EnemySystem::KillEnemies(MessageSystem& message_system, const bool has_magn
 			this->EnemyDirection[i] = this->EnemyDirection.back();
 			this->EnemyRect[i] = this->EnemyRect.back();
 			this->EnemyCentre[i] = this->EnemyCentre.back();
+			this->EnemyTypes[i] = this->EnemyTypes.back();
 			this->EnemyAttackComponents[i] = this->EnemyAttackComponents.back();
 			this->EnemyTextureKey[i] = this->EnemyTextureKey.back();
 			this->EnemyAnimationComponents[i] = this->EnemyAnimationComponents.back();
-			this->EnemyTypes[i] = this->EnemyTypes.back();
 
 			this->EnemyHealth.pop_back();
 			this->EnemySpeed.pop_back();
@@ -300,10 +298,10 @@ void EnemySystem::KillEnemies(MessageSystem& message_system, const bool has_magn
 			this->EnemyDirection.pop_back();
 			this->EnemyRect.pop_back();
 			this->EnemyCentre.pop_back();
+			this->EnemyTypes.pop_back();
 			this->EnemyAttackComponents.pop_back();
 			this->EnemyTextureKey.pop_back();
 			this->EnemyAnimationComponents.pop_back();
-			this->EnemyTypes.pop_back();
 
 			if (has_magnetism)
 				message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::IncrementCollectedXp)]++;
@@ -351,7 +349,8 @@ void EnemySystem::EnemyGotGluedHandler(const EnemySystemCommand& command) noexce
 }
 
 void EnemySystem::EmitParticlesFromLocations(
-		const size_t ticks, const size_t level, MessageSystem& message_system) noexcept
+		const size_t ticks, const size_t level, MessageSystem& message_system
+		) noexcept
 {
 	for (auto const& location : this->FutureSpawnLocations)
 	{
@@ -365,7 +364,8 @@ void EnemySystem::EmitParticlesFromLocations(
 }
 
 void EnemySystem::SpawnEnemies(
-		const size_t ticks, const size_t level, MessageSystem& message_system) noexcept
+		const size_t ticks, const size_t level, MessageSystem& message_system
+		) noexcept
 {
 	const size_t spawn_count = level * 15;
 	const float level_scale = 1 + static_cast<float>(level) / 10.0f;
@@ -378,21 +378,18 @@ void EnemySystem::SpawnEnemies(
 	this->EnemyDirection.reserve(new_size);
 	this->EnemyRect.reserve(new_size);
 	this->EnemyCentre.reserve(new_size);
+	this->EnemyTypes.reserve(new_size);
 	this->EnemyAttackComponents.reserve(new_size);
 	this->EnemyTextureKey.reserve(new_size);
 	this->EnemyAnimationComponents.reserve(new_size);
-	this->EnemyTypes.reserve(new_size);
 
-	for (size_t i = 0; i < spawn_count; i++)
+	for (size_t i = 0, n = this->FutureSpawnLocations.size(); i < n; i++)
 	{
 		const Vector2 location = this->FutureSpawnLocations[i];
 		const EnemyType type = this->FutureEnemyTypes[i];
 
 		this->CreateEnemy(location.x, location.y, level_scale, type);
 	}
-
-	this->FutureSpawnLocations.clear();
-	this->FutureEnemyTypes.clear();
 }
 
 void EnemySystem::PrepareSpawnEnemies(const size_t level, const float map_width, const float map_height) noexcept
@@ -405,6 +402,7 @@ void EnemySystem::PrepareSpawnEnemies(const size_t level, const float map_width,
 
 void EnemySystem::GenerateLocations(const size_t spawn_count, const float map_width, const float map_height) noexcept
 {
+	this->FutureSpawnLocations.clear();
 	this->FutureSpawnLocations.reserve(spawn_count);
 
 	for (size_t i = 0; i < spawn_count; i++)
@@ -418,6 +416,7 @@ void EnemySystem::GenerateLocations(const size_t spawn_count, const float map_wi
 
 void EnemySystem::GenerateTypes(const size_t spawn_count) noexcept
 {
+	this->FutureEnemyTypes.clear();
 	this->FutureEnemyTypes.reserve(spawn_count);
 
 	for (size_t i = 0; i < spawn_count; i++)

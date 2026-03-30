@@ -42,7 +42,9 @@ enum class Powerup : uint8_t
 	SpeedBoots,
 	BabyOil,
 	Luck,
+
 	FastHands,
+	DrippyGlue,
 	COUNT
 };
 
@@ -89,6 +91,7 @@ class PowerupMenu
 		void ApplyBabyOil() noexcept;
 		void ApplyLuck() noexcept;
 		void ApplyFastHands() noexcept;
+		void ApplyDrippyGlue() noexcept;
 
 		std::vector<PowerupWrapper> SelectionList;
 
@@ -100,7 +103,7 @@ class PowerupMenu
 		const std::shared_ptr<class ModifierSystem> ModifierSystem;
 		const std::shared_ptr<class TimerSystem> TimerSystem;
 
-		static inline constexpr std::array<std::string, static_cast<size_t>(Powerup::COUNT)> PowerupNames =
+		std::array<std::string, static_cast<size_t>(Powerup::COUNT)> PowerupNames =
 		{
 			"Aura",
 			"Buckshot",
@@ -118,7 +121,8 @@ class PowerupMenu
 			"Speed Boots",
 			"Baby Oil",
 			"Luck",
-			"Fast Hands"
+			"Fast Hands",
+			"Drippy Glue"
 		};
 
 		static inline constexpr std::array<const char*, static_cast<size_t>(Powerup::COUNT)> PowerupDescriptions =
@@ -139,28 +143,30 @@ class PowerupMenu
 			"Increase Player Speed",
 			"Increase Slide Speed",
 			"Increase Luck For Luck Based Events",
-			"Decrease LMB & RMB Timeout"
+			"Decrease LMB & RMB Timeout",
+			"Drip Glue To Trap Enemies Based On Luck"
 		};
 
 		static inline constexpr std::array<void(PowerupMenu::*)(), static_cast<size_t>(Powerup::COUNT)> ApplyHandles = 
 		{
-			&ApplyAura,
-			&ApplyBuckshot,
-			&ApplyBullet,
+			&PowerupMenu::ApplyAura,
+			&PowerupMenu::ApplyBuckshot,
+			&PowerupMenu::ApplyBullet,
 
-			&ApplyLazer,
-			&ApplyBall,
-			&ApplyGreenbull,
+			&PowerupMenu::ApplyLazer,
+			&PowerupMenu::ApplyBall,
+			&PowerupMenu::ApplyGreenbull,
 
-			&ApplyMilk,
-			&ApplyLifeSteal,
-			&ApplyPlotArmour,
+			&PowerupMenu::ApplyMilk,
+			&PowerupMenu::ApplyLifeSteal,
+			&PowerupMenu::ApplyPlotArmour,
 
-			&ApplyMagnetism,
-			&ApplySpeedBoots,
-			&ApplyBabyOil,
-			&ApplyLuck,
-			&ApplyFastHands
+			&PowerupMenu::ApplyMagnetism,
+			&PowerupMenu::ApplySpeedBoots,
+			&PowerupMenu::ApplyBabyOil,
+			&PowerupMenu::ApplyLuck,
+			&PowerupMenu::ApplyFastHands,
+			&PowerupMenu::ApplyDrippyGlue
 		};
 
 		bool Gamble = false;

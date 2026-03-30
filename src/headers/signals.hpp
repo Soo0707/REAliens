@@ -27,6 +27,7 @@ enum class PlayerSignal : uint8_t
 	RemoveSlide,
 
 	SpawnBall,
+	DripGlue,
 
 	COUNT
 };

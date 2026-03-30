@@ -14,25 +14,25 @@ enum class Timer : uint8_t
 {
 	GreenbullExpire,
 	MilkExpire,
-
 	PoisonTick,
-	PoisonExpire,
 
+	PoisonExpire,
 	DrunkExpire,
 	AussieExpire,
-	MagnetismExpire,
 
+	MagnetismExpire,
 	AuraTick,
 	EmitLocationParticles,
-	SpawnEnemies,
 
+	SpawnEnemies,
 	PlayerSlideExpire,
 	BallCountdown,
 
 	LMB,
 	RMB,
 	Slide,
-	UpdateDuration,
 
+	UpdateDuration,
+	GlueCountdown,
 	COUNT
 };

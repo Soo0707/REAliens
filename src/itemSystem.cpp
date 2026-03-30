@@ -242,7 +242,6 @@ void ItemSystem::XpCollisionHook(MessageSystem& message_system, const size_t ite
 	this->ItemKill[item_index] = static_cast<uint8_t>(true);
 }
 
-
 void ItemSystem::GlueEnemyItemCollisionHook(MessageSystem& message_system, const size_t item_index, const size_t enemy_index) noexcept
 {
 	message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct EnemyGotGlued>, enemy_index);

@@ -71,14 +71,14 @@ void ModifierSystem::Reset() noexcept
 
 	this->SetAttribute(Attribute::SlideSpeedMultiplier, 2.0f);
 
-	//TODO: set this to be random and find a way to incorparate it
-	this->SetAttribute(Attribute::LuckBoundary, 50.0f);
+	this->SetAttribute(Attribute::LuckBoundary, 100.0f);
 
 	this->Effects = static_cast<Effect>(0);
 	
 	this->Level = 1;
 	this->CollectedXp = 0;
 	this->LevelUpThreshold = 5;
+	this->UnclaimedPowerups = 0;
 }
 
 bool ModifierSystem::EffectStatus(const Effect effect) const noexcept
@@ -268,7 +268,7 @@ void ModifierSystem::ApplyBabyOil() noexcept
 
 void ModifierSystem::ApplyLuck() noexcept
 {
-	this->DecreaseAttribute(Attribute::LuckBoundary, 5.0f, 0.0f);
+	this->DecreaseAttribute(Attribute::LuckBoundary, 10.0f, 1.0f);
 }
 
 void ModifierSystem::ApplyAussie() noexcept

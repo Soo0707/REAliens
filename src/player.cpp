@@ -18,6 +18,7 @@
 #include "assetManager.hpp"
 #include "modifierSystem.hpp"
 #include "projectileData.hpp"
+#include "itemData.hpp"
 #include "messageSystem.hpp"
 #include "commands.hpp"
 #include "signals.hpp"
@@ -245,4 +246,15 @@ void Player::SpawnBall(MessageSystem& message_system, const uint16_t times, cons
 			std::in_place_type<struct CreateProjectile>, ProjectileType::Ball,
 			ball_direction, ball_location.x, ball_location.y, ball_speed, ball_scale
 			);
+}
+
+void Player::DripGlue(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept
+{
+	if (modifier_system.IsLucky() || true)
+	{
+		message_system.ItemSystemCommands.emplace_back(
+				std::in_place_type<struct CreateItem>, this->Centre.x, this->Centre.y,
+				Item::Glue
+				);
+	}
 }

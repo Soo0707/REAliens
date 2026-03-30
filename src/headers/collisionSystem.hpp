@@ -79,10 +79,10 @@ class CollisionSystem
 		using LeAttackHook = void(CollisionSystem::*)(MessageSystem&, const size_t) const noexcept;
 		static constexpr std::array<LeAttackHook, static_cast<size_t>(EnemyType::COUNT)> LeAttackHooks =
 		{
-			&ApplyAussie,
-			&ApplyDrunk,
+			&CollisionSystem::ApplyAussie,
+			&CollisionSystem::ApplyDrunk,
 			nullptr,
-			&ApplyPoison
+			&CollisionSystem::ApplyPoison
 		};
 		
 		void Aura(
@@ -94,7 +94,7 @@ class CollisionSystem
 
 		static constexpr std::array<SignalHandler, static_cast<size_t>(CollisionSystemSignal::COUNT)> SignalHandlers =
 		{
-			&Aura
+			&CollisionSystem::Aura
 		};
 
 		std::vector<size_t> EnemyGrid;

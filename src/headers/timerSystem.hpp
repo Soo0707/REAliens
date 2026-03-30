@@ -57,6 +57,7 @@ class TimerSystem
 		void RMBHandler(MessageSystem& message_system) const noexcept;
 		void SlideHandler(MessageSystem& message_system) const noexcept;
 		void UpdateDurationHandler(MessageSystem& message_system) const noexcept;
+		void GlueCountdownHandler(MessageSystem& message_system) const noexcept;
 
 		void RegisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
 		void EnableTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
@@ -66,30 +67,31 @@ class TimerSystem
 
 		static constexpr std::array<void(TimerSystem::*)(const TimerSystemCommand& command, const size_t ticks) noexcept, 5> CommandHandlers = 
 		{
-			&RegisterTimer,
-			&EnableTimer,
-			&DisableTimer,
-			&DecreaseTimerInterval,
-			&TriggerNow
+			&TimerSystem::RegisterTimer,
+			&TimerSystem::EnableTimer,
+			&TimerSystem::DisableTimer,
+			&TimerSystem::DecreaseTimerInterval,
+			&TimerSystem::TriggerNow
 		};
 
 		static constexpr std::array<void(TimerSystem::*)(MessageSystem&) const noexcept, static_cast<size_t>(Timer::COUNT)> TimeoutHandlers =
 		{
-			&GreenbullExpireHandler,
-			&MilkExpireHandler,
-			&PoisonTickHandler,
-			&PoisonExpireHandler,
-			&DrunkExpireHandler,
-			&AussieExpireHandler,
-			&MagnetismExpireHandler,
-			&AuraTickHandler,
-			&EmitLocationParticlesHandler,
-			&SpawnEnemiesHandler,
-			&PlayerSlideExpireHandler,
-			&BallCountdownHandler,
-			&LMBHandler,
-			&RMBHandler,
-			&SlideHandler,
-			&UpdateDurationHandler
+			&TimerSystem::GreenbullExpireHandler,
+			&TimerSystem::MilkExpireHandler,
+			&TimerSystem::PoisonTickHandler,
+			&TimerSystem::PoisonExpireHandler,
+			&TimerSystem::DrunkExpireHandler,
+			&TimerSystem::AussieExpireHandler,
+			&TimerSystem::MagnetismExpireHandler,
+			&TimerSystem::AuraTickHandler,
+			&TimerSystem::EmitLocationParticlesHandler,
+			&TimerSystem::SpawnEnemiesHandler,
+			&TimerSystem::PlayerSlideExpireHandler,
+			&TimerSystem::BallCountdownHandler,
+			&TimerSystem::LMBHandler,
+			&TimerSystem::RMBHandler,
+			&TimerSystem::SlideHandler,
+			&TimerSystem::UpdateDurationHandler,
+			&TimerSystem::GlueCountdownHandler
 		};
 };

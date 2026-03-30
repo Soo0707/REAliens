@@ -83,31 +83,31 @@ class ModifierSystem
 
 		static constexpr std::array<void(ModifierSystem::*)() noexcept, static_cast<size_t>(ModifierSystemSignal::COUNT)> SignalHandlers =
 		{
-			&ApplyMilk,
-			&ApplyGreenbull,
-			&ApplyMagnetism,
-			&ApplyAura,
-			&ApplyBuckshot,
-			&ApplyBullet,
-			&ApplyLazer,
-			&ApplyBall,
-			&ApplyLifeSteal,
-			&ApplyBabyOil,
-			&ApplyLuck,
-			&ApplyAussie,
-			&ApplyPoison,
-			&ApplyTrapped,
-			&ApplyDrunk,
+			&ModifierSystem::ApplyMilk,
+			&ModifierSystem::ApplyGreenbull,
+			&ModifierSystem::ApplyMagnetism,
+			&ModifierSystem::ApplyAura,
+			&ModifierSystem::ApplyBuckshot,
+			&ModifierSystem::ApplyBullet,
+			&ModifierSystem::ApplyLazer,
+			&ModifierSystem::ApplyBall,
+			&ModifierSystem::ApplyLifeSteal,
+			&ModifierSystem::ApplyBabyOil,
+			&ModifierSystem::ApplyLuck,
+			&ModifierSystem::ApplyAussie,
+			&ModifierSystem::ApplyPoison,
+			&ModifierSystem::ApplyTrapped,
+			&ModifierSystem::ApplyDrunk,
 
-			&RemoveMilk,
-			&RemoveGreenbull,
-			&RemoveMagnetism,
-			&RemoveAussie,
-			&RemovePoison,
-			&RemoveTrapped,
-			&RemoveDrunk,
+			&ModifierSystem::RemoveMilk,
+			&ModifierSystem::RemoveGreenbull,
+			&ModifierSystem::RemoveMagnetism,
+			&ModifierSystem::RemoveAussie,
+			&ModifierSystem::RemovePoison,
+			&ModifierSystem::RemoveTrapped,
+			&ModifierSystem::RemoveDrunk,
 
-			&IncrementCollectedXp
+			&ModifierSystem::IncrementCollectedXp
 		};
 
 		static constexpr std::array<Effect, 5> DebuffList = { 
