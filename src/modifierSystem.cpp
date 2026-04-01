@@ -202,7 +202,6 @@ void ModifierSystem::ApplyMilk() noexcept
 
 	this->RemoveEffect(Effect::Aussie);
 	this->RemoveEffect(Effect::Drunk);
-	this->RemoveEffect(Effect::Trapped);
 
 	this->RemoveEffect(Effect::Poison);
 }
@@ -287,11 +286,6 @@ void ModifierSystem::ApplyPoison() noexcept
 	this->ApplyEffect(Effect::Poison);
 }
 
-void ModifierSystem::ApplyTrapped() noexcept
-{
-	this->ApplyEffect(Effect::Trapped);
-}
-
 void ModifierSystem::ApplyDrunk() noexcept
 {
 	this->ApplyEffect(Effect::Drunk);
@@ -321,11 +315,6 @@ void ModifierSystem::RemoveAussie() noexcept
 void ModifierSystem::RemovePoison() noexcept
 {
 	this->RemoveEffect(Effect::Poison);
-}
-
-void ModifierSystem::RemoveTrapped() noexcept
-{
-	this->RemoveEffect(Effect::Trapped);
 }
 
 void ModifierSystem::RemoveDrunk() noexcept

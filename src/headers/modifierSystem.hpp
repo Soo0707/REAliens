@@ -25,8 +25,6 @@ class ModifierSystem
 
 		void Update(MessageSystem& message_system, StringCache& string_cache, const SettingsManager& settings) noexcept;
 
-		void PollSignals(MessageSystem& message_system) noexcept;
-
 		bool EffectStatus(const Effect effect) const noexcept;
 		bool IsLucky() const noexcept;
 		float GetAttribute(const Attribute attribute) const noexcept;
@@ -40,6 +38,7 @@ class ModifierSystem
 		void Reset() noexcept;
 
 	private:
+		void PollSignals(MessageSystem& message_system) noexcept;
 		void LevelUp(MessageSystem& message_system, StringCache& string_cache, const SettingsManager& settings) noexcept;
 
 		void ApplyEffect(const Effect effect) noexcept;
@@ -60,11 +59,10 @@ class ModifierSystem
 		void ApplyLifeSteal() noexcept;
 		void ApplyBabyOil() noexcept;
 		void ApplyLuck() noexcept;
+		void ApplyGreed() noexcept;
 		void ApplyAussie() noexcept;
 		void ApplyPoison() noexcept;
-		void ApplyTrapped() noexcept;
 		void ApplyDrunk() noexcept;
-		void ApplyGreed() noexcept;
 
 
 		void RemoveMilk() noexcept;
@@ -72,7 +70,6 @@ class ModifierSystem
 		void RemoveMagnetism() noexcept;
 		void RemoveAussie() noexcept;
 		void RemovePoison() noexcept;
-		void RemoveTrapped() noexcept;
 		void RemoveDrunk() noexcept;
 
 		void InsertLevelDebuff() noexcept;
@@ -95,18 +92,16 @@ class ModifierSystem
 			&ModifierSystem::ApplyLifeSteal,
 			&ModifierSystem::ApplyBabyOil,
 			&ModifierSystem::ApplyLuck,
+			&ModifierSystem::ApplyGreed,
 			&ModifierSystem::ApplyAussie,
 			&ModifierSystem::ApplyPoison,
-			&ModifierSystem::ApplyTrapped,
 			&ModifierSystem::ApplyDrunk,
-			&ModifierSystem::ApplyGreed,
 
 			&ModifierSystem::RemoveMilk,
 			&ModifierSystem::RemoveGreenbull,
 			&ModifierSystem::RemoveMagnetism,
 			&ModifierSystem::RemoveAussie,
 			&ModifierSystem::RemovePoison,
-			&ModifierSystem::RemoveTrapped,
 			&ModifierSystem::RemoveDrunk,
 
 			&ModifierSystem::IncrementCollectedXp

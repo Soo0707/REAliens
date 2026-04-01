@@ -27,9 +27,6 @@ void GameInputSystem::HandleTickedInput(
 		const ModifierSystem& modifier_system, const SettingsManager& settings
 		) noexcept
 {
-	if (IsKeyDown(KEY_SPACE))
-		message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveTrapped)]++;
-
 	const Vector2 player_direction = {
 			static_cast<float>(IsKeyDown(KEY_D) - IsKeyDown(KEY_A)),
 			static_cast<float>(IsKeyDown(KEY_S) - IsKeyDown(KEY_W))

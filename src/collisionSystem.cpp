@@ -332,18 +332,12 @@ void CollisionSystem::ApplyPoison(MessageSystem& message_system, const size_t ti
 	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5), false, Timer::PoisonExpire);
 }
 
-void CollisionSystem::ApplyTrapped(MessageSystem& message_system, const size_t ticks) const noexcept
-{
-	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyTrapped)]++;
-}
-
 void CollisionSystem::ApplyDrunk(MessageSystem& message_system, const size_t ticks) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyDrunk)]++;
 	
 	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5), false, Timer::DrunkExpire);
 }
-
 
 
 inline uint16_t CollisionSystem::SeparateBits(uint16_t bits) const noexcept

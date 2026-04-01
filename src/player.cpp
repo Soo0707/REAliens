@@ -195,9 +195,6 @@ void Player::SetDirection(const PlayerCommand& command, const ModifierSystem& mo
 
 	Vector2 direction = data.Direction;
 
-	if (modifier_system.EffectStatus(Effect::Trapped))
-		direction = { 0.0f, 0.0f };
-
 	if (modifier_system.EffectStatus(Effect::Drunk))
 		direction = Vector2Scale(direction, -1.0f);
 

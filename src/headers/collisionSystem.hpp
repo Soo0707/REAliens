@@ -74,7 +74,6 @@ class CollisionSystem
 		void ApplyAussie(MessageSystem& message_system,	const size_t ticks) const noexcept;
 		void ApplyDrunk(MessageSystem& message_system, const size_t ticks) const noexcept;
 		void ApplyPoison(MessageSystem& message_system, const size_t ticks) const noexcept;
-		void ApplyTrapped(MessageSystem& message_system, const size_t ticks) const noexcept;
 
 		using LeAttackHook = void(CollisionSystem::*)(MessageSystem&, const size_t) const noexcept;
 		static constexpr std::array<LeAttackHook, static_cast<size_t>(EnemyType::COUNT)> LeAttackHooks =

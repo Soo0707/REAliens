@@ -47,19 +47,18 @@ enum class Effect : uint32_t
 	LifeSteal = 1 << 2,
 	Magnetism = 1 << 3,
 
-	Trapped = 1 << 4,
-	Poison = 1 << 5,
-	Drunk = 1 << 6,
+	Poison = 1 << 4,
+	Drunk = 1 << 5,
 
-	Aussie = 1 << 7,
-	Stinky = 1 << 8,
+	Aussie = 1 << 6,
+	Stinky = 1 << 7,
 
-	Microscope = 1 << 9,
-	Earthquake = 1 << 10,
-	Invisible = 1 << 11,
+	Microscope = 1 << 8,
+	Earthquake = 1 << 9,
+	Invisible = 1 << 10,
 
-	Weakness = 1 << 12,
-	DiddySlide = 1 << 13
+	Weakness = 1 << 11,
+	DiddySlide = 1 << 12
 };
 
 constexpr Effect operator&(const Effect l, const Effect r) noexcept

@@ -118,9 +118,6 @@ void GameDrawSystem::DrawOverlay(
 	if (modifier_system.EffectStatus(Effect::Magnetism))
 		GameDrawSystem::DrawMagnetism(timer_system, assets, ticks);
 
-	if (modifier_system.EffectStatus(Effect::Trapped))
-		DrawText("[Space] to untrap.", 533, 620, 24, WHITE);
-
 	DrawText(string_cache.Data[static_cast<size_t>(GameString::Duration)].c_str(), 20, 20, 24, LIGHTGRAY);
 	DrawText(string_cache.Data[static_cast<size_t>(GameString::LevelText)].c_str(), 20, 50, 24, (modifier_system.GetLevel() % 5) ? LIGHTGRAY : GOLD);
 
