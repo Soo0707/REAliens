@@ -196,10 +196,7 @@ void Player::SetDirection(const PlayerCommand& command, const ModifierSystem& mo
 	Vector2 direction = data.Direction;
 
 	if (modifier_system.EffectStatus(Effect::Trapped))
-	{
 		direction = { 0.0f, 0.0f };
-		return;
-	}
 
 	if (modifier_system.EffectStatus(Effect::Drunk))
 		direction = Vector2Scale(direction, -1.0f);
@@ -250,7 +247,7 @@ void Player::SpawnBall(MessageSystem& message_system, const uint16_t times, cons
 
 void Player::DripGlue(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept
 {
-	if (modifier_system.IsLucky() || true)
+	if (modifier_system.IsLucky())
 	{
 		message_system.ItemSystemCommands.emplace_back(
 				std::in_place_type<struct CreateItem>, this->Centre.x, this->Centre.y,

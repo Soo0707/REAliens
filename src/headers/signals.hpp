@@ -49,6 +49,7 @@ enum class ModifierSystemSignal : uint8_t
 	ApplyPoison,
 	ApplyTrapped,
 	ApplyDrunk,
+	ApplyGreed,
 
 	RemoveMilk,
 	RemoveGreenbull,

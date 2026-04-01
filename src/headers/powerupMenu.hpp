@@ -45,6 +45,8 @@ enum class Powerup : uint8_t
 
 	FastHands,
 	DrippyGlue,
+	Greed,
+
 	COUNT
 };
 
@@ -92,6 +94,7 @@ class PowerupMenu
 		void ApplyLuck() noexcept;
 		void ApplyFastHands() noexcept;
 		void ApplyDrippyGlue() noexcept;
+		void ApplyGreed() noexcept;
 
 		std::vector<PowerupWrapper> SelectionList;
 
@@ -122,7 +125,8 @@ class PowerupMenu
 			"Baby Oil",
 			"Luck",
 			"Fast Hands",
-			"Drippy Glue"
+			"Drippy Glue",
+			"Greed"
 		};
 
 		static inline constexpr std::array<const char*, static_cast<size_t>(Powerup::COUNT)> PowerupDescriptions =
@@ -144,7 +148,9 @@ class PowerupMenu
 			"Increase Slide Speed",
 			"Increase Luck For Luck Based Events",
 			"Decrease LMB & RMB Timeout",
-			"Drip Glue To Trap Enemies Based On Luck"
+			"Drip Glue To Trap Enemies Based On Luck",
+
+			"Gives Bonus XP Depending On Luck"
 		};
 
 		static inline constexpr std::array<void(PowerupMenu::*)(), static_cast<size_t>(Powerup::COUNT)> ApplyHandles = 
@@ -166,7 +172,8 @@ class PowerupMenu
 			&PowerupMenu::ApplyBabyOil,
 			&PowerupMenu::ApplyLuck,
 			&PowerupMenu::ApplyFastHands,
-			&PowerupMenu::ApplyDrippyGlue
+			&PowerupMenu::ApplyDrippyGlue,
+			&PowerupMenu::ApplyGreed
 		};
 
 		bool Gamble = false;

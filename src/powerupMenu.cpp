@@ -262,3 +262,8 @@ void PowerupMenu::ApplyDrippyGlue() noexcept
 				SECONDS_TO_TICKS(5), TICK_RATE / 3, Timer::GlueCountdown
 				);
 }
+
+void PowerupMenu::ApplyGreed() noexcept
+{
+	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyGreed)]++;
+}

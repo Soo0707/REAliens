@@ -71,7 +71,8 @@ void ModifierSystem::Reset() noexcept
 
 	this->SetAttribute(Attribute::SlideSpeedMultiplier, 2.0f);
 
-	this->SetAttribute(Attribute::LuckBoundary, 100.0f);
+	this->SetAttribute(Attribute::LuckBoundary, 79.0f);
+	this->SetAttribute(Attribute::GreedMultiplier, 0.0f);
 
 	this->Effects = static_cast<Effect>(0);
 	
@@ -271,6 +272,11 @@ void ModifierSystem::ApplyLuck() noexcept
 	this->DecreaseAttribute(Attribute::LuckBoundary, 10.0f, 1.0f);
 }
 
+void ModifierSystem::ApplyGreed() noexcept
+{
+	this->IncreaseAttribute(Attribute::GreedMultiplier, 1.0f);
+}
+
 void ModifierSystem::ApplyAussie() noexcept
 {
 	this->ApplyEffect(Effect::Aussie);
@@ -345,5 +351,5 @@ void ModifierSystem::RemoveLevelDebuff() noexcept
 
 void ModifierSystem::IncrementCollectedXp() noexcept
 {
-	this->CollectedXp++;
+	this->CollectedXp += 1 + static_cast<int>(this->IsLucky()) * static_cast<int>(this->GetAttribute(Attribute::GreedMultiplier));
 }

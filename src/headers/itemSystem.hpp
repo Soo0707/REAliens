@@ -31,14 +31,13 @@ class ItemSystem
 
 		void Reset() noexcept;
 
-		void ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept;
-
 		void Draw(const AssetManager& assets) const noexcept;
 		void DrawLightmap() const noexcept;
 
 		const std::vector<Vector2>& GetItemCentre() const noexcept;
 
 	private:
+		void ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept;
 		void RunUpdateHooks(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept;
 		void VisibilityCheck(const Rectangle& update_area) noexcept;
 		void CreateItem(const float x, const float y, const float texture_width, const float texture_height) noexcept;
@@ -63,6 +62,7 @@ class ItemSystem
 
 
 		void XpCollisionHook(MessageSystem& message_system, const size_t item_index) noexcept;
+		void GlueCollisionHook(MessageSystem& message_system, const size_t item_index) noexcept;
 
 		using CollisionHook = void(ItemSystem::*)(MessageSystem&, const size_t) noexcept; 
 

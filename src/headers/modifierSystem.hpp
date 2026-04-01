@@ -64,6 +64,7 @@ class ModifierSystem
 		void ApplyPoison() noexcept;
 		void ApplyTrapped() noexcept;
 		void ApplyDrunk() noexcept;
+		void ApplyGreed() noexcept;
 
 
 		void RemoveMilk() noexcept;
@@ -98,6 +99,7 @@ class ModifierSystem
 			&ModifierSystem::ApplyPoison,
 			&ModifierSystem::ApplyTrapped,
 			&ModifierSystem::ApplyDrunk,
+			&ModifierSystem::ApplyGreed,
 
 			&ModifierSystem::RemoveMilk,
 			&ModifierSystem::RemoveGreenbull,

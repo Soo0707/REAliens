@@ -34,6 +34,7 @@ enum class Attribute : uint8_t
 	SlideSpeedMultiplier,
 
 	LuckBoundary,
+	GreedMultiplier,
 
 	COUNT
 };
