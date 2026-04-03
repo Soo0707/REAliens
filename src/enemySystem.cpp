@@ -73,12 +73,12 @@ void EnemySystem::PollSignals(MessageSystem& message_system, const AssetManager&
 	}
 }
 
-void EnemySystem::ExecuteCommands(MessageSystem& message_system) noexcept
+void EnemySystem::ExecuteCommands(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept
 {
 	for (auto const& command : message_system.EnemySystemCommands)
 	{
 		auto handler = this->CommandHandlers[command.index()];
-		(this->*handler)(command);
+		(this->*handler)(message_system, modifier_system, command);
 	}
 
 	message_system.EnemySystemCommands.clear();
@@ -91,7 +91,7 @@ void EnemySystem::Update(
 		) noexcept
 {
 	this->PollSignals(message_system, assets, level, ticks);
-	this->ExecuteCommands(message_system);
+	this->ExecuteCommands(message_system, modifier_system);
 	
 	const float map_width = assets.Ground.width;
 	const float map_height = assets.Ground.height;
@@ -318,7 +318,7 @@ void EnemySystem::KillEnemies(MessageSystem& message_system, const bool has_magn
 }
 
 
-void EnemySystem::DamageEnemyHandler(const EnemySystemCommand& command) noexcept
+void EnemySystem::DamageEnemyHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept
 {
 	const DamageEnemy& data = std::get<struct DamageEnemy>(command);
 	const size_t index = data.EnemyIndex;
@@ -327,7 +327,7 @@ void EnemySystem::DamageEnemyHandler(const EnemySystemCommand& command) noexcept
 		this->EnemyHealth[index] -= data.DamageAmount;
 }
 
-void EnemySystem::EnemyLeAttackedHandler(const EnemySystemCommand& command) noexcept
+void EnemySystem::EnemyLeAttackedHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept
 {
 	const EnemyLeAttacked& data = std::get<struct EnemyLeAttacked>(command);
 	const size_t index = data.EnemyIndex;
@@ -336,10 +336,18 @@ void EnemySystem::EnemyLeAttackedHandler(const EnemySystemCommand& command) noex
 	{
 		this->EnemyAttackComponents[index].CanLeAttack = false;
 		this->EnemyAttackComponents[index].LastLeAttack = data.Ticks;
+		
+		const size_t type_index = static_cast<size_t>(this->EnemyTypes[index]);
+		const bool has_milk = modifier_system.EffectStatus(Effect::Milk);
+
+		auto hook = this->LeAttackHooks[type_index];
+
+		if (!has_milk && hook)
+			(this->*hook)(message_system);
 	}
 }
 
-void EnemySystem::EnemyGotGluedHandler(const EnemySystemCommand& command) noexcept
+void EnemySystem::EnemyGotGluedHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept
 {
 	const EnemyGotGlued& data = std::get<struct EnemyGotGlued>(command);
 	const size_t index = data.EnemyIndex;
@@ -426,4 +434,26 @@ void EnemySystem::GenerateTypes(const size_t spawn_count) noexcept
 bool EnemySystem::CheckIndex(const size_t index) const noexcept
 {
 	return (index < this->EnemyHealth.size());
+}
+
+void EnemySystem::ApplyAussie(MessageSystem& message_system) const noexcept
+{
+	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyAussie)]++;
+
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(1), false, Timer::AussieExpire);
+}
+
+void EnemySystem::ApplyDrunk(MessageSystem& message_system) const noexcept
+{
+	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyDrunk)]++;
+	
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5), false, Timer::DrunkExpire);
+}
+
+void EnemySystem::ApplyPoison(MessageSystem& message_system) const noexcept
+{
+	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyPoison)]++;
+
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(1), true, Timer::PoisonTick);
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5), false, Timer::PoisonExpire);
 }

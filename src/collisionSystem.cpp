@@ -55,8 +55,7 @@ void CollisionSystem::Update(
 		const std::vector<float>& enemy_health, const std::vector<EnemyAttackComponent>& enemy_attack_components,
 		const std::vector<EnemyType>& enemy_type, const std::vector<Rectangle>& projectile_rect,
 		const std::vector<ProjectileType>& projectile_type, const std::vector<Vector2>& projectile_direction,
-		const std::vector<float>& projectile_rotation, const std::vector<Vector2>& item_centre,
-		const Player& player, const size_t ticks
+		const std::vector<Vector2>& item_centre, const Player& player, const size_t ticks
 		) noexcept
 {
 	const Vector2 player_centre = player.Centre;
@@ -69,7 +68,7 @@ void CollisionSystem::Update(
 
 	this->ProjectileCollision(
 			projectile_rect, projectile_type, projectile_direction,
-			projectile_rotation, message_system, modifier_system, ticks
+			message_system, modifier_system, ticks
 			);
 
 	const bool is_sliding = player.Sliding;
@@ -135,8 +134,8 @@ void CollisionSystem::UpdateItemGrid(const std::vector<Vector2>& item_centre) no
 
 void CollisionSystem::ProjectileCollision(
 		const std::vector<Rectangle>& projectile_rect, const std::vector<ProjectileType>& projectile_types,
-		const std::vector<Vector2>& projectile_direction, const std::vector<float>& projectile_rotation,
-		MessageSystem& message_system, const ModifierSystem& modifier_system, const size_t ticks
+		const std::vector<Vector2>& projectile_direction, MessageSystem& message_system,
+		const ModifierSystem& modifier_system, const size_t ticks
 		) const noexcept
 {
 	unsigned int total_damage_done = 0;
@@ -207,14 +206,6 @@ void CollisionSystem::LeAttack(
 		if (enemy_attack_components[enemy_index].CanLeAttack)
 		{
 			const float damage = enemy_attack_components[enemy_index].Damage;
-
-			if (!has_milk)
-			{
-				auto le_attack_hook = CollisionSystem::LeAttackHooks[static_cast<size_t>(enemy_type[enemy_index])];
-
-				if (le_attack_hook)
-					(this->*le_attack_hook)(message_system, ticks);
-			}
 
 			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct EnemyLeAttacked>, enemy_index, ticks);
 			message_system.PlayerCommands.emplace_back(std::in_place_type<struct DamagePlayer>, damage);
@@ -317,29 +308,6 @@ void CollisionSystem::EnemyItemCollision(MessageSystem& message_system, const st
 		}
 	}
 }
-// TODO: delegate this to enemy system
-void CollisionSystem::ApplyAussie(MessageSystem& message_system, const size_t ticks) const noexcept
-{
-	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyAussie)]++;
-
-	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(1), false, Timer::AussieExpire);
-}
-
-void CollisionSystem::ApplyPoison(MessageSystem& message_system, const size_t ticks) const noexcept
-{
-	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyPoison)]++;
-
-	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(1), true, Timer::PoisonTick);
-	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5), false, Timer::PoisonExpire);
-}
-
-void CollisionSystem::ApplyDrunk(MessageSystem& message_system, const size_t ticks) const noexcept
-{
-	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyDrunk)]++;
-	
-	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(5), false, Timer::DrunkExpire);
-}
-
 
 inline uint16_t CollisionSystem::SeparateBits(uint16_t bits) const noexcept
 {

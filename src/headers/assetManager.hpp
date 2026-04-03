@@ -35,6 +35,9 @@ enum class TextureKey : uint8_t
 	WhitePixel,
 	HealthBarBackground,
 	XpBarBackground,
+	Orange,
+	Masochist,
+	Tyrone,
 	COUNT
 };
 

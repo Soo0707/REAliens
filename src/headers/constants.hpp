@@ -25,9 +25,9 @@ inline constexpr float MAX_TICK_TIME = (1.0/5.0);
 
 inline constexpr unsigned int TICK_RATE = 240;
 
-inline constexpr uint8_t TILE_SIZE = 64;
+inline constexpr uint8_t TILE_SIZE = 42;
 
-inline constexpr unsigned int ENEMY_TEXTURE_TILE_SIZE = 64;
+inline constexpr unsigned int ENEMY_TEXTURE_TILE_SIZE = 42;
 inline constexpr unsigned int PLAYER_TEXTURE_TILE_SIZE = 50;
 
 [[nodiscard]] inline constexpr size_t SECONDS_TO_TICKS(unsigned int seconds)

@@ -35,8 +35,7 @@ class CollisionSystem
 				const std::vector<float>& enemy_health, const std::vector<EnemyAttackComponent>& enemy_attack_components,
 				const std::vector<EnemyType>& enemy_type, const std::vector<Rectangle>& projectile_rect,
 				const std::vector<ProjectileType>& projectile_type, const std::vector<Vector2>& projectile_direction,
-				const std::vector<float>& projectile_rotation, const std::vector<Vector2>& item_centre,
-				const Player& player, const size_t ticks
+				const std::vector<Vector2>& item_centre, const Player& player, const size_t ticks
 				) noexcept;
 
 	private:
@@ -47,9 +46,8 @@ class CollisionSystem
 
 		void ProjectileCollision(
 				const std::vector<Rectangle>& projectile_rect, const std::vector<ProjectileType>& projectile_type,
-				const std::vector<Vector2>& projectile_direction, const std::vector<float>& projectile_rotation,
-				MessageSystem& message_system, const ModifierSystem& modifier_system,
-				const size_t ticks
+				const std::vector<Vector2>& projectile_direction, MessageSystem& message_system,
+				const ModifierSystem& modifier_system, const size_t ticks
 				) const noexcept;
 
 		void LeAttack(
@@ -73,19 +71,6 @@ class CollisionSystem
 		size_t GetMortonCode(const float x, const float y) const noexcept;
 		inline uint16_t SeparateBits(uint16_t bits) const noexcept;
 
-		void ApplyAussie(MessageSystem& message_system,	const size_t ticks) const noexcept;
-		void ApplyDrunk(MessageSystem& message_system, const size_t ticks) const noexcept;
-		void ApplyPoison(MessageSystem& message_system, const size_t ticks) const noexcept;
-
-		using LeAttackHook = void(CollisionSystem::*)(MessageSystem&, const size_t) const noexcept;
-		static constexpr std::array<LeAttackHook, static_cast<size_t>(EnemyType::COUNT)> LeAttackHooks =
-		{
-			&CollisionSystem::ApplyAussie,
-			&CollisionSystem::ApplyDrunk,
-			nullptr,
-			&CollisionSystem::ApplyPoison
-		};
-		
 		void Aura(
 				const Vector2 player_centre, const ModifierSystem& modifier_system,
 				MessageSystem& message_system, const size_t ticks

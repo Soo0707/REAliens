@@ -30,9 +30,6 @@ class EnemySystem
 
 		void Reset() noexcept;
 
-		void PollSignals(MessageSystem& message_system, const AssetManager& assets, const size_t level, const size_t ticks) noexcept;
-		void ExecuteCommands(MessageSystem& message_system) noexcept;
-
 		void Update(
 				MessageSystem& message_system, const AssetManager& assets, const ModifierSystem& modifier_system,
 				const TimerSystem& timer_system, const Rectangle& update_area,
@@ -48,6 +45,9 @@ class EnemySystem
 		const std::vector<float>& GetEnemyHealth() const noexcept;
 
 	private:
+		void PollSignals(MessageSystem& message_system, const AssetManager& assets, const size_t level, const size_t ticks) noexcept;
+		void ExecuteCommands(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept;
+
 		static constexpr std::array<EnemyData, static_cast<size_t>(EnemyType::COUNT)> EnemyAttributes = 
 		{
 			(EnemyData) { TextureKey::Australian, 5, 87.5, 75, 30 },
@@ -61,20 +61,36 @@ class EnemySystem
 
 		void PrepareSpawnEnemies(const size_t level, const float map_width, const float map_height) noexcept;
 
+		void ApplyAussie(MessageSystem& message_system) const noexcept;
+		void ApplyDrunk(MessageSystem& message_system) const noexcept;
+		void ApplyPoison(MessageSystem& message_system) const noexcept;
+
+		using LeAttackHook = void(EnemySystem::*)(MessageSystem&) const noexcept;
+
+		static constexpr std::array<LeAttackHook, static_cast<size_t>(EnemyType::COUNT)> LeAttackHooks =
+		{
+			&EnemySystem::ApplyAussie,
+			&EnemySystem::ApplyDrunk,
+			nullptr,
+			&EnemySystem::ApplyPoison
+		};
+
 		void EmitParticlesFromLocations(const size_t ticks, const size_t level, MessageSystem& message_system) noexcept;
 		void SpawnEnemies(const size_t ticks, const size_t level, MessageSystem& message_system) noexcept;
 
-		static constexpr std::array<void(EnemySystem::*)(const size_t, const size_t, MessageSystem&) noexcept, static_cast<size_t>(EnemySystemSignal::COUNT)> SignalHandlers =
+		using SignalHandler = void(EnemySystem::*)(const size_t, const size_t, MessageSystem&) noexcept;
+		static constexpr std::array<SignalHandler, static_cast<size_t>(EnemySystemSignal::COUNT)> SignalHandlers =
 		{
 			&EnemySystem::EmitParticlesFromLocations,
 			&EnemySystem::SpawnEnemies
 		};
 
-		void DamageEnemyHandler(const EnemySystemCommand& command) noexcept;
-		void EnemyLeAttackedHandler(const EnemySystemCommand& command) noexcept;
-		void EnemyGotGluedHandler(const EnemySystemCommand& command) noexcept;
+		void DamageEnemyHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept;
+		void EnemyLeAttackedHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept;
+		void EnemyGotGluedHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept;
 
-		static constexpr std::array<void(EnemySystem::*)(const EnemySystemCommand&) noexcept, 3> CommandHandlers = 
+		using CommandHandler = void(EnemySystem::*)(MessageSystem&, const ModifierSystem&, const EnemySystemCommand&) noexcept;
+		static constexpr std::array<CommandHandler, 3> CommandHandlers = 
 		{
 			&EnemySystem::DamageEnemyHandler,
 			&EnemySystem::EnemyLeAttackedHandler,
@@ -106,7 +122,6 @@ class EnemySystem
 		std::vector<EnemyAttackComponent> EnemyAttackComponents;
 		std::vector<TextureKey> EnemyTextureKey;
 		std::vector<EnemyAnimationComponent> EnemyAnimationComponents;
-
 
 		std::vector<EnemyType> FutureEnemyTypes;
 		std::vector<Vector2> FutureSpawnLocations;
