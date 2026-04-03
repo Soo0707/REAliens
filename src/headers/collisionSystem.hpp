@@ -35,7 +35,8 @@ class CollisionSystem
 				const std::vector<float>& enemy_health, const std::vector<EnemyAttackComponent>& enemy_attack_components,
 				const std::vector<EnemyType>& enemy_type, const std::vector<Rectangle>& projectile_rect,
 				const std::vector<ProjectileType>& projectile_type, const std::vector<Vector2>& projectile_direction,
-				const std::vector<Vector2>& item_centre, const Player& player, const size_t ticks
+				const std::vector<float>& projectile_rotation, const std::vector<Vector2>& item_centre,
+				const Player& player, const size_t ticks
 				) noexcept;
 
 	private:
@@ -46,8 +47,9 @@ class CollisionSystem
 
 		void ProjectileCollision(
 				const std::vector<Rectangle>& projectile_rect, const std::vector<ProjectileType>& projectile_type,
-				const std::vector<Vector2>& projectile_direction, MessageSystem& message_system,
-				const ModifierSystem& modifier_system, const size_t ticks
+				const std::vector<Vector2>& projectile_direction, const std::vector<float>& projectile_rotation,
+				MessageSystem& message_system, const ModifierSystem& modifier_system,
+				const size_t ticks
 				) const noexcept;
 
 		void LeAttack(

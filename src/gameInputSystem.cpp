@@ -89,7 +89,7 @@ void GameInputSystem::HandleLeftClick(
 		{
 			message_system.ProjectileSystemCommands.emplace_back(
 					std::in_place_type<struct CreateProjectile>, ProjectileType::Bullet, centre_direction,
-					player_centre.x, player_centre.y, speed, 1.0f
+					player_centre.x, player_centre.y, speed
 					);
 
 			continue;
@@ -99,7 +99,7 @@ void GameInputSystem::HandleLeftClick(
 
 		message_system.ProjectileSystemCommands.emplace_back(
 				std::in_place_type<struct CreateProjectile>, ProjectileType::Bullet, direction,
-				player_centre.x, player_centre.y, speed, 1.0f
+				player_centre.x, player_centre.y, speed
 				);
 	}
 }
@@ -114,10 +114,9 @@ void GameInputSystem::HandleRightClick(
 	const Vector2 direction = Vector2Subtract(mouse_pos, player_centre);
 
 	const float speed = modifier_system.GetAttribute(Attribute::LazerSpeed);
-	const float scale = modifier_system.GetAttribute(Attribute::LazerScale);
 
 	message_system.ProjectileSystemCommands.emplace_back(
 			std::in_place_type<struct CreateProjectile>, ProjectileType::Lazer, direction,
-			player_centre.x, player_centre.y, speed, scale
+			player_centre.x, player_centre.y, speed
 			);
 }

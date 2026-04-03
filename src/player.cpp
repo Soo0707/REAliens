@@ -234,11 +234,11 @@ void Player::SpawnBall(MessageSystem& message_system, const uint16_t times, cons
 
 	const Vector2 ball_location = this->Centre;
 	const float ball_speed = modifier_system.GetAttribute(Attribute::BallSpeed);
-	const float ball_scale = modifier_system.GetAttribute(Attribute::BallScale);
+	//const float ball_scale = modifier_system.GetAttribute(Attribute::BallScale);
 
 	message_system.ProjectileSystemCommands.emplace_back(
 			std::in_place_type<struct CreateProjectile>, ProjectileType::Ball,
-			ball_direction, ball_location.x, ball_location.y, ball_speed, ball_scale
+			ball_direction, ball_location.x, ball_location.y, ball_speed
 			);
 }
 

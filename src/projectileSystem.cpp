@@ -31,7 +31,6 @@ ProjectileSystem::ProjectileSystem()
 	this->ProjectileKill.reserve(128);
 	this->ProjectileSpeed.reserve(128);
 	this->ProjectileRotation.reserve(128);
-	this->ProjectileScale.reserve(128);
 	this->ProjectileHitCount.reserve(128);
 	this->ProjectileRect.reserve(128);
 	this->ProjectileDirection.reserve(128);
@@ -47,7 +46,6 @@ void ProjectileSystem::Reset() noexcept
 	this->ProjectileSpeed.clear();
 	this->ProjectileRotation.clear();
 	this->ProjectileHitCount.clear();
-	this->ProjectileScale.clear();
 	this->ProjectileRect.clear();
 	this->ProjectileDirection.clear();
 	this->ProjectileColour.clear();
@@ -97,6 +95,11 @@ const std::vector<Vector2>& ProjectileSystem::GetProjectileDirection() const noe
 	return this->ProjectileDirection;
 }
 
+const std::vector<float>& ProjectileSystem::GetProjectileRotation() const noexcept
+{
+	return this->ProjectileRotation;
+}
+
 void ProjectileSystem::Draw(const AssetManager& assets) const noexcept
 {
 	for (size_t i = 0, n = this->ProjectileRect.size(); i < n; i++)
@@ -109,7 +112,7 @@ void ProjectileSystem::Draw(const AssetManager& assets) const noexcept
 					assets.GetTexture(this->ProjectileTexture[i]),
 					position,
 					this->ProjectileRotation[i],
-					this->ProjectileScale[i],
+					1.0f,
 					WHITE
 					);
 		}
@@ -131,7 +134,7 @@ void ProjectileSystem::DrawLightmap() const noexcept
 }
 
 void ProjectileSystem::CreateProjectile(
-		const float x, const float y, const float speed, const float scale, const Vector2 direction,
+		const float x, const float y, const float speed, const Vector2 direction,
 		const ProjectileType type, const float texture_width, const float texture_height
 		) noexcept
 {
@@ -142,10 +145,9 @@ void ProjectileSystem::CreateProjectile(
 	this->ProjectileSpeed.emplace_back(speed);
 
 	this->ProjectileRotation.emplace_back(atan2(direction.y, direction.x) * TO_DEG);
-	this->ProjectileScale.emplace_back(scale);
 	this->ProjectileHitCount.emplace_back(0);
 
-	this->ProjectileRect.emplace_back(x, y, texture_width * scale, texture_height * scale);
+	this->ProjectileRect.emplace_back(x, y, texture_width, texture_height);
 	this->ProjectileDirection.emplace_back(Vector2Normalize(direction));
 
 	this->ProjectileColour.emplace_back(this->ProjectileAttributes[index].Colour);
@@ -204,7 +206,6 @@ void ProjectileSystem::RemoveProjectiles() noexcept
 			this->ProjectileKill[i] = this->ProjectileKill.back();
 			this->ProjectileSpeed[i] = this->ProjectileSpeed.back();
 			this->ProjectileRotation[i] = this->ProjectileRotation.back();
-			this->ProjectileScale[i] = this->ProjectileScale.back();
 			this->ProjectileHitCount[i] = this->ProjectileHitCount.back();
 			this->ProjectileRect[i] = this->ProjectileRect.back();
 			this->ProjectileDirection[i] = this->ProjectileDirection.back();
@@ -217,7 +218,6 @@ void ProjectileSystem::RemoveProjectiles() noexcept
 			this->ProjectileKill.pop_back();
 			this->ProjectileSpeed.pop_back();
 			this->ProjectileRotation.pop_back();
-			this->ProjectileScale.pop_back();
 			this->ProjectileHitCount.pop_back();
 			this->ProjectileRect.pop_back();
 			this->ProjectileDirection.pop_back();
@@ -256,7 +256,7 @@ void ProjectileSystem::CreateProjectileHandler(const ProjectileSystemCommand& co
 	const float texture_width = assets.GetTexture(texture_key).width;
 	const float texture_height = assets.GetTexture(texture_key).height;
 
-	this->CreateProjectile(data.X, data.Y, data.Speed, data.Scale, data.Direction, data.Type, texture_width, texture_height);
+	this->CreateProjectile(data.X, data.Y, data.Speed, data.Direction, data.Type, texture_width, texture_height);
 }
 
 void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& command, const AssetManager& assets) noexcept
@@ -275,10 +275,6 @@ void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& comma
 			const float ball_size = assets.GetTexture(ball_texture_key).width;
 			const Rectangle ball_rect = this->ProjectileRect[index];
 			const float ball_speed = this->ProjectileSpeed[index];
-			const float ball_scale = 0.75f * this->ProjectileScale[index];
-
-			if (ball_scale <= 0.2f)
-				break;
 
 			for (uint8_t i = 0; i < 2; i++)
 			{
@@ -286,8 +282,8 @@ void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& comma
 				const Vector2 ball_direction = Vector2Rotate(this->ProjectileDirection[index], up_down * 10.0f * TO_RAD);
 
 				this->CreateProjectile(
-						ball_rect.x, ball_rect.y, ball_speed, ball_scale,
-						ball_direction, ProjectileType::Ball, ball_size, ball_size
+						ball_rect.x, ball_rect.y, ball_speed, ball_direction,
+						ProjectileType::Ball, ball_size, ball_size
 						);
 			}
 		}

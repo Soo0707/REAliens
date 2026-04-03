@@ -19,12 +19,10 @@ enum class Attribute : uint8_t
 	BuckshotSpread,
 
 	LazerDamage,
-	LazerScale,
 	LazerSpeed,
 	LazerMaxHit,
 
 	BallSpeed,
-	BallScale,
 	BallDamage,
 
 	AuraSize,

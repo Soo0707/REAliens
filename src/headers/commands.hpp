@@ -43,7 +43,6 @@ struct CreateProjectile
 	float X;
 	float Y;
 	float Speed;
-	float Scale;
 };
 
 struct ProjectileHit

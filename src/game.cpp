@@ -164,7 +164,8 @@ void Game::Update(const size_t ticks) noexcept
 			this->EnemySystem->GetEnemyHealth(), this->EnemySystem->GetEnemyAttackComponents(),
 			this->EnemySystem->GetEnemyType(), this->ProjectileSystem->GetProjectileRect(),
 			this->ProjectileSystem->GetProjectileType(), this->ProjectileSystem->GetProjectileDirection(),
-			this->ItemSystem->GetItemCentre(), *this->Player, ticks
+			this->ProjectileSystem->GetProjectileRotation(), this->ItemSystem->GetItemCentre(),
+			*this->Player, ticks
 	);
 
 	this->ParticleSystem->Update(*this->MessageSystem, *this->Assets, update_area, ticks);

@@ -58,12 +58,10 @@ void ModifierSystem::Reset() noexcept
 	this->SetAttribute(Attribute::BuckshotSpread, PI / 8);
 
 	this->SetAttribute(Attribute::LazerDamage, 25.0f);
-	this->SetAttribute(Attribute::LazerScale, 1.0f);
 	this->SetAttribute(Attribute::LazerSpeed, 3000.0f);
 	this->SetAttribute(Attribute::LazerMaxHit, 5.0f);
 
 	this->SetAttribute(Attribute::BallSpeed, 500.0f);
-	this->SetAttribute(Attribute::BallScale, 0.5f);
 	this->SetAttribute(Attribute::BallDamage, 5.0f);
 
 	this->SetAttribute(Attribute::AuraSize, 100.0f);
@@ -238,7 +236,6 @@ void ModifierSystem::ApplyBullet() noexcept
 void ModifierSystem::ApplyLazer() noexcept
 {
 	this->IncreaseAttribute(Attribute::LazerDamage, 25.0f);
-	this->IncreaseAttribute(Attribute::LazerScale, 0.5f);
 	this->IncreaseAttribute(Attribute::LazerSpeed, 75.0f);
 	this->IncreaseAttribute(Attribute::LazerMaxHit, 10.0f);
 }
@@ -246,7 +243,6 @@ void ModifierSystem::ApplyLazer() noexcept
 void ModifierSystem::ApplyBall() noexcept
 {
 	this->IncreaseAttribute(Attribute::BallSpeed, 100.0f);
-	this->IncreaseAttribute(Attribute::BallScale, 0.5f);
 	this->IncreaseAttribute(Attribute::BallDamage, 5.0f);
 }
 

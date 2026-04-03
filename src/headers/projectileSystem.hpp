@@ -40,10 +40,11 @@ class ProjectileSystem
 		const std::vector<Rectangle>& GetProjectileRect() const noexcept;
 		const std::vector<ProjectileType>& GetProjectileType() const noexcept;
 		const std::vector<Vector2>& GetProjectileDirection() const noexcept;
+		const std::vector<float>& GetProjectileRotation() const noexcept;
 
 	private:
 		void CreateProjectile(
-				const float x, const float y, const float speed, const float scale, const Vector2 direction,
+				const float x, const float y, const float speed, const Vector2 direction,
 				const ProjectileType type, const float texture_width, const float texture_height
 				) noexcept;
 
@@ -77,7 +78,6 @@ class ProjectileSystem
 		std::vector<float> ProjectileSpeed;
 
 		std::vector<float> ProjectileRotation;
-		std::vector<float> ProjectileScale;
 
 		std::vector<uint16_t> ProjectileHitCount;
 

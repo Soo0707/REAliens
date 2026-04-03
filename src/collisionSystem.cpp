@@ -55,7 +55,8 @@ void CollisionSystem::Update(
 		const std::vector<float>& enemy_health, const std::vector<EnemyAttackComponent>& enemy_attack_components,
 		const std::vector<EnemyType>& enemy_type, const std::vector<Rectangle>& projectile_rect,
 		const std::vector<ProjectileType>& projectile_type, const std::vector<Vector2>& projectile_direction,
-		const std::vector<Vector2>& item_centre, const Player& player, const size_t ticks
+		const std::vector<float>& projectile_rotation, const std::vector<Vector2>& item_centre,
+		const Player& player, const size_t ticks
 		) noexcept
 {
 	const Vector2 player_centre = player.Centre;
@@ -68,7 +69,7 @@ void CollisionSystem::Update(
 
 	this->ProjectileCollision(
 			projectile_rect, projectile_type, projectile_direction,
-			message_system, modifier_system, ticks
+			projectile_rotation, message_system, modifier_system, ticks
 			);
 
 	const bool is_sliding = player.Sliding;
@@ -134,8 +135,8 @@ void CollisionSystem::UpdateItemGrid(const std::vector<Vector2>& item_centre) no
 
 void CollisionSystem::ProjectileCollision(
 		const std::vector<Rectangle>& projectile_rect, const std::vector<ProjectileType>& projectile_types,
-		const std::vector<Vector2>& projectile_direction, MessageSystem& message_system,
-		const ModifierSystem& modifier_system, const size_t ticks
+		const std::vector<Vector2>& projectile_direction, const std::vector<float>& projectile_rotation,
+		MessageSystem& message_system, const ModifierSystem& modifier_system, const size_t ticks
 		) const noexcept
 {
 	unsigned int total_damage_done = 0;
@@ -157,8 +158,8 @@ void CollisionSystem::ProjectileCollision(
 				break;
 		}
 		
-		const float x = projectile_rect[i].x + projectile_rect[i].width / 2.0f;
-		const float y = projectile_rect[i].y + projectile_rect[i].height / 2.0f;
+		float x = projectile_rect[i].x + projectile_rect[i].width / 2.0f;
+		float y = projectile_rect[i].y + projectile_rect[i].height / 2.0f;
 
 		const size_t index = this->GetMortonCode(x, y);
 
@@ -316,7 +317,7 @@ void CollisionSystem::EnemyItemCollision(MessageSystem& message_system, const st
 		}
 	}
 }
-
+// TODO: delegate this to enemy system
 void CollisionSystem::ApplyAussie(MessageSystem& message_system, const size_t ticks) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyAussie)]++;

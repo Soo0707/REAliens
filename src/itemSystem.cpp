@@ -230,7 +230,7 @@ void ItemSystem::TurretUpdateHook(MessageSystem& message_system, const size_t it
 
 		message_system.ProjectileSystemCommands.emplace_back(
 			std::in_place_type<CreateProjectile>, ProjectileType::Bullet, direction,
-			item_centre.x, item_centre.y, speed, 1.0f
+			item_centre.x, item_centre.y, speed
 			);
 	}
 }
