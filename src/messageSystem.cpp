@@ -16,6 +16,7 @@ MessageSystem::MessageSystem()
 	this->PlayerCommands.reserve(32);
 	this->EnemySystemCommands.reserve(32);
 	this->TimerSystemCommands.reserve(16);
+	this->CameraSystemCommands.reserve(16);
 	this->StatSystemCommands.reserve(16);
 	this->StateManagerCommands.reserve(8);
 }
@@ -28,6 +29,7 @@ void MessageSystem::Reset() noexcept
 	this->PlayerCommands.clear();
 	this->EnemySystemCommands.clear();
 	this->TimerSystemCommands.clear();
+	this->CameraSystemCommands.clear();
 	this->StatSystemCommands.clear();
 	this->StateManagerCommands.clear();
 
@@ -35,5 +37,6 @@ void MessageSystem::Reset() noexcept
 	this->PlayerSignals = { 0 };
 	this->ModifierSystemSignals = { 0 };
 	this->CollisionSystemSignals = { 0 };
+	this->CameraSystemSignals = { 0 };
 	this->GameSignals = { 0 };
 }

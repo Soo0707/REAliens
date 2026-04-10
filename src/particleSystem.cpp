@@ -51,6 +51,7 @@ void ParticleSystem::Update(MessageSystem& message_system, const AssetManager& a
 
 void ParticleSystem::ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept
 {
+	// TODO: put a max limit on create particles
 	for (auto const& command : message_system.ParticleSystemCommands)
 	{
 		for (size_t i = 0; i < command.Number; i++)

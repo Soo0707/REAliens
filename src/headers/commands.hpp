@@ -155,6 +155,20 @@ struct SetPlayerDirection
 using PlayerCommand = std::variant<struct DamagePlayer, struct IncreasePlayerHealth, struct SetPlayerDirection>;
 
 
+struct SlideCamera
+{
+	Vector2 Offset;
+	uint32_t Duration;
+};
+
+struct ReleaseCamera
+{
+	uint32_t Duration;
+};
+
+using CameraSystemCommand = std::variant<struct SlideCamera, struct ReleaseCamera>;
+
+
 struct SetState
 {
 	State NextState;

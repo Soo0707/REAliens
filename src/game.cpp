@@ -145,7 +145,7 @@ void Game::Update(const size_t ticks) noexcept
 			map_width, map_height, ticks
 			);
 
-	this->CameraSystem->Update(this->Player->Centre, *this->ModifierSystem);
+	this->CameraSystem->Update(*this->MessageSystem, ticks, this->Player->Centre, *this->ModifierSystem, *this->TimerSystem);
 	this->ModifierSystem->Update(*this->MessageSystem, *this->StringCache, *this->Settings);
 	
 	this->StatSystem->Update(*this->MessageSystem);

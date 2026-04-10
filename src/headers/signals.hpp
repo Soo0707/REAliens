@@ -76,3 +76,10 @@ enum class GameSignal : uint8_t
 	UpdateDuration,
 	COUNT
 };
+
+enum class CameraSystemSignal : uint8_t
+{
+	SlideCameraExpire,
+	ReleaseCameraExpire,
+	COUNT
+};

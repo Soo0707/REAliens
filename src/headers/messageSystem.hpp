@@ -29,6 +29,7 @@ struct MessageSystem
 	std::vector<PlayerCommand> PlayerCommands;
 	std::vector<EnemySystemCommand> EnemySystemCommands;
 	std::vector<TimerSystemCommand> TimerSystemCommands;
+	std::vector<CameraSystemCommand> CameraSystemCommands;
 	std::vector<StatSystemCommand> StatSystemCommands;
 	std::vector<StateManagerCommand> StateManagerCommands;
 
@@ -36,5 +37,6 @@ struct MessageSystem
 	std::array<uint16_t, static_cast<size_t>(PlayerSignal::COUNT)> PlayerSignals;
 	std::array<uint16_t, static_cast<size_t>(ModifierSystemSignal::COUNT)> ModifierSystemSignals;
 	std::array<uint16_t, static_cast<size_t>(CollisionSystemSignal::COUNT)> CollisionSystemSignals;
+	std::array<uint16_t, static_cast<size_t>(CameraSystemSignal::COUNT)> CameraSystemSignals;
 	std::array<uint16_t, static_cast<size_t>(GameSignal::COUNT)> GameSignals;
 };

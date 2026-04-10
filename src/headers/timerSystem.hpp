@@ -38,6 +38,23 @@ class TimerSystem
 		std::array<bool, static_cast<size_t>(Timer::COUNT)> TimerRecurring;
 		std::array<bool, static_cast<size_t>(Timer::COUNT)> TimerActive;
 
+
+		void RegisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
+		void EnableTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
+		void DisableTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
+		void DecreaseTimerInterval(const TimerSystemCommand& command, const size_t ticks) noexcept;
+		void TriggerNow(const TimerSystemCommand& command, const size_t ticks) noexcept;
+
+		static constexpr std::array<void(TimerSystem::*)(const TimerSystemCommand& command, const size_t ticks) noexcept, 5> CommandHandlers = 
+		{
+			&TimerSystem::RegisterTimer,
+			&TimerSystem::EnableTimer,
+			&TimerSystem::DisableTimer,
+			&TimerSystem::DecreaseTimerInterval,
+			&TimerSystem::TriggerNow
+		};
+
+
 		void GreenbullExpireHandler(MessageSystem& message_system) const noexcept;
 		void MilkExpireHandler(MessageSystem& message_system) const noexcept;
 		void PoisonTickHandler(MessageSystem& message_system) const noexcept;
@@ -58,21 +75,8 @@ class TimerSystem
 		void SlideHandler(MessageSystem& message_system) const noexcept;
 		void UpdateDurationHandler(MessageSystem& message_system) const noexcept;
 		void GlueCountdownHandler(MessageSystem& message_system) const noexcept;
-
-		void RegisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
-		void EnableTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
-		void DisableTimer(const TimerSystemCommand& command, const size_t ticks) noexcept;
-		void DecreaseTimerInterval(const TimerSystemCommand& command, const size_t ticks) noexcept;
-		void TriggerNow(const TimerSystemCommand& command, const size_t ticks) noexcept;
-
-		static constexpr std::array<void(TimerSystem::*)(const TimerSystemCommand& command, const size_t ticks) noexcept, 5> CommandHandlers = 
-		{
-			&TimerSystem::RegisterTimer,
-			&TimerSystem::EnableTimer,
-			&TimerSystem::DisableTimer,
-			&TimerSystem::DecreaseTimerInterval,
-			&TimerSystem::TriggerNow
-		};
+		void SlideCameraExpireHandler(MessageSystem& message_system) const noexcept;
+		void ReleaseCameraExpireHandler(MessageSystem& message_system) const noexcept;
 
 		static constexpr std::array<void(TimerSystem::*)(MessageSystem&) const noexcept, static_cast<size_t>(Timer::COUNT)> TimeoutHandlers =
 		{
@@ -92,6 +96,8 @@ class TimerSystem
 			&TimerSystem::RMBHandler,
 			&TimerSystem::SlideHandler,
 			&TimerSystem::UpdateDurationHandler,
-			&TimerSystem::GlueCountdownHandler
+			&TimerSystem::GlueCountdownHandler,
+			&TimerSystem::SlideCameraExpireHandler,
+			&TimerSystem::ReleaseCameraExpireHandler
 		};
 };

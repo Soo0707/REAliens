@@ -242,3 +242,13 @@ void TimerSystem::GlueCountdownHandler(MessageSystem& message_system) const noex
 {
 	message_system.PlayerSignals[static_cast<size_t>(PlayerSignal::DripGlue)]++;
 }
+
+void TimerSystem::SlideCameraExpireHandler(MessageSystem& message_system) const noexcept
+{
+	message_system.CameraSystemSignals[static_cast<size_t>(CameraSystemSignal::SlideCameraExpire)]++;
+}
+
+void TimerSystem::ReleaseCameraExpireHandler(MessageSystem& message_system) const noexcept
+{
+	message_system.CameraSystemSignals[static_cast<size_t>(CameraSystemSignal::ReleaseCameraExpire)]++;
+}

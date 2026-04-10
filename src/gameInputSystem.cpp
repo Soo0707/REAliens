@@ -44,6 +44,13 @@ void GameInputSystem::HandleTickedInput(
 				);
 
 		message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct EnableTimer>, false, Timer::Slide);
+
+		message_system.CameraSystemCommands.emplace_back(
+				std::in_place_type<struct SlideCamera>, Vector2Scale(player_direction, -10.0f), TICK_RATE / 2
+				);
+
+		message_system.CameraSystemCommands.emplace_back(std::in_place_type<struct ReleaseCamera>, TICK_RATE / 4);
+
 		game.CanPerform[static_cast<size_t>(Action::Slide)] = false;
 	}
 
