@@ -112,12 +112,15 @@ int main(void)
 		if (accumulator >= MAX_TICK_TIME)
 			accumulator = MAX_TICK_TIME;
 
+		state_manager.BeforeTick();
+
 		while (accumulator >= TICK_TIME)
 		{
-			state_manager.Update(*message_system, canvas);
-
+			state_manager.Tick(*message_system);
 			accumulator -= TICK_TIME;
 		}
+
+		state_manager.AfterTick(canvas);
 
 		BeginDrawing();
 			ClearBackground(BLACK);

@@ -102,7 +102,7 @@ void PowerupMenu::GenerateList() noexcept
 	}
 }
 
-void PowerupMenu::HandleInput() noexcept
+void PowerupMenu::Input() noexcept
 {
 	if (IsKeyPressed(KEY_ONE) || this->Gamble)
 		PowerupMenu::ApplyPowerup(this->SelectionList[0].Powerup);

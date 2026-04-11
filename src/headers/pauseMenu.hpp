@@ -23,7 +23,7 @@ class PauseMenu
 		~PauseMenu() = default;
 
 		void Draw(const RenderTexture2D& canvas) const noexcept;
-		void HandleInput() noexcept;
+		void Input() const noexcept;
 
 	private:
 		std::shared_ptr<class AssetManager> Assets;

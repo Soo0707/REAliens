@@ -35,7 +35,7 @@ void MainMenu::Draw(const RenderTexture2D& canvas) const noexcept
 	EndTextureMode();
 }
 
-void MainMenu::HandleInput() noexcept
+void MainMenu::Input() const noexcept
 {
 	if (IsKeyPressed(KEY_SPACE))
 		this->MessageSystem->StateManagerCommands.emplace_back(std::in_place_type<SetState>, State::SystemsReset);

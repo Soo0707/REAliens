@@ -70,7 +70,7 @@ void GameOverMenu::Draw(const RenderTexture2D& canvas) const noexcept
 	EndTextureMode();
 }
 
-void GameOverMenu::HandleInput() const noexcept
+void GameOverMenu::Input() const noexcept
 {
 	if (IsKeyPressed(KEY_ENTER))
 		this->MessageSystem->StateManagerCommands.emplace_back(std::in_place_type<SetState>, State::SystemsReset);

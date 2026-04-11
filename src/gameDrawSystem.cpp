@@ -26,7 +26,7 @@
 
 void GameDrawSystem::DrawGame(
 		const Game& game, const CameraSystem& camera_system, const ModifierSystem& modifier_system,
-		const AssetManager& assets, const size_t ticks
+		const AssetManager& assets
 		) noexcept
 {
 	const float ground_width = assets.Ground.width;
@@ -58,7 +58,7 @@ void GameDrawSystem::DrawGame(
 	game.ItemSystem->Draw(assets);
 	game.EnemySystem->Draw(assets);
 	game.ProjectileSystem->Draw(assets);
-	game.ParticleSystem->Draw(assets, ticks);
+	game.ParticleSystem->Draw(assets);
 
 	if (!modifier_system.EffectStatus(Effect::Invisible))
 		game.Player->Draw(assets);
@@ -75,7 +75,7 @@ void GameDrawSystem::DrawLighting(const Game& game, const ModifierSystem& modifi
 
 void GameDrawSystem::DrawOverlay(
 		const Game& game, const TimerSystem& timer_system, const ModifierSystem& modifier_system,
-		const StringCache& string_cache, const AssetManager& assets, const size_t ticks
+		const StringCache& string_cache, const AssetManager& assets
 		) noexcept
 {
 	DrawTexture(assets.GetTexture(TextureKey::HealthBarBackground), 1060, 20, WHITE);
@@ -106,17 +106,19 @@ void GameDrawSystem::DrawOverlay(
 			CYAN
 			);
 
+
 	if (modifier_system.EffectStatus(Effect::Greenbull))
-		GameDrawSystem::DrawGreenbull(timer_system, assets, ticks);
+		DrawTexture(assets.GetTexture(TextureKey::GreenbullIcon), 1205, 40, WHITE);
 
 	if (modifier_system.EffectStatus(Effect::Milk))
-		GameDrawSystem::DrawMilk(timer_system, assets, ticks);
+		DrawTexture(assets.GetTexture(TextureKey::MilkIcon), 1225, 40, WHITE);
 	
 	if (modifier_system.EffectStatus(Effect::Drunk))
-		GameDrawSystem::DrawDrunk(timer_system, assets, ticks);
+		DrawTexture(assets.GetTexture(TextureKey::DrunkIcon), 1245, 40, WHITE);
 
 	if (modifier_system.EffectStatus(Effect::Magnetism))
-		GameDrawSystem::DrawMagnetism(timer_system, assets, ticks);
+		DrawTexture(assets.GetTexture(TextureKey::MagnetismIcon), 1185, 40, WHITE);
+
 
 	DrawText(string_cache.Data[static_cast<size_t>(GameString::Duration)].c_str(), 20, 20, 24, LIGHTGRAY);
 	DrawText(string_cache.Data[static_cast<size_t>(GameString::LevelText)].c_str(), 20, 50, 24, (modifier_system.GetLevel() % 5) ? LIGHTGRAY : GOLD);
@@ -127,46 +129,3 @@ void GameDrawSystem::DrawOverlay(
 	DrawText("[RMB]", 1120, 640, 20, (game.CanPerform[static_cast<size_t>(Action::RMB)] ? CYAN : GRAY));
 	DrawText("[SHIFT]", 1184, 640, 20, (game.CanPerform[static_cast<size_t>(Action::Slide)] ? ORANGE : GRAY));
 }
-
-
-void GameDrawSystem::DrawGreenbull(const TimerSystem& timer_system, const AssetManager& assets, const size_t ticks) noexcept
-{
-	const size_t expiry = timer_system.GetTimer(Timer::GreenbullExpire) - ticks;
-
-	if (expiry >= SECONDS_TO_TICKS(5))
-		DrawTexture(assets.GetTexture(TextureKey::GreenbullIcon), 1205, 40, WHITE);
-	else if ((expiry / (TICK_RATE / 2)) % 2)
-		DrawTexture(assets.GetTexture(TextureKey::GreenbullIcon), 1205, 40, WHITE);
-}
-
-void GameDrawSystem::DrawMilk(const TimerSystem& timer_system, const AssetManager& assets, const size_t ticks) noexcept
-{
-	const size_t expiry = timer_system.GetTimer(Timer::MilkExpire) - ticks;
-
-	if (expiry >= SECONDS_TO_TICKS(5))
-		DrawTexture(assets.GetTexture(TextureKey::MilkIcon), 1225, 40, WHITE);
-	else if ((expiry / (TICK_RATE / 2)) % 2)
-		DrawTexture(assets.GetTexture(TextureKey::MilkIcon), 1225, 40, WHITE);
-}
-
-void GameDrawSystem::DrawDrunk(const TimerSystem& timer_system, const AssetManager& assets, const size_t ticks) noexcept
-{
-	const size_t expiry = timer_system.GetTimer(Timer::DrunkExpire) - ticks;
-
-	if (expiry >= SECONDS_TO_TICKS(5))
-		DrawTexture(assets.GetTexture(TextureKey::DrunkIcon), 1245, 40, WHITE);
-	else if ((expiry / (TICK_RATE / 2)) % 2)
-		DrawTexture(assets.GetTexture(TextureKey::DrunkIcon), 1245, 40, WHITE);
-}
-
-void GameDrawSystem::DrawMagnetism(const TimerSystem& timer_system, const AssetManager& assets, const size_t ticks) noexcept
-{
-	const size_t expiry = timer_system.GetTimer(Timer::MagnetismExpire) - ticks;
-
-	if (expiry >= SECONDS_TO_TICKS(5))
-		DrawTexture(assets.GetTexture(TextureKey::MagnetismIcon), 1185, 40, WHITE);
-	else if ((expiry / (TICK_RATE / 2)) % 2)
-		DrawTexture(assets.GetTexture(TextureKey::MagnetismIcon), 1185, 40, WHITE);
-}
-
-

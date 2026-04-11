@@ -42,7 +42,7 @@ void PauseMenu::Draw(const RenderTexture2D& canvas) const noexcept
 	EndTextureMode();
 }
 
-void PauseMenu::HandleInput() noexcept
+void PauseMenu::Input() const noexcept
 {
 	if (IsKeyPressed(KEY_ESCAPE))
 		this->MessageSystem->StateManagerCommands.emplace_back(std::in_place_type<SetState>, State::Game);

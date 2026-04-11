@@ -72,7 +72,7 @@ void Game::Reset() noexcept
 	this->CanPerform = { 0 };
 }
 
-void Game::Draw(const size_t ticks, const RenderTexture2D& canvas) const noexcept
+void Game::Draw(const RenderTexture2D& canvas) const noexcept
 {
 	const Camera2D camera = this->CameraSystem->GetCamera();
 
@@ -80,7 +80,7 @@ void Game::Draw(const size_t ticks, const RenderTexture2D& canvas) const noexcep
 		ClearBackground(BLACK);
 
 		BeginMode2D(camera);
-			GameDrawSystem::DrawGame(*this, *this->CameraSystem, *this->ModifierSystem, *this->Assets, ticks);
+			GameDrawSystem::DrawGame(*this, *this->CameraSystem, *this->ModifierSystem, *this->Assets);
 		EndMode2D();
 	EndTextureMode();
 
@@ -111,18 +111,22 @@ void Game::Draw(const size_t ticks, const RenderTexture2D& canvas) const noexcep
 			);
 		EndBlendMode();
 
-		GameDrawSystem::DrawOverlay(*this, *this->TimerSystem, *this->ModifierSystem, *this->StringCache, *this->Assets, ticks);
+		GameDrawSystem::DrawOverlay(*this, *this->TimerSystem, *this->ModifierSystem, *this->StringCache, *this->Assets);
 	EndTextureMode();
 }
 
-void Game::HandleInput() noexcept
+void Game::UntickedInput() noexcept
 {
 	if (IsKeyPressed(KEY_ESCAPE))
 		this->MessageSystem->StateManagerCommands.emplace_back(std::in_place_type<struct SetState>, State::PauseMenu);
 	
 	if (IsKeyPressed(KEY_TAB) && (this->ModifierSystem->GetUnclaimedPowerups() || this->Settings->Get(SettingKey::UnlimitedPowerups)))
 		this->MessageSystem->StateManagerCommands.emplace_back(std::in_place_type<struct SetState>, State::PowerupMenu);
+}
 
+void Game::TickedInput() noexcept
+{
+	// TODO : unwrap this
 	GameInputSystem::HandleTickedInput(
 			*this, *this->MessageSystem, *this->CameraSystem, *this->Player,
 			*this->ModifierSystem, *this->Settings

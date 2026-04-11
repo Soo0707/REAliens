@@ -36,7 +36,9 @@ class StateManager
 				);
 		~StateManager() = default;
 
-		void Update(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept;
+		void BeforeTick() noexcept;
+		void Tick(MessageSystem& message_system) noexcept;
+		void AfterTick(const RenderTexture2D& canvas) const noexcept;
 
 		size_t Ticks;
 		bool Terminate;
@@ -54,23 +56,56 @@ class StateManager
 		const std::shared_ptr<class MainMenu> MainMenuState;
 
 
-		void RunGame(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept;
-		void RunSystemsReset(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept;
-		void RunPowerupMenu(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept;
-		void RunGameOverMenu(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept;
-		void RunPauseMenu(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept;
-		void RunMainMenu(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept;
-		void RunGenerateGameOverStats(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept;
+		void GameBeforeTick() noexcept;
+		void GameTick(MessageSystem& message_system) noexcept;
+		void GameAfterTick(const RenderTexture2D& canvas) const noexcept;
 
-		static constexpr std::array<void(StateManager::*)(MessageSystem&, const RenderTexture2D&), static_cast<size_t>(State::COUNT)> StateHooks = {
-			&StateManager::RunGame,
-			&StateManager::RunSystemsReset,
-			&StateManager::RunPowerupMenu,
-			&StateManager::RunGameOverMenu,
-			&StateManager::RunPauseMenu,
-			&StateManager::RunMainMenu,
-			&StateManager::RunGenerateGameOverStats
+		void SystemsResetTick(MessageSystem& message_system) noexcept;
+
+		void PowerupMenuBeforeTick() noexcept;
+		void PowerupMenuAfterTick(const RenderTexture2D& canvas) const noexcept;
+
+		void GameOverMenuBeforeTick() noexcept;
+		void GameOverMenuAfterTick(const RenderTexture2D& canvas) const noexcept;
+
+		void PauseMenuBeforeTick() noexcept;
+		void PauseMenuAfterTick(const RenderTexture2D& canvas) const noexcept;
+
+		void MainMenuBeforeTick() noexcept;
+		void MainMenuAfterTick(const RenderTexture2D& canvas) const noexcept;
+
+		void GenerateGameOverStatsTick(MessageSystem& message_system) noexcept;
+
+		static constexpr std::array<void(StateManager::*)() noexcept, static_cast<size_t>(State::COUNT)> BeforeTickHooks = {
+			&StateManager::GameBeforeTick,
+			nullptr,
+			&StateManager::PowerupMenuBeforeTick,
+			&StateManager::GameOverMenuBeforeTick,
+			&StateManager::PauseMenuBeforeTick,
+			&StateManager::MainMenuBeforeTick,
+			nullptr
 		};
+
+		static constexpr std::array<void(StateManager::*)(MessageSystem&) noexcept, static_cast<size_t>(State::COUNT)> TickHooks = {
+			&StateManager::GameTick,
+			&StateManager::SystemsResetTick,
+			nullptr,
+			nullptr,
+			nullptr,
+			nullptr,
+			&StateManager::GenerateGameOverStatsTick
+		};
+
+		static constexpr std::array<void(StateManager::*)(const RenderTexture2D&) const noexcept, static_cast<size_t>(State::COUNT)> AfterTickHooks = {
+			&StateManager::GameAfterTick,
+			nullptr,
+			&StateManager::PowerupMenuAfterTick,
+			&StateManager::GameOverMenuAfterTick,
+			&StateManager::PauseMenuAfterTick,
+			&StateManager::MainMenuAfterTick,
+			nullptr
+		};
+
 
 		void SetStateHandler(const StateManagerCommand& command) noexcept;
 		void SetTerminateHandler(const StateManagerCommand& command) noexcept;

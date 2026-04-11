@@ -54,8 +54,9 @@ class Game
 
 		~Game();
 
-		void Draw(const size_t ticks, const RenderTexture2D& canvas) const noexcept;
-		void HandleInput() noexcept;
+		void Draw(const RenderTexture2D& canvas) const noexcept;
+		void UntickedInput() noexcept;
+		void TickedInput() noexcept;
 		void Update(const size_t ticks) noexcept;
 
 		void Reset() noexcept;

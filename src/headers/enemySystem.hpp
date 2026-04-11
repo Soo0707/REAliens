@@ -61,12 +61,12 @@ class EnemySystem
 
 		void PrepareSpawnEnemies(const size_t level, const float map_width, const float map_height) noexcept;
 
+
 		void ApplyAussie(MessageSystem& message_system) const noexcept;
 		void ApplyDrunk(MessageSystem& message_system) const noexcept;
 		void ApplyPoison(MessageSystem& message_system) const noexcept;
 
 		using LeAttackHook = void(EnemySystem::*)(MessageSystem&) const noexcept;
-
 		static constexpr std::array<LeAttackHook, static_cast<size_t>(EnemyType::COUNT)> LeAttackHooks =
 		{
 			&EnemySystem::ApplyAussie,
@@ -74,6 +74,7 @@ class EnemySystem
 			nullptr,
 			&EnemySystem::ApplyPoison
 		};
+
 
 		void EmitParticlesFromLocations(const size_t ticks, const size_t level, MessageSystem& message_system) noexcept;
 		void SpawnEnemies(const size_t ticks, const size_t level, MessageSystem& message_system) noexcept;
@@ -84,6 +85,7 @@ class EnemySystem
 			&EnemySystem::EmitParticlesFromLocations,
 			&EnemySystem::SpawnEnemies
 		};
+
 
 		void DamageEnemyHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept;
 		void EnemyLeAttackedHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept;
@@ -96,6 +98,7 @@ class EnemySystem
 			&EnemySystem::EnemyLeAttackedHandler,
 			&EnemySystem::EnemyGotGluedHandler
 		};
+
 
 		// animation_frames = number of actual frames -1 since it's 0 indexed
 		static constexpr uint8_t AnimationFrames = 2;
@@ -113,8 +116,8 @@ class EnemySystem
 
 		std::vector<float> EnemyHealth;
 		std::vector<float> EnemySpeed;
-
 		std::vector<uint8_t> EnemyIsVisible;
+		std::vector<EnemyEffect> EnemyEffects;
 		std::vector<Vector2> EnemyDirection;
 		std::vector<Rectangle> EnemyRect;
 		std::vector<Vector2> EnemyCentre;

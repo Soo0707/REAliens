@@ -24,7 +24,7 @@ class MainMenu
 		);
 		~MainMenu() = default;
 
-		void HandleInput() noexcept;
+		void Input() const noexcept;
 		void Draw(const RenderTexture2D& canvas) const noexcept;
 
 	private:

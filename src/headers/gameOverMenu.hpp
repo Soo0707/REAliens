@@ -28,7 +28,7 @@ class GameOverMenu
 		~GameOverMenu() = default;
 
 		void Draw(const RenderTexture2D& canvas) const noexcept;
-		void HandleInput() const noexcept;
+		void Input() const noexcept;
 
 		void GenerateStats(const size_t ticks) noexcept;
 

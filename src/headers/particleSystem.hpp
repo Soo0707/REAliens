@@ -23,14 +23,11 @@ class ParticleSystem
 		~ParticleSystem() = default;
 		
 		void Update(MessageSystem& message_system, const AssetManager& assets, const Rectangle& update_area, const size_t ticks) noexcept;
-
 		void Reset() noexcept;
-
-		void ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept;
-		
-		void Draw(const AssetManager& assets, const size_t ticks) const noexcept;
+		void Draw(const AssetManager& assets) const noexcept;
 
 	private:
+		void ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept;
 		void VisibilityCheck(const Rectangle& update_area) noexcept;
 
 		void CreateParticle(
@@ -40,20 +37,17 @@ class ParticleSystem
 
 		void RemoveParticles(const size_t ticks) noexcept;
 		void MoveAndScaleParticles(const size_t ticks) noexcept;
+		void ColourParticles(const size_t ticks) noexcept;
 
 		std::vector<uint8_t> ParticleIsVisible;
-
 		std::vector<size_t> ParticleCreation;
 		std::vector<size_t> ParticleExpiry;
-
 		std::vector<float> ParticleRotation;
 		std::vector<float> ParticleScale;
-
 		std::vector<Vector2> ParticleVelocity;
-
 		std::vector<Color> ParticleStartColour;
+		std::vector<Color> ParticleCurrentColour;
 		std::vector<Color> ParticleEndColour;
-
 		std::vector<Rectangle> ParticleRect;
 };
 

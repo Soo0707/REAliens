@@ -50,17 +50,33 @@ void StateManager::Reset() noexcept
 	this->TickIncrement = 0;
 }
 
-void StateManager::Update(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept
+void StateManager::BeforeTick() noexcept
 {
-	this->ExecuteCommands(message_system);
-	
 	this->PollGlobalInput();
 
-	auto hook = this->StateHooks[static_cast<size_t>(this->ActiveState)];
-	(this->*hook)(message_system, canvas);
+	auto hook = this->BeforeTickHooks[static_cast<size_t>(this->ActiveState)];
+	if (hook)
+		(this->*hook)();
+}
+
+void StateManager::Tick(MessageSystem& message_system) noexcept
+{
+	this->ExecuteCommands(message_system);
+
+	auto hook = this->TickHooks[static_cast<size_t>(this->ActiveState)];
+	if (hook)
+		(this->*hook)(message_system);
 
 	this->Ticks += this->TickIncrement;
 }
+
+void StateManager::AfterTick(const RenderTexture2D& canvas) const noexcept
+{
+	auto hook = this->AfterTickHooks[static_cast<size_t>(this->ActiveState)];
+	if (hook)
+		(this->*hook)(canvas);
+}
+
 
 void StateManager::PollGlobalInput() const noexcept
 {
@@ -78,16 +94,26 @@ void StateManager::PollGlobalInput() const noexcept
 
 
 // states
-void StateManager::RunGame(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept
+void StateManager::GameBeforeTick() noexcept
+{
+	this->GameState->UntickedInput();
+}
+
+void StateManager::GameTick(MessageSystem& message_system) noexcept
 {
 	this->TickIncrement = 1;
 
-	this->GameState->HandleInput();
+	this->GameState->TickedInput();
 	this->GameState->Update(this->Ticks);
-	this->GameState->Draw(this->Ticks, canvas);
 }
 
-void StateManager::RunSystemsReset(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept
+void StateManager::GameAfterTick(const RenderTexture2D& canvas) const noexcept
+{
+	this->GameState->Draw(canvas);
+}
+
+
+void StateManager::SystemsResetTick(MessageSystem& message_system) noexcept
 {
 	this->TickIncrement = 0;
 
@@ -98,39 +124,55 @@ void StateManager::RunSystemsReset(MessageSystem& message_system, const RenderTe
 	message_system.StateManagerCommands.emplace_back(std::in_place_type<SetState>, State::Game);
 }
 
-void StateManager::RunPowerupMenu(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept
+
+void StateManager::PowerupMenuBeforeTick() noexcept
 {
 	this->TickIncrement = 0;
+	this->PowerupMenuState->Input();
+}
 
-	this->PowerupMenuState->HandleInput();
+void StateManager::PowerupMenuAfterTick(const RenderTexture2D& canvas) const noexcept
+{
 	this->PowerupMenuState->Draw(canvas);
 }
 
-void StateManager::RunGameOverMenu(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept
+
+void StateManager::GameOverMenuBeforeTick() noexcept
 {
 	this->TickIncrement = 0;
+	this->GameOverMenuState->Input();
+}
 
-	this->GameOverMenuState->HandleInput();
+void StateManager::GameOverMenuAfterTick(const RenderTexture2D& canvas) const noexcept
+{
 	this->GameOverMenuState->Draw(canvas);
 }
 
-void StateManager::RunPauseMenu(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept
+
+void StateManager::PauseMenuBeforeTick() noexcept
 {
 	this->TickIncrement = 0;
+	this->PauseMenuState->Input();
+}
 
-	this->PauseMenuState->HandleInput();
+void StateManager::PauseMenuAfterTick(const RenderTexture2D& canvas) const noexcept
+{
 	this->PauseMenuState->Draw(canvas);
 }
 
-void StateManager::RunMainMenu(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept
+void StateManager::MainMenuBeforeTick() noexcept
 {
 	this->TickIncrement = 0;
+	this->MainMenuState->Input();
+}
 
-	this->MainMenuState->HandleInput();
+void StateManager::MainMenuAfterTick(const RenderTexture2D& canvas) const noexcept
+{
 	this->MainMenuState->Draw(canvas);
 }
 
-void StateManager::RunGenerateGameOverStats(MessageSystem& message_system, const RenderTexture2D& canvas) noexcept
+
+void StateManager::GenerateGameOverStatsTick(MessageSystem& message_system) noexcept
 {
 	this->TickIncrement = 0;
 

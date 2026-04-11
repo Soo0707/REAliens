@@ -23,6 +23,7 @@ ParticleSystem::ParticleSystem()
 	this->ParticleScale.reserve(2048);
 	this->ParticleVelocity.reserve(2048);
 	this->ParticleStartColour.reserve(2048);
+	this->ParticleCurrentColour.reserve(2048);
 	this->ParticleEndColour.reserve(2048);
 	this->ParticleRect.reserve(2048);
 }
@@ -36,6 +37,7 @@ void ParticleSystem::Reset() noexcept
 	this->ParticleScale.clear();
 	this->ParticleVelocity.clear();
 	this->ParticleStartColour.clear();
+	this->ParticleCurrentColour.clear();
 	this->ParticleEndColour.clear();
 	this->ParticleRect.clear();
 }
@@ -46,6 +48,7 @@ void ParticleSystem::Update(MessageSystem& message_system, const AssetManager& a
 
 	this->VisibilityCheck(update_area);
 	this->MoveAndScaleParticles(ticks);
+	this->ColourParticles(ticks);
 	this->RemoveParticles(ticks);
 }
 
@@ -71,22 +74,19 @@ void ParticleSystem::ExecuteCommands(MessageSystem& message_system, const AssetM
 	message_system.ParticleSystemCommands.clear();
 }
 
-void ParticleSystem::Draw(const AssetManager& assets, const size_t ticks) const noexcept
+void ParticleSystem::Draw(const AssetManager& assets) const noexcept
 {
 	for (size_t i = 0, n = this->ParticleIsVisible.size(); i < n; i++)
 	{
 		if (this->ParticleIsVisible[i])
 		{
-			const float lerp_factor = static_cast<float>(this->ParticleExpiry[i] - ticks) / static_cast<float>(this->ParticleExpiry[i] - this->ParticleCreation[i]);
-			const Color colour = ColorLerp(this->ParticleEndColour[i], this->ParticleStartColour[i], lerp_factor);
-
 			DrawTexturePro(
 					assets.GetTexture(TextureKey::WhitePixel),
 					{ 0.0f, 0.0f, 1.0f, 1.0f },
 					this->ParticleRect[i],
 					{ 0.0f, 0.0f },
 					this->ParticleRotation[i],
-					colour
+					this->ParticleCurrentColour[i]
 					);
 		}
 	}
@@ -107,15 +107,12 @@ void ParticleSystem::CreateParticle(
 
 	this->ParticleCreation.emplace_back(creation);
 	this->ParticleExpiry.emplace_back(expiry);
-
 	this->ParticleRotation.emplace_back(rotation);
 	this->ParticleScale.emplace_back(scale);
-
 	this->ParticleVelocity.emplace_back(velocity);
-
 	this->ParticleStartColour.emplace_back(start_colour);
+	this->ParticleCurrentColour.emplace_back(WHITE);
 	this->ParticleEndColour.emplace_back(end_colour);
-
 	this->ParticleRect.emplace_back(x, y, scale, scale);
 }
 
@@ -132,6 +129,7 @@ void ParticleSystem::RemoveParticles(const size_t ticks) noexcept
 			this->ParticleScale[i] = this->ParticleScale.back();
 			this->ParticleVelocity[i] = this->ParticleVelocity.back();
 			this->ParticleStartColour[i] = this->ParticleStartColour.back();
+			this->ParticleCurrentColour[i] = this->ParticleCurrentColour.back();
 			this->ParticleEndColour[i] = this->ParticleEndColour.back();
 			this->ParticleRect[i] = this->ParticleRect.back();
 
@@ -143,6 +141,7 @@ void ParticleSystem::RemoveParticles(const size_t ticks) noexcept
 			this->ParticleScale.pop_back();
 			this->ParticleVelocity.pop_back();
 			this->ParticleStartColour.pop_back();
+			this->ParticleCurrentColour.pop_back();
 			this->ParticleEndColour.pop_back();
 			this->ParticleRect.pop_back();
 		}
@@ -162,5 +161,15 @@ void ParticleSystem::MoveAndScaleParticles(const size_t ticks) noexcept
 
 		this->ParticleRect[i].width = this->ParticleScale[i] * lerp_factor;
 		this->ParticleRect[i].height = this->ParticleScale[i] * lerp_factor;
+	}
+}
+
+void ParticleSystem::ColourParticles(const size_t ticks) noexcept
+{
+	for (size_t i = 0, n = this->ParticleCurrentColour.size(); i < n; i++)
+	{
+		const float lerp_factor = static_cast<float>(this->ParticleExpiry[i] - ticks) / static_cast<float>(this->ParticleExpiry[i] - this->ParticleCreation[i]);
+
+		this->ParticleCurrentColour[i] = ColorLerp(this->ParticleEndColour[i], this->ParticleStartColour[i], lerp_factor);
 	}
 }

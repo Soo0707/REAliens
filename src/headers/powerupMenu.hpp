@@ -69,7 +69,7 @@ class PowerupMenu
 		~PowerupMenu() = default;
 
 		void Draw(const RenderTexture2D& canvas) const noexcept;
-		void HandleInput() noexcept;
+		void Input() noexcept;
 
 	private:
 		void GenerateList() noexcept;
