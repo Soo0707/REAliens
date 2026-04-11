@@ -22,58 +22,21 @@
 #include "player.hpp"
 #include "cameraSystem.hpp"
 
-void GameInputSystem::HandleTickedInput(
-		Game& game, MessageSystem& message_system, const CameraSystem& camera_system, const Player& player,
-		const ModifierSystem& modifier_system, const SettingsManager& settings
-		) noexcept
+void GameInputSystem::HandleShift(MessageSystem& message_system, const Vector2 player_direction) noexcept
 {
-	const Vector2 player_direction = {
-			static_cast<float>(IsKeyDown(KEY_D) - IsKeyDown(KEY_A)),
-			static_cast<float>(IsKeyDown(KEY_S) - IsKeyDown(KEY_W))
-		};
+	message_system.PlayerSignals[static_cast<size_t>(PlayerSignal::ApplySlide)]++;
 
-	message_system.PlayerCommands.emplace_back(std::in_place_type<struct SetPlayerDirection>, player_direction);
+	message_system.TimerSystemCommands.emplace_back(
+			std::in_place_type<struct RegisterTimer>, TICK_RATE / 6,
+			false, Timer::PlayerSlideExpire
+			);
 
-	if (IsKeyDown(KEY_LEFT_SHIFT) && game.CanPerform[static_cast<size_t>(Action::Slide)])
-	{
-		message_system.PlayerSignals[static_cast<size_t>(PlayerSignal::ApplySlide)]++;
+	message_system.CameraSystemCommands.emplace_back(
+			std::in_place_type<struct SlideCamera>, Vector2Scale(player_direction, -10.0f), TICK_RATE / 2
+			);
 
-		message_system.TimerSystemCommands.emplace_back(
-				std::in_place_type<struct RegisterTimer>, TICK_RATE / 6,
-				false, Timer::PlayerSlideExpire
-				);
-
-		message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct EnableTimer>, false, Timer::Slide);
-
-		message_system.CameraSystemCommands.emplace_back(
-				std::in_place_type<struct SlideCamera>, Vector2Scale(player_direction, -10.0f), TICK_RATE / 2
-				);
-
-		message_system.CameraSystemCommands.emplace_back(std::in_place_type<struct ReleaseCamera>, TICK_RATE / 4);
-
-		game.CanPerform[static_cast<size_t>(Action::Slide)] = false;
-	}
-
-	const bool auto_click = settings.Get(SettingKey::AutoClick);
-
-	const Vector2 player_centre = player.Centre;
-	const Camera2D camera = camera_system.GetCamera();
-
-	if ((IsMouseButtonDown(MOUSE_BUTTON_LEFT) || auto_click) && game.CanPerform[static_cast<size_t>(Action::LMB)])
-	{
-		GameInputSystem::HandleLeftClick(message_system, modifier_system, player_centre, camera);
-
-		message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct EnableTimer>, false, Timer::LMB);
-		game.CanPerform[static_cast<size_t>(Action::LMB)] = false;
-	}
-	
-	if ((IsMouseButtonDown(MOUSE_BUTTON_RIGHT) || auto_click) && game.CanPerform[static_cast<size_t>(Action::RMB)])
-	{
-		GameInputSystem::HandleRightClick(message_system, modifier_system, player_centre, camera);
-
-		message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct EnableTimer>, false, Timer::RMB);
-		game.CanPerform[static_cast<size_t>(Action::RMB)] = false;
-	}
+	message_system.CameraSystemCommands.emplace_back(std::in_place_type<struct ReleaseCamera>, TICK_RATE / 4);
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct EnableTimer>, false, Timer::Slide);
 }
 
 void GameInputSystem::HandleLeftClick(
@@ -82,12 +45,9 @@ void GameInputSystem::HandleLeftClick(
 		) noexcept
 {
 	const Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), camera);
-
 	const Vector2 centre_direction = Vector2Subtract(mouse_pos, player_centre);
-
 	const float spread_angle = modifier_system.GetAttribute(Attribute::BuckshotSpread);
 	const int buckshot = static_cast<int>((modifier_system.GetAttribute(Attribute::Buckshot) - 1) / 2);
-	
 	const float speed = modifier_system.GetAttribute(Attribute::BulletSpeed);
 
 	for (int i = -buckshot; i <= buckshot; i++)
@@ -98,7 +58,6 @@ void GameInputSystem::HandleLeftClick(
 					std::in_place_type<struct CreateProjectile>, ProjectileType::Bullet, centre_direction,
 					player_centre.x, player_centre.y, speed
 					);
-
 			continue;
 		}
 
@@ -109,6 +68,8 @@ void GameInputSystem::HandleLeftClick(
 				player_centre.x, player_centre.y, speed
 				);
 	}
+
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct EnableTimer>, false, Timer::LMB);
 }
 
 void GameInputSystem::HandleRightClick(
@@ -117,13 +78,13 @@ void GameInputSystem::HandleRightClick(
 		) noexcept
 {
 	const Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), camera);
-
 	const Vector2 direction = Vector2Subtract(mouse_pos, player_centre);
-
 	const float speed = modifier_system.GetAttribute(Attribute::LazerSpeed);
 
 	message_system.ProjectileSystemCommands.emplace_back(
 			std::in_place_type<struct CreateProjectile>, ProjectileType::Lazer, direction,
 			player_centre.x, player_centre.y, speed
 			);
+
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct EnableTimer>, false, Timer::RMB);
 }

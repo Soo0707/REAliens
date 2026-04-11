@@ -126,11 +126,34 @@ void Game::UntickedInput() noexcept
 
 void Game::TickedInput() noexcept
 {
-	// TODO : unwrap this
-	GameInputSystem::HandleTickedInput(
-			*this, *this->MessageSystem, *this->CameraSystem, *this->Player,
-			*this->ModifierSystem, *this->Settings
-			);
+	const Vector2 player_direction = {
+			static_cast<float>(IsKeyDown(KEY_D) - IsKeyDown(KEY_A)),
+			static_cast<float>(IsKeyDown(KEY_S) - IsKeyDown(KEY_W))
+		};
+
+	this->MessageSystem->PlayerCommands.emplace_back(std::in_place_type<struct SetPlayerDirection>, player_direction);
+
+	if (IsKeyDown(KEY_LEFT_SHIFT) && this->CanPerform[static_cast<size_t>(Action::Slide)])
+	{
+		GameInputSystem::HandleShift(*this->MessageSystem, player_direction);
+		this->CanPerform[static_cast<size_t>(Action::Slide)] = false;
+	}
+
+	const bool auto_click = this->Settings->Get(SettingKey::AutoClick);
+	const Vector2 player_centre = this->Player->Centre;
+	const Camera2D camera = this->CameraSystem->GetCamera();
+
+	if ((IsMouseButtonDown(MOUSE_BUTTON_LEFT) || auto_click) && this->CanPerform[static_cast<size_t>(Action::LMB)])
+	{
+		GameInputSystem::HandleLeftClick(*this->MessageSystem, *this->ModifierSystem, player_centre, camera);
+		this->CanPerform[static_cast<size_t>(Action::LMB)] = false;
+	}
+	
+	if ((IsMouseButtonDown(MOUSE_BUTTON_RIGHT) || auto_click) && this->CanPerform[static_cast<size_t>(Action::RMB)])
+	{
+		GameInputSystem::HandleRightClick(*this->MessageSystem, *this->ModifierSystem, player_centre, camera);
+		this->CanPerform[static_cast<size_t>(Action::RMB)] = false;
+	}
 }
 
 void Game::Update(const size_t ticks) noexcept

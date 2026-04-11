@@ -22,11 +22,7 @@
 
 namespace GameInputSystem
 {
-	void HandleTickedInput(
-			Game& game, MessageSystem& message_system, const CameraSystem& camera_system, const Player& player,
-			const ModifierSystem& modifier_system, const SettingsManager& settings
-			) noexcept;
-
+	void HandleShift(MessageSystem& message_system, const Vector2 player_direction) noexcept;
 	void HandleLeftClick(MessageSystem& message_system, const ModifierSystem& modifier_system, const Vector2 player_centre, const Camera2D camera) noexcept;
 	void HandleRightClick(MessageSystem& message_system, const ModifierSystem& modifier_system, const Vector2 player_centre, const Camera2D camera) noexcept;
 }
