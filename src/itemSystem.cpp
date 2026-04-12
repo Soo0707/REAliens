@@ -17,6 +17,7 @@
 #include "constants.hpp"
 #include "assetManager.hpp"
 #include "projectileData.hpp"
+#include "enemyData.hpp"
 #include "commands.hpp"
 #include "signals.hpp"
 #include "messageSystem.hpp"
@@ -198,6 +199,7 @@ void ItemSystem::EnemyItemCollisionHandler(MessageSystem& message_system, const 
 	const struct EnemyItemCollision& data = std::get<struct EnemyItemCollision>(command);
 	const size_t index = data.ItemIndex;
 	const size_t enemy_index = data.EnemyIndex;
+	const EnemyType enemy_type = data.EnemyType;
 
 	if (!this->CheckIndex(index))
 		return;
@@ -207,7 +209,7 @@ void ItemSystem::EnemyItemCollisionHandler(MessageSystem& message_system, const 
 	auto hook = this->EnemyItemCollisionHooks[type_index];
 
 	if (hook)
-		(this->*hook)(message_system, index, enemy_index);
+		(this->*hook)(message_system, data);
 }
 
 bool ItemSystem::CheckIndex(const size_t index) const noexcept
@@ -242,8 +244,20 @@ void ItemSystem::XpCollisionHook(MessageSystem& message_system, const size_t ite
 	this->ItemKill[item_index] = static_cast<uint8_t>(true);
 }
 
-void ItemSystem::GlueEnemyItemCollisionHook(MessageSystem& message_system, const size_t item_index, const size_t enemy_index) noexcept
+void ItemSystem::XpEnemyItemCollisionHook(MessageSystem& message_system, const EnemyItemCollision& data) noexcept
 {
+	const size_t item_index = data.ItemIndex;
+	const EnemyType enemy_type = data.EnemyType;
+	
+	if (enemy_type == EnemyType::Orange)
+		this->ItemKill[item_index] = static_cast<uint8_t>(true);
+}
+
+void ItemSystem::GlueEnemyItemCollisionHook(MessageSystem& message_system, const EnemyItemCollision& data) noexcept
+{
+	const size_t item_index = data.ItemIndex;
+	const size_t enemy_index = data.EnemyIndex;
+
 	message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct EnemyGotGlued>, enemy_index);
 	this->ItemKill[item_index] = static_cast<uint8_t>(true);
 }

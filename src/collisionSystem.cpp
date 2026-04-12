@@ -53,7 +53,7 @@ void CollisionSystem::Reset()
 void CollisionSystem::Update(
 		MessageSystem& message_system, const ModifierSystem& modifier_system, const std::vector<Vector2>& enemy_centre,
 		const std::vector<float>& enemy_health, const std::vector<EnemyAttackComponent>& enemy_attack_components,
-		const std::vector<EnemyType>& enemy_type, const std::vector<Rectangle>& projectile_rect,
+		const std::vector<EnemyType>& enemy_types, const std::vector<Rectangle>& projectile_rect,
 		const std::vector<ProjectileType>& projectile_type, const std::vector<Vector2>& projectile_direction,
 		const std::vector<Vector2>& item_centre, const Player& player, const size_t ticks
 		) noexcept
@@ -78,10 +78,10 @@ void CollisionSystem::Update(
 
 	const bool has_greenbull = modifier_system.EffectStatus(Effect::Greenbull);
 
-	this->EnemyItemCollision(message_system, enemy_centre);
+	this->EnemyItemCollision(message_system, enemy_centre, enemy_types);
 
 	if (!has_greenbull && !is_sliding)
-		this->LeAttack(enemy_attack_components, enemy_type, player_centre, message_system, modifier_system, ticks);
+		this->LeAttack(enemy_attack_components, player_centre, message_system, modifier_system, ticks);
 	
 	this->ItemCollision(player_centre, message_system);
 }
@@ -191,9 +191,8 @@ void CollisionSystem::ProjectileCollision(
 }
 
 void CollisionSystem::LeAttack(
-		const std::vector<EnemyAttackComponent>& enemy_attack_components, const std::vector<EnemyType>& enemy_type,
-		const Vector2 player_centre, MessageSystem& message_system,
-		const ModifierSystem& modifier_system, const size_t ticks
+		const std::vector<EnemyAttackComponent>& enemy_attack_components, const Vector2 player_centre,
+		MessageSystem& message_system, const ModifierSystem& modifier_system, const size_t ticks
 		) const noexcept
 {
 	const bool has_milk = modifier_system.EffectStatus(Effect::Milk);
@@ -294,7 +293,10 @@ void CollisionSystem::ItemCollision(const Vector2 player_centre, MessageSystem& 
 	}
 }
 
-void CollisionSystem::EnemyItemCollision(MessageSystem& message_system, const std::vector<Vector2>& enemy_centre) const noexcept
+void CollisionSystem::EnemyItemCollision(
+		MessageSystem& message_system, const std::vector<Vector2>& enemy_centre,
+		const std::vector<EnemyType>& enemy_types
+		) const noexcept
 {
 	for (size_t i = 0, n = enemy_centre.size(); i < n; i++)
 	{
@@ -303,8 +305,9 @@ void CollisionSystem::EnemyItemCollision(MessageSystem& message_system, const st
 		if (index < this->GridSize && this->ItemGrid[index] != this->EmptyCell)
 		{
 			const size_t item_index = this->ItemGrid[index];
+			const EnemyType enemy_type = enemy_types[i];
 
-			message_system.ItemSystemCommands.emplace_back(std::in_place_type<struct EnemyItemCollision>, item_index, i);
+			message_system.ItemSystemCommands.emplace_back(std::in_place_type<struct EnemyItemCollision>, item_index, i, enemy_type);
 		}
 	}
 }

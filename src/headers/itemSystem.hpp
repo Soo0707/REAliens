@@ -17,6 +17,7 @@
 #include "messageSystem.hpp"
 #include "modifierSystem.hpp"
 #include "itemData.hpp"
+#include "enemyData.hpp"
 
 class ItemSystem
 {
@@ -73,12 +74,13 @@ class ItemSystem
 		};
 
 
-		void GlueEnemyItemCollisionHook(MessageSystem& message_system, const size_t item_index, const size_t enemy_index) noexcept;
+		void XpEnemyItemCollisionHook(MessageSystem& message_system, const EnemyItemCollision& data) noexcept;
+		void GlueEnemyItemCollisionHook(MessageSystem& message_system, const EnemyItemCollision& data) noexcept;
 
-		using EnemyItemCollisionHook = void(ItemSystem::*)(MessageSystem&, const size_t, const size_t) noexcept;
+		using EnemyItemCollisionHook = void(ItemSystem::*)(MessageSystem&, const EnemyItemCollision&) noexcept;
 
 		static constexpr std::array<EnemyItemCollisionHook, static_cast<size_t>(Item::COUNT)> EnemyItemCollisionHooks = {
-			nullptr,
+			&ItemSystem::XpEnemyItemCollisionHook,
 			nullptr,
 			&ItemSystem::GlueEnemyItemCollisionHook
 		};

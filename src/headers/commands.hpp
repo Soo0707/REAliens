@@ -16,6 +16,7 @@
 #include "stats.hpp"
 #include "states.hpp"
 #include "timers.hpp"
+#include "enemyData.hpp"
 #include "projectileData.hpp"
 #include "itemData.hpp"
 
@@ -69,6 +70,7 @@ struct EnemyItemCollision
 {
 	size_t ItemIndex;
 	size_t EnemyIndex;
+	EnemyType EnemyType;
 };
 
 using ItemSystemCommand = std::variant<struct CreateItem, struct CollidedWithItem, struct EnemyItemCollision>;

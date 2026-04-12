@@ -107,17 +107,20 @@ void GameDrawSystem::DrawOverlay(
 			);
 
 
-	if (modifier_system.EffectStatus(Effect::Greenbull))
-		DrawTexture(assets.GetTexture(TextureKey::GreenbullIcon), 1205, 40, WHITE);
+	if (modifier_system.EffectStatus(Effect::Drunk))
+		DrawTexture(assets.GetTexture(TextureKey::DrunkIcon), 1245, 40, WHITE);
 
 	if (modifier_system.EffectStatus(Effect::Milk))
 		DrawTexture(assets.GetTexture(TextureKey::MilkIcon), 1225, 40, WHITE);
 	
-	if (modifier_system.EffectStatus(Effect::Drunk))
-		DrawTexture(assets.GetTexture(TextureKey::DrunkIcon), 1245, 40, WHITE);
+	if (modifier_system.EffectStatus(Effect::Greenbull))
+		DrawTexture(assets.GetTexture(TextureKey::GreenbullIcon), 1205, 40, WHITE);
 
 	if (modifier_system.EffectStatus(Effect::Magnetism))
 		DrawTexture(assets.GetTexture(TextureKey::MagnetismIcon), 1185, 40, WHITE);
+
+	if (modifier_system.EffectStatus(Effect::Tariffs))
+		DrawTexture(assets.GetTexture(TextureKey::TariffIcon), 1165, 40, WHITE);
 
 
 	DrawText(string_cache.Data[static_cast<size_t>(GameString::Duration)].c_str(), 20, 20, 24, LIGHTGRAY);

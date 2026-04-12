@@ -191,6 +191,11 @@ void TimerSystem::MagnetismExpireHandler(MessageSystem& message_system) const no
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveMagnetism)]++;
 }
 
+void TimerSystem::TariffsExpireHandler(MessageSystem& message_system) const noexcept
+{
+	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveTariffs)]++;
+}
+
 void TimerSystem::AuraTickHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.CollisionSystemSignals[static_cast<size_t>(CollisionSystemSignal::AuraTick)]++;

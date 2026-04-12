@@ -287,6 +287,11 @@ void ModifierSystem::ApplyDrunk() noexcept
 	this->ApplyEffect(Effect::Drunk);
 }
 
+void ModifierSystem::ApplyTariffs() noexcept
+{
+	this->ApplyEffect(Effect::Tariffs);
+}
+
 
 void ModifierSystem::RemoveMilk() noexcept
 {
@@ -318,6 +323,11 @@ void ModifierSystem::RemoveDrunk() noexcept
 	this->RemoveEffect(Effect::Drunk);
 }
 
+void ModifierSystem::RemoveTariffs() noexcept
+{
+	this->RemoveEffect(Effect::Tariffs);
+}
+
 
 void ModifierSystem::InsertLevelDebuff() noexcept
 {
@@ -336,5 +346,8 @@ void ModifierSystem::RemoveLevelDebuff() noexcept
 
 void ModifierSystem::IncrementCollectedXp() noexcept
 {
-	this->CollectedXp += 1 + static_cast<int>(this->IsLucky()) * static_cast<int>(this->GetAttribute(Attribute::GreedMultiplier));
+	const uint32_t has_tariffs = static_cast<uint32_t>(!this->EffectStatus(Effect::Tariffs));
+	const uint32_t bonus = static_cast<uint32_t>(this->IsLucky()) * static_cast<uint32_t>(this->GetAttribute(Attribute::GreedMultiplier));
+
+	this->CollectedXp += static_cast<size_t>(has_tariffs * (1 + bonus));
 }

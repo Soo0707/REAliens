@@ -32,6 +32,7 @@ enum class TextureKey : uint8_t
 	MagnetismIcon,
 	GreenbullIcon,
 	DrunkIcon,
+	TariffIcon,
 	WhitePixel,
 	HealthBarBackground,
 	XpBarBackground,

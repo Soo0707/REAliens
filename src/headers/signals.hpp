@@ -49,6 +49,7 @@ enum class ModifierSystemSignal : uint8_t
 	ApplyAussie,
 	ApplyPoison,
 	ApplyDrunk,
+	ApplyTariffs,
 
 	RemoveMilk,
 	RemoveGreenbull,
@@ -56,6 +57,7 @@ enum class ModifierSystemSignal : uint8_t
 	RemoveAussie,
 	RemovePoison,
 	RemoveDrunk,
+	RemoveTariffs,
 
 	IncrementCollectedXp,
 

@@ -33,7 +33,7 @@ class CollisionSystem
 		void Update(
 				MessageSystem& message_system, const ModifierSystem& modifier_system, const std::vector<Vector2>& enemy_centre,
 				const std::vector<float>& enemy_health, const std::vector<EnemyAttackComponent>& enemy_attack_components,
-				const std::vector<EnemyType>& enemy_type, const std::vector<Rectangle>& projectile_rect,
+				const std::vector<EnemyType>& enemy_types, const std::vector<Rectangle>& projectile_rect,
 				const std::vector<ProjectileType>& projectile_type, const std::vector<Vector2>& projectile_direction,
 				const std::vector<Vector2>& item_centre, const Player& player, const size_t ticks
 				) noexcept;
@@ -51,8 +51,7 @@ class CollisionSystem
 				) const noexcept;
 
 		void LeAttack(
-				const std::vector<EnemyAttackComponent>& enemy_attack_components,
-				const std::vector<EnemyType>& enemy_type, const Vector2 player_centre,
+				const std::vector<EnemyAttackComponent>& enemy_attack_components, const Vector2 player_centre,
 				MessageSystem& message_system, const ModifierSystem& modifier_system, const size_t ticks
 				) const noexcept;
 
@@ -63,7 +62,10 @@ class CollisionSystem
 				) const noexcept;
 
 		void ItemCollision(const Vector2 player_centre, MessageSystem& message_system) const noexcept;
-		void EnemyItemCollision(MessageSystem& message_system, const std::vector<Vector2>& enemy_centre) const noexcept;
+		void EnemyItemCollision(
+				MessageSystem& message_system, const std::vector<Vector2>& enemy_centre,
+				const std::vector<EnemyType>& enemy_types
+				) const noexcept;
 
 		void UpdateEnemyGrid(const std::vector<Vector2>& enemy_centre) noexcept;
 		void UpdateItemGrid(const std::vector<Vector2>& item_centre) noexcept;

@@ -63,6 +63,7 @@ class ModifierSystem
 		void ApplyAussie() noexcept;
 		void ApplyPoison() noexcept;
 		void ApplyDrunk() noexcept;
+		void ApplyTariffs() noexcept;
 
 
 		void RemoveMilk() noexcept;
@@ -71,6 +72,7 @@ class ModifierSystem
 		void RemoveAussie() noexcept;
 		void RemovePoison() noexcept;
 		void RemoveDrunk() noexcept;
+		void RemoveTariffs() noexcept;
 
 		void InsertLevelDebuff() noexcept;
 		void RemoveLevelDebuff() noexcept;
@@ -96,6 +98,7 @@ class ModifierSystem
 			&ModifierSystem::ApplyAussie,
 			&ModifierSystem::ApplyPoison,
 			&ModifierSystem::ApplyDrunk,
+			&ModifierSystem::ApplyTariffs,
 
 			&ModifierSystem::RemoveMilk,
 			&ModifierSystem::RemoveGreenbull,
@@ -103,6 +106,7 @@ class ModifierSystem
 			&ModifierSystem::RemoveAussie,
 			&ModifierSystem::RemovePoison,
 			&ModifierSystem::RemoveDrunk,
+			&ModifierSystem::RemoveTariffs,
 
 			&ModifierSystem::IncrementCollectedXp
 		};

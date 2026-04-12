@@ -21,6 +21,7 @@ enum class Timer : uint8_t
 	AussieExpire,
 
 	MagnetismExpire,
+	TariffsExpire,
 	AuraTick,
 	EmitLocationParticles,
 

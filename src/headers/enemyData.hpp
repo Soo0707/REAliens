@@ -20,6 +20,9 @@ enum class EnemyType : uint8_t
 	Drunkard,
 	Pleb,
 	Poison,
+	Masochist,
+	Orange,
+	Tyrone,
 	COUNT
 };
 
@@ -43,13 +46,12 @@ struct EnemyData
 	const float Damage;
 	const float Speed;
 	const float Health;
-
 	const uint8_t AnimationInterval;
 };
 
 enum class EnemyEffect : uint8_t
 {
-	Knockbacked = 1 << 0
+	Knocked = 1 << 0
 };
 
 inline EnemyEffect operator| (const EnemyEffect l, const EnemyEffect r)
