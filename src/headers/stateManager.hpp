@@ -45,7 +45,6 @@ class StateManager
 
 	private:
 		void Reset() noexcept;
-		void PollGlobalInput() const noexcept;
 		void ExecuteCommands(MessageSystem& message_system) noexcept;
 
 		const std::shared_ptr<class Game> GameState;

@@ -145,7 +145,7 @@ void ModifierSystem::LevelUp(MessageSystem& message_system, StringCache& string_
 	if (settings.Get(SettingKey::PowerupMenuInterrupt))
 		message_system.StateManagerCommands.emplace_back(std::in_place_type<SetState>, State::PowerupMenu);
 
-	if (this->Level % 5 == 0 && !settings.Get(SettingKey::DisableLevelDebuffs))
+	if (this->Level % 5 == 0)
 		this->InsertLevelDebuff();
 	else
 		this->RemoveLevelDebuff();
@@ -202,6 +202,7 @@ void ModifierSystem::ApplyMilk() noexcept
 	this->RemoveEffect(Effect::Drunk);
 
 	this->RemoveEffect(Effect::Poison);
+	this->RemoveEffect(Effect::Weakness);
 }
 
 void ModifierSystem::ApplyGreenbull() noexcept
@@ -292,6 +293,11 @@ void ModifierSystem::ApplyTariffs() noexcept
 	this->ApplyEffect(Effect::Tariffs);
 }
 
+void ModifierSystem::ApplyWeakness() noexcept
+{
+	this->ApplyEffect(Effect::Weakness);
+}
+
 
 void ModifierSystem::RemoveMilk() noexcept
 {
@@ -326,6 +332,11 @@ void ModifierSystem::RemoveDrunk() noexcept
 void ModifierSystem::RemoveTariffs() noexcept
 {
 	this->RemoveEffect(Effect::Tariffs);
+}
+
+void ModifierSystem::RemoveWeakness() noexcept
+{
+	this->RemoveEffect(Effect::Weakness);
 }
 
 

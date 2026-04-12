@@ -52,7 +52,16 @@ void StateManager::Reset() noexcept
 
 void StateManager::BeforeTick() noexcept
 {
-	this->PollGlobalInput();
+	if (IsKeyPressed(KEY_F11))
+	{
+		ToggleBorderlessWindowed();
+		EnableCursor();
+	}
+
+	SetMouseScale(
+			REFERENCE_WIDTH / static_cast<float>(GetScreenWidth()),
+			REFERENCE_HEIGHT / static_cast<float>(GetScreenHeight())
+			);
 
 	auto hook = this->BeforeTickHooks[static_cast<size_t>(this->ActiveState)];
 	if (hook)
@@ -75,21 +84,6 @@ void StateManager::AfterTick(const RenderTexture2D& canvas) const noexcept
 	auto hook = this->AfterTickHooks[static_cast<size_t>(this->ActiveState)];
 	if (hook)
 		(this->*hook)(canvas);
-}
-
-
-void StateManager::PollGlobalInput() const noexcept
-{
-	if (IsKeyPressed(KEY_F11))
-	{
-		ToggleBorderlessWindowed();
-		EnableCursor();
-	}
-
-	SetMouseScale(
-			REFERENCE_WIDTH / static_cast<float>(GetScreenWidth()),
-			REFERENCE_HEIGHT / static_cast<float>(GetScreenHeight())
-			);
 }
 
 

@@ -28,9 +28,7 @@ SettingKey SettingsManager::GetSettingKeyFromString(const std::string& key) cons
 		{ "DISABLE_HEALTH_CHECK", SettingKey::DisableHealthCheck },
 
 		{ "UNLIMITED_POWERUPS", SettingKey::UnlimitedPowerups },
-		{ "TARGET_FRAMERATE", SettingKey::TargetFramerate },
-
-		{ "DISABLE_LEVEL_DEBUFFS", SettingKey::DisableLevelDebuffs }
+		{ "TARGET_FRAMERATE", SettingKey::TargetFramerate }
 	};
 
 	return lookup.count(key) ? lookup.at(key) : SettingKey::None;

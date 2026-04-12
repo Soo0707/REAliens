@@ -90,6 +90,7 @@ TextureKey AssetManager::GetTextureKeyFromString(std::string filename) const noe
 		{ "greenbull_icon.png", TextureKey::GreenbullIcon },
 		{ "drunk_icon.png", TextureKey::DrunkIcon },
 		{ "tariff_icon.png", TextureKey::TariffIcon },
+		{ "weakness_icon.png", TextureKey::WeaknessIcon },
 
 		{ "white_pixel.png", TextureKey::WhitePixel },
 		{ "health_bar_background.png", TextureKey::HealthBarBackground },

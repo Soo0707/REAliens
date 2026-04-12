@@ -22,7 +22,6 @@ enum class SettingKey : uint8_t
 
 	UnlimitedPowerups,
 	TargetFramerate,
-	DisableLevelDebuffs,
 
 	COUNT
 };

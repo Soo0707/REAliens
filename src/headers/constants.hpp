@@ -13,7 +13,6 @@
 
 #include "raylib.h"
 
-
 inline constexpr unsigned int REFERENCE_WIDTH = 1280;
 inline constexpr unsigned int REFERENCE_HEIGHT = 720;
 
@@ -28,7 +27,7 @@ inline constexpr unsigned int TICK_RATE = 240;
 inline constexpr uint8_t TILE_SIZE = 42;
 
 inline constexpr unsigned int ENEMY_TEXTURE_TILE_SIZE = 42;
-inline constexpr unsigned int PLAYER_TEXTURE_TILE_SIZE = 50;
+inline constexpr unsigned int PLAYER_TEXTURE_TILE_SIZE = 46;
 
 [[nodiscard]] inline constexpr size_t SECONDS_TO_TICKS(unsigned int seconds)
 {

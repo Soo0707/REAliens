@@ -122,6 +122,8 @@ void GameDrawSystem::DrawOverlay(
 	if (modifier_system.EffectStatus(Effect::Tariffs))
 		DrawTexture(assets.GetTexture(TextureKey::TariffIcon), 1165, 40, WHITE);
 
+	if (modifier_system.EffectStatus(Effect::Weakness))
+		DrawTexture(assets.GetTexture(TextureKey::WeaknessIcon), 1145, 40, WHITE);
 
 	DrawText(string_cache.Data[static_cast<size_t>(GameString::Duration)].c_str(), 20, 20, 24, LIGHTGRAY);
 	DrawText(string_cache.Data[static_cast<size_t>(GameString::LevelText)].c_str(), 20, 50, 24, (modifier_system.GetLevel() % 5) ? LIGHTGRAY : GOLD);

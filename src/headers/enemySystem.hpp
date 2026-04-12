@@ -51,12 +51,12 @@ class EnemySystem
 		static constexpr std::array<EnemyData, static_cast<size_t>(EnemyType::COUNT)> EnemyAttributes = 
 		{
 			(EnemyData) { TextureKey::Australian, 5.0f, 87.5f, 75.0f, 30 },
-			(EnemyData) { TextureKey::Drunkard, 5.0f, 125.0f, 50.0f, 15 },
+			(EnemyData) { TextureKey::Drunkard, 3.0f, 125.0f, 50.0f, 15 },
 			(EnemyData) { TextureKey::Pleb, 5.0f, 75.0f, 75.0f, 30 },
-			(EnemyData) { TextureKey::Poison, 5.0f, 62.5f, 100.0f, 30 },
-			(EnemyData) { TextureKey::Masochist, 5.0f, 90.0f, 90.0f, 20 },
-			(EnemyData) { TextureKey::Orange, 10.0f, 62.5f, 150.0f, 30 },
-			(EnemyData) { TextureKey::Tyrone, 15.0f, 50.0f, 250.0f, 50 }
+			(EnemyData) { TextureKey::Poison, 6.0f, 62.5f, 100.0f, 30 },
+			(EnemyData) { TextureKey::Masochist, 7.0f, 90.0f, 90.0f, 20 },
+			(EnemyData) { TextureKey::Orange, 15.0f, 62.5f, 150.0f, 30 },
+			(EnemyData) { TextureKey::Tyrone, 20.0f, 69.0f, 250.0f, 45 }
 		};
 
 		void GenerateLocations(const size_t spawn_count, const float map_width, const float map_height) noexcept;
@@ -69,6 +69,7 @@ class EnemySystem
 		void ApplyDrunk(MessageSystem& message_system) const noexcept;
 		void ApplyPoison(MessageSystem& message_system) const noexcept;
 		void ApplyTariffs(MessageSystem& message_system) const noexcept;
+		void ApplyWeakness(MessageSystem& message_system) const noexcept;
 
 		using LeAttackHook = void(EnemySystem::*)(MessageSystem&) const noexcept;
 		static constexpr std::array<LeAttackHook, static_cast<size_t>(EnemyType::COUNT)> LeAttackHooks =
@@ -79,7 +80,7 @@ class EnemySystem
 			&EnemySystem::ApplyPoison,
 			nullptr,
 			&EnemySystem::ApplyTariffs,
-			nullptr
+			&EnemySystem::ApplyWeakness
 		};
 
 

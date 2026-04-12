@@ -54,12 +54,12 @@ enum class EnemyEffect : uint8_t
 	Knocked = 1 << 0
 };
 
-inline EnemyEffect operator| (const EnemyEffect l, const EnemyEffect r)
+constexpr EnemyEffect operator| (const EnemyEffect l, const EnemyEffect r)
 {
 	return static_cast<EnemyEffect>(static_cast<uint8_t>(l) | static_cast<uint8_t>(r));
 }
 
-inline EnemyEffect operator& (const EnemyEffect l, const EnemyEffect r)
+constexpr EnemyEffect operator& (const EnemyEffect l, const EnemyEffect r)
 {
 	return static_cast<EnemyEffect>(static_cast<uint8_t>(l) & static_cast<uint8_t>(r));
 }

@@ -196,6 +196,11 @@ void TimerSystem::TariffsExpireHandler(MessageSystem& message_system) const noex
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveTariffs)]++;
 }
 
+void TimerSystem::WeaknessExpireHandler(MessageSystem& message_system) const noexcept
+{
+	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveWeakness)]++;
+}
+
 void TimerSystem::AuraTickHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.CollisionSystemSignals[static_cast<size_t>(CollisionSystemSignal::AuraTick)]++;

@@ -329,8 +329,10 @@ void EnemySystem::DamageEnemyHandler(MessageSystem& message_system, const Modifi
 	const DamageEnemy& data = std::get<struct DamageEnemy>(command);
 	const size_t index = data.EnemyIndex;
 
+	const float weakness_factor = modifier_system.EffectStatus(Effect::Weakness) ? 0.67f : 1.0f;
+
 	if (this->CheckIndex(index))
-		this->EnemyHealth[index] -= data.DamageAmount;
+		this->EnemyHealth[index] -= data.DamageAmount * weakness_factor;
 }
 
 void EnemySystem::EnemyLeAttackedHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept
@@ -470,4 +472,11 @@ void EnemySystem::ApplyTariffs(MessageSystem& message_system) const noexcept
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyTariffs)]++;
 
 	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(30), false, Timer::TariffsExpire);
+}
+
+void EnemySystem::ApplyWeakness(MessageSystem& message_system) const noexcept
+{
+	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyWeakness)]++;
+
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(60), false, Timer::WeaknessExpire);
 }

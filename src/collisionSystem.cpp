@@ -224,7 +224,6 @@ void CollisionSystem::SlideAttack(
 	if (index < this->GridSize && this->EnemyGrid[index] != this->EmptyCell)
 	{
 		const size_t enemy_index = this->EnemyGrid[index];
-
 		const float damage_done = enemy_health[enemy_index];
 
 		message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, enemy_index, damage_done);
