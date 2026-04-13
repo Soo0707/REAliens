@@ -8,7 +8,6 @@
 #include "cameraSystem.hpp"
 
 #include <cstddef>
-#include <iostream>
 
 #include "raylib.h"
 #include "constants.hpp"

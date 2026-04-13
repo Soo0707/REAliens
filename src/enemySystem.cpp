@@ -478,5 +478,5 @@ void EnemySystem::ApplyWeakness(MessageSystem& message_system) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyWeakness)]++;
 
-	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(60), false, Timer::WeaknessExpire);
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(45), false, Timer::WeaknessExpire);
 }

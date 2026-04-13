@@ -179,7 +179,7 @@ void ProjectileSystem::EvaluateHitCount(const ModifierSystem& modifier_system) n
 
 		if (hit_count == 0)
 			continue;
-		
+		// TODO : projectile mark hit effect 
 		switch (this->ProjectileTypes[i])
 		{
 			case ProjectileType::Lazer:

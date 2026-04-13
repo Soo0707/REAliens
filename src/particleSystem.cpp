@@ -9,6 +9,8 @@
 #include "particleSystem.hpp"
 
 #include <cstddef>
+#include <cstdlib>
+#include <algorithm>
 
 #include "raylib.h"
 #include "assetManager.hpp"
@@ -54,10 +56,11 @@ void ParticleSystem::Update(MessageSystem& message_system, const AssetManager& a
 
 void ParticleSystem::ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept
 {
-	// TODO: put a max limit on create particles
 	for (auto const& command : message_system.ParticleSystemCommands)
 	{
-		for (size_t i = 0; i < command.Number; i++)
+		ssize_t n = std::min(static_cast<ssize_t>(command.Number), static_cast<ssize_t>(100));
+
+		for (ssize_t i = 0; i < n; i++)
 		{
 			const float size = static_cast<float>(GetRandomValue(command.MinSize, command.MaxSize));
 			const float rotation = static_cast<float>(GetRandomValue(0, 90));

@@ -96,7 +96,6 @@ void CollisionSystem::PollSignals(
 		const uint16_t times = message_system.CollisionSystemSignals[i];
 		
 		auto signal_handler = this->SignalHandlers[i];
-
 		if (times > 0)
 			(this->*signal_handler)(player_centre, modifier_system, message_system, ticks);
 
@@ -142,6 +141,7 @@ void CollisionSystem::ProjectileCollision(
 
 	for (size_t i = 0, n = projectile_rect.size(); i < n; i++)
 	{
+		// TODO : move this logic to projectile system
 		float damage = 0.0f;
 
 		switch (projectile_types[i])
@@ -236,7 +236,7 @@ void CollisionSystem::SlideAttack(
 		message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, static_cast<unsigned int>(damage_done));
 	}
 }
-
+// TODO : traverse this using a z order walk
 void CollisionSystem::Aura(
 		const Vector2 player_centre, const ModifierSystem& modifier_system,
 		MessageSystem& message_system, const size_t ticks
