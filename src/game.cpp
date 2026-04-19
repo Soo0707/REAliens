@@ -32,6 +32,7 @@
 #include "statSystem.hpp"
 #include "itemSystem.hpp"
 #include "cameraSystem.hpp"
+#include "inventorySystem.hpp"
 
 Game::Game(
 		std::shared_ptr<struct StringCache> string_cache, std::shared_ptr<class AssetManager> assets,
@@ -40,7 +41,8 @@ Game::Game(
 		std::shared_ptr<class ParticleSystem> particle_system, std::shared_ptr<class ProjectileSystem> projectile_system,
 		std::shared_ptr<class EnemySystem> enemy_system, std::shared_ptr<class StatSystem> stat_system,
 		std::shared_ptr<class ItemSystem> item_system, std::shared_ptr<class CollisionSystem> collision_system,
-		std::shared_ptr<class CameraSystem> camera_system, std::shared_ptr<class Player> player
+		std::shared_ptr<class CameraSystem> camera_system, std::shared_ptr<class InventorySystem> inventory_system,
+		std::shared_ptr<class Player> player
 		) :
 	StringCache(string_cache),
 	Assets(assets),
@@ -55,6 +57,7 @@ Game::Game(
 	ItemSystem(item_system),
 	CollisionSystem(collision_system),
 	CameraSystem(camera_system),
+	InventorySystem(inventory_system),
 	Player(player)
 {
 	this->LightingLayer = LoadRenderTexture(REFERENCE_WIDTH, REFERENCE_HEIGHT);
@@ -111,7 +114,10 @@ void Game::Draw(const RenderTexture2D& canvas) const noexcept
 			);
 		EndBlendMode();
 
-		GameDrawSystem::DrawOverlay(*this, *this->TimerSystem, *this->ModifierSystem, *this->StringCache, *this->Assets);
+		GameDrawSystem::DrawOverlay(
+				*this, *this->TimerSystem, *this->ModifierSystem,
+				*this->InventorySystem, *this->StringCache, *this->Assets
+				);
 	EndTextureMode();
 }
 
@@ -137,6 +143,12 @@ void Game::TickedInput() noexcept
 	{
 		GameInputSystem::HandleShift(*this->MessageSystem, player_direction);
 		this->CanPerform[static_cast<size_t>(Action::Slide)] = false;
+	}
+
+	if (IsKeyDown(KEY_E) && this->CanPerform[static_cast<size_t>(Action::UseItem)] && !this->InventorySystem->IsEmpty())
+	{
+		GameInputSystem::HandleUseItem(*this->MessageSystem);
+		this->CanPerform[static_cast<size_t>(Action::UseItem)] = false;
 	}
 
 	const bool auto_click = this->Settings->Get(SettingKey::AutoClick);
@@ -178,6 +190,7 @@ void Game::Update(const size_t ticks) noexcept
 	this->StatSystem->Update(*this->MessageSystem);
 
 	this->ItemSystem->Update(*this->MessageSystem, *this->ModifierSystem, *this->Assets, update_area, ticks);
+	this->InventorySystem->Update(*this->MessageSystem);
 
 	this->EnemySystem->Update(
 			*this->MessageSystem, *this->Assets, *this->ModifierSystem,
@@ -227,6 +240,11 @@ void Game::EnableRMB(const size_t ticks) noexcept
 void Game::EnableSlide(const size_t ticks) noexcept
 {
 	this->CanPerform[static_cast<size_t>(Action::Slide)] = true;
+}
+
+void Game::EnableUseItem(const size_t ticks) noexcept
+{
+	this->CanPerform[static_cast<size_t>(Action::UseItem)] = true;
 }
 
 void Game::UpdateDuration(const size_t ticks) noexcept

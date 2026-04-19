@@ -39,6 +39,12 @@ void GameInputSystem::HandleShift(MessageSystem& message_system, const Vector2 p
 	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct EnableTimer>, false, Timer::Slide);
 }
 
+void GameInputSystem::HandleUseItem(MessageSystem& message_system) noexcept
+{
+	message_system.InventorySystemSignals[static_cast<size_t>(InventorySystemSignal::UseItem)]++;
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct EnableTimer>, false, Timer::UseItem);
+}
+
 void GameInputSystem::HandleLeftClick(
 		MessageSystem& message_system, const ModifierSystem& modifier_system,
 		const Vector2 player_centre, const Camera2D camera

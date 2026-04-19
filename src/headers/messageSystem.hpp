@@ -38,5 +38,6 @@ struct MessageSystem
 	std::array<uint16_t, static_cast<size_t>(ModifierSystemSignal::COUNT)> ModifierSystemSignals;
 	std::array<uint16_t, static_cast<size_t>(CollisionSystemSignal::COUNT)> CollisionSystemSignals;
 	std::array<uint16_t, static_cast<size_t>(CameraSystemSignal::COUNT)> CameraSystemSignals;
+	std::array<uint16_t, static_cast<size_t>(InventorySystemSignal::COUNT)> InventorySystemSignals;
 	std::array<uint16_t, static_cast<size_t>(GameSignal::COUNT)> GameSignals;
 };

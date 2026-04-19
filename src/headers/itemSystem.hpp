@@ -41,7 +41,6 @@ class ItemSystem
 		void ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept;
 		void RunUpdateHooks(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept;
 		void VisibilityCheck(const Rectangle& update_area) noexcept;
-		void CreateItem(const float x, const float y, const float texture_width, const float texture_height) noexcept;
 		void RemoveItem() noexcept;
 		void EmitParticles(MessageSystem& message_system, const size_t ticks) noexcept;
 

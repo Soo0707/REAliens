@@ -97,6 +97,9 @@ void TimerSystem::Reset() noexcept
 	this->TimerInterval[static_cast<size_t>(Timer::Slide)] = static_cast<uint32_t>(TICK_RATE);
 	this->TimerActive[static_cast<size_t>(Timer::Slide)] = true;
 
+	this->TimerInterval[static_cast<size_t>(Timer::UseItem)] = static_cast<uint32_t>(SECONDS_TO_TICKS(5));
+	this->TimerActive[static_cast<size_t>(Timer::UseItem)] = true;
+
 	this->TimerInterval[static_cast<size_t>(Timer::UpdateDuration)] = static_cast<uint32_t>(TICK_RATE);
 	this->TimerActive[static_cast<size_t>(Timer::UpdateDuration)] = true;
 	this->TimerRecurring[static_cast<size_t>(Timer::UpdateDuration)] = true;
@@ -241,6 +244,11 @@ void TimerSystem::RMBHandler(MessageSystem& message_system) const noexcept
 void TimerSystem::SlideHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.GameSignals[static_cast<size_t>(GameSignal::EnableSlide)]++;
+}
+
+void TimerSystem::UseItemHandler(MessageSystem& message_system) const noexcept
+{
+	message_system.GameSignals[static_cast<size_t>(GameSignal::EnableUseItem)]++;
 }
 
 void TimerSystem::UpdateDurationHandler(MessageSystem& message_system) const noexcept

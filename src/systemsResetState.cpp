@@ -21,6 +21,7 @@
 #include "collisionSystem.hpp"
 #include "player.hpp"
 #include "cameraSystem.hpp"
+#include "inventorySystem.hpp"
 #include "stringCache.hpp"
 
 SystemsResetState::SystemsResetState(
@@ -29,7 +30,8 @@ SystemsResetState::SystemsResetState(
 		std::shared_ptr<class ProjectileSystem> projectile_system, std::shared_ptr<class EnemySystem> enemy_system,
 		std::shared_ptr<class StatSystem> stat_system, std::shared_ptr<class ItemSystem> item_system,
 		std::shared_ptr<class CollisionSystem> collision_system, std::shared_ptr<class Player> player,
-		std::shared_ptr<class CameraSystem> camera_system, std::shared_ptr<struct StringCache> string_cache
+		std::shared_ptr<class CameraSystem> camera_system, std::shared_ptr<class InventorySystem> inventory_system,
+		std::shared_ptr<struct StringCache> string_cache
 		) :
 	MessageSystem(message_system),
 	TimerSystem(timer_system),
@@ -42,6 +44,7 @@ SystemsResetState::SystemsResetState(
 	CollisionSystem(collision_system),
 	Player(player),
 	CameraSystem(camera_system),
+	InventorySystem(inventory_system),
 	StringCache(string_cache)
 {}
 
@@ -58,5 +61,6 @@ void SystemsResetState::Reset()
 	this->CollisionSystem->Reset();
 	this->Player->Reset();
 	this->CameraSystem->Reset(this->Player->Centre);
+	this->InventorySystem->Reset();
 	this->StringCache->Reset();
 }

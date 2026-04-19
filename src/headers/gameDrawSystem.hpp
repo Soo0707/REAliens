@@ -16,6 +16,7 @@
 #include "modifierSystem.hpp"
 #include "timerSystem.hpp"
 #include "cameraSystem.hpp"
+#include "inventorySystem.hpp"
 
 namespace GameDrawSystem
 {
@@ -28,6 +29,6 @@ namespace GameDrawSystem
 
 	void DrawOverlay(
 			const Game& game, const TimerSystem& timer_system, const ModifierSystem& modifier_system,
-			const StringCache& string_cache, const AssetManager& assets
+			const InventorySystem& inventory_system, const StringCache& string_cache, const AssetManager& assets
 			) noexcept;
 }

@@ -24,6 +24,7 @@
 #include "itemSystem.hpp"
 #include "collisionSystem.hpp"
 #include "cameraSystem.hpp"
+#include "inventorySystem.hpp"
 #include "player.hpp"
 
 #include "game.hpp"
@@ -75,6 +76,7 @@ int main(void)
 	const std::shared_ptr<ItemSystem> xp_system = std::make_shared<ItemSystem>();
 	const std::shared_ptr<CollisionSystem> collision_system = std::make_shared<CollisionSystem>(assets->Ground.width, assets->Ground.height);
 	const std::shared_ptr<CameraSystem> camera_system = std::make_shared<CameraSystem>();
+	const std::shared_ptr<InventorySystem> inventory_system = std::make_shared<InventorySystem>();
 	const std::shared_ptr<Player> player = std::make_shared<Player>();
 	const std::shared_ptr<StringCache> string_cache = std::make_shared<StringCache>();
 
@@ -82,12 +84,12 @@ int main(void)
 	const std::shared_ptr<Game> game_state = std::make_shared<Game>(
 			string_cache, assets, settings, message_system, timer_system, modifier_system,
 			particle_system, projectile_system, enemy_system, stat_system, xp_system, collision_system,
-			camera_system, player
+			camera_system, inventory_system, player
 			);
 
 	const std::shared_ptr<SystemsResetState> systems_reset_state = std::make_shared<SystemsResetState>(
 			message_system, timer_system, modifier_system, particle_system, projectile_system, enemy_system,
-			stat_system, xp_system, collision_system, player, camera_system, string_cache
+			stat_system, xp_system, collision_system, player, camera_system, inventory_system, string_cache
 			);
 
 	const std::shared_ptr<PowerupMenu> powerup_menu_state = std::make_shared<PowerupMenu>(

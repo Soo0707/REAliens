@@ -28,6 +28,7 @@ enum class PlayerSignal : uint8_t
 
 	SpawnBall,
 	DripGlue,
+	SpawnTurret,
 
 	COUNT
 };
@@ -77,6 +78,7 @@ enum class GameSignal : uint8_t
 	EnableLMB,
 	EnableRMB,
 	EnableSlide,
+	EnableUseItem,
 	UpdateDuration,
 	COUNT
 };
@@ -85,5 +87,12 @@ enum class CameraSystemSignal : uint8_t
 {
 	SlideCameraExpire,
 	ReleaseCameraExpire,
+	COUNT
+};
+
+enum class InventorySystemSignal : uint8_t
+{
+	GrantItem,
+	UseItem,
 	COUNT
 };

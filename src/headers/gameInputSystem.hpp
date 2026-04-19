@@ -23,6 +23,7 @@
 namespace GameInputSystem
 {
 	void HandleShift(MessageSystem& message_system, const Vector2 player_direction) noexcept;
+	void HandleUseItem(MessageSystem& message_system) noexcept;
 	void HandleLeftClick(MessageSystem& message_system, const ModifierSystem& modifier_system, const Vector2 player_centre, const Camera2D camera) noexcept;
 	void HandleRightClick(MessageSystem& message_system, const ModifierSystem& modifier_system, const Vector2 player_centre, const Camera2D camera) noexcept;
 }

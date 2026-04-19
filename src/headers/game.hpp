@@ -29,6 +29,7 @@
 #include "itemSystem.hpp"
 #include "collisionSystem.hpp"
 #include "cameraSystem.hpp"
+#include "inventorySystem.hpp"
 #include "signals.hpp"
 
 enum class Action : uint8_t
@@ -36,6 +37,7 @@ enum class Action : uint8_t
 	LMB,
 	RMB,
 	Slide,
+	UseItem,
 	COUNT
 };
 
@@ -49,7 +51,8 @@ class Game
 			std::shared_ptr<class ParticleSystem> particle_system, std::shared_ptr<class ProjectileSystem> projectile_system,
 			std::shared_ptr<class EnemySystem> enemy_system, std::shared_ptr<class StatSystem> stat_system,
 			std::shared_ptr<class ItemSystem> item_system, std::shared_ptr<class CollisionSystem> collision_system,
-			std::shared_ptr<class CameraSystem> camera_system, std::shared_ptr<class Player> player
+			std::shared_ptr<class CameraSystem> camera_system, std::shared_ptr<class InventorySystem> inventory_system,
+			std::shared_ptr<class Player> player
 			);
 
 		~Game();
@@ -78,6 +81,7 @@ class Game
 		const std::shared_ptr<class ItemSystem> ItemSystem;
 		const std::shared_ptr<class CollisionSystem> CollisionSystem;
 		const std::shared_ptr<class CameraSystem> CameraSystem;
+		const std::shared_ptr<class InventorySystem> InventorySystem;
 		const std::shared_ptr<class Player> Player;
 		
 		std::array<bool, static_cast<size_t>(Action::COUNT)> CanPerform;
@@ -86,12 +90,14 @@ class Game
 		void EnableLMB(const size_t ticks) noexcept;
 		void EnableRMB(const size_t ticks) noexcept;
 		void EnableSlide(const size_t ticks) noexcept;
+		void EnableUseItem(const size_t ticks) noexcept;
 		void UpdateDuration(const size_t ticks) noexcept;
 
 		std::array<void(Game::*)(const size_t ticks) noexcept, static_cast<size_t>(GameSignal::COUNT)> SignalHandlers = {
 			&Game::EnableLMB,
 			&Game::EnableRMB,
 			&Game::EnableSlide,
+			&Game::EnableUseItem,
 			&Game::UpdateDuration
 		};
 		

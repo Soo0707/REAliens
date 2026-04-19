@@ -75,6 +75,7 @@ class TimerSystem
 		void LMBHandler(MessageSystem& message_system) const noexcept;
 		void RMBHandler(MessageSystem& message_system) const noexcept;
 		void SlideHandler(MessageSystem& message_system) const noexcept;
+		void UseItemHandler(MessageSystem& message_system) const noexcept;
 		void UpdateDurationHandler(MessageSystem& message_system) const noexcept;
 		void GlueCountdownHandler(MessageSystem& message_system) const noexcept;
 		void SlideCameraExpireHandler(MessageSystem& message_system) const noexcept;
@@ -99,6 +100,7 @@ class TimerSystem
 			&TimerSystem::LMBHandler,
 			&TimerSystem::RMBHandler,
 			&TimerSystem::SlideHandler,
+			&TimerSystem::UseItemHandler,
 			&TimerSystem::UpdateDurationHandler,
 			&TimerSystem::GlueCountdownHandler,
 			&TimerSystem::SlideCameraExpireHandler,

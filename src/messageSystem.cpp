@@ -38,5 +38,6 @@ void MessageSystem::Reset() noexcept
 	this->ModifierSystemSignals = { 0 };
 	this->CollisionSystemSignals = { 0 };
 	this->CameraSystemSignals = { 0 };
+	this->InventorySystemSignals = { 0 };
 	this->GameSignals = { 0 };
 }

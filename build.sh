@@ -30,6 +30,7 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  src/stateManager.cpp\
  src/systemsResetState.cpp\
  src/cameraSystem.cpp\
+ src/inventorySystem.cpp\
  -o /mnt/tmpfs/out.exe\
  -std=c++20\
  -Iinclude\
@@ -44,9 +45,6 @@ x86_64-w64-mingw32-g++ src/main.cpp\
  -mtune=haswell\
  -flto=auto\
  -O3
-
-#-g\
-#-fno-omit-frame-pointer
 
 
 

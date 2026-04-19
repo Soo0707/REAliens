@@ -146,7 +146,10 @@ void ModifierSystem::LevelUp(MessageSystem& message_system, StringCache& string_
 		message_system.StateManagerCommands.emplace_back(std::in_place_type<SetState>, State::PowerupMenu);
 
 	if (this->Level % 5 == 0)
+	{
 		this->InsertLevelDebuff();
+		message_system.InventorySystemSignals[static_cast<size_t>(InventorySystemSignal::GrantItem)]++;
+	}
 	else
 		this->RemoveLevelDebuff();
 }
@@ -345,7 +348,6 @@ void ModifierSystem::InsertLevelDebuff() noexcept
 	const size_t index = GetRandomValue(0, this->DebuffList.size() - 1);
 
 	const Effect random_effect = this->DebuffList[index];
-
 	this->ApplyEffect(random_effect);
 }
 

@@ -23,6 +23,7 @@
 #include "timers.hpp"
 #include "timerSystem.hpp"
 #include "cameraSystem.hpp"
+#include "inventorySystem.hpp"
 
 void GameDrawSystem::DrawGame(
 		const Game& game, const CameraSystem& camera_system, const ModifierSystem& modifier_system,
@@ -75,7 +76,7 @@ void GameDrawSystem::DrawLighting(const Game& game, const ModifierSystem& modifi
 
 void GameDrawSystem::DrawOverlay(
 		const Game& game, const TimerSystem& timer_system, const ModifierSystem& modifier_system,
-		const StringCache& string_cache, const AssetManager& assets
+		const InventorySystem& inventory_system, const StringCache& string_cache, const AssetManager& assets
 		) noexcept
 {
 	DrawTexture(assets.GetTexture(TextureKey::HealthBarBackground), 1060, 20, WHITE);
@@ -128,6 +129,13 @@ void GameDrawSystem::DrawOverlay(
 	DrawText(string_cache.Data[static_cast<size_t>(GameString::Duration)].c_str(), 20, 20, 24, LIGHTGRAY);
 	DrawText(string_cache.Data[static_cast<size_t>(GameString::LevelText)].c_str(), 20, 50, 24, (modifier_system.GetLevel() % 5) ? LIGHTGRAY : GOLD);
 
+	Color use_item_colour = GRAY;
+
+	if (game.CanPerform[static_cast<size_t>(Action::UseItem)] && !inventory_system.IsEmpty())
+		use_item_colour = LIME;
+	
+	// TODO: position [E] horizontally properly
+	DrawText("[E]", 1186, 620, 20, use_item_colour);
 	DrawText("[TAB]", 1206, 620, 20, (modifier_system.GetUnclaimedPowerups()) ? GOLD : GRAY);
 
 	DrawText("[LMB]", 1058, 640, 20, (game.CanPerform[static_cast<size_t>(Action::LMB)] ? YELLOW : GRAY));
