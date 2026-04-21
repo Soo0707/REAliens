@@ -325,19 +325,33 @@ void EnemySystem::DamageEnemyHandler(MessageSystem& message_system, const Modifi
 	const DamageEnemy& data = std::get<struct DamageEnemy>(command);
 	const size_t index = data.EnemyIndex;
 
+	if (!this->CheckIndex(index))
+		return;
+
 	const float weakness_factor = modifier_system.EffectStatus(Effect::Weakness) ? 0.67f : 1.0f;
+	this->EnemyHealth[index] -= data.DamageAmount * weakness_factor;
+}
 
-	if (this->CheckIndex(index))
+void EnemySystem::ProjectileDamageEnemyHandler(
+		MessageSystem& message_system, const ModifierSystem& modifier_system,
+		const EnemySystemCommand& command
+		) noexcept
+{
+	const ProjectileDamageEnemy& data = std::get<struct ProjectileDamageEnemy>(command);
+	const size_t index = data.EnemyIndex;
+
+	if (!this->CheckIndex(index))
+		return;
+
+	const float weakness_factor = modifier_system.EffectStatus(Effect::Weakness) ? 0.67f : 1.0f;
+	this->EnemyHealth[index] -= data.DamageAmount * weakness_factor;
+
+	if (this->EnemyTypes[index] == EnemyType::Masochist && data.ProjectileType == ProjectileType::Bullet)
 	{
-		this->EnemyHealth[index] -= data.DamageAmount * weakness_factor;
-
-		if (this->EnemyTypes[index] == EnemyType::Masochist && data.ProjectileType == ProjectileType::Bullet)
-		{
-			// TODO: make get level scale a function
-			const Vector2 location = this->EnemyCentre[index];
-			const float level_scale = 1 + static_cast<float>(modifier_system.GetLevel()) / 10.0f;
-			this->CreateEnemy(location.x, location.y, level_scale, EnemyType::Masochist);
-		}
+		// TODO: make get level scale a function
+		const Vector2 location = this->EnemyCentre[index];
+		const float level_scale = 1 + static_cast<float>(modifier_system.GetLevel()) / 10.0f;
+		this->CreateEnemy(location.x, location.y, level_scale, EnemyType::Masochist);
 	}
 }
 
@@ -346,19 +360,19 @@ void EnemySystem::EnemyLeAttackedHandler(MessageSystem& message_system, const Mo
 	const EnemyLeAttacked& data = std::get<struct EnemyLeAttacked>(command);
 	const size_t index = data.EnemyIndex;
 
-	if (this->CheckIndex(index))
-	{
-		this->EnemyAttackComponents[index].CanLeAttack = false;
-		this->EnemyAttackComponents[index].LastLeAttack = data.Ticks;
-		
-		const size_t type_index = static_cast<size_t>(this->EnemyTypes[index]);
-		const bool has_milk = modifier_system.EffectStatus(Effect::Milk);
+	if (!this->CheckIndex(index))
+		return;
 
-		auto hook = this->LeAttackHooks[type_index];
+	this->EnemyAttackComponents[index].CanLeAttack = false;
+	this->EnemyAttackComponents[index].LastLeAttack = data.Ticks;
+	
+	const size_t type_index = static_cast<size_t>(this->EnemyTypes[index]);
+	const bool has_milk = modifier_system.EffectStatus(Effect::Milk);
 
-		if (!has_milk && hook)
-			(this->*hook)(message_system);
-	}
+	auto hook = this->LeAttackHooks[type_index];
+
+	if (!has_milk && hook)
+		(this->*hook)(message_system);
 }
 
 void EnemySystem::EnemyGotGluedHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept

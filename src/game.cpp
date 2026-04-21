@@ -202,8 +202,8 @@ void Game::Update(const size_t ticks) noexcept
 	this->CollisionSystem->Update(
 			*this->MessageSystem, *this->ModifierSystem, this->EnemySystem->GetEnemyCentre(),
 			this->EnemySystem->GetEnemyHealth(), this->EnemySystem->GetEnemyAttackComponents(),
-			this->EnemySystem->GetEnemyType(), this->ProjectileSystem->GetProjectileRect(),
-			this->ProjectileSystem->GetProjectileType(), this->ProjectileSystem->GetProjectileDirection(),
+			this->EnemySystem->GetEnemyType(), this->ProjectileSystem->GetProjectileCentres(),
+			this->ProjectileSystem->GetProjectileTypes(), this->ProjectileSystem->GetProjectileDirection(),
 			this->ItemSystem->GetItemCentre(),
 			*this->Player, ticks
 	);

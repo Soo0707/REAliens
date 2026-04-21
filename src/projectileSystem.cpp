@@ -33,6 +33,7 @@ ProjectileSystem::ProjectileSystem()
 	this->ProjectileRotation.reserve(128);
 	this->ProjectileHitCount.reserve(128);
 	this->ProjectileRect.reserve(128);
+	this->ProjectileCentre.reserve(128);
 	this->ProjectileDirection.reserve(128);
 	this->ProjectileColour.reserve(128);
 	this->ProjectileTexture.reserve(128);
@@ -47,6 +48,7 @@ void ProjectileSystem::Reset() noexcept
 	this->ProjectileRotation.clear();
 	this->ProjectileHitCount.clear();
 	this->ProjectileRect.clear();
+	this->ProjectileCentre.clear();
 	this->ProjectileDirection.clear();
 	this->ProjectileColour.clear();
 	this->ProjectileTexture.clear();
@@ -80,12 +82,12 @@ void ProjectileSystem::ExecuteCommands(MessageSystem& message_system, const Asse
 	message_system.ProjectileSystemCommands.clear();
 }
 
-const std::vector<Rectangle>& ProjectileSystem::GetProjectileRect() const noexcept
+const std::vector<Vector2>& ProjectileSystem::GetProjectileCentres() const noexcept
 {
-	return this->ProjectileRect;
+	return this->ProjectileCentre;
 }
 
-const std::vector<ProjectileType>& ProjectileSystem::GetProjectileType() const noexcept
+const std::vector<ProjectileType>& ProjectileSystem::GetProjectileTypes() const noexcept
 {
 	return this->ProjectileTypes;
 }
@@ -102,6 +104,7 @@ const std::vector<float>& ProjectileSystem::GetProjectileRotation() const noexce
 
 void ProjectileSystem::Draw(const AssetManager& assets) const noexcept
 {
+	// TODO: get texture from type
 	for (size_t i = 0, n = this->ProjectileRect.size(); i < n; i++)
 	{
 		if (this->ProjectileIsVisible[i])
@@ -148,6 +151,7 @@ void ProjectileSystem::CreateProjectile(
 	this->ProjectileHitCount.emplace_back(0);
 
 	this->ProjectileRect.emplace_back(x, y, texture_width, texture_height);
+	this->ProjectileCentre.emplace_back(x + texture_width / 2.0f, y + texture_height / 2.0f);
 	this->ProjectileDirection.emplace_back(Vector2Normalize(direction));
 
 	this->ProjectileColour.emplace_back(this->ProjectileAttributes[index].Colour);
@@ -168,6 +172,9 @@ void ProjectileSystem::MoveProjectiles() noexcept
 	{
 		this->ProjectileRect[i].x += this->ProjectileDirection[i].x * this->ProjectileSpeed[i] * TICK_TIME;
 		this->ProjectileRect[i].y += this->ProjectileDirection[i].y * this->ProjectileSpeed[i] * TICK_TIME;
+
+		this->ProjectileCentre[i].x = this->ProjectileRect[i].x + this->ProjectileRect[i].width / 2.0f;
+		this->ProjectileCentre[i].y = this->ProjectileRect[i].y + this->ProjectileRect[i].height / 2.0f;
 	}
 }
 
@@ -208,6 +215,7 @@ void ProjectileSystem::RemoveProjectiles() noexcept
 			this->ProjectileRotation[i] = this->ProjectileRotation.back();
 			this->ProjectileHitCount[i] = this->ProjectileHitCount.back();
 			this->ProjectileRect[i] = this->ProjectileRect.back();
+			this->ProjectileCentre[i] = this->ProjectileCentre.back();
 			this->ProjectileDirection[i] = this->ProjectileDirection.back();
 			this->ProjectileColour[i] = this->ProjectileColour.back();
 			this->ProjectileTexture[i] = this->ProjectileTexture.back();
@@ -220,6 +228,7 @@ void ProjectileSystem::RemoveProjectiles() noexcept
 			this->ProjectileRotation.pop_back();
 			this->ProjectileHitCount.pop_back();
 			this->ProjectileRect.pop_back();
+			this->ProjectileCentre.pop_back();
 			this->ProjectileDirection.pop_back();
 			this->ProjectileColour.pop_back();
 			this->ProjectileTexture.pop_back();
@@ -259,6 +268,7 @@ void ProjectileSystem::CreateProjectileHandler(const ProjectileSystemCommand& co
 	this->CreateProjectile(data.X, data.Y, data.Speed, data.Direction, data.Type, texture_width, texture_height);
 }
 
+
 void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& command, const AssetManager& assets) noexcept
 {
 	const struct ProjectileHit& data = std::get<struct ProjectileHit>(command);
@@ -267,25 +277,22 @@ void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& comma
 	if (!this->CheckIndex(index))
 		return;
 
-	switch (this->ProjectileTypes[index])
+	if (this->ProjectileTypes[index] == ProjectileType::Ball)
 	{
-		case ProjectileType::Ball:
+		const TextureKey ball_texture_key = this->ProjectileAttributes[static_cast<size_t>(ProjectileType::Ball)].Texture;
+		const float ball_size = assets.GetTexture(ball_texture_key).width;
+		const Rectangle ball_rect = this->ProjectileRect[index];
+		const float ball_speed = this->ProjectileSpeed[index];
+
+		for (uint8_t i = 0; i < 2; i++)
 		{
-			const TextureKey ball_texture_key = this->ProjectileAttributes[static_cast<size_t>(ProjectileType::Ball)].Texture;
-			const float ball_size = assets.GetTexture(ball_texture_key).width;
-			const Rectangle ball_rect = this->ProjectileRect[index];
-			const float ball_speed = this->ProjectileSpeed[index];
+			const float up_down = (i % 2) ? 1.0f : -1.0f;
+			const Vector2 ball_direction = Vector2Rotate(this->ProjectileDirection[index], up_down * 10.0f * TO_RAD);
 
-			for (uint8_t i = 0; i < 2; i++)
-			{
-				const float up_down = (i % 2) ? 1.0f : -1.0f;
-				const Vector2 ball_direction = Vector2Rotate(this->ProjectileDirection[index], up_down * 10.0f * TO_RAD);
-
-				this->CreateProjectile(
-						ball_rect.x, ball_rect.y, ball_speed, ball_direction,
-						ProjectileType::Ball, ball_size, ball_size
-						);
-			}
+			this->CreateProjectile(
+					ball_rect.x, ball_rect.y, ball_speed, ball_direction,
+					ProjectileType::Ball, ball_size, ball_size
+					);
 		}
 	}
 

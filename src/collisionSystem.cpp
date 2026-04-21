@@ -53,8 +53,8 @@ void CollisionSystem::Reset()
 void CollisionSystem::Update(
 		MessageSystem& message_system, const ModifierSystem& modifier_system, const std::vector<Vector2>& enemy_centre,
 		const std::vector<float>& enemy_health, const std::vector<EnemyAttackComponent>& enemy_attack_components,
-		const std::vector<EnemyType>& enemy_types, const std::vector<Rectangle>& projectile_rect,
-		const std::vector<ProjectileType>& projectile_type, const std::vector<Vector2>& projectile_direction,
+		const std::vector<EnemyType>& enemy_types, const std::vector<Vector2>& projectile_centres,
+		const std::vector<ProjectileType>& projectile_types, const std::vector<Vector2>& projectile_direction,
 		const std::vector<Vector2>& item_centre, const Player& player, const size_t ticks
 		) noexcept
 {
@@ -67,7 +67,7 @@ void CollisionSystem::Update(
 	this->PollSignals(message_system, player_centre, modifier_system, ticks);
 
 	this->ProjectileCollision(
-			projectile_rect, projectile_type, projectile_direction,
+			projectile_centres, projectile_types, projectile_direction,
 			message_system, modifier_system, ticks
 			);
 
@@ -132,19 +132,19 @@ void CollisionSystem::UpdateItemGrid(const std::vector<Vector2>& item_centre) no
 }
 
 void CollisionSystem::ProjectileCollision(
-		const std::vector<Rectangle>& projectile_rect, const std::vector<ProjectileType>& projectile_types,
+		const std::vector<Vector2>& projectile_centres, const std::vector<ProjectileType>& projectile_types,
 		const std::vector<Vector2>& projectile_direction, MessageSystem& message_system,
 		const ModifierSystem& modifier_system, const size_t ticks
 		) const noexcept
 {
 	unsigned int total_damage_done = 0;
 
-	for (size_t i = 0, n = projectile_rect.size(); i < n; i++)
+	for (size_t i = 0, n = projectile_centres.size(); i < n; i++)
 	{
-		// TODO : move this logic to projectile system
 		float damage = 0.0f;
+		const ProjectileType projectile_type = projectile_types[i];
 
-		switch (projectile_types[i])
+		switch (projectile_type)
 		{
 			case ProjectileType::Lazer:
 				damage = modifier_system.GetAttribute(Attribute::LazerDamage);
@@ -156,23 +156,20 @@ void CollisionSystem::ProjectileCollision(
 				damage = modifier_system.GetAttribute(Attribute::BallDamage);
 				break;
 		}
-		
-		float x = projectile_rect[i].x + projectile_rect[i].width / 2.0f;
-		float y = projectile_rect[i].y + projectile_rect[i].height / 2.0f;
 
-		const size_t index = this->GetMortonCode(x, y);
+		const Vector2 centre = projectile_centres[i];
+		const size_t index = this->GetMortonCode(centre.x, centre.y);
 
 		if (index < this->GridSize && this->EnemyGrid[index] != this->EmptyCell)
 		{
 			const size_t enemy_index = this->EnemyGrid[index];
-			const ProjectileType projectile_type = projectile_types[i];
 
-			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, enemy_index, damage, projectile_type);
+			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct ProjectileDamageEnemy>, enemy_index, damage, projectile_type);
 
 			message_system.ProjectileSystemCommands.emplace_back(std::in_place_type<struct ProjectileHit>, i);
 
 			message_system.ParticleSystemCommands.emplace_back(
-					ticks, damage, projectile_direction[i], x, y,
+					ticks, damage, projectile_direction[i], centre.x, centre.y,
 					10, 30, 48, TICK_RATE / 2, 256, RED, RED
 					);
 

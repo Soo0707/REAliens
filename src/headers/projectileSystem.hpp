@@ -37,8 +37,8 @@ class ProjectileSystem
 		void Draw(const AssetManager& assets) const noexcept;
 		void DrawLightmap() const noexcept;
 
-		const std::vector<Rectangle>& GetProjectileRect() const noexcept;
-		const std::vector<ProjectileType>& GetProjectileType() const noexcept;
+		const std::vector<Vector2>& GetProjectileCentres() const noexcept;
+		const std::vector<ProjectileType>& GetProjectileTypes() const noexcept;
 		const std::vector<Vector2>& GetProjectileDirection() const noexcept;
 		const std::vector<float>& GetProjectileRotation() const noexcept;
 
@@ -74,18 +74,13 @@ class ProjectileSystem
 
 		std::vector<uint8_t> ProjectileIsVisible;
 		std::vector<uint8_t> ProjectileKill;
-
 		std::vector<float> ProjectileSpeed;
-
 		std::vector<float> ProjectileRotation;
-
 		std::vector<uint16_t> ProjectileHitCount;
-
 		std::vector<Rectangle> ProjectileRect;
+		std::vector<Vector2> ProjectileCentre;
 		std::vector<Vector2> ProjectileDirection;
 		std::vector<Color> ProjectileColour;
-
 		std::vector<ProjectileType> ProjectileTypes;
-
 		std::vector<TextureKey> ProjectileTexture;
 };

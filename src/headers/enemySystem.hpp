@@ -95,13 +95,15 @@ class EnemySystem
 
 
 		void DamageEnemyHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept;
+		void ProjectileDamageEnemyHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept;
 		void EnemyLeAttackedHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept;
 		void EnemyGotGluedHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept;
 
 		using CommandHandler = void(EnemySystem::*)(MessageSystem&, const ModifierSystem&, const EnemySystemCommand&) noexcept;
-		static constexpr std::array<CommandHandler, 3> CommandHandlers = 
+		static constexpr std::array<CommandHandler, 4> CommandHandlers = 
 		{
 			&EnemySystem::DamageEnemyHandler,
+			&EnemySystem::ProjectileDamageEnemyHandler,
 			&EnemySystem::EnemyLeAttackedHandler,
 			&EnemySystem::EnemyGotGluedHandler
 		};
