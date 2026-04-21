@@ -56,7 +56,7 @@ bool InventorySystem::IsEmpty() const noexcept
 void InventorySystem::GrantItemHandler(MessageSystem& message_system) noexcept
 {
 	//const InventoryItem item = static_cast<InventoryItem>(GetRandomValue(0, static_cast<int>(InventoryItem::COUNT) - 1));
-	const InventoryItem item = InventoryItem::Turret;
+	const InventoryItem item = InventoryItem::Liquor;
 	this->InventoryItems.emplace_back(item);
 }
 
@@ -80,16 +80,14 @@ void InventorySystem::UseBomb(MessageSystem& message_system) const noexcept
 
 void InventorySystem::UseFreeze(MessageSystem& message_system) const noexcept
 {
-
 	// TODO
 	return;
 }
 
 void InventorySystem::UseLiquor(MessageSystem& message_system) const noexcept
 {
-
-	// TODO
-	return;
+	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyAlcoholism)]++;
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(30), false, Timer::AlcoholismExpire);
 }
 
 void InventorySystem::UseTurret(MessageSystem& message_system) const noexcept

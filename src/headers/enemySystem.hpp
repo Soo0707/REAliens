@@ -130,7 +130,6 @@ class EnemySystem
 		std::vector<Vector2> EnemyCentre;
 		std::vector<EnemyType> EnemyTypes;
 		std::vector<EnemyAttackComponent> EnemyAttackComponents;
-		std::vector<TextureKey> EnemyTextureKey;
 		std::vector<EnemyAnimationComponent> EnemyAnimationComponents;
 
 		std::vector<EnemyType> FutureEnemyTypes;

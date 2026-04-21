@@ -9,7 +9,6 @@
 #include "gameDrawSystem.hpp"
 
 #include <cstddef>
-
 #include "raylib.h"
 
 #include "constants.hpp"
@@ -126,6 +125,9 @@ void GameDrawSystem::DrawOverlay(
 	if (modifier_system.EffectStatus(Effect::Weakness))
 		DrawTexture(assets.GetTexture(TextureKey::WeaknessIcon), 1145, 40, WHITE);
 
+	if (modifier_system.EffectStatus(Effect::Alcoholism))
+		DrawTexture(assets.GetTexture(TextureKey::AlcoholismIcon), 1125, 40, WHITE);
+
 	DrawText(string_cache.Data[static_cast<size_t>(GameString::Duration)].c_str(), 20, 20, 24, LIGHTGRAY);
 	DrawText(string_cache.Data[static_cast<size_t>(GameString::LevelText)].c_str(), 20, 50, 24, (modifier_system.GetLevel() % 5) ? LIGHTGRAY : GOLD);
 
@@ -134,8 +136,8 @@ void GameDrawSystem::DrawOverlay(
 	if (game.CanPerform[static_cast<size_t>(Action::UseItem)] && !inventory_system.IsEmpty())
 		use_item_colour = LIME;
 	
-	// TODO: position [E] horizontally properly
-	DrawText("[E]", 1186, 620, 20, use_item_colour);
+	// 10px padding
+	DrawText("[E]", 1172, 620, 20, use_item_colour);
 	DrawText("[TAB]", 1206, 620, 20, (modifier_system.GetUnclaimedPowerups()) ? GOLD : GRAY);
 
 	DrawText("[LMB]", 1058, 640, 20, (game.CanPerform[static_cast<size_t>(Action::LMB)] ? YELLOW : GRAY));

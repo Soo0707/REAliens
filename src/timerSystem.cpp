@@ -270,3 +270,8 @@ void TimerSystem::ReleaseCameraExpireHandler(MessageSystem& message_system) cons
 {
 	message_system.CameraSystemSignals[static_cast<size_t>(CameraSystemSignal::ReleaseCameraExpire)]++;
 }
+
+void TimerSystem::AlcoholismExpireHandler(MessageSystem& message_system) const noexcept
+{
+	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveAlcoholism)]++;
+}

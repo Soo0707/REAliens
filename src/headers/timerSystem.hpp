@@ -80,6 +80,7 @@ class TimerSystem
 		void GlueCountdownHandler(MessageSystem& message_system) const noexcept;
 		void SlideCameraExpireHandler(MessageSystem& message_system) const noexcept;
 		void ReleaseCameraExpireHandler(MessageSystem& message_system) const noexcept;
+		void AlcoholismExpireHandler(MessageSystem& message_system) const noexcept;
 
 		static constexpr std::array<void(TimerSystem::*)(MessageSystem&) const noexcept, static_cast<size_t>(Timer::COUNT)> TimeoutHandlers =
 		{
@@ -104,6 +105,7 @@ class TimerSystem
 			&TimerSystem::UpdateDurationHandler,
 			&TimerSystem::GlueCountdownHandler,
 			&TimerSystem::SlideCameraExpireHandler,
-			&TimerSystem::ReleaseCameraExpireHandler
+			&TimerSystem::ReleaseCameraExpireHandler,
+			&TimerSystem::AlcoholismExpireHandler
 		};
 };

@@ -56,12 +56,15 @@ void GameInputSystem::HandleLeftClick(
 	const int buckshot = static_cast<int>((modifier_system.GetAttribute(Attribute::Buckshot) - 1) / 2);
 	const float speed = modifier_system.GetAttribute(Attribute::BulletSpeed);
 
+	const bool has_alcoholism = modifier_system.EffectStatus(Effect::Alcoholism);
+	const ProjectileType projectile_type = has_alcoholism ? ProjectileType::Lazer : ProjectileType::Bullet;
+
 	for (int i = -buckshot; i <= buckshot; i++)
 	{
 		if (i == 0)
 		{
 			message_system.ProjectileSystemCommands.emplace_back(
-					std::in_place_type<struct CreateProjectile>, ProjectileType::Bullet, centre_direction,
+					std::in_place_type<struct CreateProjectile>, projectile_type, centre_direction,
 					player_centre.x, player_centre.y, speed
 					);
 			continue;
@@ -70,7 +73,7 @@ void GameInputSystem::HandleLeftClick(
 		const Vector2 direction = Vector2Rotate(centre_direction, spread_angle * i);
 
 		message_system.ProjectileSystemCommands.emplace_back(
-				std::in_place_type<struct CreateProjectile>, ProjectileType::Bullet, direction,
+				std::in_place_type<struct CreateProjectile>, projectile_type, direction,
 				player_centre.x, player_centre.y, speed
 				);
 	}
@@ -87,8 +90,11 @@ void GameInputSystem::HandleRightClick(
 	const Vector2 direction = Vector2Subtract(mouse_pos, player_centre);
 	const float speed = modifier_system.GetAttribute(Attribute::LazerSpeed);
 
+	const bool has_alcoholism = modifier_system.EffectStatus(Effect::Alcoholism);
+	const ProjectileType projectile_type = has_alcoholism ? ProjectileType::Bullet : ProjectileType::Lazer;
+
 	message_system.ProjectileSystemCommands.emplace_back(
-			std::in_place_type<struct CreateProjectile>, ProjectileType::Lazer, direction,
+			std::in_place_type<struct CreateProjectile>, projectile_type, direction,
 			player_centre.x, player_centre.y, speed
 			);
 

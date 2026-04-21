@@ -206,6 +206,7 @@ void ModifierSystem::ApplyMilk() noexcept
 
 	this->RemoveEffect(Effect::Poison);
 	this->RemoveEffect(Effect::Weakness);
+	this->RemoveEffect(Effect::Tariffs);
 }
 
 void ModifierSystem::ApplyGreenbull() noexcept
@@ -301,6 +302,10 @@ void ModifierSystem::ApplyWeakness() noexcept
 	this->ApplyEffect(Effect::Weakness);
 }
 
+void ModifierSystem::ApplyAlcoholism() noexcept
+{
+	this->ApplyEffect(Effect::Alcoholism);
+}
 
 void ModifierSystem::RemoveMilk() noexcept
 {
@@ -340,6 +345,11 @@ void ModifierSystem::RemoveTariffs() noexcept
 void ModifierSystem::RemoveWeakness() noexcept
 {
 	this->RemoveEffect(Effect::Weakness);
+}
+
+void ModifierSystem::RemoveAlcoholism() noexcept
+{
+	this->RemoveEffect(Effect::Alcoholism);
 }
 
 

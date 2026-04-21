@@ -38,7 +38,6 @@ EnemySystem::EnemySystem()
 	this->EnemyCentre.reserve(1024);
 	this->EnemyTypes.reserve(1024);
 	this->EnemyAttackComponents.reserve(1024);
-	this->EnemyTextureKey.reserve(1024);
 	this->EnemyAnimationComponents.reserve(1024);
 }
 
@@ -53,7 +52,6 @@ void EnemySystem::Reset() noexcept
 	this->EnemyCentre.clear();
 	this->EnemyTypes.clear();
 	this->EnemyAttackComponents.clear();
-	this->EnemyTextureKey.clear();
 	this->EnemyAnimationComponents.clear();
 
 	this->FutureEnemyTypes.clear();
@@ -131,12 +129,13 @@ void EnemySystem::Update(
 
 void EnemySystem::Draw(const AssetManager& assets) const noexcept
 {
-	for (size_t i = 0, n = this->EnemyTextureKey.size(); i < n; i++)
+	for (size_t i = 0, n = this->EnemyIsVisible.size(); i < n; i++)
 	{
 		// TODO : use type to get texture key instead
 		if (this->EnemyIsVisible[i])
 		{
-			const Texture2D texture = assets.GetTexture(this->EnemyTextureKey[i]);
+			const size_t enemy_type_index = static_cast<size_t>(this->EnemyTypes[i]);
+			const Texture2D texture = assets.GetTexture(this->EnemyAttributes[enemy_type_index].Texture);
 
 			const Rectangle source_rect = {
 				static_cast<float>(this->EnemyAnimationComponents[i].ImageIndex) * ENEMY_TEXTURE_TILE_SIZE,
@@ -270,7 +269,6 @@ void EnemySystem::CreateEnemy(const float x, const float y, const float level_sc
 			);
 	this->EnemyTypes.emplace_back(type);
 	this->EnemyAttackComponents.emplace_back(0, this->EnemyAttributes[type_index].Damage * level_scale, true);
-	this->EnemyTextureKey.emplace_back(this->EnemyAttributes[type_index].Texture);
 	this->EnemyAnimationComponents.emplace_back(0, 0, this->EnemyAttributes[type_index].AnimationInterval);
 }
 
@@ -294,7 +292,6 @@ void EnemySystem::KillEnemies(MessageSystem& message_system, const bool has_magn
 			this->EnemyCentre[i] = this->EnemyCentre.back();
 			this->EnemyTypes[i] = this->EnemyTypes.back();
 			this->EnemyAttackComponents[i] = this->EnemyAttackComponents.back();
-			this->EnemyTextureKey[i] = this->EnemyTextureKey.back();
 			this->EnemyAnimationComponents[i] = this->EnemyAnimationComponents.back();
 
 			this->EnemyHealth.pop_back();
@@ -306,7 +303,6 @@ void EnemySystem::KillEnemies(MessageSystem& message_system, const bool has_magn
 			this->EnemyCentre.pop_back();
 			this->EnemyTypes.pop_back();
 			this->EnemyAttackComponents.pop_back();
-			this->EnemyTextureKey.pop_back();
 			this->EnemyAnimationComponents.pop_back();
 
 			if (has_magnetism)
@@ -397,7 +393,6 @@ void EnemySystem::SpawnEnemies(
 	this->EnemyCentre.reserve(new_size);
 	this->EnemyTypes.reserve(new_size);
 	this->EnemyAttackComponents.reserve(new_size);
-	this->EnemyTextureKey.reserve(new_size);
 	this->EnemyAnimationComponents.reserve(new_size);
 
 	for (size_t i = 0, n = this->FutureSpawnLocations.size(); i < n; i++)

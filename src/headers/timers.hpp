@@ -39,5 +39,6 @@ enum class Timer : uint8_t
 	GlueCountdown,
 	SlideCameraExpire,
 	ReleaseCameraExpire,
+	AlcoholismExpire,
 	COUNT
 };
