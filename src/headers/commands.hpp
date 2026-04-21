@@ -123,6 +123,7 @@ struct DamageEnemy
 {
 	size_t EnemyIndex;
 	float DamageAmount;
+	ProjectileType ProjectileType;
 };
 
 struct EnemyLeAttacked

@@ -165,8 +165,9 @@ void CollisionSystem::ProjectileCollision(
 		if (index < this->GridSize && this->EnemyGrid[index] != this->EmptyCell)
 		{
 			const size_t enemy_index = this->EnemyGrid[index];
+			const ProjectileType projectile_type = projectile_types[i];
 
-			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, enemy_index, damage);
+			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, enemy_index, damage, projectile_type);
 
 			message_system.ProjectileSystemCommands.emplace_back(std::in_place_type<struct ProjectileHit>, i);
 

@@ -26,6 +26,7 @@
 #include "modifierSystem.hpp"
 #include "modifiers.hpp"
 #include "itemData.hpp"
+#include "projectileData.hpp"
 
 EnemySystem::EnemySystem()
 {
@@ -131,7 +132,6 @@ void EnemySystem::Draw(const AssetManager& assets) const noexcept
 {
 	for (size_t i = 0, n = this->EnemyIsVisible.size(); i < n; i++)
 	{
-		// TODO : use type to get texture key instead
 		if (this->EnemyIsVisible[i])
 		{
 			const size_t enemy_type_index = static_cast<size_t>(this->EnemyTypes[i]);
@@ -328,7 +328,17 @@ void EnemySystem::DamageEnemyHandler(MessageSystem& message_system, const Modifi
 	const float weakness_factor = modifier_system.EffectStatus(Effect::Weakness) ? 0.67f : 1.0f;
 
 	if (this->CheckIndex(index))
+	{
 		this->EnemyHealth[index] -= data.DamageAmount * weakness_factor;
+
+		if (this->EnemyTypes[index] == EnemyType::Masochist && data.ProjectileType == ProjectileType::Bullet)
+		{
+			// TODO: make get level scale a function
+			const Vector2 location = this->EnemyCentre[index];
+			const float level_scale = 1 + static_cast<float>(modifier_system.GetLevel()) / 10.0f;
+			this->CreateEnemy(location.x, location.y, level_scale, EnemyType::Masochist);
+		}
+	}
 }
 
 void EnemySystem::EnemyLeAttackedHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept
@@ -466,12 +476,12 @@ void EnemySystem::ApplyTariffs(MessageSystem& message_system) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyTariffs)]++;
 
-	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(30), false, Timer::TariffsExpire);
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(20), false, Timer::TariffsExpire);
 }
 
 void EnemySystem::ApplyWeakness(MessageSystem& message_system) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyWeakness)]++;
 
-	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(45), false, Timer::WeaknessExpire);
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(25), false, Timer::WeaknessExpire);
 }
