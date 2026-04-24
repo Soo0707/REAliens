@@ -126,7 +126,6 @@ class EnemySystem
 		std::vector<float> EnemyHealth;
 		std::vector<float> EnemySpeed;
 		std::vector<uint8_t> EnemyIsVisible;
-		std::vector<EnemyEffect> EnemyEffects;
 		std::vector<Vector2> EnemyDirection;
 		std::vector<Rectangle> EnemyRect;
 		std::vector<Vector2> EnemyCentre;

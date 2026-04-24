@@ -55,8 +55,8 @@ bool InventorySystem::IsEmpty() const noexcept
 
 void InventorySystem::GrantItemHandler(MessageSystem& message_system) noexcept
 {
-	//const InventoryItem item = static_cast<InventoryItem>(GetRandomValue(0, static_cast<int>(InventoryItem::COUNT) - 1));
-	const InventoryItem item = InventoryItem::Liquor;
+	const InventoryItem item = static_cast<InventoryItem>(GetRandomValue(0, static_cast<int>(InventoryItem::COUNT) - 1));
+	//const InventoryItem item = InventoryItem::Liquor;
 	this->InventoryItems.emplace_back(item);
 }
 

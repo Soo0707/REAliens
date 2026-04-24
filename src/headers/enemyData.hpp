@@ -48,18 +48,3 @@ struct EnemyData
 	const float Health;
 	const uint8_t AnimationInterval;
 };
-
-enum class EnemyEffect : uint8_t
-{
-	Knocked = 1 << 0
-};
-
-constexpr EnemyEffect operator| (const EnemyEffect l, const EnemyEffect r)
-{
-	return static_cast<EnemyEffect>(static_cast<uint8_t>(l) | static_cast<uint8_t>(r));
-}
-
-constexpr EnemyEffect operator& (const EnemyEffect l, const EnemyEffect r)
-{
-	return static_cast<EnemyEffect>(static_cast<uint8_t>(l) & static_cast<uint8_t>(r));
-}

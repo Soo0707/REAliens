@@ -33,7 +33,6 @@ EnemySystem::EnemySystem()
 	this->EnemyHealth.reserve(1024);
 	this->EnemySpeed.reserve(1024);
 	this->EnemyIsVisible.reserve(1024);
-	this->EnemyEffects.reserve(1024);
 	this->EnemyDirection.reserve(1024);
 	this->EnemyRect.reserve(1024);
 	this->EnemyCentre.reserve(1024);
@@ -47,7 +46,6 @@ void EnemySystem::Reset() noexcept
 	this->EnemyHealth.clear();
 	this->EnemySpeed.clear();
 	this->EnemyIsVisible.clear();
-	this->EnemyEffects.clear();
 	this->EnemyDirection.clear();
 	this->EnemyRect.clear();
 	this->EnemyCentre.clear();
@@ -260,7 +258,6 @@ void EnemySystem::CreateEnemy(const float x, const float y, const float level_sc
 	this->EnemyHealth.emplace_back(this->EnemyAttributes[type_index].Health * level_scale);
 	this->EnemySpeed.emplace_back(this->EnemyAttributes[type_index].Speed);
 	this->EnemyIsVisible.emplace_back(false);
-	this->EnemyEffects.emplace_back(static_cast<EnemyEffect>(0));
 	this->EnemyDirection.emplace_back(0.0f, 0.0f);
 	this->EnemyRect.emplace_back(x, y, ENEMY_TEXTURE_TILE_SIZE, ENEMY_TEXTURE_TILE_SIZE);
 	this->EnemyCentre.emplace_back(
@@ -286,7 +283,6 @@ void EnemySystem::KillEnemies(MessageSystem& message_system, const bool has_magn
 			this->EnemyHealth[i] = this->EnemyHealth.back();
 			this->EnemySpeed[i] = this->EnemySpeed.back();
 			this->EnemyIsVisible[i] = this->EnemyIsVisible.back();
-			this->EnemyEffects[i] = this->EnemyEffects.back();
 			this->EnemyDirection[i] = this->EnemyDirection.back();
 			this->EnemyRect[i] = this->EnemyRect.back();
 			this->EnemyCentre[i] = this->EnemyCentre.back();
@@ -297,7 +293,6 @@ void EnemySystem::KillEnemies(MessageSystem& message_system, const bool has_magn
 			this->EnemyHealth.pop_back();
 			this->EnemySpeed.pop_back();
 			this->EnemyIsVisible.pop_back();
-			this->EnemyEffects.pop_back();
 			this->EnemyDirection.pop_back();
 			this->EnemyRect.pop_back();
 			this->EnemyCentre.pop_back();
@@ -411,7 +406,6 @@ void EnemySystem::SpawnEnemies(
 	this->EnemyHealth.reserve(new_size);
 	this->EnemySpeed.reserve(new_size);
 	this->EnemyIsVisible.reserve(new_size);
-	this->EnemyEffects.reserve(new_size);
 	this->EnemyDirection.reserve(new_size);
 	this->EnemyRect.reserve(new_size);
 	this->EnemyCentre.reserve(new_size);
