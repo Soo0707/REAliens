@@ -30,6 +30,7 @@ g++ src/main.cpp\
  src/stateManager.cpp\
  src/systemsResetState.cpp\
  src/cameraSystem.cpp\
+ src/inventorySystem.cpp\
  -o /mnt/tmpfs/out\
  -std=c++20\
  -Iinclude/\
