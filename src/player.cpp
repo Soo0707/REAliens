@@ -140,6 +140,9 @@ void Player::Move(MessageSystem& message_system, const ModifierSystem& modifier_
 	if (modifier_system.EffectStatus(Effect::Weakness))
 		speed *= 0.67f;
 
+	if (modifier_system.EffectStatus(Effect::Alcoholism))
+		speed *= -1.67f;
+
 	this->Rect.x += speed * this->Direction.x * TICK_TIME;
 	this->Rect.y += speed * this->Direction.y * TICK_TIME;
 

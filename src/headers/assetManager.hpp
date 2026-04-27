@@ -38,7 +38,6 @@ enum class TextureKey : uint8_t
 	HealthBarBackground,
 	XpBarBackground,
 	Orange,
-	Masochist,
 	Tyrone,
 	AlcoholismIcon,
 	COUNT

@@ -37,14 +37,15 @@ void InventorySystem::PollSignals(MessageSystem& message_system) noexcept
 {
 	for (size_t i = 0, n = static_cast<size_t>(InventorySystemSignal::COUNT); i < n; i++)
 	{
-		const uint16_t times = message_system.InventorySystemSignals[i];
+		const size_t times = static_cast<size_t>(message_system.InventorySystemSignals[i]);
 
-		if (times > 0)
+		for (size_t j = 0; j < times; j++)
 		{
 			auto handler = this->SignalHandlers[i];
 			(this->*handler)(message_system);
-			message_system.InventorySystemSignals[i]--;
 		}
+
+		message_system.InventorySystemSignals[i] = 0;
 	}
 }
 
@@ -55,8 +56,7 @@ bool InventorySystem::IsEmpty() const noexcept
 
 void InventorySystem::GrantItemHandler(MessageSystem& message_system) noexcept
 {
-	const InventoryItem item = static_cast<InventoryItem>(GetRandomValue(0, static_cast<int>(InventoryItem::COUNT) - 1));
-	//const InventoryItem item = InventoryItem::Liquor;
+	const InventoryItem item = static_cast<InventoryItem>(GetRandomValue(1, static_cast<int>(InventoryItem::COUNT) - 1));
 	this->InventoryItems.emplace_back(item);
 }
 
@@ -72,16 +72,16 @@ void InventorySystem::UseItemHandler(MessageSystem& message_system) noexcept
 	(this->*handler)(message_system);
 }
 
-void InventorySystem::UseBomb(MessageSystem& message_system) const noexcept
+void InventorySystem::UseRightsRemover(MessageSystem& message_system) const noexcept
 {
 	// TODO
 	return;
 }
 
-void InventorySystem::UseFreeze(MessageSystem& message_system) const noexcept
+void InventorySystem::UseEnemyFreeze(MessageSystem& message_system) const noexcept
 {
-	// TODO
-	return;
+	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyEnemyFreeze)]++;
+	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(10), false, Timer::EnemyFreezeExpire);
 }
 
 void InventorySystem::UseLiquor(MessageSystem& message_system) const noexcept

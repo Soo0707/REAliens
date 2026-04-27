@@ -126,13 +126,6 @@ struct DamageEnemy
 	float DamageAmount;
 };
 
-struct ProjectileDamageEnemy
-{
-	size_t EnemyIndex;
-	float DamageAmount;
-	ProjectileType ProjectileType;
-};
-
 struct EnemyLeAttacked
 {
 	size_t EnemyIndex;
@@ -144,7 +137,7 @@ struct EnemyGotGlued
 	size_t EnemyIndex;
 };
 
-using EnemySystemCommand = std::variant<struct DamageEnemy, struct ProjectileDamageEnemy, struct EnemyLeAttacked, struct EnemyGotGlued>;
+using EnemySystemCommand = std::variant<struct DamageEnemy, struct EnemyLeAttacked, struct EnemyGotGlued>;
 
 
 struct DamagePlayer

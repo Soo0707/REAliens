@@ -27,8 +27,8 @@
 ItemSystem::ItemSystem()
 {
 	this->ItemType.reserve(128);
-	this->ItemKill.reserve(128);
 	this->ItemIsVisible.reserve(128);
+	this->ItemHitsLeft.reserve(128);
 	this->ItemCentre.reserve(128);
 	this->ItemRect.reserve(128);
 }
@@ -43,14 +43,14 @@ void ItemSystem::Update(
 	this->VisibilityCheck(update_area);
 	this->RunUpdateHooks(message_system, modifier_system);
 	this->EmitParticles(message_system, ticks);
-	this->RemoveItem();
+	this->KillItems();
 }
 
 void ItemSystem::Reset() noexcept
 {
 	this->ItemType.clear();
-	this->ItemKill.clear();
 	this->ItemIsVisible.clear();
+	this->ItemHitsLeft.clear();
 	this->ItemCentre.clear();
 	this->ItemRect.clear();
 }
@@ -120,28 +120,6 @@ void ItemSystem::RunUpdateHooks(MessageSystem& message_system, const ModifierSys
 	}
 }
 
-void ItemSystem::RemoveItem() noexcept
-{
-	for (size_t i = 0; i < this->ItemKill.size(); )
-	{
-		if (this->ItemKill[i])
-		{
-			this->ItemType[i] = this->ItemType.back();
-			this->ItemKill[i] = this->ItemKill.back();
-			this->ItemIsVisible[i] = this->ItemIsVisible.back();
-			this->ItemCentre[i] = this->ItemCentre.back();
-			this->ItemRect[i] = this->ItemRect.back();
-
-			this->ItemType.pop_back();
-			this->ItemKill.pop_back();
-			this->ItemIsVisible.pop_back();
-			this->ItemCentre.pop_back();
-			this->ItemRect.pop_back();
-		}
-		else
-			i++;
-	}
-}
 
 void ItemSystem::EmitParticles(MessageSystem& message_system, const size_t ticks) noexcept
 {
@@ -161,6 +139,29 @@ void ItemSystem::EmitParticles(MessageSystem& message_system, const size_t ticks
 	}
 }
 
+void ItemSystem::KillItems() noexcept
+{
+	for (size_t i = 0; i < this->ItemHitsLeft.size(); )
+	{
+		if (this->ItemHitsLeft[i] == 0)
+		{
+			this->ItemType[i] = this->ItemType.back();
+			this->ItemIsVisible[i] = this->ItemIsVisible.back();
+			this->ItemHitsLeft[i] = this->ItemHitsLeft.back();
+			this->ItemCentre[i] = this->ItemCentre.back();
+			this->ItemRect[i] = this->ItemRect.back();
+
+			this->ItemType.pop_back();
+			this->ItemIsVisible.pop_back();
+			this->ItemHitsLeft.pop_back();
+			this->ItemCentre.pop_back();
+			this->ItemRect.pop_back();
+		}
+		else
+			i++;
+	}
+}
+
 void ItemSystem::CreateItemHandler(MessageSystem& message_system, const ItemSystemCommand& command, const AssetManager& assets) noexcept
 {
 	const struct CreateItem& data = std::get<struct CreateItem>(command);
@@ -171,9 +172,11 @@ void ItemSystem::CreateItemHandler(MessageSystem& message_system, const ItemSyst
 	const float texture_width = assets.GetTexture(texture_key).width;
 	const float texture_height = assets.GetTexture(texture_key).height;
 
+	const uint16_t hits_left = this->ItemAttributes[type_index].MaxCollisionHits;
+
 	this->ItemType.emplace_back(data.Type);
-	this->ItemKill.emplace_back(static_cast<bool>(false));
 	this->ItemIsVisible.emplace_back(static_cast<bool>(false));
+	this->ItemHitsLeft.emplace_back(hits_left);
 	this->ItemCentre.emplace_back(data.X + texture_width / 2.0f, data.Y + texture_height / 2.0f);
 	this->ItemRect.emplace_back(data.X, data.Y, texture_width, texture_height);
 }
@@ -184,6 +187,9 @@ void ItemSystem::CollidedWithItemHandler(MessageSystem& message_system, const It
 	const size_t index = data.ItemIndex;
 	
 	if (!this->CheckIndex(index))
+		return;
+
+	if (this->ItemHitsLeft[index] == 0)
 		return;
 	
 	const size_t type_index = static_cast<size_t>(this->ItemType[index]);
@@ -204,6 +210,9 @@ void ItemSystem::EnemyItemCollisionHandler(MessageSystem& message_system, const 
 	if (!this->CheckIndex(index))
 		return;
 
+	if (this->ItemHitsLeft[index] == 0)
+		return;
+
 	const size_t type_index = static_cast<size_t>(this->ItemType[index]);
 
 	auto hook = this->EnemyItemCollisionHooks[type_index];
@@ -214,7 +223,7 @@ void ItemSystem::EnemyItemCollisionHandler(MessageSystem& message_system, const 
 
 bool ItemSystem::CheckIndex(const size_t index) const noexcept
 {
-	return (index < this->ItemKill.size());
+	return (index < this->ItemType.size());
 }
 
 const std::vector<Vector2>& ItemSystem::GetItemCentre() const noexcept
@@ -241,7 +250,8 @@ void ItemSystem::TurretUpdateHook(MessageSystem& message_system, const size_t it
 void ItemSystem::XpCollisionHook(MessageSystem& message_system, const size_t item_index) noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::IncrementCollectedXp)]++;
-	this->ItemKill[item_index] = static_cast<uint8_t>(true);
+	this->ItemHitsLeft[item_index]--;
+
 }
 
 void ItemSystem::XpEnemyItemCollisionHook(MessageSystem& message_system, const EnemyItemCollision& data) noexcept
@@ -250,7 +260,7 @@ void ItemSystem::XpEnemyItemCollisionHook(MessageSystem& message_system, const E
 	const EnemyType enemy_type = data.EnemyType;
 	
 	if (enemy_type == EnemyType::Orange)
-		this->ItemKill[item_index] = static_cast<uint8_t>(true);
+		this->ItemHitsLeft[item_index]--;
 }
 
 void ItemSystem::GlueEnemyItemCollisionHook(MessageSystem& message_system, const EnemyItemCollision& data) noexcept
@@ -259,5 +269,11 @@ void ItemSystem::GlueEnemyItemCollisionHook(MessageSystem& message_system, const
 	const size_t enemy_index = data.EnemyIndex;
 
 	message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct EnemyGotGlued>, enemy_index);
-	this->ItemKill[item_index] = static_cast<uint8_t>(true);
+	this->ItemHitsLeft[item_index]--;
+}
+
+void ItemSystem::TurretEnemyItemCollisionHook(MessageSystem& message_system, const EnemyItemCollision& data) noexcept
+{
+	const size_t item_index = data.ItemIndex;
+	this->ItemHitsLeft[item_index]--;
 }

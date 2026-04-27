@@ -221,7 +221,7 @@ void ModifierSystem::ApplyMagnetism() noexcept
 
 void ModifierSystem::ApplyAura() noexcept
 {
-	this->IncreaseAttribute(Attribute::AuraSize, 75.0f, static_cast<float>(REFERENCE_HEIGHT));
+	this->IncreaseAttribute(Attribute::AuraSize, 100.0f, static_cast<float>(REFERENCE_HEIGHT));
 	this->IncreaseAttribute(Attribute::AuraDamage, 15.0f);
 }
 
@@ -307,6 +307,11 @@ void ModifierSystem::ApplyAlcoholism() noexcept
 	this->ApplyEffect(Effect::Alcoholism);
 }
 
+void ModifierSystem::ApplyEnemyFreeze() noexcept
+{
+	this->ApplyEffect(Effect::EnemyFreeze);
+}
+
 void ModifierSystem::RemoveMilk() noexcept
 {
 	this->RemoveEffect(Effect::Milk);
@@ -350,6 +355,11 @@ void ModifierSystem::RemoveWeakness() noexcept
 void ModifierSystem::RemoveAlcoholism() noexcept
 {
 	this->RemoveEffect(Effect::Alcoholism);
+}
+
+void ModifierSystem::RemoveEnemyFreeze() noexcept
+{
+	this->RemoveEffect(Effect::EnemyFreeze);
 }
 
 

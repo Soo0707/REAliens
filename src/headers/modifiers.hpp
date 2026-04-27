@@ -58,7 +58,8 @@ enum class Effect : uint32_t
 	Weakness = 1 << 11,
 	DiddySlide = 1 << 12,
 	Tariffs = 1 << 13,
-	Alcoholism = 1 << 14
+	Alcoholism = 1 << 14,
+	EnemyFreeze = 1 << 15
 };
 
 constexpr Effect operator&(const Effect l, const Effect r) noexcept

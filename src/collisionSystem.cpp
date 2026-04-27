@@ -76,11 +76,11 @@ void CollisionSystem::Update(
 	if (is_sliding)
 		this->SlideAttack(player_centre, player_direction, enemy_health, message_system, ticks);
 
-	const bool has_greenbull = modifier_system.EffectStatus(Effect::Greenbull);
-
 	this->EnemyItemCollision(message_system, enemy_centre, enemy_types);
 
-	if (!has_greenbull && !is_sliding)
+	const bool has_greenbull = modifier_system.EffectStatus(Effect::Greenbull);
+	const bool is_frozen = modifier_system.EffectStatus(Effect::EnemyFreeze);
+	if (!has_greenbull && !is_sliding && !is_frozen)
 		this->LeAttack(enemy_attack_components, player_centre, message_system, modifier_system, ticks);
 	
 	this->ItemCollision(player_centre, message_system);
@@ -164,8 +164,7 @@ void CollisionSystem::ProjectileCollision(
 		{
 			const size_t enemy_index = this->EnemyGrid[index];
 
-			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct ProjectileDamageEnemy>, enemy_index, damage, projectile_type);
-
+			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, enemy_index, damage);
 			message_system.ProjectileSystemCommands.emplace_back(std::in_place_type<struct ProjectileHit>, i);
 
 			message_system.ParticleSystemCommands.emplace_back(

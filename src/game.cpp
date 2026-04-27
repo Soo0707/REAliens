@@ -192,10 +192,13 @@ void Game::Update(const size_t ticks) noexcept
 	this->ItemSystem->Update(*this->MessageSystem, *this->ModifierSystem, *this->Assets, update_area, ticks);
 	this->InventorySystem->Update(*this->MessageSystem);
 
-	this->EnemySystem->Update(
-			*this->MessageSystem, *this->Assets, *this->ModifierSystem,
-			*this->TimerSystem, update_area, this->Player->Centre, ticks, level
-			);
+	if (!this->ModifierSystem->EffectStatus(Effect::EnemyFreeze))
+	{
+		this->EnemySystem->Update(
+				*this->MessageSystem, *this->Assets, *this->ModifierSystem,
+				*this->TimerSystem, update_area, this->Player->Centre, ticks, level
+				);
+	}
 
 	this->ProjectileSystem->Update(*this->MessageSystem, *this->Assets, *this->ModifierSystem, update_area, ticks);
 	

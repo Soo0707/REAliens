@@ -180,7 +180,7 @@ void PowerupMenu::ApplyAura() noexcept
 	else
 	{
 		this->MessageSystem->TimerSystemCommands.emplace_back(
-				std::in_place_type<struct DecreaseTimerInterval>, 25,
+				std::in_place_type<struct DecreaseTimerInterval>, 50,
 				TICK_RATE / 4, Timer::AuraTick
 				);
 	}
@@ -248,8 +248,8 @@ void PowerupMenu::ApplyLuck() noexcept
 
 void PowerupMenu::ApplyFastHands() noexcept
 {
-	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct DecreaseTimerInterval>, 50, 25, Timer::LMB);
-	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct DecreaseTimerInterval>, 75, 25, Timer::RMB);
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct DecreaseTimerInterval>, 50, 15, Timer::LMB);
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct DecreaseTimerInterval>, 100, 20, Timer::RMB);
 }
 
 void PowerupMenu::ApplyDrippyGlue() noexcept
@@ -259,7 +259,7 @@ void PowerupMenu::ApplyDrippyGlue() noexcept
 	else
 		this->MessageSystem->TimerSystemCommands.emplace_back(
 				std::in_place_type<struct DecreaseTimerInterval>,
-				SECONDS_TO_TICKS(5), TICK_RATE / 3, Timer::GlueCountdown
+				SECONDS_TO_TICKS(5), TICK_RATE / 4, Timer::GlueCountdown
 				);
 }
 

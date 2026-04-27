@@ -53,7 +53,6 @@ class EnemySystem
 			(EnemyData) { TextureKey::Drunkard, 3.0f, 125.0f, 50.0f, 15 },
 			(EnemyData) { TextureKey::Pleb, 5.0f, 75.0f, 75.0f, 30 },
 			(EnemyData) { TextureKey::Poison, 6.0f, 62.5f, 100.0f, 30 },
-			(EnemyData) { TextureKey::Masochist, 7.0f, 90.0f, 90.0f, 20 },
 			(EnemyData) { TextureKey::Orange, 10.0f, 95.5f, 150.0f, 30 },
 			(EnemyData) { TextureKey::Tyrone, 20.0f, 80.0f, 250.0f, 30 }
 		};
@@ -77,7 +76,6 @@ class EnemySystem
 			&EnemySystem::ApplyDrunk,
 			nullptr,
 			&EnemySystem::ApplyPoison,
-			nullptr,
 			&EnemySystem::ApplyTariffs,
 			&EnemySystem::ApplyWeakness
 		};
@@ -95,7 +93,6 @@ class EnemySystem
 
 
 		void DamageEnemyHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept;
-		void ProjectileDamageEnemyHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept;
 		void EnemyLeAttackedHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept;
 		void EnemyGotGluedHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept;
 
@@ -103,7 +100,6 @@ class EnemySystem
 		static constexpr std::array<CommandHandler, 4> CommandHandlers = 
 		{
 			&EnemySystem::DamageEnemyHandler,
-			&EnemySystem::ProjectileDamageEnemyHandler,
 			&EnemySystem::EnemyLeAttackedHandler,
 			&EnemySystem::EnemyGotGluedHandler
 		};

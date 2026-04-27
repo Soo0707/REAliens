@@ -23,6 +23,9 @@ enum class Item : uint8_t
 struct ItemData
 {
 	const Color Colour;
+	const uint16_t MaxCollisionHits;
 	const TextureKey Texture;
 	const bool EmitParticles;
+	const uint8_t PlayerCollisionPriority;
+	const uint8_t EnemyCollisionPriority;
 };

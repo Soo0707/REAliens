@@ -97,7 +97,6 @@ TextureKey AssetManager::GetTextureKeyFromString(std::string filename) const noe
 		{ "xp_bar_background.png", TextureKey::XpBarBackground },
 
 		{ "orange.png", TextureKey::Orange },
-		{ "masochist.png", TextureKey::Masochist },
 		{ "tyrone.png", TextureKey::Tyrone },
 		{ "alcoholism_icon.png", TextureKey::AlcoholismIcon }
 	};

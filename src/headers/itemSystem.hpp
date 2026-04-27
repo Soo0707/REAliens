@@ -41,13 +41,13 @@ class ItemSystem
 		void ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept;
 		void RunUpdateHooks(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept;
 		void VisibilityCheck(const Rectangle& update_area) noexcept;
-		void RemoveItem() noexcept;
+		void KillItems() noexcept;
 		void EmitParticles(MessageSystem& message_system, const size_t ticks) noexcept;
 
 		static constexpr std::array<ItemData, static_cast<size_t>(Item::COUNT)> ItemAttributes = {
-			(ItemData) { GREEN, TextureKey::Xp, true},
-			(ItemData) { WHITE, TextureKey::Turret, false },
-			(ItemData) { LIGHTGRAY, TextureKey::Glue, false },
+			(ItemData) { GREEN, 1, TextureKey::Xp, true, 3, 3 },
+			(ItemData) { WHITE, 1024, TextureKey::Turret, false, 0, 2 },
+			(ItemData) { LIGHTGRAY, 1, TextureKey::Glue, false, 0, 1 }
 		};
 
 		void TurretUpdateHook(MessageSystem& message_system, const size_t item_index, const ModifierSystem& modifier_system) const noexcept;
@@ -74,13 +74,14 @@ class ItemSystem
 
 
 		void XpEnemyItemCollisionHook(MessageSystem& message_system, const EnemyItemCollision& data) noexcept;
+		void TurretEnemyItemCollisionHook(MessageSystem& message_system, const EnemyItemCollision& data) noexcept;
 		void GlueEnemyItemCollisionHook(MessageSystem& message_system, const EnemyItemCollision& data) noexcept;
 
 		using EnemyItemCollisionHook = void(ItemSystem::*)(MessageSystem&, const EnemyItemCollision&) noexcept;
 
 		static constexpr std::array<EnemyItemCollisionHook, static_cast<size_t>(Item::COUNT)> EnemyItemCollisionHooks = {
 			&ItemSystem::XpEnemyItemCollisionHook,
-			nullptr,
+			&ItemSystem::TurretEnemyItemCollisionHook,
 			&ItemSystem::GlueEnemyItemCollisionHook
 		};
 
@@ -101,7 +102,9 @@ class ItemSystem
 		
 		std::vector<Item> ItemType;
 		std::vector<uint8_t> ItemIsVisible;
-		std::vector<uint8_t> ItemKill;
+		std::vector<uint16_t> ItemHitsLeft;
 		std::vector<Vector2> ItemCentre;
 		std::vector<Rectangle> ItemRect;
 };
+
+

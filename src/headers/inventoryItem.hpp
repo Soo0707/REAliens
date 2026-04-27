@@ -11,8 +11,8 @@
 
 enum class InventoryItem : uint8_t
 {
-	Bomb,
-	Freeze,
+	RightsRemover,
+	EnemyFreeze,
 	Liquor,
 	Turret,
 	COUNT
