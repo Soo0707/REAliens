@@ -311,7 +311,7 @@ void EnemySystem::KillEnemies(MessageSystem& message_system, const bool has_magn
 			i++;
 	}
 
-	message_system.StatSystemCommands.emplace_back(Stat::Kills, killed);
+	message_system.StatSystemCommands.emplace_back(killed, Stat::Kills);
 }
 
 

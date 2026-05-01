@@ -39,11 +39,11 @@ struct CreateParticles
 
 struct CreateProjectile
 {
-	ProjectileType Type;
 	Vector2 Direction;
 	float X;
 	float Y;
 	float Speed;
+	ProjectileType Type;
 };
 
 struct ProjectileHit
@@ -115,8 +115,8 @@ using TimerSystemCommand = std::variant<
 
 struct StatSystemCommand
 {
-	Stat StatType;
 	uint32_t Amount;
+	Stat StatType;
 };
 
 

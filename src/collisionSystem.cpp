@@ -184,7 +184,7 @@ void CollisionSystem::ProjectileCollision(
 				);
 	}
 
-	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_damage_done);
+	message_system.StatSystemCommands.emplace_back(total_damage_done, Stat::TotalDamage);
 }
 
 void CollisionSystem::LeAttack(
@@ -205,7 +205,7 @@ void CollisionSystem::LeAttack(
 
 			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct EnemyLeAttacked>, enemy_index, ticks);
 			message_system.PlayerCommands.emplace_back(std::in_place_type<struct DamagePlayer>, damage);
-			message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, damage);
+			message_system.StatSystemCommands.emplace_back(damage, Stat::TotalDamage);
 		}
 	}
 }
@@ -230,7 +230,7 @@ void CollisionSystem::SlideAttack(
 				15, 25, 60, TICK_RATE / 2, 512, ORANGE, RED
 				);
 
-		message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, static_cast<unsigned int>(damage_done));
+		message_system.StatSystemCommands.emplace_back(static_cast<unsigned int>(damage_done), Stat::TotalDamage);
 	}
 }
 // TODO : traverse this using a z order walk
@@ -274,7 +274,7 @@ void CollisionSystem::Aura(
 		}
 	}
 
-	message_system.StatSystemCommands.emplace_back(Stat::TotalDamage, total_hit * static_cast<unsigned int>(aura_damage));
+	message_system.StatSystemCommands.emplace_back(total_hit * static_cast<unsigned int>(aura_damage), Stat::TotalDamage);
 }
 
 void CollisionSystem::ItemCollision(const Vector2 player_centre, MessageSystem& message_system) const noexcept

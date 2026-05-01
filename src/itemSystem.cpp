@@ -238,8 +238,8 @@ void ItemSystem::TurretUpdateHook(MessageSystem& message_system, const uint32_t 
 		const float speed = modifier_system.GetAttribute(Attribute::BulletSpeed);
 
 		message_system.ProjectileSystemCommands.emplace_back(
-			std::in_place_type<CreateProjectile>, ProjectileType::Bullet, direction,
-			item_centre.x, item_centre.y, speed
+			std::in_place_type<CreateProjectile>, direction,
+			item_centre.x, item_centre.y, speed, ProjectileType::Bullet
 			);
 	}
 }

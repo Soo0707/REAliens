@@ -158,7 +158,7 @@ void Player::Move(MessageSystem& message_system, const ModifierSystem& modifier_
 
 	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_SIZE / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_SIZE / 2.0f };
 
-	message_system.StatSystemCommands.emplace_back(Stat::TotalDistance, static_cast<uint32_t>(speed * TICK_TIME));
+	message_system.StatSystemCommands.emplace_back(static_cast<uint32_t>(speed * TICK_TIME), Stat::TotalDistance);
 }
 
 void Player::Reset() noexcept
@@ -242,8 +242,8 @@ void Player::SpawnBall(MessageSystem& message_system, const uint16_t times, cons
 	const float ball_speed = modifier_system.GetAttribute(Attribute::BallSpeed);
 
 	message_system.ProjectileSystemCommands.emplace_back(
-			std::in_place_type<struct CreateProjectile>, ProjectileType::Ball,
-			ball_direction, ball_location.x, ball_location.y, ball_speed
+			std::in_place_type<struct CreateProjectile>, ball_direction, ball_location.x, ball_location.y,
+			ball_speed, ProjectileType::Ball
 			);
 }
 

@@ -64,8 +64,8 @@ void GameInputSystem::HandleLeftClick(
 		if (i == 0)
 		{
 			message_system.ProjectileSystemCommands.emplace_back(
-					std::in_place_type<struct CreateProjectile>, projectile_type, centre_direction,
-					player_centre.x, player_centre.y, speed
+					std::in_place_type<struct CreateProjectile>, centre_direction,
+					player_centre.x, player_centre.y, speed, projectile_type
 					);
 			continue;
 		}
@@ -73,8 +73,8 @@ void GameInputSystem::HandleLeftClick(
 		const Vector2 direction = Vector2Rotate(centre_direction, spread_angle * i);
 
 		message_system.ProjectileSystemCommands.emplace_back(
-				std::in_place_type<struct CreateProjectile>, projectile_type, direction,
-				player_centre.x, player_centre.y, speed
+				std::in_place_type<struct CreateProjectile>, direction,
+				player_centre.x, player_centre.y, speed, projectile_type
 				);
 	}
 
@@ -94,8 +94,8 @@ void GameInputSystem::HandleRightClick(
 	const ProjectileType projectile_type = has_alcoholism ? ProjectileType::Bullet : ProjectileType::Lazer;
 
 	message_system.ProjectileSystemCommands.emplace_back(
-			std::in_place_type<struct CreateProjectile>, projectile_type, direction,
-			player_centre.x, player_centre.y, speed
+			std::in_place_type<struct CreateProjectile>, direction,
+			player_centre.x, player_centre.y, speed, projectile_type
 			);
 
 	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct EnableTimer>, false, Timer::RMB);
