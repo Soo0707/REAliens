@@ -259,8 +259,8 @@ void ProjectileSystem::CreateProjectileHandler(const ProjectileSystemCommand& co
 {
 	const struct CreateProjectile& data = std::get<struct CreateProjectile>(command);
 
-	const size_t index = static_cast<size_t>(data.Type);
-	const TextureKey texture_key = this->ProjectileAttributes[index].Texture;
+	const size_t type_index = static_cast<size_t>(data.Type);
+	const TextureKey texture_key = this->ProjectileAttributes[type_index].Texture;
 
 	const float texture_width = assets.GetTexture(texture_key).width;
 	const float texture_height = assets.GetTexture(texture_key).height;
@@ -272,7 +272,7 @@ void ProjectileSystem::CreateProjectileHandler(const ProjectileSystemCommand& co
 void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& command, const AssetManager& assets) noexcept
 {
 	const struct ProjectileHit& data = std::get<struct ProjectileHit>(command);
-	const size_t index = data.ProjectileIndex;
+	const uint32_t index = data.ProjectileIndex;
 
 	if (!this->CheckIndex(index))
 		return;
@@ -299,7 +299,7 @@ void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& comma
 	this->ProjectileHitCount[index]++;
 }
 
-bool ProjectileSystem::CheckIndex(const size_t index) const noexcept
+bool ProjectileSystem::CheckIndex(const uint32_t index) const noexcept
 {
 	return (index < this->ProjectileKill.size());
 }

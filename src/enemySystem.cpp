@@ -318,7 +318,7 @@ void EnemySystem::KillEnemies(MessageSystem& message_system, const bool has_magn
 void EnemySystem::DamageEnemyHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept
 {
 	const DamageEnemy& data = std::get<struct DamageEnemy>(command);
-	const size_t index = data.EnemyIndex;
+	const uint32_t index = data.EnemyIndex;
 
 	if (!this->CheckIndex(index))
 		return;
@@ -330,7 +330,7 @@ void EnemySystem::DamageEnemyHandler(MessageSystem& message_system, const Modifi
 void EnemySystem::EnemyLeAttackedHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept
 {
 	const EnemyLeAttacked& data = std::get<struct EnemyLeAttacked>(command);
-	const size_t index = data.EnemyIndex;
+	const uint32_t index = data.EnemyIndex;
 
 	if (!this->CheckIndex(index))
 		return;
@@ -350,7 +350,7 @@ void EnemySystem::EnemyLeAttackedHandler(MessageSystem& message_system, const Mo
 void EnemySystem::EnemyGotGluedHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept
 {
 	const EnemyGotGlued& data = std::get<struct EnemyGotGlued>(command);
-	const size_t index = data.EnemyIndex;
+	const uint32_t index = data.EnemyIndex;
 	
 	if (this->CheckIndex(index))
 		this->EnemySpeed[index] = 0.0f;
@@ -430,7 +430,7 @@ void EnemySystem::GenerateTypes(const size_t spawn_count) noexcept
 		this->FutureEnemyTypes.emplace_back(static_cast<EnemyType>(GetRandomValue(0, static_cast<int>(EnemyType::COUNT) - 1)));
 }
 
-bool EnemySystem::CheckIndex(const size_t index) const noexcept
+bool EnemySystem::CheckIndex(const uint32_t index) const noexcept
 {
 	return (index < this->EnemyHealth.size());
 }

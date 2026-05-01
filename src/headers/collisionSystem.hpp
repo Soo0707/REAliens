@@ -11,6 +11,7 @@
 #include <vector>
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <limits>
 
 #include "raylib.h"
@@ -85,10 +86,10 @@ class CollisionSystem
 			&CollisionSystem::Aura
 		};
 
-		std::vector<size_t> EnemyGrid;
-		std::vector<size_t> ItemGrid;
+		std::vector<uint32_t> EnemyGrid;
+		std::vector<uint32_t> ItemGrid;
 
 		const size_t GridSize;
-		static constexpr size_t EmptyCell = std::numeric_limits<size_t>::max();
+		static constexpr size_t EmptyCell = std::numeric_limits<uint32_t>::max();
 };
 

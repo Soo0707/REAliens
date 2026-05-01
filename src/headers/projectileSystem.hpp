@@ -54,7 +54,7 @@ class ProjectileSystem
 		void SpawnParticles(MessageSystem& message_system, const size_t ticks) const noexcept;
 		void EvaluateHitCount(const ModifierSystem& modifier_system) noexcept;
 
-		bool CheckIndex(const size_t index) const noexcept;
+		bool CheckIndex(const uint32_t index) const noexcept;
 
 		static inline constexpr std::array<ProjectileData, static_cast<size_t>(ProjectileType::COUNT)> ProjectileAttributes = 
 		{

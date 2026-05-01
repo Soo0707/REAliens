@@ -48,8 +48,8 @@ struct CreateProjectile
 
 struct ProjectileHit
 {
-	size_t ProjectileIndex;
-	size_t EnemyIndex;
+	uint32_t ProjectileIndex;
+	uint32_t EnemyIndex;
 };
 
 using ProjectileSystemCommand = std::variant<struct CreateProjectile, struct ProjectileHit>;
@@ -64,13 +64,13 @@ struct CreateItem
 
 struct CollidedWithItem
 {
-	size_t ItemIndex;
+	uint32_t ItemIndex;
 };
 
 struct EnemyItemCollision
 {
-	size_t ItemIndex;
-	size_t EnemyIndex;
+	uint32_t ItemIndex;
+	uint32_t EnemyIndex;
 	EnemyType EnemyType;
 };
 
@@ -122,19 +122,19 @@ struct StatSystemCommand
 
 struct DamageEnemy
 {
-	size_t EnemyIndex;
+	uint32_t EnemyIndex;
 	float DamageAmount;
 };
 
 struct EnemyLeAttacked
 {
-	size_t EnemyIndex;
+	uint32_t EnemyIndex;
 	size_t Ticks;
 };
 
 struct EnemyGotGlued
 {
-	size_t EnemyIndex;
+	uint32_t EnemyIndex;
 };
 
 using EnemySystemCommand = std::variant<struct DamageEnemy, struct EnemyLeAttacked, struct EnemyGotGlued>;

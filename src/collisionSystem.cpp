@@ -162,7 +162,7 @@ void CollisionSystem::ProjectileCollision(
 
 		if (index < this->GridSize && this->EnemyGrid[index] != this->EmptyCell)
 		{
-			const size_t enemy_index = this->EnemyGrid[index];
+			const uint32_t enemy_index = this->EnemyGrid[index];
 
 			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, enemy_index, damage);
 			message_system.ProjectileSystemCommands.emplace_back(std::in_place_type<struct ProjectileHit>, i);
@@ -197,7 +197,7 @@ void CollisionSystem::LeAttack(
 
 	if (index < this->GridSize && this->EnemyGrid[index] != this->EmptyCell)
 	{
-		const size_t enemy_index = this->EnemyGrid[index];
+		const uint32_t enemy_index = this->EnemyGrid[index];
 
 		if (enemy_attack_components[enemy_index].CanLeAttack)
 		{
@@ -220,7 +220,7 @@ void CollisionSystem::SlideAttack(
 
 	if (index < this->GridSize && this->EnemyGrid[index] != this->EmptyCell)
 	{
-		const size_t enemy_index = this->EnemyGrid[index];
+		const uint32_t enemy_index = this->EnemyGrid[index];
 		const float damage_done = enemy_health[enemy_index];
 
 		message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, enemy_index, damage_done);
@@ -283,7 +283,7 @@ void CollisionSystem::ItemCollision(const Vector2 player_centre, MessageSystem& 
 
 	if (index < this->GridSize && this->ItemGrid[index] != this->EmptyCell)
 	{
-		const size_t item_index = this->ItemGrid[index];
+		const uint32_t item_index = this->ItemGrid[index];
 
 		message_system.ItemSystemCommands.emplace_back(std::in_place_type<struct CollidedWithItem>, item_index);
 	}
@@ -300,7 +300,7 @@ void CollisionSystem::EnemyItemCollision(
 
 		if (index < this->GridSize && this->ItemGrid[index] != this->EmptyCell)
 		{
-			const size_t item_index = this->ItemGrid[index];
+			const uint32_t item_index = this->ItemGrid[index];
 			const EnemyType enemy_type = enemy_types[i];
 
 			message_system.ItemSystemCommands.emplace_back(std::in_place_type<struct EnemyItemCollision>, item_index, i, enemy_type);

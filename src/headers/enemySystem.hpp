@@ -117,7 +117,7 @@ class EnemySystem
 		void AnimateEnemies(const size_t ticks) noexcept;
 		void EnemiesUpdateTimers(const size_t ticks) noexcept;
 
-		bool CheckIndex(const size_t index) const noexcept;
+		bool CheckIndex(const uint32_t index) const noexcept;
 
 		std::vector<float> EnemyHealth;
 		std::vector<float> EnemySpeed;
