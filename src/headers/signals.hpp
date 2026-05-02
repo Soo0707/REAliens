@@ -29,6 +29,7 @@ enum class PlayerSignal : uint8_t
 	SpawnBall,
 	DripGlue,
 	SpawnTurret,
+	SpawnRightsRemover,
 
 	COUNT
 };

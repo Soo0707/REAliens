@@ -52,8 +52,8 @@ class CollisionSystem
 				) const noexcept;
 
 		void LeAttack(
-				const std::vector<EnemyAttackComponent>& enemy_attack_components, const Vector2 player_centre,
-				MessageSystem& message_system, const ModifierSystem& modifier_system, const size_t ticks
+				MessageSystem& message_system, const std::vector<EnemyAttackComponent>& enemy_attack_components,
+				const Vector2 player_centre, const size_t ticks
 				) const noexcept;
 
 		void SlideAttack(

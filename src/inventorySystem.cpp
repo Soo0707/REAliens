@@ -74,8 +74,7 @@ void InventorySystem::UseItemHandler(MessageSystem& message_system) noexcept
 
 void InventorySystem::UseRightsRemover(MessageSystem& message_system) const noexcept
 {
-	// TODO
-	return;
+	message_system.PlayerSignals[static_cast<size_t>(PlayerSignal::SpawnRightsRemover)]++;
 }
 
 void InventorySystem::UseEnemyFreeze(MessageSystem& message_system) const noexcept

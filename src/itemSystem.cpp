@@ -231,15 +231,14 @@ const std::vector<Vector2>& ItemSystem::GetItemCentre() const noexcept
 
 void ItemSystem::TurretUpdateHook(MessageSystem& message_system, const uint32_t item_index, const ModifierSystem& modifier_system) const noexcept
 {
-	if (GetRandomValue(1, 100) < 2)
+	if (GetRandomValue(1, 100) < 10)
 	{
-		const Vector2 direction = Vector2Rotate({ 1.0f, 0.0f }, static_cast<float>(GetRandomValue(0, 360) * TO_RAD));
+		const Vector2 direction = Vector2Rotate({ 1.0f, 0.0f }, static_cast<float>(GetRandomValue(0, 359) * TO_RAD));
 		const Vector2 item_centre = this->ItemCentre[item_index];
-		const float speed = modifier_system.GetAttribute(Attribute::BulletSpeed);
 
 		message_system.ProjectileSystemCommands.emplace_back(
 			std::in_place_type<CreateProjectile>, direction,
-			item_centre.x, item_centre.y, speed, ProjectileType::Bullet
+			item_centre.x, item_centre.y, ProjectileType::Bullet
 			);
 	}
 }
@@ -261,6 +260,12 @@ void ItemSystem::XpEnemyItemCollisionHook(MessageSystem& message_system, const E
 		this->ItemHitsLeft[item_index]--;
 }
 
+void ItemSystem::TurretEnemyItemCollisionHook(MessageSystem& message_system, const EnemyItemCollision& data) noexcept
+{
+	const uint32_t item_index = data.ItemIndex;
+	this->ItemHitsLeft[item_index]--;
+}
+
 void ItemSystem::GlueEnemyItemCollisionHook(MessageSystem& message_system, const EnemyItemCollision& data) noexcept
 {
 	const uint32_t item_index = data.ItemIndex;
@@ -270,8 +275,11 @@ void ItemSystem::GlueEnemyItemCollisionHook(MessageSystem& message_system, const
 	this->ItemHitsLeft[item_index]--;
 }
 
-void ItemSystem::TurretEnemyItemCollisionHook(MessageSystem& message_system, const EnemyItemCollision& data) noexcept
+void ItemSystem::RightsRemoverEnemyItemCollisionHook(MessageSystem& message_system, const EnemyItemCollision& data) noexcept
 {
 	const uint32_t item_index = data.ItemIndex;
+	const uint32_t enemy_index = data.EnemyIndex;
+
+	message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct PlebifyEnemy>, enemy_index);
 	this->ItemHitsLeft[item_index]--;
 }

@@ -40,6 +40,7 @@ enum class TextureKey : uint8_t
 	Orange,
 	Tyrone,
 	AlcoholismIcon,
+	RightsRemover,
 	COUNT
 };
 

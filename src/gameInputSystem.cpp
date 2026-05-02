@@ -54,7 +54,6 @@ void GameInputSystem::HandleLeftClick(
 	const Vector2 centre_direction = Vector2Subtract(mouse_pos, player_centre);
 	const float spread_angle = modifier_system.GetAttribute(Attribute::BuckshotSpread);
 	const int buckshot = static_cast<int>((modifier_system.GetAttribute(Attribute::Buckshot) - 1) / 2);
-	const float speed = modifier_system.GetAttribute(Attribute::BulletSpeed);
 
 	const bool has_alcoholism = modifier_system.EffectStatus(Effect::Alcoholism);
 	const ProjectileType projectile_type = has_alcoholism ? ProjectileType::Lazer : ProjectileType::Bullet;
@@ -65,7 +64,7 @@ void GameInputSystem::HandleLeftClick(
 		{
 			message_system.ProjectileSystemCommands.emplace_back(
 					std::in_place_type<struct CreateProjectile>, centre_direction,
-					player_centre.x, player_centre.y, speed, projectile_type
+					player_centre.x, player_centre.y, projectile_type
 					);
 			continue;
 		}
@@ -74,7 +73,7 @@ void GameInputSystem::HandleLeftClick(
 
 		message_system.ProjectileSystemCommands.emplace_back(
 				std::in_place_type<struct CreateProjectile>, direction,
-				player_centre.x, player_centre.y, speed, projectile_type
+				player_centre.x, player_centre.y, projectile_type
 				);
 	}
 
@@ -88,14 +87,13 @@ void GameInputSystem::HandleRightClick(
 {
 	const Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), camera);
 	const Vector2 direction = Vector2Subtract(mouse_pos, player_centre);
-	const float speed = modifier_system.GetAttribute(Attribute::LazerSpeed);
 
 	const bool has_alcoholism = modifier_system.EffectStatus(Effect::Alcoholism);
 	const ProjectileType projectile_type = has_alcoholism ? ProjectileType::Bullet : ProjectileType::Lazer;
 
 	message_system.ProjectileSystemCommands.emplace_back(
 			std::in_place_type<struct CreateProjectile>, direction,
-			player_centre.x, player_centre.y, speed, projectile_type
+			player_centre.x, player_centre.y, projectile_type
 			);
 
 	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct EnableTimer>, false, Timer::RMB);

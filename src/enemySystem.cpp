@@ -352,8 +352,21 @@ void EnemySystem::EnemyGotGluedHandler(MessageSystem& message_system, const Modi
 	const EnemyGotGlued& data = std::get<struct EnemyGotGlued>(command);
 	const uint32_t index = data.EnemyIndex;
 	
-	if (this->CheckIndex(index))
-		this->EnemySpeed[index] = 0.0f;
+	if (!this->CheckIndex(index))
+		return;
+
+	this->EnemySpeed[index] = 0.0f;
+}
+
+void EnemySystem::PlebifyEnemyHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept
+{
+	const PlebifyEnemy& data = std::get<struct PlebifyEnemy>(command);
+	const uint32_t index = data.EnemyIndex;
+
+	if (!this->CheckIndex(index))
+		return;
+
+	this->EnemyTypes[index] = EnemyType::Pleb;
 }
 
 void EnemySystem::EmitParticlesFromLocations(

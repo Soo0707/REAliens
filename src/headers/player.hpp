@@ -31,37 +31,36 @@ class Player
 {
 	public:
 		Player();
-		~Player() = default; 
-		
-		void PollSignals(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept;
-		void ExecuteCommands(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept;
-		
+		~Player() = default;
+
 		void Update(
 				MessageSystem& message_system, const ModifierSystem& modifier_system,
 				const SettingsManager& settings, const float map_width, const float map_height,
 				const size_t ticks
 				) noexcept;
 
-		void Move(MessageSystem& message_system, const ModifierSystem& modifier_system, const float map_width, const float map_height) noexcept;
-		void Animate(const size_t ticks) noexcept;
 
 		void Draw(const AssetManager& assets) const noexcept;
 		void DrawLightmap() const noexcept;
 
 		void Reset() noexcept;
 		
-		float Health;
-		float HealthMax;
-
-		Vector2 Direction;
 		Rectangle Rect;
-
+		Vector2 Direction;
 		Vector2 Centre;
 
 		float Speed;
+		float Health;
+		float HealthMax;
 		bool Sliding;
 
 	private:
+		void PollSignals(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept;
+		void ExecuteCommands(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept;
+		void Move(MessageSystem& message_system, const ModifierSystem& modifier_system, const float map_width, const float map_height) noexcept;
+		void Animate(const size_t ticks) noexcept;
+		void SetBearing() noexcept;
+
 		void IncreaseHealth(const PlayerCommand& command, const ModifierSystem& modifier_system) noexcept;
 		void TakeDamage(const PlayerCommand& command, const ModifierSystem& modifier_system) noexcept;
 		void SetDirection(const PlayerCommand& command, const ModifierSystem& modifier_system) noexcept;
@@ -80,8 +79,11 @@ class Player
 		void SpawnBall(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept;
 		void DripGlue(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept;
 		void SpawnTurret(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept;
+		void SpawnRightsRemover(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept;
 
-		static constexpr std::array<void(Player::*)(MessageSystem&, const uint16_t, const ModifierSystem&) noexcept, static_cast<size_t>(PlayerSignal::COUNT)> SignalHandlers = 
+		using SignalHandler = void(Player::*)(MessageSystem&, const uint16_t, const ModifierSystem&) noexcept;
+
+		static constexpr std::array<SignalHandler, static_cast<size_t>(PlayerSignal::COUNT)> SignalHandlers = 
 		{
 			&Player::IncreasePlotArmour,
 			&Player::ApplySpeedBoots,
@@ -89,7 +91,8 @@ class Player
 			&Player::RemoveSlide,
 			&Player::SpawnBall,
 			&Player::DripGlue,
-			&Player::SpawnTurret
+			&Player::SpawnTurret,
+			&Player::SpawnRightsRemover
 		};
 
 		size_t LastAnimationUpdate;
@@ -99,6 +102,4 @@ class Player
 		uint8_t ImageIndex;
 		static constexpr uint8_t AnimationFrames = 2;
 		static constexpr uint8_t AnimationInterval = 20;
-
-		void SetBearing() noexcept;
 };

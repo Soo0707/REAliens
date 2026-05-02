@@ -239,11 +239,9 @@ void Player::SpawnBall(MessageSystem& message_system, const uint16_t times, cons
 	ball_direction = Vector2Rotate(ball_direction, static_cast<float>(GetRandomValue(0, 359)) * TO_RAD);
 
 	const Vector2 ball_location = this->Centre;
-	const float ball_speed = modifier_system.GetAttribute(Attribute::BallSpeed);
 
 	message_system.ProjectileSystemCommands.emplace_back(
-			std::in_place_type<struct CreateProjectile>, ball_direction, ball_location.x, ball_location.y,
-			ball_speed, ProjectileType::Ball
+			std::in_place_type<struct CreateProjectile>, ball_direction, ball_location.x, ball_location.y, ProjectileType::Ball
 			);
 }
 
@@ -263,5 +261,13 @@ void Player::SpawnTurret(MessageSystem& message_system, const uint16_t times, co
 	message_system.ItemSystemCommands.emplace_back(
 			std::in_place_type<struct CreateItem>, this->Centre.x, this->Centre.y,
 			Item::Turret
+			);
+}
+
+void Player::SpawnRightsRemover(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept
+{
+	message_system.ItemSystemCommands.emplace_back(
+			std::in_place_type<struct CreateItem>, this->Centre.x, this->Centre.y,
+			Item::RightsRemover
 			);
 }

@@ -80,8 +80,9 @@ void CollisionSystem::Update(
 
 	const bool has_greenbull = modifier_system.EffectStatus(Effect::Greenbull);
 	const bool is_frozen = modifier_system.EffectStatus(Effect::EnemyFreeze);
+
 	if (!has_greenbull && !is_sliding && !is_frozen)
-		this->LeAttack(enemy_attack_components, player_centre, message_system, modifier_system, ticks);
+		this->LeAttack(message_system, enemy_attack_components, player_centre, ticks);
 	
 	this->ItemCollision(player_centre, message_system);
 }
@@ -117,6 +118,7 @@ void CollisionSystem::UpdateEnemyGrid(const std::vector<Vector2>& enemy_centre) 
 	}
 }
 
+// TODO: collision priority for items
 void CollisionSystem::UpdateItemGrid(const std::vector<Vector2>& item_centre) noexcept
 {
 	for (size_t i = 0, n = this->GridSize; i < n; i++)
@@ -188,11 +190,10 @@ void CollisionSystem::ProjectileCollision(
 }
 
 void CollisionSystem::LeAttack(
-		const std::vector<EnemyAttackComponent>& enemy_attack_components, const Vector2 player_centre,
-		MessageSystem& message_system, const ModifierSystem& modifier_system, const size_t ticks
+		MessageSystem& message_system, const std::vector<EnemyAttackComponent>& enemy_attack_components,
+		const Vector2 player_centre, const size_t ticks
 		) const noexcept
 {
-	const bool has_milk = modifier_system.EffectStatus(Effect::Milk);
 	const size_t index = this->GetMortonCode(player_centre.x, player_centre.y);
 
 	if (index < this->GridSize && this->EnemyGrid[index] != this->EmptyCell)

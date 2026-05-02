@@ -261,6 +261,8 @@ void PowerupMenu::ApplyDrippyGlue() noexcept
 				std::in_place_type<struct DecreaseTimerInterval>,
 				SECONDS_TO_TICKS(5), TICK_RATE / 4, Timer::GlueCountdown
 				);
+	
+	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct TriggerNow>, Timer::GlueCountdown);
 }
 
 void PowerupMenu::ApplyGreed() noexcept

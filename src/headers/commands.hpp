@@ -42,7 +42,6 @@ struct CreateProjectile
 	Vector2 Direction;
 	float X;
 	float Y;
-	float Speed;
 	ProjectileType Type;
 };
 
@@ -137,7 +136,12 @@ struct EnemyGotGlued
 	uint32_t EnemyIndex;
 };
 
-using EnemySystemCommand = std::variant<struct DamageEnemy, struct EnemyLeAttacked, struct EnemyGotGlued>;
+struct PlebifyEnemy
+{
+	uint32_t EnemyIndex;
+};
+
+using EnemySystemCommand = std::variant<struct DamageEnemy, struct EnemyLeAttacked, struct EnemyGotGlued, struct PlebifyEnemy>;
 
 
 struct DamagePlayer
