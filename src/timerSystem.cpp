@@ -275,8 +275,3 @@ void TimerSystem::AlcoholismExpireHandler(MessageSystem& message_system) const n
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveAlcoholism)]++;
 }
-
-void TimerSystem::EnemyFreezeExpireHandler(MessageSystem& message_system) const noexcept
-{
-	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveEnemyFreeze)]++;
-}

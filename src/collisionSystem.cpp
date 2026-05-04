@@ -79,9 +79,8 @@ void CollisionSystem::Update(
 	this->EnemyItemCollision(message_system, enemy_centre, enemy_types);
 
 	const bool has_greenbull = modifier_system.EffectStatus(Effect::Greenbull);
-	const bool is_frozen = modifier_system.EffectStatus(Effect::EnemyFreeze);
 
-	if (!has_greenbull && !is_sliding && !is_frozen)
+	if (!has_greenbull && !is_sliding)
 		this->LeAttack(message_system, enemy_attack_components, player_centre, ticks);
 	
 	this->ItemCollision(player_centre, message_system);

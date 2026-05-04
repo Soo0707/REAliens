@@ -248,7 +248,7 @@ void ModifierSystem::ApplyLazer() noexcept
 void ModifierSystem::ApplyBall() noexcept
 {
 	this->IncreaseAttribute(Attribute::BallSpeed, 100.0f);
-	this->IncreaseAttribute(Attribute::BallDamage, 5.0f);
+	this->IncreaseAttribute(Attribute::BallDamage, 50.0f);
 }
 
 void ModifierSystem::ApplyLifeSteal() noexcept
@@ -307,11 +307,6 @@ void ModifierSystem::ApplyAlcoholism() noexcept
 	this->ApplyEffect(Effect::Alcoholism);
 }
 
-void ModifierSystem::ApplyEnemyFreeze() noexcept
-{
-	this->ApplyEffect(Effect::EnemyFreeze);
-}
-
 void ModifierSystem::RemoveMilk() noexcept
 {
 	this->RemoveEffect(Effect::Milk);
@@ -356,12 +351,6 @@ void ModifierSystem::RemoveAlcoholism() noexcept
 {
 	this->RemoveEffect(Effect::Alcoholism);
 }
-
-void ModifierSystem::RemoveEnemyFreeze() noexcept
-{
-	this->RemoveEffect(Effect::EnemyFreeze);
-}
-
 
 void ModifierSystem::InsertLevelDebuff() noexcept
 {

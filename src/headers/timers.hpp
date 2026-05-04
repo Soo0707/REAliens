@@ -40,6 +40,5 @@ enum class Timer : uint8_t
 	SlideCameraExpire,
 	ReleaseCameraExpire,
 	AlcoholismExpire,
-	EnemyFreezeExpire,
 	COUNT
 };

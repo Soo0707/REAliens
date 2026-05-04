@@ -12,7 +12,6 @@
 enum class InventoryItem : uint8_t
 {
 	RightsRemover,
-	EnemyFreeze,
 	Liquor,
 	Turret,
 	COUNT

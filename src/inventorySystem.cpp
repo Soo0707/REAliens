@@ -77,12 +77,6 @@ void InventorySystem::UseRightsRemover(MessageSystem& message_system) const noex
 	message_system.PlayerSignals[static_cast<size_t>(PlayerSignal::SpawnRightsRemover)]++;
 }
 
-void InventorySystem::UseEnemyFreeze(MessageSystem& message_system) const noexcept
-{
-	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyEnemyFreeze)]++;
-	message_system.TimerSystemCommands.emplace_back(std::in_place_type<struct RegisterTimer>, SECONDS_TO_TICKS(10), false, Timer::EnemyFreezeExpire);
-}
-
 void InventorySystem::UseLiquor(MessageSystem& message_system) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyAlcoholism)]++;

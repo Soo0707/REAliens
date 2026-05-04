@@ -39,7 +39,6 @@ class InventorySystem
 
 
 		void UseRightsRemover(MessageSystem& message_system) const noexcept;
-		void UseEnemyFreeze(MessageSystem& message_system) const noexcept;
 		void UseLiquor(MessageSystem& message_system) const noexcept;
 		void UseTurret(MessageSystem& message_system) const noexcept;
 
@@ -47,7 +46,6 @@ class InventorySystem
 
 		static constexpr std::array<ItemHandler, static_cast<size_t>(InventoryItem::COUNT)> ItemHandlers = {
 			&InventorySystem::UseRightsRemover,
-			&InventorySystem::UseEnemyFreeze,
 			&InventorySystem::UseLiquor,
 			&InventorySystem::UseTurret
 		};
