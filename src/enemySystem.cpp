@@ -95,7 +95,9 @@ void EnemySystem::Update(
 	const float map_width = assets.Ground.width;
 	const float map_height = assets.Ground.height;
 
-	if (this->EnemyHealth.size() < 15 && !timer_system.GetTimerStatus(Timer::SpawnEnemies))
+	const size_t spawn_threshold = 15 * level;
+
+	if (this->EnemyHealth.size() < spawn_threshold && !timer_system.GetTimerStatus(Timer::SpawnEnemies))
 	{
 		message_system.TimerSystemCommands.emplace_back(
 				std::in_place_type<struct RegisterTimer>, TICK_RATE / 2,
@@ -324,7 +326,8 @@ void EnemySystem::DamageEnemyHandler(MessageSystem& message_system, const Modifi
 		return;
 
 	const float weakness_factor = modifier_system.EffectStatus(Effect::Weakness) ? 0.67f : 1.0f;
-	this->EnemyHealth[index] -= data.DamageAmount * weakness_factor;
+	const float crit = 1 + static_cast<float>(modifier_system.IsLucky());
+	this->EnemyHealth[index] -= data.DamageAmount * weakness_factor * crit;
 }
 
 void EnemySystem::EnemyLeAttackedHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept

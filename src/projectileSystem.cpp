@@ -258,7 +258,7 @@ void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& comma
 	if (this->ProjectileHitsLeft[index] == 0)
 		return;
 
-	if (this->ProjectileTypes[index] == ProjectileType::Ball)
+	if (this->ProjectileTypes[index] == ProjectileType::Ball && modifier_system.IsLucky())
 	{
 		const Rectangle ball_rect = this->ProjectileRect[index];
 

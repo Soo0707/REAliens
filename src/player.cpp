@@ -182,7 +182,7 @@ void Player::Reset() noexcept
 void Player::TakeDamage(const PlayerCommand& command, const ModifierSystem& modifier_system) noexcept
 {
 	const DamagePlayer& data = std::get<DamagePlayer>(command);
-	this->Health -= data.DamageAmount;
+	this->Health -= data.DamageAmount * (1 + static_cast<float>(modifier_system.IsLucky()) * 0.67 );
 }
 
 void Player::IncreaseHealth(const PlayerCommand& command, const ModifierSystem& modifier_system) noexcept

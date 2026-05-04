@@ -269,7 +269,7 @@ void ModifierSystem::ApplyBabyOil() noexcept
 
 void ModifierSystem::ApplyLuck() noexcept
 {
-	this->DecreaseAttribute(Attribute::LuckBoundary, 10.0f, 1.0f);
+	this->DecreaseAttribute(Attribute::LuckBoundary, 10.0f, 10.0f);
 }
 
 void ModifierSystem::ApplyGreed() noexcept

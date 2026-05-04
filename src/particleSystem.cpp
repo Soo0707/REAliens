@@ -58,6 +58,7 @@ void ParticleSystem::ExecuteCommands(MessageSystem& message_system, const AssetM
 {
 	for (auto const& command : message_system.ParticleSystemCommands)
 	{
+		// TODO: fix this in the struct
 		ssize_t n = std::min(static_cast<ssize_t>(command.Number), static_cast<ssize_t>(100));
 
 		for (ssize_t i = 0; i < n; i++)
