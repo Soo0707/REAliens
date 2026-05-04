@@ -15,6 +15,9 @@ void StringCache::Reset() noexcept
 	this->CacheString("Level: 1", GameString::LevelText);
 	this->CacheString("Duration: 0s", GameString::Duration);
 	this->CacheString("", GameString::UnclaimedPowerups);
+	this->CacheString("Kills: 0", GameString::EnemiesKilled);
+	this->CacheString("Enemies: 0", GameString::CurrentEnemyCount);
+	this->CacheString("Total Entities: 0", GameString::TotalEntities);
 }
 
 void StringCache::CacheString(std::string&& string, const GameString game_string) noexcept

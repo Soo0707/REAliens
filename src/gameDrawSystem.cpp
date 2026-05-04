@@ -128,14 +128,19 @@ void GameDrawSystem::DrawOverlay(
 	if (modifier_system.EffectStatus(Effect::Alcoholism))
 		DrawTexture(assets.GetTexture(TextureKey::AlcoholismIcon), 1125, 40, WHITE);
 
+
 	DrawText(string_cache.Data[static_cast<size_t>(GameString::Duration)].c_str(), 20, 20, 24, LIGHTGRAY);
 	DrawText(string_cache.Data[static_cast<size_t>(GameString::LevelText)].c_str(), 20, 50, 24, (modifier_system.GetLevel() % 5) ? LIGHTGRAY : GOLD);
+
+	DrawText(string_cache.Data[static_cast<size_t>(GameString::EnemiesKilled)].c_str(), 20, 570, 32, SKYBLUE);
+	DrawText(string_cache.Data[static_cast<size_t>(GameString::CurrentEnemyCount)].c_str(), 20, 610, 24, GREEN);
+	DrawText(string_cache.Data[static_cast<size_t>(GameString::TotalEntities)].c_str(), 20, 640, 24, CYAN);
 
 	Color use_item_colour = GRAY;
 
 	if (game.CanPerform[static_cast<size_t>(Action::UseItem)] && !inventory_system.IsEmpty())
-		use_item_colour = LIME;
-	
+		use_item_colour = GREEN;
+	//TODO: show status for autoclick and powerup menu interrupt
 	// 10px padding
 	DrawText("[E]", 1172, 620, 20, use_item_colour);
 	DrawText("[TAB]", 1206, 620, 20, (modifier_system.GetUnclaimedPowerups()) ? GOLD : GRAY);

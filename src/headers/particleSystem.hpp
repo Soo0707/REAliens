@@ -26,6 +26,8 @@ class ParticleSystem
 		void Reset() noexcept;
 		void Draw(const AssetManager& assets) const noexcept;
 
+		size_t GetEntityCount() const noexcept;
+
 	private:
 		void ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept;
 		void VisibilityCheck(const Rectangle& update_area) noexcept;
@@ -36,6 +38,7 @@ class ParticleSystem
 				) noexcept;
 
 		void RemoveParticles(const size_t ticks) noexcept;
+		void Clear() noexcept;
 		void MoveAndScaleParticles(const size_t ticks) noexcept;
 		void ColourParticles(const size_t ticks) noexcept;
 

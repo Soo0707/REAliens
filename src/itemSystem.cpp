@@ -10,6 +10,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <variant>
 
 #include "raylib.h"
@@ -164,6 +165,9 @@ void ItemSystem::KillItems() noexcept
 
 void ItemSystem::CreateItemHandler(MessageSystem& message_system, const ItemSystemCommand& command, const AssetManager& assets) noexcept
 {
+	if (this->GetEntityCount() + 1 >= static_cast<size_t>(std::numeric_limits<uint32_t>::max()))
+		return;
+
 	const struct CreateItem& data = std::get<struct CreateItem>(command);
 
 	const size_t type_index = static_cast<size_t>(data.Type);
@@ -227,6 +231,11 @@ bool ItemSystem::CheckIndex(const uint32_t index) const noexcept
 const std::vector<Vector2>& ItemSystem::GetItemCentre() const noexcept
 {
 	return this->ItemCentre;
+}
+
+size_t ItemSystem::GetEntityCount() const noexcept
+{
+	return this->ItemType.size();
 }
 
 void ItemSystem::TurretUpdateHook(MessageSystem& message_system, const uint32_t item_index, const ModifierSystem& modifier_system) const noexcept

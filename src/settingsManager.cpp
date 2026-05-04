@@ -44,6 +44,11 @@ void SettingsManager::Set(const SettingKey setting, const int value) noexcept
 	this->Data[static_cast<size_t>(setting)] = value;
 }
 
+void SettingsManager::Toggle(const SettingKey setting) noexcept
+{
+	this->Data[static_cast<size_t>(setting)] = !this->Data[static_cast<size_t>(setting)];
+}
+
 void SettingsManager::ReadConfig()
 {
 	if (!std::filesystem::exists("config.txt"))

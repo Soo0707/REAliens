@@ -43,6 +43,8 @@ class EnemySystem
 		const std::vector<EnemyType>& GetEnemyType() const noexcept;
 		const std::vector<float>& GetEnemyHealth() const noexcept;
 
+		size_t GetEntityCount() const noexcept;
+
 	private:
 		void PollSignals(MessageSystem& message_system, const AssetManager& assets, const size_t level, const size_t ticks) noexcept;
 		void ExecuteCommands(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept;

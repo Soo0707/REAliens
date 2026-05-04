@@ -61,7 +61,7 @@ int main(void)
 	if (settings->Get(SettingKey::TargetFramerate) != 0)
 		target_refresh_rate = settings->Get(SettingKey::TargetFramerate);
 	else
-		target_refresh_rate = 4 * GetMonitorRefreshRate(GetCurrentMonitor());
+		target_refresh_rate = GetMonitorRefreshRate(GetCurrentMonitor());
 
 	SetTargetFPS(target_refresh_rate);
 
@@ -73,7 +73,7 @@ int main(void)
 	const std::shared_ptr<ProjectileSystem> projectile_system = std::make_shared<ProjectileSystem>();
 	const std::shared_ptr<EnemySystem> enemy_system = std::make_shared<EnemySystem>();
 	const std::shared_ptr<StatSystem> stat_system = std::make_shared<StatSystem>();
-	const std::shared_ptr<ItemSystem> xp_system = std::make_shared<ItemSystem>();
+	const std::shared_ptr<ItemSystem> item_system = std::make_shared<ItemSystem>();
 	const std::shared_ptr<CollisionSystem> collision_system = std::make_shared<CollisionSystem>(assets->Ground.width, assets->Ground.height);
 	const std::shared_ptr<CameraSystem> camera_system = std::make_shared<CameraSystem>();
 	const std::shared_ptr<InventorySystem> inventory_system = std::make_shared<InventorySystem>();
@@ -83,13 +83,13 @@ int main(void)
 	// states
 	const std::shared_ptr<Game> game_state = std::make_shared<Game>(
 			string_cache, assets, settings, message_system, timer_system, modifier_system,
-			particle_system, projectile_system, enemy_system, stat_system, xp_system, collision_system,
+			particle_system, projectile_system, enemy_system, stat_system, item_system, collision_system,
 			camera_system, inventory_system, player
 			);
 
 	const std::shared_ptr<SystemsResetState> systems_reset_state = std::make_shared<SystemsResetState>(
 			message_system, timer_system, modifier_system, particle_system, projectile_system, enemy_system,
-			stat_system, xp_system, collision_system, player, camera_system, inventory_system, string_cache
+			stat_system, item_system, collision_system, player, camera_system, inventory_system, string_cache
 			);
 
 	const std::shared_ptr<PowerupMenu> powerup_menu_state = std::make_shared<PowerupMenu>(

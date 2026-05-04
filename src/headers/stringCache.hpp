@@ -25,6 +25,8 @@ enum class GameString : uint8_t
 	DamagePerSecond,
 	AverageSpeed,
 	EnemiesKilled,
+	CurrentEnemyCount,
+	TotalEntities,
 
 	COUNT
 };

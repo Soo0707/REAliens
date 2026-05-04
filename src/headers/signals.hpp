@@ -83,6 +83,7 @@ enum class GameSignal : uint8_t
 	EnableSlide,
 	EnableUseItem,
 	UpdateDuration,
+	UpdateMetrics,
 	COUNT
 };
 

@@ -33,6 +33,7 @@ class SettingsManager
 		~SettingsManager() = default;
 
 		int Get(const SettingKey setting) const noexcept;
+		void Toggle(const SettingKey setting) noexcept;
 
 	private:
 		SettingKey GetSettingKeyFromString(const std::string& key) const noexcept;

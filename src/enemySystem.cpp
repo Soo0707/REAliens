@@ -10,6 +10,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <variant>
 
 #include "raylib.h"
@@ -253,8 +254,16 @@ const std::vector<float>& EnemySystem::GetEnemyHealth() const noexcept
 	return this->EnemyHealth;
 }
 
+size_t EnemySystem::GetEntityCount() const noexcept
+{
+	return this->EnemyTypes.size();
+}
+
 void EnemySystem::CreateEnemy(const float x, const float y, const float level_scale, const EnemyType type) noexcept
 {
+	if (this->GetEntityCount() + 1 >= static_cast<size_t>(std::numeric_limits<uint32_t>::max()))
+		return;
+
 	const size_t type_index = static_cast<size_t>(type);
 
 	this->EnemyHealth.emplace_back(this->EnemyAttributes[type_index].Health * level_scale);

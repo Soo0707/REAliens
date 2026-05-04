@@ -128,6 +128,13 @@ void Game::UntickedInput() noexcept
 	
 	if (IsKeyPressed(KEY_TAB) && (this->ModifierSystem->GetUnclaimedPowerups() || this->Settings->Get(SettingKey::UnlimitedPowerups)))
 		this->MessageSystem->StateManagerCommands.emplace_back(std::in_place_type<struct SetState>, State::PowerupMenu);
+
+	if (IsKeyPressed(KEY_F1))
+		this->Settings->Toggle(SettingKey::AutoClick);
+
+	if (IsKeyPressed(KEY_F2))
+		this->Settings->Toggle(SettingKey::PowerupMenuInterrupt);
+
 }
 
 void Game::TickedInput() noexcept
@@ -197,7 +204,10 @@ void Game::Update(const size_t ticks) noexcept
 			*this->TimerSystem, update_area, this->Player->Centre, ticks, level
 			);
 
-	this->ProjectileSystem->Update(*this->MessageSystem, *this->Assets, *this->ModifierSystem, update_area, ticks);
+	this->ProjectileSystem->Update(
+			*this->MessageSystem, *this->Assets, *this->ModifierSystem,
+			update_area, map_width, map_height, ticks
+			);
 	
 	this->CollisionSystem->Update(
 			*this->MessageSystem, *this->ModifierSystem, this->EnemySystem->GetEnemyCentre(),
@@ -250,4 +260,18 @@ void Game::EnableUseItem(const size_t ticks) noexcept
 void Game::UpdateDuration(const size_t ticks) noexcept
 {
 	this->StringCache->CacheString("Duration: " + std::to_string(TICKS_TO_SECONDS(ticks)) + "s", GameString::Duration);
+}
+
+void Game::UpdateMetrics(const size_t ticks) noexcept
+{
+	const size_t kills = this->StatSystem->GetStat(Stat::Kills);
+	this->StringCache->CacheString("Kills: " + std::to_string(kills), GameString::EnemiesKilled);
+
+	const size_t current_enemy_count = this->EnemySystem->GetEntityCount();
+	this->StringCache->CacheString("Enemies: " + std::to_string(current_enemy_count), GameString::CurrentEnemyCount);
+
+	const size_t total_entity_count = current_enemy_count + this->ProjectileSystem->GetEntityCount() +
+		this->ParticleSystem->GetEntityCount() + this->ItemSystem->GetEntityCount();
+
+	this->StringCache->CacheString("Total Entities: " + std::to_string(total_entity_count), GameString::TotalEntities);
 }

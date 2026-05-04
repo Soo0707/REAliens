@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <limits>
 #include <cmath>
 
 #include "raylib.h"
@@ -51,15 +52,15 @@ void ProjectileSystem::Reset() noexcept
 
 void ProjectileSystem::Update(
 		MessageSystem& message_system, const AssetManager& assets, const ModifierSystem& modifier_system,
-		const Rectangle& update_area, const size_t ticks
+		const Rectangle& update_area, const float map_width, const float map_height, const size_t ticks
 		) noexcept
 {
 	this->ExecuteCommands(message_system, modifier_system, assets);
 
 	this->VisibilityCheck(update_area);
-	this->MoveProjectiles();
+	this->MoveProjectiles(map_width, map_height);
 	this->SpawnParticles(message_system, ticks);
-	this->RemoveProjectiles();
+	this->KillProjectiles();
 }
 
 void ProjectileSystem::ExecuteCommands(MessageSystem& message_system, const ModifierSystem& modifier_system, const AssetManager& assets) noexcept
@@ -93,6 +94,11 @@ const std::vector<Vector2>& ProjectileSystem::GetProjectileDirection() const noe
 const std::vector<float>& ProjectileSystem::GetProjectileRotation() const noexcept
 {
 	return this->ProjectileRotation;
+}
+
+size_t ProjectileSystem::GetEntityCount() const noexcept
+{
+	return this->ProjectileTypes.size();
 }
 
 void ProjectileSystem::Draw(const AssetManager& assets) const noexcept
@@ -139,6 +145,9 @@ void ProjectileSystem::CreateProjectile(
 		const ModifierSystem& modifier_system, const AssetManager& assets
 		) noexcept
 {
+	if (this->GetEntityCount() + 1 >= static_cast<size_t>(std::numeric_limits<uint32_t>::max()))
+		return;
+
 	const size_t type_index = static_cast<size_t>(type);
 	const TextureKey texture_key = this->ProjectileAttributes[type_index].Texture;
 
@@ -178,23 +187,33 @@ void ProjectileSystem::VisibilityCheck(const Rectangle& update_area) noexcept
 		this->ProjectileIsVisible[i] = static_cast<uint8_t>(CheckCollisionRecs(update_area, this->ProjectileRect[i]));
 }
 
-void ProjectileSystem::MoveProjectiles() noexcept
+void ProjectileSystem::MoveProjectiles(const float map_width, const float map_height) noexcept
 {
 	for (size_t i = 0, n = this->ProjectileRect.size(); i < n; i++)
 	{
 		this->ProjectileRect[i].x += this->ProjectileDirection[i].x * this->ProjectileSpeed[i] * TICK_TIME;
 		this->ProjectileRect[i].y += this->ProjectileDirection[i].y * this->ProjectileSpeed[i] * TICK_TIME;
 
+		if (this->ProjectileRect[i].x < 0.0f)
+			this->ProjectileRect[i].x = map_width - this->ProjectileRect[i].width;
+		else if (this->ProjectileRect[i].x + this->ProjectileRect[i].width > map_width)
+			this->ProjectileRect[i].x = 0.0f;
+
+		if (this->ProjectileRect[i].y < 0.0f)
+			this->ProjectileRect[i].y = map_height - this->ProjectileRect[i].height;
+		else if (this->ProjectileRect[i].y + this->ProjectileRect[i].height > map_height)
+			this->ProjectileRect[i].y = 0.0f;
+
 		this->ProjectileCentre[i].x = this->ProjectileRect[i].x + this->ProjectileRect[i].width / 2.0f;
 		this->ProjectileCentre[i].y = this->ProjectileRect[i].y + this->ProjectileRect[i].height / 2.0f;
 	}
 }
 
-void ProjectileSystem::RemoveProjectiles() noexcept
+void ProjectileSystem::KillProjectiles() noexcept
 {
-	for (size_t i = 0; i < this->ProjectileIsVisible.size(); )
+	for (size_t i = 0; i < this->ProjectileHitsLeft.size(); )
 	{
-		if (!this->ProjectileIsVisible[i] || this->ProjectileHitsLeft[i] == 0)
+		if (this->ProjectileHitsLeft[i] == 0)
 		{
 			this->ProjectileIsVisible[i] = this->ProjectileIsVisible.back();
 			this->ProjectileSpeed[i] = this->ProjectileSpeed.back();
@@ -268,7 +287,7 @@ void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& comma
 			const Vector2 ball_direction = Vector2Rotate(this->ProjectileDirection[index], up_down * 10.0f * TO_RAD);
 
 			this->CreateProjectile(
-					ball_rect.x, ball_rect.y, ball_direction, ProjectileType::Ball,
+					ball_rect.x, ball_rect.y, ball_direction, ProjectileType::Lazer,
 					modifier_system, assets
 					);
 		}

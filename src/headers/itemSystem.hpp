@@ -36,6 +36,7 @@ class ItemSystem
 		void DrawLightmap() const noexcept;
 
 		const std::vector<Vector2>& GetItemCentre() const noexcept;
+		size_t GetEntityCount() const noexcept;
 
 	private:
 		void ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept;
@@ -47,7 +48,7 @@ class ItemSystem
 
 		static constexpr std::array<ItemData, static_cast<size_t>(Item::COUNT)> ItemAttributes = {
 			(ItemData) { GREEN, 1, TextureKey::Xp, true, 3, 1 },
-			(ItemData) { WHITE, 512, TextureKey::Turret, false, 0, 0 },
+			(ItemData) { WHITE, 15360, TextureKey::Turret, false, 0, 0 },
 			(ItemData) { LIGHTGRAY, 1, TextureKey::Glue, false, 0, 2 },
 			(ItemData) { RED, 8192, TextureKey::RightsRemover, true, 0, 3 }
 		};

@@ -60,7 +60,12 @@ void ParticleSystem::ExecuteCommands(MessageSystem& message_system, const AssetM
 	{
 		// TODO: fix this in the struct
 		ssize_t n = std::min(static_cast<ssize_t>(command.Number), static_cast<ssize_t>(100));
-
+/*
+ * TODO: this seems like an ok way of limiting particles.
+ * ofc the clear solution is a circular buffer but i'm lazy
+		if (this->GetEntityCount() + n >= 50000)
+			this->Clear();
+*/
 		for (ssize_t i = 0; i < n; i++)
 		{
 			const float size = static_cast<float>(GetRandomValue(command.MinSize, command.MaxSize));
@@ -94,6 +99,11 @@ void ParticleSystem::Draw(const AssetManager& assets) const noexcept
 					);
 		}
 	}
+}
+
+size_t ParticleSystem::GetEntityCount() const noexcept
+{
+	return this->ParticleIsVisible.size();
 }
 
 void ParticleSystem::VisibilityCheck(const Rectangle& update_area) noexcept
@@ -152,6 +162,20 @@ void ParticleSystem::RemoveParticles(const size_t ticks) noexcept
 		else
 			i++;
 	}
+}
+
+void ParticleSystem::Clear() noexcept
+{
+	this->ParticleIsVisible.clear();
+	this->ParticleCreation.clear();
+	this->ParticleExpiry.clear();
+	this->ParticleRotation.clear();
+	this->ParticleScale.clear();
+	this->ParticleVelocity.clear();
+	this->ParticleStartColour.clear();
+	this->ParticleCurrentColour.clear();
+	this->ParticleEndColour.clear();
+	this->ParticleRect.clear();
 }
 
 void ParticleSystem::MoveAndScaleParticles(const size_t ticks) noexcept

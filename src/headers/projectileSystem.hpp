@@ -30,7 +30,7 @@ class ProjectileSystem
 
 		void Update(
 				MessageSystem& message_system, const AssetManager& assets, const ModifierSystem& modifier_system,
-				const Rectangle& update_area, const size_t ticks
+				const Rectangle& update_area, const float map_width, const float map_height, const size_t ticks
 				) noexcept;
 
 		void Draw(const AssetManager& assets) const noexcept;
@@ -40,6 +40,7 @@ class ProjectileSystem
 		const std::vector<ProjectileType>& GetProjectileTypes() const noexcept;
 		const std::vector<Vector2>& GetProjectileDirection() const noexcept;
 		const std::vector<float>& GetProjectileRotation() const noexcept;
+		size_t GetEntityCount() const noexcept;
 
 	private:
 		void CreateProjectile(
@@ -50,8 +51,8 @@ class ProjectileSystem
 		void ExecuteCommands(MessageSystem& message_system, const ModifierSystem& modifier_system, const AssetManager& assets) noexcept;
 
 		void VisibilityCheck(const Rectangle& update_area) noexcept;
-		void MoveProjectiles() noexcept;
-		void RemoveProjectiles() noexcept;
+		void MoveProjectiles(const float map_width, const float map_height) noexcept;
+		void KillProjectiles() noexcept;
 		void SpawnParticles(MessageSystem& message_system, const size_t ticks) const noexcept;
 
 		bool CheckIndex(const uint32_t index) const noexcept;

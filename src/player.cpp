@@ -158,7 +158,7 @@ void Player::Move(MessageSystem& message_system, const ModifierSystem& modifier_
 
 	this->Centre = { this->Rect.x + PLAYER_TEXTURE_TILE_SIZE / 2.0f, this->Rect.y + PLAYER_TEXTURE_TILE_SIZE / 2.0f };
 
-	message_system.StatSystemCommands.emplace_back(static_cast<uint32_t>(speed * TICK_TIME), Stat::TotalDistance);
+	message_system.StatSystemCommands.emplace_back(static_cast<uint32_t>(abs(speed) * TICK_TIME), Stat::TotalDistance);
 }
 
 void Player::Reset() noexcept
@@ -182,7 +182,7 @@ void Player::Reset() noexcept
 void Player::TakeDamage(const PlayerCommand& command, const ModifierSystem& modifier_system) noexcept
 {
 	const DamagePlayer& data = std::get<DamagePlayer>(command);
-	this->Health -= data.DamageAmount * (1 + static_cast<float>(modifier_system.IsLucky()) * 0.67 );
+	this->Health -= data.DamageAmount * (1 + static_cast<float>(!modifier_system.IsLucky()) * 0.67 );
 }
 
 void Player::IncreaseHealth(const PlayerCommand& command, const ModifierSystem& modifier_system) noexcept

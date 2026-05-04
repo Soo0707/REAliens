@@ -97,12 +97,16 @@ void TimerSystem::Reset() noexcept
 	this->TimerInterval[static_cast<size_t>(Timer::Slide)] = static_cast<uint32_t>(TICK_RATE);
 	this->TimerActive[static_cast<size_t>(Timer::Slide)] = true;
 
-	this->TimerInterval[static_cast<size_t>(Timer::UseItem)] = static_cast<uint32_t>(SECONDS_TO_TICKS(5));
+	this->TimerInterval[static_cast<size_t>(Timer::UseItem)] = static_cast<uint32_t>(TICK_RATE);
 	this->TimerActive[static_cast<size_t>(Timer::UseItem)] = true;
 
 	this->TimerInterval[static_cast<size_t>(Timer::UpdateDuration)] = static_cast<uint32_t>(TICK_RATE);
 	this->TimerActive[static_cast<size_t>(Timer::UpdateDuration)] = true;
 	this->TimerRecurring[static_cast<size_t>(Timer::UpdateDuration)] = true;
+
+	this->TimerInterval[static_cast<size_t>(Timer::UpdateMetrics)] = static_cast<uint32_t>(TICK_RATE / 2);
+	this->TimerActive[static_cast<size_t>(Timer::UpdateMetrics)] = true;
+	this->TimerRecurring[static_cast<size_t>(Timer::UpdateMetrics)] = true;
 }
 
 void TimerSystem::RegisterTimer(const TimerSystemCommand& command, const size_t ticks) noexcept
@@ -274,4 +278,9 @@ void TimerSystem::ReleaseCameraExpireHandler(MessageSystem& message_system) cons
 void TimerSystem::AlcoholismExpireHandler(MessageSystem& message_system) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::RemoveAlcoholism)]++;
+}
+
+void TimerSystem::UpdateMetricsHandler(MessageSystem& message_system) const noexcept
+{
+	message_system.GameSignals[static_cast<size_t>(GameSignal::UpdateMetrics)]++;
 }
