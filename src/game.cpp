@@ -115,8 +115,8 @@ void Game::Draw(const RenderTexture2D& canvas) const noexcept
 		EndBlendMode();
 
 		GameDrawSystem::DrawOverlay(
-				*this, *this->TimerSystem, *this->ModifierSystem,
-				*this->InventorySystem, *this->StringCache, *this->Assets
+				*this, *this->TimerSystem, *this->ModifierSystem, *this->InventorySystem,
+				*this->StringCache, *this->Assets, *this->Settings
 				);
 	EndTextureMode();
 }

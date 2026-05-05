@@ -12,10 +12,10 @@
 #include "raylib.h"
 
 #include "constants.hpp"
-
 #include "game.hpp"
 #include "stringCache.hpp"
 #include "assetManager.hpp"
+#include "settingsManager.hpp"
 
 #include "modifiers.hpp"
 #include "modifierSystem.hpp"
@@ -75,7 +75,8 @@ void GameDrawSystem::DrawLighting(const Game& game, const ModifierSystem& modifi
 
 void GameDrawSystem::DrawOverlay(
 		const Game& game, const TimerSystem& timer_system, const ModifierSystem& modifier_system,
-		const InventorySystem& inventory_system, const StringCache& string_cache, const AssetManager& assets
+		const InventorySystem& inventory_system, const StringCache& string_cache, const AssetManager& assets,
+		const SettingsManager& settings
 		) noexcept
 {
 	DrawTexture(assets.GetTexture(TextureKey::HealthBarBackground), 1060, 20, WHITE);
@@ -136,12 +137,15 @@ void GameDrawSystem::DrawOverlay(
 	DrawText(string_cache.Data[static_cast<size_t>(GameString::CurrentEnemyCount)].c_str(), 20, 610, 24, GREEN);
 	DrawText(string_cache.Data[static_cast<size_t>(GameString::TotalEntities)].c_str(), 20, 640, 24, CYAN);
 
+	// 10px padding
+	DrawText("[Auto Click (F1)]", 1102, 570, 20, settings.Get(SettingKey::AutoClick) ? SKYBLUE : GRAY);
+	DrawText("[Auto Powerup Menu (F2)]", 998, 590, 20, settings.Get(SettingKey::PowerupMenuInterrupt) ? GRAY : SKYBLUE);
+
 	Color use_item_colour = GRAY;
 
 	if (game.CanPerform[static_cast<size_t>(Action::UseItem)] && !inventory_system.IsEmpty())
 		use_item_colour = GREEN;
-	//TODO: show status for autoclick and powerup menu interrupt
-	// 10px padding
+
 	DrawText("[E]", 1172, 620, 20, use_item_colour);
 	DrawText("[TAB]", 1206, 620, 20, (modifier_system.GetUnclaimedPowerups()) ? GOLD : GRAY);
 
