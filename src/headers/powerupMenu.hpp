@@ -135,7 +135,7 @@ class PowerupMenu
 
 		static inline constexpr std::array<const char*, static_cast<size_t>(Powerup::COUNT)> PowerupDescriptions =
 		{
-			"Increase Aura Size And Aura Timeout",
+			"Increase Aura Size And Decrease Aura Timeout",
 			"Increase The Number Of Bullets Shot By LMB",
 			"Increase Bullet Speed And Damage",
 

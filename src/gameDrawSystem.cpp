@@ -139,7 +139,7 @@ void GameDrawSystem::DrawOverlay(
 
 	// 10px padding
 	DrawText("[Auto Click (F1)]", 1102, 570, 20, settings.Get(SettingKey::AutoClick) ? SKYBLUE : GRAY);
-	DrawText("[Auto Powerup Menu (F2)]", 998, 590, 20, settings.Get(SettingKey::PowerupMenuInterrupt) ? GRAY : SKYBLUE);
+	DrawText("[Auto Powerup Menu (F2)]", 998, 590, 20, settings.Get(SettingKey::PowerupMenuInterrupt) ? SKYBLUE : GRAY);
 
 	Color use_item_colour = GRAY;
 
