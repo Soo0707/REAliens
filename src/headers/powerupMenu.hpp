@@ -135,27 +135,27 @@ class PowerupMenu
 
 		static inline constexpr std::array<const char*, static_cast<size_t>(Powerup::COUNT)> PowerupDescriptions =
 		{
-			"+Aura Size, -Aura Timeout",
-			"Increase The Number Of Bullets Shot",
-			"Increase Bullet Damage",
+			"Increase Aura Size And Aura Timeout",
+			"Increase The Number Of Bullets Shot By LMB",
+			"Increase Bullet Speed And Damage",
 
-			"Increase Lazer Damage & Penetration Power",
-			"Periodically Spawn A Ball",
-			"Temporary Invincibility",
+			"Increase Lazer Damage, Penetration Power, And Speed",
+			"Periodically Spawn A Ball Which Splits On Impact Into Bullets Based On Luck",
+			"Temporary Invincibility For 2 Minutes",
 
-			"Removes And Prevents Enemy Effects",
-			"Regain Health By Dealing Damage With Bullet Or Lazer",
-			"Increase Max Health",
+			"Removes And Prevents Enemy Effects For 3 Minutes",
+			"Regain Health By Dealing Damage With Projectiles",
+			"Increase To Max Health And Recover Health",
 
-			"Auto Collects XP",
+			"Automatically Collect XP For 4 Minutes",
 			"Increase Player Speed",
 			"Increase Slide Speed",
 			"Increase Luck For Luck Based Events",
-			"Decrease LMB & RMB Timeout",
+			"Decrease LMB And RMB Timeout",
 			"Gives Bonus XP Depending On Luck",
 
-			"Increase Damage Of Glue Projectile",
-			"Increase Damage Of Plebifier Projectile"
+			"Increase Glue Speed And Damage",
+			"Increase Plebifier Speed And Damage"
 		};
 
 		static inline constexpr std::array<void(PowerupMenu::*)(), static_cast<size_t>(Powerup::COUNT)> ApplyHandles = 

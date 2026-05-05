@@ -302,7 +302,7 @@ void ProjectileSystem::BallHitHandler(
 				ball_direction = Vector2Rotate(ball_direction, static_cast<float>(i) * 10.0f * TO_RAD);
 
 			this->CreateProjectile(
-					ball_rect.x, ball_rect.y, ball_direction, ProjectileType::Lazer,
+					ball_rect.x, ball_rect.y, ball_direction, ProjectileType::Bullet,
 					modifier_system, assets
 					);
 		}
