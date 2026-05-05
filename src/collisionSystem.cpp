@@ -138,7 +138,7 @@ void CollisionSystem::ProjectileCollision(
 		const ModifierSystem& modifier_system, const size_t ticks
 		) const noexcept
 {
-	unsigned int total_damage_done = 0;
+	uint32_t total_damage_done = 0;
 
 	for (size_t i = 0, n = projectile_centres.size(); i < n; i++)
 	{
@@ -156,6 +156,12 @@ void CollisionSystem::ProjectileCollision(
 			case ProjectileType::Ball:
 				damage = modifier_system.GetAttribute(Attribute::BallDamage);
 				break;
+			case ProjectileType::Glue:
+				damage = modifier_system.GetAttribute(Attribute::GlueDamage);
+				break;
+			case ProjectileType::Plebifier:
+				damage = modifier_system.GetAttribute(Attribute::PlebifierDamage);
+				break;
 		}
 
 		const Vector2 centre = projectile_centres[i];
@@ -166,10 +172,10 @@ void CollisionSystem::ProjectileCollision(
 			const uint32_t enemy_index = this->EnemyGrid[index];
 
 			message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, enemy_index, damage);
-			message_system.ProjectileSystemCommands.emplace_back(std::in_place_type<struct ProjectileHit>, i);
+			message_system.ProjectileSystemCommands.emplace_back(std::in_place_type<struct ProjectileHit>, i, enemy_index);
 
 			message_system.ParticleSystemCommands.emplace_back(
-					ticks, damage, projectile_direction[i], centre.x, centre.y,
+					ticks, 50, projectile_direction[i], centre.x, centre.y,
 					10, 30, 48, TICK_RATE / 2, 256, RED, RED
 					);
 

@@ -16,8 +16,6 @@ enum class Item : uint8_t
 {
 	Xp,
 	Turret,
-	Glue,
-	RightsRemover,
 	COUNT
 };
 

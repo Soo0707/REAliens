@@ -36,7 +36,6 @@ enum class Timer : uint8_t
 	UseItem,
 
 	UpdateDuration,
-	GlueCountdown,
 	SlideCameraExpire,
 	ReleaseCameraExpire,
 	AlcoholismExpire,

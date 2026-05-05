@@ -161,16 +161,17 @@ void Game::TickedInput() noexcept
 	const bool auto_click = this->Settings->Get(SettingKey::AutoClick);
 	const Vector2 player_centre = this->Player->Centre;
 	const Camera2D camera = this->CameraSystem->GetCamera();
+	const bool space_down = IsKeyDown(KEY_SPACE);
 
 	if ((IsMouseButtonDown(MOUSE_BUTTON_LEFT) || auto_click) && this->CanPerform[static_cast<size_t>(Action::LMB)])
 	{
-		GameInputSystem::HandleLeftClick(*this->MessageSystem, *this->ModifierSystem, player_centre, camera);
+		GameInputSystem::HandleLeftClick(*this->MessageSystem, *this->ModifierSystem, player_centre, camera, space_down);
 		this->CanPerform[static_cast<size_t>(Action::LMB)] = false;
 	}
 	
 	if ((IsMouseButtonDown(MOUSE_BUTTON_RIGHT) || auto_click) && this->CanPerform[static_cast<size_t>(Action::RMB)])
 	{
-		GameInputSystem::HandleRightClick(*this->MessageSystem, *this->ModifierSystem, player_centre, camera);
+		GameInputSystem::HandleRightClick(*this->MessageSystem, *this->ModifierSystem, player_centre, camera, space_down);
 		this->CanPerform[static_cast<size_t>(Action::RMB)] = false;
 	}
 }

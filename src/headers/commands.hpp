@@ -131,7 +131,7 @@ struct EnemyLeAttacked
 	size_t Ticks;
 };
 
-struct EnemyGotGlued
+struct GlueEnemy
 {
 	uint32_t EnemyIndex;
 };
@@ -141,7 +141,7 @@ struct PlebifyEnemy
 	uint32_t EnemyIndex;
 };
 
-using EnemySystemCommand = std::variant<struct DamageEnemy, struct EnemyLeAttacked, struct EnemyGotGlued, struct PlebifyEnemy>;
+using EnemySystemCommand = std::variant<struct DamageEnemy, struct EnemyLeAttacked, struct GlueEnemy, struct PlebifyEnemy>;
 
 
 struct DamagePlayer

@@ -10,6 +10,7 @@
 
 #include <variant>
 #include <cstddef>
+#include <cstdint>
 
 #include "raylib.h"
 #include "raymath.h"
@@ -47,18 +48,24 @@ void GameInputSystem::HandleUseItem(MessageSystem& message_system) noexcept
 
 void GameInputSystem::HandleLeftClick(
 		MessageSystem& message_system, const ModifierSystem& modifier_system,
-		const Vector2 player_centre, const Camera2D camera
+		const Vector2 player_centre, const Camera2D camera, const bool space_down
 		) noexcept
 {
 	const Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), camera);
 	const Vector2 centre_direction = Vector2Subtract(mouse_pos, player_centre);
 	const float spread_angle = modifier_system.GetAttribute(Attribute::BuckshotSpread);
-	const int buckshot = static_cast<int>((modifier_system.GetAttribute(Attribute::Buckshot) - 1) / 2);
+	const ssize_t buckshot = static_cast<ssize_t>((modifier_system.GetAttribute(Attribute::Buckshot) - 1) / 2);
 
 	const bool has_alcoholism = modifier_system.EffectStatus(Effect::Alcoholism);
-	const ProjectileType projectile_type = has_alcoholism ? ProjectileType::Lazer : ProjectileType::Bullet;
 
-	for (int i = -buckshot; i <= buckshot; i++)
+	ProjectileType projectile_type;
+
+	if (space_down)
+		projectile_type = has_alcoholism ? ProjectileType::Glue : ProjectileType::Plebifier;
+	else
+		projectile_type = has_alcoholism ? ProjectileType::Lazer : ProjectileType::Bullet;
+
+	for (ssize_t i = -buckshot; i <= buckshot; i++)
 	{
 		if (i == 0)
 		{
@@ -82,14 +89,19 @@ void GameInputSystem::HandleLeftClick(
 
 void GameInputSystem::HandleRightClick(
 		MessageSystem& message_system, const ModifierSystem& modifier_system,
-		const Vector2 player_centre, const Camera2D camera
+		const Vector2 player_centre, const Camera2D camera, const bool space_down
 		) noexcept
 {
 	const Vector2 mouse_pos = GetScreenToWorld2D(GetMousePosition(), camera);
 	const Vector2 direction = Vector2Subtract(mouse_pos, player_centre);
 
 	const bool has_alcoholism = modifier_system.EffectStatus(Effect::Alcoholism);
-	const ProjectileType projectile_type = has_alcoholism ? ProjectileType::Bullet : ProjectileType::Lazer;
+	ProjectileType projectile_type;
+
+	if (space_down)
+		projectile_type = has_alcoholism ? ProjectileType::Plebifier : ProjectileType::Glue;
+	else
+		projectile_type = has_alcoholism ? ProjectileType::Bullet : ProjectileType::Lazer;
 
 	message_system.ProjectileSystemCommands.emplace_back(
 			std::in_place_type<struct CreateProjectile>, direction,

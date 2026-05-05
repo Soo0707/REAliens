@@ -252,20 +252,17 @@ void PowerupMenu::ApplyFastHands() noexcept
 	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct DecreaseTimerInterval>, 100, 20, Timer::RMB);
 }
 
-void PowerupMenu::ApplyDrippyGlue() noexcept
-{
-	if (!this->TimerSystem->GetTimerStatus(Timer::GlueCountdown))
-		this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct EnableTimer>, true, Timer::GlueCountdown);
-	else
-		this->MessageSystem->TimerSystemCommands.emplace_back(
-				std::in_place_type<struct DecreaseTimerInterval>,
-				SECONDS_TO_TICKS(5), TICK_RATE / 4, Timer::GlueCountdown
-				);
-	
-	this->MessageSystem->TimerSystemCommands.emplace_back(std::in_place_type<struct TriggerNow>, Timer::GlueCountdown);
-}
-
 void PowerupMenu::ApplyGreed() noexcept
 {
 	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyGreed)]++;
+}
+
+void PowerupMenu::ApplyGlueGun() noexcept
+{
+	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyGlue)]++;
+}
+
+void PowerupMenu::ApplyPlebifier() noexcept
+{
+	this->MessageSystem->ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyPlebifier)]++;
 }

@@ -56,6 +56,8 @@ class ModifierSystem
 		void ApplyBullet() noexcept;
 		void ApplyLazer() noexcept;
 		void ApplyBall() noexcept;
+		void ApplyGlue() noexcept;
+		void ApplyPlebifier() noexcept;
 		void ApplyLifeSteal() noexcept;
 		void ApplyBabyOil() noexcept;
 		void ApplyLuck() noexcept;
@@ -94,6 +96,8 @@ class ModifierSystem
 			&ModifierSystem::ApplyBullet,
 			&ModifierSystem::ApplyLazer,
 			&ModifierSystem::ApplyBall,
+			&ModifierSystem::ApplyGlue,
+			&ModifierSystem::ApplyPlebifier,
 			&ModifierSystem::ApplyLifeSteal,
 			&ModifierSystem::ApplyBabyOil,
 			&ModifierSystem::ApplyLuck,

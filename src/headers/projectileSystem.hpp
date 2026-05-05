@@ -17,6 +17,8 @@
 #include "messageSystem.hpp"
 #include "projectileData.hpp"
 #include "assetManager.hpp"
+#include "commands.hpp"
+#include "modifiers.hpp"
 #include "modifierSystem.hpp"
 
 class ProjectileSystem
@@ -26,7 +28,6 @@ class ProjectileSystem
 		~ProjectileSystem() = default;
 
 		void Reset() noexcept;
-
 
 		void Update(
 				MessageSystem& message_system, const AssetManager& assets, const ModifierSystem& modifier_system,
@@ -59,19 +60,43 @@ class ProjectileSystem
 
 		static inline constexpr std::array<ProjectileData, static_cast<size_t>(ProjectileType::COUNT)> ProjectileAttributes = 
 		{
-			(ProjectileData) { YELLOW, TextureKey::Bullet },
-			(ProjectileData) { CYAN, TextureKey::Lazer },
-			(ProjectileData) { TEAL, TextureKey::Ball }
+			(ProjectileData) { YELLOW, TextureKey::Bullet, Attribute::BulletSpeed, Attribute::BulletPenetration },
+			(ProjectileData) { CYAN, TextureKey::Lazer, Attribute::LazerSpeed, Attribute::LazerPenetration },
+			(ProjectileData) { TEAL, TextureKey::Ball, Attribute::BallSpeed, Attribute::BallPenetration },
+			(ProjectileData) { LIGHTGRAY, TextureKey::Glue, Attribute::GlueSpeed, Attribute::GluePenetration },
+			(ProjectileData) { LIGHTRED, TextureKey::Plebifier, Attribute::PlebifierSpeed, Attribute::PlebifierPenetration }
 		};
 
-		void CreateProjectileHandler(const ProjectileSystemCommand& command, const ModifierSystem& modifier_system, const AssetManager& assets) noexcept;
-		void ProjectileHitHandler(const ProjectileSystemCommand& command, const ModifierSystem& modifier_system, const AssetManager& assets) noexcept;
+		void CreateProjectileHandler(
+				MessageSystem& message_system, const ModifierSystem& modifier_system,
+				const AssetManager& assets, const ProjectileSystemCommand& command 
+				) noexcept;
 
-		using CommandHandler = void(ProjectileSystem::*)(const ProjectileSystemCommand&, const ModifierSystem&, const AssetManager&) noexcept;
+		void ProjectileHitHandler(
+				MessageSystem& message_system, const ModifierSystem& modifier_system,
+				const AssetManager& assets, const ProjectileSystemCommand& command 
+				) noexcept;
+
+		using CommandHandler = void(ProjectileSystem::*)(MessageSystem&, const ModifierSystem&, const AssetManager&, const ProjectileSystemCommand&) noexcept;
 		static inline constexpr std::array<CommandHandler, 2> CommandHandlers = 
 		{
 			&ProjectileSystem::CreateProjectileHandler,
 			&ProjectileSystem::ProjectileHitHandler
+		};
+
+		void BallHitHandler(MessageSystem&, const ModifierSystem&, const AssetManager& assets, const ProjectileHit&) noexcept;
+		void GlueHitHandler(MessageSystem&, const ModifierSystem&, const AssetManager& assets, const ProjectileHit&) noexcept;
+		void PlebifierHitHandler(MessageSystem&, const ModifierSystem&, const AssetManager& assets, const ProjectileHit&) noexcept;
+
+		using AfterProjectileHit = void(ProjectileSystem::*)(MessageSystem&, const ModifierSystem&, const AssetManager&, const ProjectileHit&) noexcept;
+
+		static inline constexpr std::array<AfterProjectileHit, static_cast<size_t>(ProjectileType::COUNT)> AfterProjectileHitHandlers =
+		{
+			nullptr,
+			nullptr,
+			&ProjectileSystem::BallHitHandler,
+			&ProjectileSystem::GlueHitHandler,
+			&ProjectileSystem::PlebifierHitHandler
 		};
 
 		std::vector<uint8_t> ProjectileIsVisible;

@@ -70,7 +70,7 @@ void ProjectileSystem::ExecuteCommands(MessageSystem& message_system, const Modi
 		const size_t handler_index = command.index();
 
 		auto handler_function = this->CommandHandlers[handler_index];
-		(this->*handler_function)(command, modifier_system, assets);
+		(this->*handler_function)(message_system, modifier_system, assets, command);
 	}
 
 	message_system.ProjectileSystemCommands.clear();
@@ -154,22 +154,11 @@ void ProjectileSystem::CreateProjectile(
 	const float texture_width = assets.GetTexture(texture_key).width;
 	const float texture_height = assets.GetTexture(texture_key).height;
 
-	float speed = 0.0f;
-	uint16_t max_hits = 1;
+	const Attribute speed_key = this->ProjectileAttributes[type_index].SpeedKey;
+	const Attribute penetration_power_key = this->ProjectileAttributes[type_index].PenetrationPowerKey;
 
-	switch (type)
-	{
-		case ProjectileType::Bullet:
-			speed = modifier_system.GetAttribute(Attribute::BulletSpeed);
-			break;
-		case ProjectileType::Lazer:
-			speed = modifier_system.GetAttribute(Attribute::LazerSpeed);
-			max_hits = static_cast<uint16_t>(modifier_system.GetAttribute(Attribute::LazerMaxHit));
-			break;
-		case ProjectileType::Ball:
-			speed = modifier_system.GetAttribute(Attribute::BallSpeed);
-			break;
-	}
+	float speed = static_cast<float>(modifier_system.GetAttribute(speed_key));
+	uint16_t max_hits = static_cast<uint16_t>(modifier_system.GetAttribute(penetration_power_key));
 
 	this->ProjectileIsVisible.emplace_back(static_cast<uint8_t>(false));
 	this->ProjectileSpeed.emplace_back(speed);
@@ -258,7 +247,10 @@ void ProjectileSystem::SpawnParticles(MessageSystem& message_system, const size_
 	}
 }
 
-void ProjectileSystem::CreateProjectileHandler(const ProjectileSystemCommand& command, const ModifierSystem& modifier_system, const AssetManager& assets) noexcept
+void ProjectileSystem::CreateProjectileHandler(
+		MessageSystem& message_system, const ModifierSystem& modifier_system,
+		const AssetManager& assets, const ProjectileSystemCommand& command
+		) noexcept
 {
 	const struct CreateProjectile& data = std::get<struct CreateProjectile>(command);
 
@@ -266,7 +258,10 @@ void ProjectileSystem::CreateProjectileHandler(const ProjectileSystemCommand& co
 }
 
 
-void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& command, const ModifierSystem& modifier_system, const AssetManager& assets) noexcept
+void ProjectileSystem::ProjectileHitHandler(
+		MessageSystem& message_system, const ModifierSystem& modifier_system,
+		const AssetManager& assets, const ProjectileSystemCommand& command
+		) noexcept
 {
 	const struct ProjectileHit& data = std::get<struct ProjectileHit>(command);
 	const uint32_t index = data.ProjectileIndex;
@@ -277,14 +272,34 @@ void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& comma
 	if (this->ProjectileHitsLeft[index] == 0)
 		return;
 
-	if (this->ProjectileTypes[index] == ProjectileType::Ball && modifier_system.IsLucky())
-	{
-		const Rectangle ball_rect = this->ProjectileRect[index];
+	const size_t type_index = static_cast<size_t>(this->ProjectileTypes[index]);
 
-		for (uint8_t i = 0; i < 2; i++)
+	auto after_hit_handler = this->AfterProjectileHitHandlers[type_index];
+
+	if (after_hit_handler)
+		(this->*after_hit_handler)(message_system, modifier_system, assets, data);
+
+	this->ProjectileHitsLeft[index]--;
+}
+
+void ProjectileSystem::BallHitHandler(
+		MessageSystem& message_system, const ModifierSystem& modifier_system,
+		const AssetManager& assets, const ProjectileHit& data
+		) noexcept
+{
+	if (modifier_system.IsLucky() || true)
+	{
+		const uint32_t index = data.ProjectileIndex;
+
+		const Rectangle ball_rect = this->ProjectileRect[index];
+		const ssize_t lazer_spawn_amount = static_cast<ssize_t>(modifier_system.GetAttribute(Attribute::BallSplitLazers) - 1) / 2;
+
+		for (ssize_t i = -lazer_spawn_amount; i < lazer_spawn_amount; i++)
 		{
-			const float up_down = (i % 2) ? 1.0f : -1.0f;
-			const Vector2 ball_direction = Vector2Rotate(this->ProjectileDirection[index], up_down * 10.0f * TO_RAD);
+			Vector2 ball_direction = this->ProjectileDirection[index];
+
+			if (i != 0)
+				ball_direction = Vector2Rotate(ball_direction, static_cast<float>(i) * 10.0f * TO_RAD);
 
 			this->CreateProjectile(
 					ball_rect.x, ball_rect.y, ball_direction, ProjectileType::Lazer,
@@ -292,8 +307,22 @@ void ProjectileSystem::ProjectileHitHandler(const ProjectileSystemCommand& comma
 					);
 		}
 	}
+}
 
-	this->ProjectileHitsLeft[index]--;
+void ProjectileSystem::GlueHitHandler(
+		MessageSystem& message_system, const ModifierSystem& modifier_system,
+		const AssetManager& assets, const struct ProjectileHit& data
+		) noexcept
+{
+	message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct GlueEnemy>, data.EnemyIndex);
+}
+
+void ProjectileSystem::PlebifierHitHandler(
+		MessageSystem& message_system, const ModifierSystem& modifier_system,
+		const AssetManager& assets, const struct ProjectileHit& data
+		) noexcept
+{
+	message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct PlebifyEnemy>, data.EnemyIndex);
 }
 
 bool ProjectileSystem::CheckIndex(const uint32_t index) const noexcept

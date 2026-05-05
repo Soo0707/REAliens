@@ -38,14 +38,12 @@ class InventorySystem
 		};
 
 
-		void UseRightsRemover(MessageSystem& message_system) const noexcept;
 		void UseLiquor(MessageSystem& message_system) const noexcept;
 		void UseTurret(MessageSystem& message_system) const noexcept;
 
 		using ItemHandler = void(InventorySystem::*)(MessageSystem&) const noexcept;
 
 		static constexpr std::array<ItemHandler, static_cast<size_t>(InventoryItem::COUNT)> ItemHandlers = {
-			&InventorySystem::UseRightsRemover,
 			&InventorySystem::UseLiquor,
 			&InventorySystem::UseTurret
 		};

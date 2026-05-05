@@ -72,11 +72,6 @@ void InventorySystem::UseItemHandler(MessageSystem& message_system) noexcept
 	(this->*handler)(message_system);
 }
 
-void InventorySystem::UseRightsRemover(MessageSystem& message_system) const noexcept
-{
-	message_system.PlayerSignals[static_cast<size_t>(PlayerSignal::SpawnRightsRemover)]++;
-}
-
 void InventorySystem::UseLiquor(MessageSystem& message_system) const noexcept
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::ApplyAlcoholism)]++;

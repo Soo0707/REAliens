@@ -359,9 +359,9 @@ void EnemySystem::EnemyLeAttackedHandler(MessageSystem& message_system, const Mo
 		(this->*hook)(message_system);
 }
 
-void EnemySystem::EnemyGotGluedHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept
+void EnemySystem::GlueEnemyHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept
 {
-	const EnemyGotGlued& data = std::get<struct EnemyGotGlued>(command);
+	const GlueEnemy& data = std::get<struct GlueEnemy>(command);
 	const uint32_t index = data.EnemyIndex;
 	
 	if (!this->CheckIndex(index))

@@ -245,29 +245,10 @@ void Player::SpawnBall(MessageSystem& message_system, const uint16_t times, cons
 			);
 }
 
-void Player::DripGlue(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept
-{
-	if (modifier_system.IsLucky())
-	{
-		message_system.ItemSystemCommands.emplace_back(
-				std::in_place_type<struct CreateItem>, this->Centre.x, this->Centre.y,
-				Item::Glue
-				);
-	}
-}
-
 void Player::SpawnTurret(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept
 {
 	message_system.ItemSystemCommands.emplace_back(
 			std::in_place_type<struct CreateItem>, this->Centre.x, this->Centre.y,
 			Item::Turret
-			);
-}
-
-void Player::SpawnRightsRemover(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept
-{
-	message_system.ItemSystemCommands.emplace_back(
-			std::in_place_type<struct CreateItem>, this->Centre.x, this->Centre.y,
-			Item::RightsRemover
 			);
 }

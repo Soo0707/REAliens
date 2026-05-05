@@ -96,7 +96,7 @@ class EnemySystem
 
 		void DamageEnemyHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept;
 		void EnemyLeAttackedHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept;
-		void EnemyGotGluedHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept;
+		void GlueEnemyHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept;
 		void PlebifyEnemyHandler(MessageSystem& message_system, const ModifierSystem& modifier_system, const EnemySystemCommand& command) noexcept;
 
 		using CommandHandler = void(EnemySystem::*)(MessageSystem&, const ModifierSystem&, const EnemySystemCommand&) noexcept;
@@ -104,7 +104,7 @@ class EnemySystem
 		{
 			&EnemySystem::DamageEnemyHandler,
 			&EnemySystem::EnemyLeAttackedHandler,
-			&EnemySystem::EnemyGotGluedHandler,
+			&EnemySystem::GlueEnemyHandler,
 			&EnemySystem::PlebifyEnemyHandler
 		};
 

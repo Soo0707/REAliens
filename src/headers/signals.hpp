@@ -27,9 +27,7 @@ enum class PlayerSignal : uint8_t
 	RemoveSlide,
 
 	SpawnBall,
-	DripGlue,
 	SpawnTurret,
-	SpawnRightsRemover,
 
 	COUNT
 };
@@ -44,6 +42,8 @@ enum class ModifierSystemSignal : uint8_t
 	ApplyBullet,
 	ApplyLazer,
 	ApplyBall,
+	ApplyGlue,
+	ApplyPlebifier,
 	ApplyLifeSteal,
 	ApplyBabyOil,
 	ApplyLuck,

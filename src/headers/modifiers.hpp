@@ -14,16 +14,27 @@ enum class Attribute : uint8_t
 {
 	BulletDamage,
 	BulletSpeed,
+	BulletPenetration,
 
 	Buckshot,
 	BuckshotSpread,
 
 	LazerDamage,
 	LazerSpeed,
-	LazerMaxHit,
+	LazerPenetration,
 
-	BallSpeed,
 	BallDamage,
+	BallSpeed,
+	BallPenetration,
+	BallSplitLazers,
+
+	GlueDamage,
+	GlueSpeed,
+	GluePenetration,
+
+	PlebifierDamage,
+	PlebifierSpeed,
+	PlebifierPenetration,
 
 	AuraSize,
 	AuraDamage,

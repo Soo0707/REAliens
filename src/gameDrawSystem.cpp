@@ -145,7 +145,16 @@ void GameDrawSystem::DrawOverlay(
 	DrawText("[E]", 1172, 620, 20, use_item_colour);
 	DrawText("[TAB]", 1206, 620, 20, (modifier_system.GetUnclaimedPowerups()) ? GOLD : GRAY);
 
-	DrawText("[LMB]", 1058, 640, 20, (game.CanPerform[static_cast<size_t>(Action::LMB)] ? YELLOW : GRAY));
-	DrawText("[RMB]", 1120, 640, 20, (game.CanPerform[static_cast<size_t>(Action::RMB)] ? CYAN : GRAY));
+	if (IsKeyDown(KEY_SPACE))
+	{
+		DrawText("[LMB]", 1058, 640, 20, (game.CanPerform[static_cast<size_t>(Action::LMB)] ? RED : GRAY));
+		DrawText("[RMB]", 1120, 640, 20, (game.CanPerform[static_cast<size_t>(Action::RMB)] ? OFFWHITE : GRAY));
+	}
+	else
+	{
+		DrawText("[LMB]", 1058, 640, 20, (game.CanPerform[static_cast<size_t>(Action::LMB)] ? YELLOW : GRAY));
+		DrawText("[RMB]", 1120, 640, 20, (game.CanPerform[static_cast<size_t>(Action::RMB)] ? CYAN : GRAY));
+	}
+
 	DrawText("[SHIFT]", 1184, 640, 20, (game.CanPerform[static_cast<size_t>(Action::Slide)] ? ORANGE : GRAY));
 }

@@ -45,12 +45,10 @@ class ItemSystem
 		void KillItems() noexcept;
 		void EmitParticles(MessageSystem& message_system, const size_t ticks) noexcept;
 
-
+// TODO: give better lifetime for turret
 		static constexpr std::array<ItemData, static_cast<size_t>(Item::COUNT)> ItemAttributes = {
 			(ItemData) { GREEN, 1, TextureKey::Xp, true, 3, 1 },
-			(ItemData) { WHITE, 15360, TextureKey::Turret, false, 0, 0 },
-			(ItemData) { LIGHTGRAY, 1, TextureKey::Glue, false, 0, 2 },
-			(ItemData) { RED, 8192, TextureKey::RightsRemover, true, 0, 3 }
+			(ItemData) { WHITE, 15360, TextureKey::Turret, false, 0, 0 }
 		};
 
 		void TurretUpdateHook(MessageSystem& message_system, const uint32_t item_index, const ModifierSystem& modifier_system) const noexcept;
@@ -59,9 +57,7 @@ class ItemSystem
 
 		static constexpr std::array<UpdateHook, static_cast<size_t>(Item::COUNT)> UpdateHooks = {
 			nullptr,
-			&ItemSystem::TurretUpdateHook,
-			nullptr,
-			nullptr
+			&ItemSystem::TurretUpdateHook
 		};
 
 
@@ -72,8 +68,6 @@ class ItemSystem
 
 		static constexpr std::array<CollisionHook, static_cast<size_t>(Item::COUNT)> CollisionHooks = {
 			&ItemSystem::XpCollisionHook,
-			nullptr,
-			nullptr,
 			nullptr
 		};
 
@@ -87,9 +81,7 @@ class ItemSystem
 
 		static constexpr std::array<EnemyItemCollisionHook, static_cast<size_t>(Item::COUNT)> EnemyItemCollisionHooks = {
 			&ItemSystem::XpEnemyItemCollisionHook,
-			&ItemSystem::TurretEnemyItemCollisionHook,
-			&ItemSystem::GlueEnemyItemCollisionHook,
-			&ItemSystem::RightsRemoverEnemyItemCollisionHook
+			&ItemSystem::TurretEnemyItemCollisionHook
 		};
 
 

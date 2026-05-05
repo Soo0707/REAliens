@@ -77,9 +77,7 @@ class Player
 		void ApplySlide(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept;
 		void RemoveSlide(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept;
 		void SpawnBall(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept;
-		void DripGlue(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept;
 		void SpawnTurret(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept;
-		void SpawnRightsRemover(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept;
 
 		using SignalHandler = void(Player::*)(MessageSystem&, const uint16_t, const ModifierSystem&) noexcept;
 
@@ -90,9 +88,7 @@ class Player
 			&Player::ApplySlide,
 			&Player::RemoveSlide,
 			&Player::SpawnBall,
-			&Player::DripGlue,
-			&Player::SpawnTurret,
-			&Player::SpawnRightsRemover
+			&Player::SpawnTurret
 		};
 
 		size_t LastAnimationUpdate;

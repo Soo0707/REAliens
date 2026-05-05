@@ -53,16 +53,27 @@ void ModifierSystem::Reset() noexcept
 
 	this->SetAttribute(Attribute::BulletDamage, 25.0f);
 	this->SetAttribute(Attribute::BulletSpeed, 1000.0f);
+	this->SetAttribute(Attribute::BulletPenetration, 1.0f);
 
 	this->SetAttribute(Attribute::Buckshot, 3.0f);
 	this->SetAttribute(Attribute::BuckshotSpread, PI / 8);
 
 	this->SetAttribute(Attribute::LazerDamage, 25.0f);
 	this->SetAttribute(Attribute::LazerSpeed, 3000.0f);
-	this->SetAttribute(Attribute::LazerMaxHit, 5.0f);
+	this->SetAttribute(Attribute::LazerPenetration, 5.0f);
 
+	this->SetAttribute(Attribute::BallDamage, 25.0f);
 	this->SetAttribute(Attribute::BallSpeed, 500.0f);
-	this->SetAttribute(Attribute::BallDamage, 5.0f);
+	this->SetAttribute(Attribute::BallPenetration, 1.0f);
+	this->SetAttribute(Attribute::BallSplitLazers, 3.0f);
+
+	this->SetAttribute(Attribute::GlueDamage, 5.0f);
+	this->SetAttribute(Attribute::GlueSpeed, 750.0f);
+	this->SetAttribute(Attribute::GluePenetration, 1.0f);
+
+	this->SetAttribute(Attribute::PlebifierDamage, 5.0f);
+	this->SetAttribute(Attribute::PlebifierSpeed, 1000.0f);
+	this->SetAttribute(Attribute::PlebifierPenetration, 1.0f);
 
 	this->SetAttribute(Attribute::AuraSize, 100.0f);
 	this->SetAttribute(Attribute::AuraDamage, 25.0f);
@@ -242,13 +253,26 @@ void ModifierSystem::ApplyLazer() noexcept
 {
 	this->IncreaseAttribute(Attribute::LazerDamage, 25.0f);
 	this->IncreaseAttribute(Attribute::LazerSpeed, 75.0f);
-	this->IncreaseAttribute(Attribute::LazerMaxHit, 10.0f);
+	this->IncreaseAttribute(Attribute::LazerPenetration, 10.0f);
 }
 
 void ModifierSystem::ApplyBall() noexcept
 {
-	this->IncreaseAttribute(Attribute::BallSpeed, 100.0f);
 	this->IncreaseAttribute(Attribute::BallDamage, 50.0f);
+	this->IncreaseAttribute(Attribute::BallSpeed, 100.0f);
+	this->IncreaseAttribute(Attribute::BallSplitLazers, 2.0f);
+}
+
+void ModifierSystem::ApplyGlue() noexcept
+{
+	this->IncreaseAttribute(Attribute::GlueDamage, 10.0f);
+	this->IncreaseAttribute(Attribute::GlueSpeed, 50.0f);
+}
+
+void ModifierSystem::ApplyPlebifier() noexcept
+{
+	this->IncreaseAttribute(Attribute::PlebifierDamage, 10.0f);
+	this->IncreaseAttribute(Attribute::PlebifierSpeed, 50.0f);
 }
 
 void ModifierSystem::ApplyLifeSteal() noexcept

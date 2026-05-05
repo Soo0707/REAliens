@@ -12,6 +12,7 @@
 
 #include "raylib.h"
 #include "constants.hpp"
+#include "modifiers.hpp"
 #include "assetManager.hpp"
 
 enum class ProjectileType : uint8_t
@@ -19,6 +20,8 @@ enum class ProjectileType : uint8_t
 	Bullet,
 	Lazer,
 	Ball,
+	Glue,
+	Plebifier,
 
 	COUNT
 };
@@ -27,4 +30,6 @@ struct ProjectileData
 {
 	const Color Colour;
 	const TextureKey Texture;
+	const Attribute SpeedKey;
+	const Attribute PenetrationPowerKey;
 };

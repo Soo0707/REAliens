@@ -274,21 +274,3 @@ void ItemSystem::TurretEnemyItemCollisionHook(MessageSystem& message_system, con
 	const uint32_t item_index = data.ItemIndex;
 	this->ItemHitsLeft[item_index]--;
 }
-
-void ItemSystem::GlueEnemyItemCollisionHook(MessageSystem& message_system, const EnemyItemCollision& data) noexcept
-{
-	const uint32_t item_index = data.ItemIndex;
-	const uint32_t enemy_index = data.EnemyIndex;
-
-	message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct EnemyGotGlued>, enemy_index);
-	this->ItemHitsLeft[item_index]--;
-}
-
-void ItemSystem::RightsRemoverEnemyItemCollisionHook(MessageSystem& message_system, const EnemyItemCollision& data) noexcept
-{
-	const uint32_t item_index = data.ItemIndex;
-	const uint32_t enemy_index = data.EnemyIndex;
-
-	message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct PlebifyEnemy>, enemy_index);
-	this->ItemHitsLeft[item_index]--;
-}
