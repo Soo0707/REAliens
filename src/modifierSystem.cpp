@@ -151,7 +151,11 @@ void ModifierSystem::LevelUp(MessageSystem& message_system, StringCache& string_
 	string_cache.CacheString("Level: " + std::to_string(this->Level), GameString::LevelText);
 
 	this->CollectedXp = 0;
-	this->LevelUpThreshold += 5;
+
+	constexpr size_t max_threshold = std::numeric_limits<size_t>::max() - 5;
+
+	if (this->LevelUpThreshold <= max_thershold)
+		this->LevelUpThreshold += 5;
 	
 	if (settings.Get(SettingKey::PowerupMenuInterrupt))
 		message_system.StateManagerCommands.emplace_back(std::in_place_type<SetState>, State::PowerupMenu);

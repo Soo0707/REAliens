@@ -25,6 +25,4 @@ struct ItemData
 	const uint16_t MaxCollisionHits;
 	const TextureKey Texture;
 	const bool EmitParticles;
-	const uint8_t PlayerCollisionPriority;
-	const uint8_t EnemyCollisionPriority;
 };

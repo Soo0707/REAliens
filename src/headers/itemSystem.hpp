@@ -45,10 +45,9 @@ class ItemSystem
 		void KillItems() noexcept;
 		void EmitParticles(MessageSystem& message_system, const size_t ticks) noexcept;
 
-// TODO: give better lifetime for turret
 		static constexpr std::array<ItemData, static_cast<size_t>(Item::COUNT)> ItemAttributes = {
-			(ItemData) { GREEN, 1, TextureKey::Xp, true, 3, 1 },
-			(ItemData) { WHITE, 15360, TextureKey::Turret, false, 0, 0 }
+			(ItemData) { GREEN, 1, TextureKey::Xp, true },
+			(ItemData) { WHITE, 5120, TextureKey::Turret, false }
 		};
 
 		void TurretUpdateHook(MessageSystem& message_system, const uint32_t item_index, const ModifierSystem& modifier_system) const noexcept;

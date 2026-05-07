@@ -257,7 +257,6 @@ void ItemSystem::XpCollisionHook(MessageSystem& message_system, const uint32_t i
 {
 	message_system.ModifierSystemSignals[static_cast<size_t>(ModifierSystemSignal::IncrementCollectedXp)]++;
 	this->ItemHitsLeft[item_index]--;
-
 }
 
 void ItemSystem::XpEnemyItemCollisionHook(MessageSystem& message_system, const EnemyItemCollision& data) noexcept
