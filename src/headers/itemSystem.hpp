@@ -47,7 +47,7 @@ class ItemSystem
 
 		static constexpr std::array<ItemData, static_cast<size_t>(Item::COUNT)> ItemAttributes = {
 			(ItemData) { GREEN, 1, TextureKey::Xp, true },
-			(ItemData) { WHITE, 5120, TextureKey::Turret, false }
+			(ItemData) { WHITE, 4096, TextureKey::Turret, false }
 		};
 
 		void TurretUpdateHook(MessageSystem& message_system, const uint32_t item_index, const ModifierSystem& modifier_system) const noexcept;

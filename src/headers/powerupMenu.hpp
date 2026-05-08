@@ -138,7 +138,7 @@ class PowerupMenu
 			"Increase Bullet Speed And Damage",
 
 			"Increase Lazer Damage, Speed, And Penetration Power",
-			"Periodically Spawn A Ball Which Splits On Impact Into Bullets If Lucky",
+			"Decrease Ball Timeout And Increase Bullets Spawn On Split.",
 			"Temporary Invincibility For 2 Minutes. Resets Expiry If Already Equippied.",
 
 			"Removes And Prevents Enemy Effects For 3 Minutes. Resets Expiry If Already Equippied.",

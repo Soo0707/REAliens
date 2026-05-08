@@ -288,25 +288,22 @@ void ProjectileSystem::BallHitHandler(
 		const AssetManager& assets, const ProjectileHit& data
 		) noexcept
 {
-	if (modifier_system.IsLucky())
+	const uint32_t index = data.ProjectileIndex;
+
+	const Rectangle ball_rect = this->ProjectileRect[index];
+	const ssize_t lazer_spawn_amount = static_cast<ssize_t>(modifier_system.GetAttribute(Attribute::BallSplitLazers) - 1) / 2;
+
+	for (ssize_t i = -lazer_spawn_amount; i < lazer_spawn_amount; i++)
 	{
-		const uint32_t index = data.ProjectileIndex;
+		Vector2 ball_direction = this->ProjectileDirection[index];
 
-		const Rectangle ball_rect = this->ProjectileRect[index];
-		const ssize_t lazer_spawn_amount = static_cast<ssize_t>(modifier_system.GetAttribute(Attribute::BallSplitLazers) - 1) / 2;
+		if (i != 0)
+			ball_direction = Vector2Rotate(ball_direction, static_cast<float>(i) * 10.0f * TO_RAD);
 
-		for (ssize_t i = -lazer_spawn_amount; i < lazer_spawn_amount; i++)
-		{
-			Vector2 ball_direction = this->ProjectileDirection[index];
-
-			if (i != 0)
-				ball_direction = Vector2Rotate(ball_direction, static_cast<float>(i) * 10.0f * TO_RAD);
-
-			this->CreateProjectile(
-					ball_rect.x, ball_rect.y, ball_direction, ProjectileType::Bullet,
-					modifier_system, assets
-					);
-		}
+		this->CreateProjectile(
+				ball_rect.x, ball_rect.y, ball_direction, ProjectileType::Bullet,
+				modifier_system, assets
+				);
 	}
 }
 
