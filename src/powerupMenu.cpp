@@ -18,7 +18,6 @@
 
 #include "stringCache.hpp"
 #include "settingsManager.hpp"
-#include "assetManager.hpp"
 
 #include "modifierSystem.hpp"
 #include "messageSystem.hpp"
@@ -27,13 +26,12 @@
 #include "timerSystem.hpp"
 
 PowerupMenu::PowerupMenu(
-		std::shared_ptr<struct StringCache> string_cache, std::shared_ptr<class AssetManager> assets, 
-		std::shared_ptr<class SettingsManager> settings, std::shared_ptr<struct MessageSystem> message_system,
-		std::shared_ptr<class ModifierSystem> modifier_system, std::shared_ptr<class TimerSystem> timer_system
+		std::shared_ptr<struct StringCache> string_cache, std::shared_ptr<class SettingsManager> settings,
+		std::shared_ptr<struct MessageSystem> message_system, std::shared_ptr<class ModifierSystem> modifier_system,
+		std::shared_ptr<class TimerSystem> timer_system
 		):
 	StringCache(string_cache),
 	Settings(settings),
-	Assets(assets),
 	MessageSystem(message_system),
 	ModifierSystem(modifier_system),
 	TimerSystem(timer_system)

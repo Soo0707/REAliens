@@ -67,14 +67,14 @@ void CollisionSystem::Update(
 	this->PollSignals(message_system, player_centre, modifier_system, ticks);
 
 	this->ProjectileCollision(
-			projectile_centres, projectile_types, projectile_direction,
-			message_system, modifier_system, ticks
+			message_system, projectile_centres, projectile_types,
+			projectile_direction, modifier_system, ticks
 			);
 
 	const bool is_sliding = player.Sliding;
 
 	if (is_sliding)
-		this->SlideAttack(player_centre, player_direction, enemy_health, message_system, ticks);
+		this->SlideAttack(message_system, player_centre, player_direction, enemy_health, ticks);
 
 	this->EnemyItemCollision(message_system, enemy_centre, enemy_types);
 
@@ -83,7 +83,7 @@ void CollisionSystem::Update(
 	if (!has_greenbull && !is_sliding)
 		this->LeAttack(message_system, enemy_attack_components, player_centre, ticks);
 	
-	this->ItemCollision(player_centre, message_system);
+	this->ItemCollision(message_system, player_centre);
 }
 
 void CollisionSystem::PollSignals(
@@ -97,7 +97,7 @@ void CollisionSystem::PollSignals(
 		
 		auto signal_handler = this->SignalHandlers[i];
 		if (times > 0)
-			(this->*signal_handler)(player_centre, modifier_system, message_system, ticks);
+			(this->*signal_handler)(message_system, player_centre, modifier_system, ticks);
 
 		message_system.CollisionSystemSignals[i] = 0;
 	}
@@ -133,9 +133,9 @@ void CollisionSystem::UpdateItemGrid(const std::vector<Vector2>& item_centre) no
 }
 
 void CollisionSystem::ProjectileCollision(
-		const std::vector<Vector2>& projectile_centres, const std::vector<ProjectileType>& projectile_types,
-		const std::vector<Vector2>& projectile_direction, MessageSystem& message_system,
-		const ModifierSystem& modifier_system, const size_t ticks
+		 MessageSystem& message_system, const std::vector<Vector2>& projectile_centres,
+		 const std::vector<ProjectileType>& projectile_types, const std::vector<Vector2>& projectile_direction,
+		 const ModifierSystem& modifier_system, const size_t ticks
 		) const noexcept
 {
 	uint32_t total_damage_done = 0;
@@ -175,8 +175,8 @@ void CollisionSystem::ProjectileCollision(
 			message_system.ProjectileSystemCommands.emplace_back(std::in_place_type<struct ProjectileHit>, i, enemy_index);
 
 			message_system.ParticleSystemCommands.emplace_back(
-					ticks, 50, projectile_direction[i], centre.x, centre.y,
-					10, 30, 48, TICK_RATE / 2, 256, RED, RED
+					ticks, projectile_direction[i], RED, RED, centre.x, centre.y,
+					48, TICK_RATE / 2, 256, 10, 30, 25
 					);
 
 			total_damage_done += static_cast<unsigned int>(damage);
@@ -217,9 +217,8 @@ void CollisionSystem::LeAttack(
 }
 
 void CollisionSystem::SlideAttack(
-		const Vector2 player_centre, const Vector2 player_direction,
-		const std::vector<float>& enemy_health, MessageSystem& message_system,
-		const size_t ticks
+		MessageSystem& message_system, const Vector2 player_centre, const Vector2 player_direction,
+		const std::vector<float>& enemy_health, const size_t ticks
 		) const noexcept
 {
 	const size_t index = this->GetMortonCode(player_centre.x, player_centre.y);
@@ -232,17 +231,18 @@ void CollisionSystem::SlideAttack(
 		message_system.EnemySystemCommands.emplace_back(std::in_place_type<struct DamageEnemy>, enemy_index, damage_done);
 
 		message_system.ParticleSystemCommands.emplace_back(
-				ticks, damage_done, player_direction, player_centre.x, player_centre.y,
-				15, 25, 60, TICK_RATE / 2, 512, ORANGE, RED
+				ticks, player_direction, ORANGE, RED, player_centre.x, player_centre.y,
+				60, TICK_RATE / 2, 512, 15, 25, 50
 				);
 
 		message_system.StatSystemCommands.emplace_back(static_cast<unsigned int>(damage_done), Stat::TotalDamage);
 	}
 }
+
 // TODO : traverse this using a z order walk
 void CollisionSystem::Aura(
-		const Vector2 player_centre, const ModifierSystem& modifier_system,
-		MessageSystem& message_system, const size_t ticks
+		MessageSystem& message_system, const Vector2 player_centre,
+		const ModifierSystem& modifier_system, const size_t ticks
 		) const noexcept
 {
 	unsigned int total_hit = 0;
@@ -271,8 +271,8 @@ void CollisionSystem::Aura(
 				};
 
 				message_system.ParticleSystemCommands.emplace_back(
-						ticks, aura_damage, velocity, x, y,
-						15, 30, 60, TICK_RATE / 2, 256, PURPLE, RED
+						ticks, velocity, PURPLE, RED, x, y,
+						60, TICK_RATE / 2, 256, 15, 30, 15
 						);
 
 				total_hit++;
@@ -283,7 +283,7 @@ void CollisionSystem::Aura(
 	message_system.StatSystemCommands.emplace_back(total_hit * static_cast<unsigned int>(aura_damage), Stat::TotalDamage);
 }
 
-void CollisionSystem::ItemCollision(const Vector2 player_centre, MessageSystem& message_system) const noexcept
+void CollisionSystem::ItemCollision(MessageSystem& message_system, const Vector2 player_centre) const noexcept
 {
 	const size_t index = this->GetMortonCode(player_centre.x, player_centre.y);
 

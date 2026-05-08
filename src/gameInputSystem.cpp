@@ -14,14 +14,12 @@
 
 #include "raylib.h"
 #include "raymath.h"
-#include "settingsManager.hpp"
 
 #include "signals.hpp"
 #include "commands.hpp"
 #include "messageSystem.hpp"
 #include "modifierSystem.hpp"
-#include "player.hpp"
-#include "cameraSystem.hpp"
+#include "projectileData.hpp"
 
 void GameInputSystem::HandleShift(MessageSystem& message_system, const Vector2 player_direction) noexcept
 {

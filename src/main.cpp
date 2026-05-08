@@ -93,12 +93,12 @@ int main(void)
 			);
 
 	const std::shared_ptr<PowerupMenu> powerup_menu_state = std::make_shared<PowerupMenu>(
-			string_cache, assets, settings, message_system, modifier_system, timer_system
+			string_cache, settings, message_system, modifier_system, timer_system
 			);
 
-	const std::shared_ptr<GameOverMenu> game_over_menu_state = std::make_shared<GameOverMenu>(string_cache, assets, stat_system, message_system);
-	const std::shared_ptr<PauseMenu> pause_menu_state = std::make_shared<PauseMenu>(assets, message_system);
-	const std::shared_ptr<MainMenu> main_menu_state = std::make_shared<MainMenu>(assets, message_system);
+	const std::shared_ptr<GameOverMenu> game_over_menu_state = std::make_shared<GameOverMenu>(string_cache, stat_system, message_system);
+	const std::shared_ptr<PauseMenu> pause_menu_state = std::make_shared<PauseMenu>(message_system);
+	const std::shared_ptr<MainMenu> main_menu_state = std::make_shared<MainMenu>(message_system);
 
 	StateManager state_manager = StateManager(
 		game_state, systems_reset_state, powerup_menu_state, game_over_menu_state,

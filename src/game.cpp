@@ -115,7 +115,7 @@ void Game::Draw(const RenderTexture2D& canvas) const noexcept
 		EndBlendMode();
 
 		GameDrawSystem::DrawOverlay(
-				*this, *this->TimerSystem, *this->ModifierSystem, *this->InventorySystem,
+				*this, *this->ModifierSystem, *this->InventorySystem,
 				*this->StringCache, *this->Assets, *this->Settings
 				);
 	EndTextureMode();
@@ -192,7 +192,7 @@ void Game::Update(const size_t ticks) noexcept
 			map_width, map_height, ticks
 			);
 
-	this->CameraSystem->Update(*this->MessageSystem, ticks, this->Player->Centre, *this->ModifierSystem, *this->TimerSystem);
+	this->CameraSystem->Update(*this->MessageSystem, ticks, this->Player->Centre, *this->ModifierSystem);
 	this->ModifierSystem->Update(*this->MessageSystem, *this->StringCache, *this->Settings);
 	
 	this->StatSystem->Update(*this->MessageSystem);
@@ -219,7 +219,7 @@ void Game::Update(const size_t ticks) noexcept
 			*this->Player, ticks
 	);
 
-	this->ParticleSystem->Update(*this->MessageSystem, *this->Assets, update_area, ticks);
+	this->ParticleSystem->Update(*this->MessageSystem, update_area, ticks);
 }
 
 void Game::PollSignals(const size_t ticks) noexcept

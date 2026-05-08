@@ -22,14 +22,14 @@ class ParticleSystem
 		ParticleSystem();
 		~ParticleSystem() = default;
 		
-		void Update(MessageSystem& message_system, const AssetManager& assets, const Rectangle& update_area, const size_t ticks) noexcept;
+		void Update(MessageSystem& message_system, const Rectangle& update_area, const size_t ticks) noexcept;
 		void Reset() noexcept;
 		void Draw(const AssetManager& assets) const noexcept;
 
 		size_t GetEntityCount() const noexcept;
 
 	private:
-		void ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept;
+		void ExecuteCommands(MessageSystem& message_system) noexcept;
 		void VisibilityCheck(const Rectangle& update_area) noexcept;
 
 		void CreateParticle(

@@ -58,7 +58,7 @@ void EnemySystem::Reset() noexcept
 	this->FutureSpawnLocations.clear();
 }
 
-void EnemySystem::PollSignals(MessageSystem& message_system, const AssetManager& assets, const size_t level, const size_t ticks) noexcept
+void EnemySystem::PollSignals(MessageSystem& message_system, const size_t level, const size_t ticks) noexcept
 {
 	for (size_t i = 0; i < message_system.EnemySystemSignals.size(); i++)
 	{
@@ -67,7 +67,7 @@ void EnemySystem::PollSignals(MessageSystem& message_system, const AssetManager&
 		if (times)
 		{
 			auto handler_function = this->SignalHandlers[i];
-			(this->*handler_function)(ticks, level, message_system);
+			(this->*handler_function)(message_system, ticks, level);
 		}
 		message_system.EnemySystemSignals[i] = 0;
 	}
@@ -90,7 +90,7 @@ void EnemySystem::Update(
 		const Vector2 player_centre, const size_t ticks, const size_t level
 		) noexcept
 {
-	this->PollSignals(message_system, assets, level, ticks);
+	this->PollSignals(message_system, level, ticks);
 	this->ExecuteCommands(message_system, modifier_system);
 	
 	const float map_width = assets.Ground.width;
@@ -335,7 +335,7 @@ void EnemySystem::DamageEnemyHandler(MessageSystem& message_system, const Modifi
 		return;
 
 	const float weakness_factor = modifier_system.EffectStatus(Effect::Weakness) ? 0.67f : 1.0f;
-	const float crit = 1 + static_cast<float>(modifier_system.IsLucky());
+	const float crit = 1.0f + static_cast<float>(modifier_system.IsLucky());
 	this->EnemyHealth[index] -= data.DamageAmount * weakness_factor * crit;
 }
 
@@ -381,9 +381,7 @@ void EnemySystem::PlebifyEnemyHandler(MessageSystem& message_system, const Modif
 	this->EnemyTypes[index] = EnemyType::Pleb;
 }
 
-void EnemySystem::EmitParticlesFromLocations(
-		const size_t ticks, const size_t level, MessageSystem& message_system
-		) noexcept
+void EnemySystem::EmitParticlesFromLocations(MessageSystem& message_system, const size_t ticks, const size_t level) noexcept
 {
 	for (auto const& location : this->FutureSpawnLocations)
 	{
@@ -392,16 +390,17 @@ void EnemySystem::EmitParticlesFromLocations(
 			static_cast<float>(GetRandomValue(-96, -64))
 		};
 
-		message_system.ParticleSystemCommands.emplace_back(ticks, 20, velocity, location.x, location.y, 5, 20, 120, TICK_RATE, 32, RED, MAGENTA);
+		message_system.ParticleSystemCommands.emplace_back(
+				ticks, velocity, RED, MAGENTA, location.x, location.y,
+				120, TICK_RATE, 32, 5, 20, 10
+				);
 	}
 }
 
-void EnemySystem::SpawnEnemies(
-		const size_t ticks, const size_t level, MessageSystem& message_system
-		) noexcept
+void EnemySystem::SpawnEnemies(MessageSystem& message_system, const size_t ticks, const size_t level) noexcept
 {
 	const size_t spawn_count = level * 15;
-	const float level_scale = 1 + static_cast<float>(level) / 10.0f;
+	const float level_scale = 1.0f + static_cast<float>(level) / 10.0f;
 
 	const size_t new_size = this->EnemyHealth.size() + spawn_count;
 

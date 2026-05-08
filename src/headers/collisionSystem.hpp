@@ -46,8 +46,8 @@ class CollisionSystem
 				) const noexcept;
 
 		void ProjectileCollision(
-				const std::vector<Vector2>& projectile_centres, const std::vector<ProjectileType>& projectile_types,
-				const std::vector<Vector2>& projectile_direction, MessageSystem& message_system,
+				MessageSystem& message_system, const std::vector<Vector2>& projectile_centres,
+				const std::vector<ProjectileType>& projectile_types, const std::vector<Vector2>& projectile_direction, 
 				const ModifierSystem& modifier_system, const size_t ticks
 				) const noexcept;
 
@@ -57,12 +57,11 @@ class CollisionSystem
 				) const noexcept;
 
 		void SlideAttack(
-				const Vector2 player_centre, const Vector2 player_direction,
-				const std::vector<float>& enemy_health, MessageSystem& message_system,
-				const size_t ticks
+				MessageSystem& message_system, const Vector2 player_centre, const Vector2 player_direction,
+				const std::vector<float>& enemy_health, const size_t ticks
 				) const noexcept;
 
-		void ItemCollision(const Vector2 player_centre, MessageSystem& message_system) const noexcept;
+		void ItemCollision(MessageSystem& message_system, const Vector2 player_centre) const noexcept;
 		void EnemyItemCollision(
 				MessageSystem& message_system, const std::vector<Vector2>& enemy_centre,
 				const std::vector<EnemyType>& enemy_types
@@ -75,11 +74,11 @@ class CollisionSystem
 		inline uint16_t SeparateBits(uint16_t bits) const noexcept;
 
 		void Aura(
-				const Vector2 player_centre, const ModifierSystem& modifier_system,
-				MessageSystem& message_system, const size_t ticks
+				MessageSystem& message_system, const Vector2 player_centre,
+				const ModifierSystem& modifier_system, const size_t ticks
 				) const noexcept;
 
-		using SignalHandler = void(CollisionSystem::*)(const Vector2, const ModifierSystem&, MessageSystem&, const size_t) const noexcept;
+		using SignalHandler = void(CollisionSystem::*)(MessageSystem&, const Vector2, const ModifierSystem&, const size_t) const noexcept;
 
 		static constexpr std::array<SignalHandler, static_cast<size_t>(CollisionSystemSignal::COUNT)> SignalHandlers =
 		{

@@ -72,7 +72,6 @@ void Player::ExecuteCommands(MessageSystem& message_system, const ModifierSystem
 	for (auto const& command : message_system.PlayerCommands)
 	{
 		const size_t handler_index = command.index();
-
 		auto command_handler = this->CommandHandlers[handler_index];
 
 		(this->*command_handler)(command, modifier_system);
@@ -235,7 +234,6 @@ void Player::RemoveSlide(MessageSystem& message_system, const uint16_t times, co
 void Player::SpawnBall(MessageSystem& message_system, const uint16_t times, const ModifierSystem& modifier_system) noexcept
 {
 	Vector2 ball_direction = { 1.0f, 0.0f };
-
 	ball_direction = Vector2Rotate(ball_direction, static_cast<float>(GetRandomValue(0, 359)) * TO_RAD);
 
 	const Vector2 ball_location = this->Centre;

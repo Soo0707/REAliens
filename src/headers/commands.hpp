@@ -23,17 +23,17 @@
 struct CreateParticles
 {
 	size_t Creation;
-	size_t Number;
 	Vector2 Velocity;
-	float X;
-	float Y;
-	unsigned int MinSize;
-	unsigned int MaxSize;
-	unsigned int MinLifetime;
-	unsigned int MaxLifetime;
-	unsigned int MaxSpeed;
 	Color StartColour;
 	Color EndColour;
+	float X;
+	float Y;
+	uint16_t MinLifetime;
+	uint16_t MaxLifetime;
+	uint16_t MaxSpeed;
+	uint8_t MinSize;
+	uint8_t MaxSize;
+	uint8_t Number;
 };
 
 

@@ -18,7 +18,6 @@
 
 #include "stringCache.hpp"
 #include "settingsManager.hpp"
-#include "assetManager.hpp"
 
 #include "modifierSystem.hpp"
 #include "messageSystem.hpp"
@@ -62,9 +61,9 @@ class PowerupMenu
 {
 	public:
 		PowerupMenu(
-				std::shared_ptr<struct StringCache> string_cache, std::shared_ptr<class AssetManager> assets,
-				std::shared_ptr<class SettingsManager> settings, std::shared_ptr<struct MessageSystem> message_system,
-				std::shared_ptr<class ModifierSystem> modifier_system, std::shared_ptr<class TimerSystem> timer_system
+				std::shared_ptr<struct StringCache> string_cache, std::shared_ptr<class SettingsManager> settings,
+				std::shared_ptr<struct MessageSystem> message_system, std::shared_ptr<class ModifierSystem> modifier_system,
+				std::shared_ptr<class TimerSystem> timer_system
 				);
 
 		~PowerupMenu() = default;
@@ -102,7 +101,6 @@ class PowerupMenu
 
 		const std::shared_ptr<struct StringCache> StringCache;
 		const std::shared_ptr<class SettingsManager> Settings;
-		const std::shared_ptr<class AssetManager> Assets;
 
 		const std::shared_ptr<struct MessageSystem> MessageSystem;
 		const std::shared_ptr<class ModifierSystem> ModifierSystem;
@@ -136,18 +134,18 @@ class PowerupMenu
 		static inline constexpr std::array<const char*, static_cast<size_t>(Powerup::COUNT)> PowerupDescriptions =
 		{
 			"Increase Aura Size And Decrease Aura Timeout",
-			"Increase The Number Of Bullets Shot By LMB",
+			"Increase The Number Of Projectiles Shot By LMB",
 			"Increase Bullet Speed And Damage",
 
-			"Increase Lazer Damage, Penetration Power, And Speed",
-			"Periodically Spawn A Ball Which Splits On Impact Into Bullets Based On Luck",
-			"Temporary Invincibility For 2 Minutes",
+			"Increase Lazer Damage, Speed, And Penetration Power",
+			"Periodically Spawn A Ball Which Splits On Impact Into Bullets If Lucky",
+			"Temporary Invincibility For 2 Minutes. Resets Expiry If Already Equippied.",
 
-			"Removes And Prevents Enemy Effects For 3 Minutes",
+			"Removes And Prevents Enemy Effects For 3 Minutes. Resets Expiry If Already Equippied.",
 			"Regain Health By Dealing Damage With Projectiles",
-			"Increase To Max Health And Recover Health",
+			"Increase Max Health And Recover Health Fully",
 
-			"Automatically Collect XP For 4 Minutes",
+			"Automatically Collect XP For 4 Minutes. Resets Expiry If Already Equippied.",
 			"Increase Player Speed",
 			"Increase Slide Speed",
 			"Increase Luck For Luck Based Events",

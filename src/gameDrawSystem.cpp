@@ -19,8 +19,6 @@
 
 #include "modifiers.hpp"
 #include "modifierSystem.hpp"
-#include "timers.hpp"
-#include "timerSystem.hpp"
 #include "cameraSystem.hpp"
 #include "inventorySystem.hpp"
 
@@ -74,9 +72,8 @@ void GameDrawSystem::DrawLighting(const Game& game, const ModifierSystem& modifi
 }
 
 void GameDrawSystem::DrawOverlay(
-		const Game& game, const TimerSystem& timer_system, const ModifierSystem& modifier_system,
-		const InventorySystem& inventory_system, const StringCache& string_cache, const AssetManager& assets,
-		const SettingsManager& settings
+		const Game& game, const ModifierSystem& modifier_system, const InventorySystem& inventory_system,
+		const StringCache& string_cache, const AssetManager& assets, const SettingsManager& settings
 		) noexcept
 {
 	DrawTexture(assets.GetTexture(TextureKey::HealthBarBackground), 1060, 20, WHITE);

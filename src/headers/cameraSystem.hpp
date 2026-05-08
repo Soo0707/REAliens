@@ -13,7 +13,6 @@
 #include "raylib.h"
 #include "modifierSystem.hpp"
 #include "messageSystem.hpp"
-#include "timerSystem.hpp"
 
 class CameraSystem
 {
@@ -25,9 +24,10 @@ class CameraSystem
 		Rectangle GetUpdateArea() const noexcept;
 
 		void Update(
-				MessageSystem& message_system, const size_t ticks, const Vector2 player_centre,
-				const ModifierSystem& modifier_system, const TimerSystem& timer_system
+				MessageSystem& message_system, const size_t ticks,
+				const Vector2 player_centre, const ModifierSystem& modifier_system
 				) noexcept;
+
 		void Reset(const Vector2 player_centre) noexcept;
 
 	private:

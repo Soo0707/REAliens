@@ -9,31 +9,30 @@
 #include "gameOverMenu.hpp"
 
 #include <memory>
+#include <cstddef>
 
 #include "raylib.h"
 
 #include "stats.hpp"
 #include "statSystem.hpp"
 #include "stringCache.hpp"
-#include "assetManager.hpp"
 #include "states.hpp"
 #include "commands.hpp"
 #include "messageSystem.hpp"
 #include "constants.hpp"
 
 GameOverMenu::GameOverMenu(
-		std::shared_ptr<struct StringCache> string_cache, std::shared_ptr<class AssetManager> assets,
-		std::shared_ptr<class StatSystem> stat_system, std::shared_ptr<struct MessageSystem> message_system
+		std::shared_ptr<struct StringCache> string_cache, std::shared_ptr<class StatSystem> stat_system,
+		std::shared_ptr<struct MessageSystem> message_system
 		) :
 	StringCache(string_cache),
-	Assets(assets),
 	StatSystem(stat_system),
 	MessageSystem(message_system)
 {}
 
 void GameOverMenu::Draw(const RenderTexture2D& canvas) const noexcept
 {
-	const float mid = 1280 / 2.0f;
+	constexpr float mid = REFERENCE_WIDTH / 2.0f;
 
 	const int x1 = mid - MeasureText("GAME OVER", 48) / 2.0f;
 

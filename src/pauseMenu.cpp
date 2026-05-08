@@ -13,15 +13,10 @@
 
 #include "raylib.h"
 
-#include "assetManager.hpp"
 #include "messageSystem.hpp"
 #include "states.hpp"
 
-PauseMenu::PauseMenu(
-		std::shared_ptr<class AssetManager> assets, 
-		std::shared_ptr<struct MessageSystem> message_system
-		) :
-	Assets(assets),
+PauseMenu::PauseMenu(std::shared_ptr<struct MessageSystem> message_system) :
 	MessageSystem(message_system)
 {}
 

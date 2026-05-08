@@ -13,14 +13,9 @@
 
 #include "raylib.h"
 
-#include "assetManager.hpp"
 #include "messageSystem.hpp"
 
-MainMenu::MainMenu(
-		std::shared_ptr<class AssetManager> assets,
-		std::shared_ptr<struct MessageSystem> message_system
-		) :
-	Assets(assets),
+MainMenu::MainMenu(std::shared_ptr<struct MessageSystem> message_system) :
 	MessageSystem(message_system)
 {}
 

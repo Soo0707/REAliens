@@ -46,7 +46,7 @@ class EnemySystem
 		size_t GetEntityCount() const noexcept;
 
 	private:
-		void PollSignals(MessageSystem& message_system, const AssetManager& assets, const size_t level, const size_t ticks) noexcept;
+		void PollSignals(MessageSystem& message_system, const size_t level, const size_t ticks) noexcept;
 		void ExecuteCommands(MessageSystem& message_system, const ModifierSystem& modifier_system) noexcept;
 
 		static constexpr std::array<EnemyData, static_cast<size_t>(EnemyType::COUNT)> EnemyAttributes = 
@@ -83,10 +83,10 @@ class EnemySystem
 		};
 
 
-		void EmitParticlesFromLocations(const size_t ticks, const size_t level, MessageSystem& message_system) noexcept;
-		void SpawnEnemies(const size_t ticks, const size_t level, MessageSystem& message_system) noexcept;
+		void EmitParticlesFromLocations(MessageSystem& message_system, const size_t ticks, const size_t level) noexcept;
+		void SpawnEnemies(MessageSystem& message_system, const size_t ticks, const size_t level) noexcept;
 
-		using SignalHandler = void(EnemySystem::*)(const size_t, const size_t, MessageSystem&) noexcept;
+		using SignalHandler = void(EnemySystem::*)(MessageSystem&, const size_t, const size_t) noexcept;
 		static constexpr std::array<SignalHandler, static_cast<size_t>(EnemySystemSignal::COUNT)> SignalHandlers =
 		{
 			&EnemySystem::EmitParticlesFromLocations,

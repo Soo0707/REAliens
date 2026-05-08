@@ -240,8 +240,9 @@ void ProjectileSystem::SpawnParticles(MessageSystem& message_system, const size_
 			const Color projectile_colour = this->ProjectileAttributes[type_index].Colour;
 
 			message_system.ParticleSystemCommands.emplace_back(
-					ticks, 1, this->ProjectileDirection[i], this->ProjectileRect[i].x, this->ProjectileRect[i].y, 
-					5, 20, 120, TICK_RATE, 128, projectile_colour, projectile_colour
+					ticks, this->ProjectileDirection[i], projectile_colour, projectile_colour,
+					this->ProjectileRect[i].x, this->ProjectileRect[i].y, 
+					120, TICK_RATE, 128, 5, 20, 1
 					);
 		}
 	}
@@ -287,7 +288,7 @@ void ProjectileSystem::BallHitHandler(
 		const AssetManager& assets, const ProjectileHit& data
 		) noexcept
 {
-	if (modifier_system.IsLucky() || true)
+	if (modifier_system.IsLucky())
 	{
 		const uint32_t index = data.ProjectileIndex;
 

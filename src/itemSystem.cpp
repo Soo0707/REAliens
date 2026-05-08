@@ -130,11 +130,16 @@ void ItemSystem::EmitParticles(MessageSystem& message_system, const size_t ticks
 
 		if (this->ItemAttributes[type_index].EmitParticles && this->ItemIsVisible[i] && GetRandomValue(1, 100) < 3)
 		{
-			const Vector2 velocity = { static_cast<float>(GetRandomValue(-64, 64)), static_cast<float>(GetRandomValue(-96, -32)) };
+			const Vector2 velocity = {
+				static_cast<float>(GetRandomValue(-64, 64)),
+				static_cast<float>(GetRandomValue(-96, -32))
+			};
+
+			const Color item_colour = this->ItemAttributes[type_index].Colour;
 
 			message_system.ParticleSystemCommands.emplace_back(
-					ticks, 1, velocity, this->ItemCentre[i].x, this->ItemCentre[i].y, 
-					10, 25, 120, TICK_RATE, 0, this->ItemAttributes[type_index].Colour, GRAY
+					ticks, velocity, item_colour, GRAY, this->ItemCentre[i].x, this->ItemCentre[i].y, 
+					120, TICK_RATE, 0, 10, 25, 1
 					);
 		}
 	}

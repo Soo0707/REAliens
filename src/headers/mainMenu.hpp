@@ -12,22 +12,17 @@
 
 #include "raylib.h"
 
-#include "assetManager.hpp"
 #include "messageSystem.hpp"
 
 class MainMenu
 {
 	public:
-		MainMenu(
-				std::shared_ptr<AssetManager> assets,
-				std::shared_ptr<struct MessageSystem> message_system
-		);
+		MainMenu(std::shared_ptr<struct MessageSystem> message_system);
 		~MainMenu() = default;
 
 		void Input() const noexcept;
 		void Draw(const RenderTexture2D& canvas) const noexcept;
 
 	private:
-		std::shared_ptr<class AssetManager> Assets;
 		std::shared_ptr<struct MessageSystem> MessageSystem;
 };

@@ -9,6 +9,7 @@
 #include "modifierSystem.hpp"
 
 #include <variant>
+#include <limits>
 
 #include "stringCache.hpp"
 #include "signals.hpp"
@@ -61,7 +62,7 @@ void ModifierSystem::Reset() noexcept
 	this->SetAttribute(Attribute::LazerSpeed, 3000.0f);
 	this->SetAttribute(Attribute::LazerPenetration, 5.0f);
 
-	this->SetAttribute(Attribute::BallDamage, 25.0f);
+	this->SetAttribute(Attribute::BallDamage, 0.0f);
 	this->SetAttribute(Attribute::BallSpeed, 500.0f);
 	this->SetAttribute(Attribute::BallPenetration, 1.0f);
 	this->SetAttribute(Attribute::BallSplitLazers, 3.0f);
@@ -253,7 +254,7 @@ void ModifierSystem::ApplyLazer() noexcept
 {
 	this->IncreaseAttribute(Attribute::LazerDamage, 25.0f);
 	this->IncreaseAttribute(Attribute::LazerSpeed, 75.0f);
-	this->IncreaseAttribute(Attribute::LazerPenetration, 10.0f);
+	this->IncreaseAttribute(Attribute::LazerPenetration, 10.0f, static_cast<float>(std::numeric_limits<uint16_t>::max()));
 }
 
 void ModifierSystem::ApplyBall() noexcept

@@ -39,7 +39,7 @@ const Texture2D AssetManager::GetTexture(const TextureKey texture_key) const noe
 
 void AssetManager::LoadTextures() noexcept
 {
-	std::filesystem::path path = "assets/textures";
+	const std::filesystem::path path = "assets/textures";
 
 	if (!std::filesystem::exists(path))
 		exit(1);

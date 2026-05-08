@@ -16,11 +16,10 @@
 #include "commands.hpp"
 #include "messageSystem.hpp"
 #include "timers.hpp"
-#include "timerSystem.hpp"
 
 void CameraSystem::Update(
-		MessageSystem& message_system, const size_t ticks, const Vector2 player_centre,
-		const ModifierSystem& modifier_system, const TimerSystem& timer_system
+		MessageSystem& message_system, const size_t ticks,
+		const Vector2 player_centre, const ModifierSystem& modifier_system
 		) noexcept
 {
 	this->ExecuteCommands(message_system);

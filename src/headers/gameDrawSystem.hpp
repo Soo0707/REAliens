@@ -15,7 +15,6 @@
 #include "settingsManager.hpp"
 #include "stringCache.hpp"
 #include "modifierSystem.hpp"
-#include "timerSystem.hpp"
 #include "cameraSystem.hpp"
 #include "inventorySystem.hpp"
 
@@ -29,8 +28,7 @@ namespace GameDrawSystem
 	void DrawLighting(const Game& game, const ModifierSystem& modifier_system) noexcept;
 
 	void DrawOverlay(
-			const Game& game, const TimerSystem& timer_system, const ModifierSystem& modifier_system,
-			const InventorySystem& inventory_system, const StringCache& string_cache, const AssetManager& assets,
-			const SettingsManager& settings
+			const Game& game, const ModifierSystem& modifier_system, const InventorySystem& inventory_system,
+			const StringCache& string_cache, const AssetManager& assets, const SettingsManager& settings
 			) noexcept;
 }

@@ -9,6 +9,7 @@
 #include "timerSystem.hpp"
 
 #include <cstddef>
+#include <cstdint>
 
 #include "timers.hpp"
 #include "signals.hpp"

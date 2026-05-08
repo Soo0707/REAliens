@@ -10,7 +10,6 @@
 
 #include <cstddef>
 #include <cstdlib>
-#include <algorithm>
 
 #include "raylib.h"
 #include "assetManager.hpp"
@@ -44,9 +43,9 @@ void ParticleSystem::Reset() noexcept
 	this->ParticleRect.clear();
 }
 
-void ParticleSystem::Update(MessageSystem& message_system, const AssetManager& assets, const Rectangle& update_area, const size_t ticks) noexcept
+void ParticleSystem::Update(MessageSystem& message_system, const Rectangle& update_area, const size_t ticks) noexcept
 {
-	this->ExecuteCommands(message_system, assets);
+	this->ExecuteCommands(message_system);
 
 	this->VisibilityCheck(update_area);
 	this->MoveAndScaleParticles(ticks);
@@ -54,27 +53,24 @@ void ParticleSystem::Update(MessageSystem& message_system, const AssetManager& a
 	this->RemoveParticles(ticks);
 }
 
-void ParticleSystem::ExecuteCommands(MessageSystem& message_system, const AssetManager& assets) noexcept
+void ParticleSystem::ExecuteCommands(MessageSystem& message_system) noexcept
 {
 	for (auto const& command : message_system.ParticleSystemCommands)
 	{
-		// TODO: fix this in the struct
-		ssize_t n = std::min(static_cast<ssize_t>(command.Number), static_cast<ssize_t>(100));
-/*
- * TODO: this seems like an ok way of limiting particles.
- * ofc the clear solution is a circular buffer but i'm lazy
-		if (this->GetEntityCount() + n >= 50000)
-			this->Clear();
-*/
-		for (ssize_t i = 0; i < n; i++)
+		//TODO: implement a circular buffer to replace this and limit particles
+		for (size_t i = 0, n = static_cast<size_t>(command.Number); i < n; i++)
 		{
 			const float size = static_cast<float>(GetRandomValue(command.MinSize, command.MaxSize));
 			const float rotation = static_cast<float>(GetRandomValue(0, 90));
 			const size_t expiry = command.Creation + static_cast<size_t>(GetRandomValue(command.MinLifetime, command.MaxLifetime));
 			Vector2 velocity = command.Velocity;
 
-			velocity.x += static_cast<float>(GetRandomValue(-command.MaxSpeed, command.MaxSpeed));
-			velocity.y += static_cast<float>(GetRandomValue(-command.MaxSpeed, command.MaxSpeed));
+			velocity.x += static_cast<float>(
+					GetRandomValue(-static_cast<int>(command.MaxSpeed), static_cast<int>(command.MaxSpeed))
+					);
+			velocity.y += static_cast<float>(
+					GetRandomValue(-static_cast<int>(command.MaxSpeed), static_cast<int>(command.MaxSpeed))
+					);
 
 			this->CreateParticle(command.X, command.Y, size, rotation, command.Creation, expiry, velocity, command.StartColour, command.EndColour);
 		}

@@ -9,16 +9,11 @@
 #pragma once
 
 #include <cstddef>
-
-#include "settingsManager.hpp"
-
 #include "raylib.h"
 
 #include "game.hpp"
 #include "messageSystem.hpp"
 #include "modifierSystem.hpp"
-#include "cameraSystem.hpp"
-#include "player.hpp"
 
 namespace GameInputSystem
 {

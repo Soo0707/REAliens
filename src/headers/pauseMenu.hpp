@@ -10,22 +10,17 @@
 
 #include <memory>
 
-#include "assetManager.hpp"
 #include "messageSystem.hpp"
 
 class PauseMenu
 {
 	public:
-		PauseMenu(
-				std::shared_ptr<class AssetManager> assets,
-				std::shared_ptr<struct MessageSystem> message_system
-				);
+		PauseMenu(std::shared_ptr<struct MessageSystem> message_system);
 		~PauseMenu() = default;
 
 		void Draw(const RenderTexture2D& canvas) const noexcept;
 		void Input() const noexcept;
 
 	private:
-		std::shared_ptr<class AssetManager> Assets;
 		std::shared_ptr<struct MessageSystem> MessageSystem;
 };
